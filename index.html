@@ -5662,31 +5662,34 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="main.js"></script>
 
     <script>
         const AI_CONFIG = {
-    apiKey: typeof process !== 'undefined' && process.env ? process.env.AI_API_KEY : '',
-    endpoint: typeof process !== 'undefined' && process.env ? process.env.AI_ENDPOINT : 'https://api.openai.com/v1/chat/completions'
+  apiKey: '',
+  endpoint: 'https://api.openai.com/v1/chat/completions'
 };
 
-const EMAIL_CONFIG = {
-    serviceId: typeof process !== 'undefined' && process.env ? process.env.EMAIL_SERVICE_ID : '',
-    templateId: typeof process !== 'undefined' && process.env ? process.env.EMAIL_TEMPLATE_ID : '',
-    publicKey: typeof process !== 'undefined' && process.env ? process.env.EMAIL_PUBLIC_KEY : ''
-};
+// Fetch EmailJS config from backend (Vercel serverless function)
+fetch('/api/email-config')
+  .then(res => res.json())
+  .then(config => {
+    const EMAIL_CONFIG = {
+      serviceId: config.EMAIL_SERVICE_ID,
+      templateId: config.EMAIL_TEMPLATE_ID,
+      publicKey: config.EMAIL_PUBLIC_KEY
+    };
 
-// For client-side, fallback to window object (set by server)
-if (typeof window !== 'undefined' && window.ENV_CONFIG) {
-    Object.assign(AI_CONFIG, window.ENV_CONFIG.AI_CONFIG || {});
-    Object.assign(EMAIL_CONFIG, window.ENV_CONFIG.EMAIL_CONFIG || {});
-}
+    if (EMAIL_CONFIG.publicKey) {
+      emailjs.init(EMAIL_CONFIG.publicKey);
+      console.log('✅ EmailJS configured successfully');
+    } else {
+      console.warn('⚠️ EmailJS not configured - password reset will not work');
+    }
+  })
+  .catch(err => console.error('Error fetching EmailJS config:', err));
 
-// Initialize EmailJS with environment variable
-if (EMAIL_CONFIG.publicKey) {
-    emailjs.init(EMAIL_CONFIG.publicKey);
-} else {
-    console.warn('EmailJS not configured - password reset will not work');
-}
+
 
 let studyStartTime = null;
 let totalStudyTime = 0;
