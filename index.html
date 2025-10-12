@@ -5576,6 +5576,15 @@ body.light-mode .chat-container {
     background: rgba(255, 255, 255, 0.6);
     border-color: rgba(10, 122, 94, 0.2);
 }
+
+.auth-message.success {
+    background: linear-gradient(135deg, rgba(100, 255, 100, 0.15), rgba(100, 255, 218, 0.15));
+    border: 2px solid rgba(100, 255, 100, 0.4);
+    color: #00ff00;
+    padding: 20px;
+    border-radius: 15px;
+    animation: fadeIn 0.3s ease;
+}
     </style>
 </head>
 <body>
@@ -6931,13 +6940,14 @@ function handleForgotPassword(event) {
     event.preventDefault();
     
     const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+    const btn = document.getElementById('forgotBtn');
     
     if (!email) {
         showNotification('Please enter your email', 'error');
         return;
     }
     
-    // Check if user exists with the correct storage key
+    // Check if user exists
     const userDataStr = localStorage.getItem('user_' + email);
     
     if (!userDataStr) {
@@ -6945,43 +6955,43 @@ function handleForgotPassword(event) {
         return;
     }
     
-    const userData = JSON.parse(userDataStr);
+    btn.disabled = true;
+    btn.textContent = 'Generating Code...';
     
-    // Generate 6-digit verification code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // Store verification data
-    currentVerificationCode = verificationCode;
-    currentForgotEmail = email;
-    
-    // Show notification
-    showNotification('Verification code: ' + verificationCode + ' (Check console for testing)', 'success');
-    console.log('🔑 Verification Code:', verificationCode);
-    
-    // Switch to verify form
     setTimeout(() => {
-        switchAuthTab('verify');
-        document.getElementById('forgotMessage').innerHTML = '';
-    }, 2000);
-    
-    // Try to send email (if EmailJS is configured)
-    if (typeof emailjs !== 'undefined' && emailjs.send) {
-        const templateParams = {
-            to_email: email,
-            user_email: email,
-            verification_code: verificationCode,
-            user_name: userData.name || 'User'
-        };
+        // Generate 6-digit verification code
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
         
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
-            .then(() => {
-                console.log('✅ Email sent successfully');
-            })
-            .catch((error) => {
-                console.warn('⚠️ Email send failed:', error);
-                showNotification('Code generated but email failed. Use code: ' + verificationCode, 'warning');
-            });
-    }
+        // Store verification data
+        currentVerificationCode = verificationCode;
+        currentForgotEmail = email;
+        
+        // Show success message with code
+        showNotification('✅ Verification code generated! Check the form below.', 'success');
+        
+        // Display code prominently
+        const forgotMessage = document.getElementById('forgotMessage');
+        forgotMessage.innerHTML = `
+            <div class="auth-message success">
+                <div style="font-size: 1.2em; margin-bottom: 10px;">✅ Code Generated!</div>
+                <div style="font-size: 2em; font-weight: 700; letter-spacing: 3px; margin: 15px 0; color: #64ffda;">
+                    ${verificationCode}
+                </div>
+                <div style="font-size: 0.9em; opacity: 0.8;">Enter this code in the next screen</div>
+            </div>
+        `;
+        
+        console.log('🔑 Verification Code:', verificationCode);
+        
+        btn.disabled = false;
+        btn.textContent = 'Send Code';
+        
+        // Auto-switch to verify form after 2 seconds
+        setTimeout(() => {
+            switchAuthTab('verify');
+        }, 2000);
+        
+    }, 800);
 }
 
 // Step 1: Verify the code only
