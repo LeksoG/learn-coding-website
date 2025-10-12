@@ -2425,18 +2425,36 @@ body.light-mode .setting-card h3 {
 }
 
 .update-content {
-    background: rgba(30, 30, 30, 0.95);
-    border: 2px solid rgba(100, 255, 218, 0.3);
-    border-radius: 25px;
-    padding: 50px;
-    max-width: 600px;
-    width: 90%;
-    text-align: center;
-    animation: splashSlide 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    background: linear-gradient(135deg, 
+        rgba(30, 30, 30, 0.98), 
+        rgba(20, 25, 35, 0.98));
+    border: 2px solid rgba(100, 255, 218, 0.4);
+    box-shadow: 0 20px 80px rgba(100, 255, 218, 0.3);
 }
 
 body.light-mode .update-content {
-    background: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.98), 
+        rgba(250, 252, 255, 0.98));
+    border-color: rgba(10, 122, 94, 0.4);
+    box-shadow: 0 20px 80px rgba(10, 122, 94, 0.2);
+}
+
+.close-splash-btn {
+    font-size: 1.1em;
+    padding: 15px 45px;
+    background: linear-gradient(135deg, 
+        rgba(100, 255, 218, 0.3), 
+        rgba(0, 212, 255, 0.3));
+    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.4);
+}
+
+.close-splash-btn:hover {
+    background: linear-gradient(135deg, 
+        rgba(100, 255, 218, 0.4), 
+        rgba(0, 212, 255, 0.4));
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.5);
 }
 
 @keyframes splashSlide {
@@ -2760,19 +2778,6 @@ body.light-mode .streak-number-big {
     transition: opacity 0.3s ease;
 }
 
-.keyword-highlight {
-    background: linear-gradient(120deg, rgba(100, 255, 218, 0.25) 0%, rgba(100, 255, 218, 0.15) 100%);
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-weight: 700;
-    color: #64ffda;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s ease;
-    border-bottom: 2px solid rgba(100, 255, 218, 0.5);
-    display: inline-block;
-}
-
 body.light-mode .keyword-highlight {
     background: linear-gradient(120deg, rgba(10, 122, 94, 0.2) 0%, rgba(10, 122, 94, 0.1) 100%);
     color: #0a7a5e;
@@ -2783,39 +2788,6 @@ body.light-mode .keyword-highlight {
     background: linear-gradient(120deg, rgba(100, 255, 218, 0.35) 0%, rgba(100, 255, 218, 0.25) 100%);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
-}
-
-.keyword-highlight::after {
-    content: 'Ask AI';
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%) scale(0);
-    background: rgba(30, 30, 30, 0.98);
-    color: #64ffda;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 0.8em;
-    white-space: nowrap;
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    pointer-events: none;
-    border: 2px solid #64ffda;  /* STRONGER BORDER */
-    box-shadow: 0 6px 20px rgba(100, 255, 218, 0.4);  /* STRONGER SHADOW */
-    z-index: 1000;  /* ENSURE IT'S ON TOP */
-    font-weight: 600;  /* BOLDER TEXT */
-}
-
-body.light-mode .keyword-highlight::after {
-    background: rgba(255, 255, 255, 0.98);
-    color: #0a7a5e;
-    border-color: #0a7a5e;
-    box-shadow: 0 6px 20px rgba(10, 122, 94, 0.4);
-}
-
-.keyword-highlight:hover::after {
-    transform: translateX(-50%) scale(1);
-    opacity: 1;
 }
 
 /* AI Explanation Modal */
@@ -4314,14 +4286,18 @@ body.light-mode .inline-ai-content {
     }
 }
 
-/* Mobile adjustments */
+/* ENHANCED MOBILE AI POPUP */
 @media (max-width: 768px) {
     .inline-ai-popup {
-        max-width: 90vw;
-        min-width: 280px;
+        position: fixed !important;
         left: 50% !important;
         top: 50% !important;
-        transform: translate(-50%, -50%) scale(0.8) !important;
+        transform: translate(-50%, -50%) scale(0.9) !important;
+        width: 90vw !important;
+        max-width: 90vw !important;
+        max-height: 70vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     .inline-ai-popup.active {
@@ -4329,7 +4305,39 @@ body.light-mode .inline-ai-content {
     }
     
     .inline-ai-arrow {
-        display: none;
+        display: none !important;
+    }
+    
+    .inline-ai-header {
+        padding: 15px;
+    }
+    
+    .inline-ai-keyword {
+        font-size: 1.3em;
+    }
+    
+    .inline-ai-close {
+        width: 32px;
+        height: 32px;
+        font-size: 1.6em;
+    }
+    
+    .inline-ai-content {
+        padding: 0 15px 15px 15px;
+    }
+    
+    .inline-ai-text {
+        font-size: 0.95em;
+        line-height: 1.7;
+    }
+    
+    /* Better wave loading on mobile */
+    .wave-container {
+        width: 200px;
+    }
+    
+    .wave-line {
+        height: 6px;
     }
 }
 
@@ -5669,6 +5677,681 @@ body.light-mode .chat-container {
     border-radius: 15px;
     animation: fadeIn 0.3s ease;
 }
+
+/* NEW COURSE BADGE */
+.new-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    animation: newBadgePulse 2s infinite;
+}
+
+@keyframes newBadgePulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+    }
+}
+
+body.light-mode .new-badge {
+    background: linear-gradient(135deg, #e63946, #f77f00);
+    box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
+}
+
+/* ENHANCED INTERFACE DESIGN */
+.nav-tabs {
+    box-shadow: 0 10px 40px rgba(100, 255, 218, 0.15);
+    border: 2px solid rgba(100, 255, 218, 0.2);
+}
+
+.nav-tab {
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-tab {
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(100, 255, 218, 0.15);
+    border-radius: 50px;
+    transform: scale(0);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: -1;
+}
+
+.nav-tab:hover::before {
+    transform: scale(1);
+}
+
+.nav-tab.active::before {
+    transform: scale(1);
+    background: rgba(100, 255, 218, 0.2);
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        transparent 40%,
+        rgba(100, 255, 218, 0.15) 50%,
+        transparent 60%,
+        transparent 100%);
+    transform: translateX(-100%) rotate(45deg);
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover::after {
+    transform: translateX(100%) rotate(45deg);
+}
+
+/* Smooth fade in/out on hover */
+.stat-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 50px rgba(100, 255, 218, 0.2);
+}
+
+/* Light mode */
+body.light-mode .stat-card::after {
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        transparent 40%,
+        rgba(10, 122, 94, 0.12) 50%,
+        transparent 60%,
+        transparent 100%);
+}
+
+body.light-mode .stat-card:hover {
+    box-shadow: 0 15px 50px rgba(10, 122, 94, 0.15);
+}
+
+.course-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.course-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(100, 255, 218, 0.08) 30%,
+        rgba(100, 255, 218, 0.15) 50%,
+        rgba(100, 255, 218, 0.08) 70%,
+        transparent 100%);
+    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.course-card:not(.locked):hover::before {
+    left: 100%;
+}
+
+.course-card:not(.locked):hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 15px 50px rgba(100, 255, 218, 0.2);
+}
+
+/* Light mode */
+body.light-mode .course-card::before {
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(10, 122, 94, 0.06) 30%,
+        rgba(10, 122, 94, 0.12) 50%,
+        rgba(10, 122, 94, 0.06) 70%,
+        transparent 100%);
+}
+
+body.light-mode .course-card:not(.locked):hover {
+    box-shadow: 0 15px 50px rgba(10, 122, 94, 0.15);
+}
+
+/* Improved Mobile Nav */
+.mobile-nav {
+    background: linear-gradient(135deg, 
+        rgba(30, 30, 30, 0.98), 
+        rgba(20, 20, 30, 0.98));
+    box-shadow: 0 -5px 30px rgba(100, 255, 218, 0.2);
+}
+
+body.light-mode .mobile-nav {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.98), 
+        rgba(250, 250, 255, 0.98));
+}
+
+/* Enhanced Button Styles */
+.form-button,
+.run-button,
+.submit-button,
+.next-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.form-button::after,
+.run-button::after,
+.submit-button::after,
+.next-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.form-button:hover::after,
+.run-button:hover::after,
+.submit-button:hover::after,
+.next-button:hover::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Smoother Transitions */
+* {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease;
+}
+
+/* TOUCH FEEDBACK FOR KEYWORDS */
+.keyword-highlight {
+    position: relative;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.keyword-highlight::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    background: rgba(100, 255, 218, 0.2);
+    border-radius: 8px;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.keyword-highlight:active::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+body.light-mode .keyword-highlight::after {
+    background: rgba(10, 122, 94, 0.15);
+}
+
+.keyword-highlight {
+    position: relative;
+    background: linear-gradient(120deg, rgba(100, 255, 218, 0.25) 0%, rgba(100, 255, 218, 0.15) 100%);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    color: #64ffda;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid rgba(100, 255, 218, 0.5);
+    display: inline-block;
+    margin: 0 2px;
+}
+
+body.light-mode .keyword-highlight {
+    background: linear-gradient(120deg, rgba(10, 122, 94, 0.2) 0%, rgba(10, 122, 94, 0.1) 100%);
+    color: #0a7a5e;
+    border-bottom-color: rgba(10, 122, 94, 0.5);
+}
+
+.keyword-highlight:hover {
+    background: linear-gradient(120deg, rgba(100, 255, 218, 0.35) 0%, rgba(100, 255, 218, 0.25) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
+}
+
+/* FIXED TOOLTIP - SHOWS ABOVE */
+.keyword-highlight::after {
+    content: '💡 Ask AI';
+    position: absolute;
+    bottom: calc(100% + 12px); /* Position above the word */
+    left: 50%;
+    transform: translateX(-50%) translateY(5px) scale(0.8);
+    background: rgba(30, 30, 30, 0.98);
+    color: #64ffda;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.85em;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+    border: 2px solid #64ffda;
+    box-shadow: 0 8px 24px rgba(100, 255, 218, 0.5);
+    z-index: 10000; /* Very high to appear above everything */
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+body.light-mode .keyword-highlight::after {
+    background: rgba(255, 255, 255, 0.98);
+    color: #0a7a5e;
+    border-color: #0a7a5e;
+    box-shadow: 0 8px 24px rgba(10, 122, 94, 0.5);
+}
+
+.keyword-highlight:hover::after {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Arrow pointing down */
+.keyword-highlight::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #64ffda;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+    z-index: 10001;
+}
+
+body.light-mode .keyword-highlight::before {
+    border-top-color: #0a7a5e;
+}
+
+.keyword-highlight:hover::before {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* HIDE TOOLTIP ON MOBILE (uses tap instead) */
+@media (max-width: 768px) {
+    .keyword-highlight::after,
+    .keyword-highlight::before {
+        display: none !important;
+    }
+    
+    /* Show tap feedback instead */
+    .keyword-highlight:active {
+        transform: scale(0.95);
+        background: linear-gradient(120deg, rgba(100, 255, 218, 0.4) 0%, rgba(100, 255, 218, 0.3) 100%);
+    }
+    
+    body.light-mode .keyword-highlight:active {
+        background: linear-gradient(120deg, rgba(10, 122, 94, 0.3) 0%, rgba(10, 122, 94, 0.2) 100%);
+    }
+}
+
+/* SIMPLE TOOLTIP - NO CLIPPING */
+.keyword-highlight {
+    position: relative;
+    background: linear-gradient(120deg, rgba(100, 255, 218, 0.25) 0%, rgba(100, 255, 218, 0.15) 100%);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    color: #64ffda;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid rgba(100, 255, 218, 0.5);
+    display: inline-block;
+    margin: 0 2px;
+}
+
+.keyword-highlight:hover {
+    background: linear-gradient(120deg, rgba(100, 255, 218, 0.35) 0%, rgba(100, 255, 218, 0.25) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
+}
+
+/* TOOLTIP THAT ESCAPES ALL CONTAINERS */
+.keyword-highlight::after {
+    content: '💡 Ask AI';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-bottom: 12px;
+    background: rgba(30, 30, 30, 0.98);
+    color: #64ffda;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 0.85em;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(10px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+    border: 2px solid #64ffda;
+    box-shadow: 0 8px 24px rgba(100, 255, 218, 0.6);
+    z-index: 999999;
+    font-weight: 700;
+}
+
+body.light-mode .keyword-highlight::after {
+    background: rgba(255, 255, 255, 0.98);
+    color: #0a7a5e;
+    border-color: #0a7a5e;
+    box-shadow: 0 8px 24px rgba(10, 122, 94, 0.6);
+}
+
+.keyword-highlight:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* ARROW */
+.keyword-highlight::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-bottom: 2px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #64ffda;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) scale(0);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 999999;
+}
+
+body.light-mode .keyword-highlight::before {
+    border-top-color: #0a7a5e;
+}
+
+.keyword-highlight:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) scale(1);
+}
+
+.keyword-highlight {
+    position: relative;
+    display: inline-block;
+    background: linear-gradient(120deg, rgba(100, 255, 218, 0.25) 0%, rgba(100, 255, 218, 0.15) 100%);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    color: #64ffda;
+    cursor: pointer;
+    border-bottom: 2px solid rgba(100, 255, 218, 0.5);
+    margin: 0 2px;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+body.light-mode .keyword-highlight {
+    background: linear-gradient(120deg, rgba(10, 122, 94, 0.2) 0%, rgba(10, 122, 94, 0.1) 100%);
+    color: #0a7a5e;
+    border-bottom-color: rgba(10, 122, 94, 0.5);
+}
+
+.keyword-highlight:hover {
+    background: linear-gradient(120deg, rgba(100, 255, 218, 0.35) 0%, rgba(100, 255, 218, 0.25) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
+    z-index: 10000; /* Bring forward on hover */
+}
+
+/* TOOLTIP - POSITIONED ABOVE */
+.keyword-highlight::after {
+    content: '💡 Ask AI';
+    position: absolute;
+    bottom: calc(100% + 15px); /* 15px ABOVE the keyword */
+    left: 50%;
+    transform: translateX(-50%) translateY(8px) scale(0.85);
+    background: rgba(30, 30, 30, 0.98);
+    color: #64ffda;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 0.85em;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    border: 2px solid #64ffda;
+    box-shadow: 0 8px 24px rgba(100, 255, 218, 0.6);
+    z-index: 100000; /* Very high z-index */
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+body.light-mode .keyword-highlight::after {
+    background: rgba(255, 255, 255, 0.98);
+    color: #0a7a5e;
+    border-color: #0a7a5e;
+    box-shadow: 0 8px 24px rgba(10, 122, 94, 0.6);
+}
+
+.keyword-highlight:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* ARROW POINTING DOWN TO KEYWORD */
+.keyword-highlight::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 5px); /* Just above keyword */
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #64ffda;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 99999;
+    pointer-events: none;
+}
+
+body.light-mode .keyword-highlight::before {
+    border-top-color: #0a7a5e;
+}
+
+.keyword-highlight:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) scale(1);
+}
+
+/* HIDE ON MOBILE - USE TAP INSTEAD */
+@media (max-width: 768px) {
+    .keyword-highlight::after,
+    .keyword-highlight::before {
+        display: none !important;
+    }
+    
+    .keyword-highlight:active {
+        transform: scale(0.95);
+        background: linear-gradient(120deg, rgba(100, 255, 218, 0.4) 0%, rgba(100, 255, 218, 0.3) 100%);
+    }
+}
+
+/* ALLOW TOOLTIPS TO SHOW - CRITICAL FIX */
+.message-bubble {
+    background: rgba(100, 255, 218, 0.05);
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    padding: 18px 22px;
+    border-radius: 15px;
+    line-height: 1.7;
+    font-size: 1.05em;
+    color: #e0e0e0;
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    /* CRITICAL: Allow tooltip to escape */
+    overflow: visible !important;
+    position: relative;
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    overflow-x: hidden !important;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    /* Keep horizontal scroll hidden, but allow tooltips */
+    padding-top: 60px; /* Space for tooltips at top */
+    margin-top: -60px; /* Offset the padding */
+}
+
+.chat-container {
+    background: rgba(30, 30, 30, 0.4);
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    border-radius: 20px;
+    padding: 35px;
+    /* CRITICAL: Allow tooltip to show outside */
+    overflow: visible !important;
+    position: relative;
+}
+
+.content-panel {
+    overflow: visible !important;
+    position: relative;
+}
+
+.lesson-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 30px;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+}
+
+/* PORTAL TOOLTIP - CREATED BY JAVASCRIPT */
+.keyword-tooltip-portal {
+    position: fixed;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.98), rgba(40, 45, 50, 0.98));
+    color: #64ffda;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    white-space: nowrap;
+    border: 2px solid #64ffda;
+    box-shadow: 
+        0 10px 30px rgba(100, 255, 218, 0.5),
+        0 0 0 1px rgba(100, 255, 218, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    z-index: 999999;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    pointer-events: none;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    animation: tooltipFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+body.light-mode .keyword-tooltip-portal {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(250, 252, 255, 0.98));
+    color: #0a7a5e;
+    border-color: #0a7a5e;
+    box-shadow: 
+        0 10px 30px rgba(10, 122, 94, 0.5),
+        0 0 0 1px rgba(10, 122, 94, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.keyword-tooltip-arrow {
+    position: fixed;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 12px solid #64ffda;
+    z-index: 999998;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+body.light-mode .keyword-tooltip-arrow {
+    border-top-color: #0a7a5e;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
     </style>
 </head>
 <body>
@@ -6072,34 +6755,24 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
 
     <div class="update-splash" id="updateSplash">
     <div class="update-content">
-        <div class="update-icon">🚀</div>
+        <div class="update-icon">✨</div>
         <h1 class="update-title" id="splashTitle">New Version</h1>
-        <p class="update-version">Version 3.1</p>
+        <p class="update-version">Version 3.4</p>
         
         <div class="changelog">
-            <h3>New Features</h3>
+            <h3>🎨 What's New</h3>
             <ul>
-                <li>🤖 AI-powered keyword explanations with smart highlighting</li>
-                <li>🔥 New animated streak card system</li>
-                <li>📚 2 more courses per language (more coming soon!)</li>
-                <li>📊 Enhanced progress charts with precise measurements</li>
-                <li>✅ Smart question locking after correct answers</li>
-                <li>⚡ 2x faster lesson loading times</li>
+                <li>🖌️ Redesigned interface with smoother animations</li>
+                <li>🤖 Enhanced AI keyword explanations with inline popups</li>
+                <li>📚 2 additional courses per language (35 total courses!)</li>
+                <li>📱 Major mobile optimization improvements</li>
+                <li>🐛 Fixed horizontal scrolling issues on mobile</li>
+                <li>⚡ Faster loading times and smoother transitions</li>
+                <li>🔥 Improved streak animation system</li>
+                <li>✅ Better progress tracking and visualization</li>
             </ul>
-            
-            <div class="feature-preview">
-                <div class="preview-label">Preview: AI Keyword Help</div>
-                <div class="preview-demo">
-                    <span class="keyword-highlight demo-highlight">variable</span>
-                    <div class="preview-explanation">
-                        <div class="preview-ai-icon">✨</div>
-                        <div class="preview-text">AI explains instantly!</div>
-                    </div>
-                </div>
-            </div>
-        </div>
         
-        <button class="close-splash-btn" onclick="closeUpdateSplash()">Get Started</button>
+        <button class="close-splash-btn" onclick="closeUpdateSplash()">Let's Go! 🚀</button>
     </div>
 </div>
 
@@ -6260,8 +6933,8 @@ const courses = {
         { id: 'course3', title: 'Strings', desc: 'Text manipulation', icon: '📝' },
         { id: 'course4', title: 'Math Operators', desc: 'Calculations', icon: '➗' },
         { id: 'course5', title: 'Concatenation', desc: 'Joining strings', icon: '🔗' },
-        { id: 'course6', title: 'Loops', desc: 'Repeat code', icon: '🔄' },
-        { id: 'course7', title: 'Lists', desc: 'Store multiple items', icon: '📋' }  // ← NEW
+        { id: 'course6', title: 'Loops', desc: 'Repeat code', icon: '🔄', isNew: true },
+        { id: 'course7', title: 'Lists', desc: 'Store multiple items', icon: '📋', isNew: true }
     ],
     javascript: [
         { id: 'course1', title: 'Variables', desc: 'let, const & types', icon: '📦' },
@@ -6269,8 +6942,8 @@ const courses = {
         { id: 'course3', title: 'Functions', desc: 'Reusable code', icon: '🎯' },
         { id: 'course4', title: 'DOM Manipulation', desc: 'Control web pages', icon: '🌐' },
         { id: 'course5', title: 'Arrays & Objects', desc: 'Data structures', icon: '📚' },
-        { id: 'course6', title: 'Events', desc: 'User interactions', icon: '🖱️' },
-        { id: 'course7', title: 'Async & Promises', desc: 'Handle async code', icon: '⏳' }  // ← NEW
+        { id: 'course6', title: 'Events', desc: 'User interactions', icon: '🖱️', isNew: true },
+        { id: 'course7', title: 'Async & Promises', desc: 'Handle async code', icon: '⏳', isNew: true }
     ],
     html: [
         { id: 'course1', title: 'HTML Structure', desc: 'Basic tags', icon: '🌐' },
@@ -6278,8 +6951,8 @@ const courses = {
         { id: 'course3', title: 'Lists', desc: 'Organize content', icon: '📝' },
         { id: 'course4', title: 'Images & Media', desc: 'Visual content', icon: '🖼️' },
         { id: 'course5', title: 'Forms', desc: 'User input', icon: '📋' },
-        { id: 'course6', title: 'Links', desc: 'Connect pages', icon: '🔗' },
-        { id: 'course7', title: 'Tables', desc: 'Display data', icon: '📊' }  // ← NEW
+        { id: 'course6', title: 'Links', desc: 'Connect pages', icon: '🔗', isNew: true },
+        { id: 'course7', title: 'Tables', desc: 'Display data', icon: '📊', isNew: true }
     ],
     css: [
         { id: 'course1', title: 'CSS Selectors', desc: 'Target elements', icon: '🎯' },
@@ -6287,8 +6960,8 @@ const courses = {
         { id: 'course3', title: 'Box Model', desc: 'Spacing & layout', icon: '📦' },
         { id: 'course4', title: 'Fonts & Text', desc: 'Typography', icon: '✍️' },
         { id: 'course5', title: 'Flexbox & Grid', desc: 'Modern layouts', icon: '📐' },
-        { id: 'course6', title: 'Responsive Design', desc: 'Mobile-first CSS', icon: '📱' },
-        { id: 'course7', title: 'Animations', desc: 'Bring pages to life', icon: '✨' }  // ← NEW
+        { id: 'course6', title: 'Responsive Design', desc: 'Mobile-first CSS', icon: '📱', isNew: true },
+        { id: 'course7', title: 'Animations', desc: 'Bring pages to life', icon: '✨', isNew: true }
     ],
     react: [
         { id: 'course1', title: 'Components & JSX', desc: 'React basics', icon: '⚛️' },
@@ -6296,8 +6969,8 @@ const courses = {
         { id: 'course3', title: 'State', desc: 'Dynamic data', icon: '🔄' },
         { id: 'course4', title: 'Events', desc: 'User interactions', icon: '🎯' },
         { id: 'course5', title: 'Conditionals', desc: 'Dynamic UI', icon: '🔀' },
-        { id: 'course6', title: 'Lists & Keys', desc: 'Render arrays', icon: '📋' },
-        { id: 'course7', title: 'useEffect Hook', desc: 'Side effects', icon: '🪝' }  // ← NEW
+        { id: 'course6', title: 'Lists & Keys', desc: 'Render arrays', icon: '📋', isNew: true },
+        { id: 'course7', title: 'useEffect Hook', desc: 'Side effects', icon: '🪝', isNew: true }
     ]
 };
 
@@ -7717,6 +8390,17 @@ function switchChart(type) {
 }
 
 function renderCourses() {
+    // Check if user has seen new courses
+    const newCoursesSeenDate = localStorage.getItem('newCoursesSeen_' + currentUser);
+    const now = new Date().getTime();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    const shouldShowNew = !newCoursesSeenDate || (now - parseInt(newCoursesSeenDate)) < oneDayMs;
+    
+    // Mark that user has seen new courses (first time only)
+    if (!newCoursesSeenDate) {
+        localStorage.setItem('newCoursesSeen_' + currentUser, now.toString());
+    }
+    
     Object.keys(courses).forEach(lang => {
         const container = document.getElementById(lang + '-courses');
         container.innerHTML = '';
@@ -7725,10 +8409,12 @@ function renderCourses() {
             const isLocked = index > 0 && !userProgress[lang]['course' + index]?.completed;
             const isCompleted = userProgress[lang][course.id]?.completed;
             const progress = userProgress[lang][course.id]?.progress || 0;
+            const isNew = course.isNew && shouldShowNew;
             
             const card = document.createElement('div');
             card.className = 'course-card' + (isLocked ? ' locked' : '');
             card.innerHTML = `
+                ${isNew ? '<div class="new-badge">✨ NEW</div>' : ''}
                 ${isLocked ? '<div class="lock-overlay">🔒 Complete previous</div>' : ''}
                 ${isCompleted ? '<div class="completed-badge">✓ Completed</div>' : ''}
                 <div class="course-header">
@@ -8942,7 +9628,7 @@ function resetProgress() {
 }
 
 function checkForUpdates() {
-    const currentVersion = '3.1';
+    const currentVersion = '3.4';
     const lastSeenVersion = localStorage.getItem('lastSeenVersion_' + currentUser);
     const isNewUser = !localStorage.getItem('isReturningUser_' + currentUser);
     
@@ -8963,7 +9649,7 @@ function checkForUpdates() {
 }
 
 function closeUpdateSplash() {
-    const currentVersion = '3.1';
+    const currentVersion = '3.4';
     localStorage.setItem('lastSeenVersion_' + currentUser, currentVersion);
     document.getElementById('updateSplash').classList.remove('active');
     document.body.classList.remove('splash-open');
@@ -9042,7 +9728,7 @@ async function highlightKeywords(text) {
                 if (index % 2 === 0) {
                     const regex = new RegExp(`\\b(${keyword.replace(/[()]/g, '\\$&')})\\b`, 'gi');
                     return part.replace(regex, match => {
-                        return `<span class="keyword-highlight" onclick="showInlineAI(event, '${match}')">${match}</span>`;
+                        return `<span class="keyword-highlight" onclick="showInlineAI(event, '${match}')" ontouchstart="showInlineAI(event, '${match}')">${match}</span>`;
                     });
                 }
                 return part;
@@ -9062,8 +9748,10 @@ async function highlightKeywords(text) {
 let currentInlinePopup = null;
 
 async function showInlineAI(event, keyword) {
+    event.preventDefault(); // Prevent default touch behavior
     event.stopPropagation();
     
+    // Close existing popup if any
     if (currentInlinePopup) {
         closeInlineAI();
         return;
@@ -9075,15 +9763,31 @@ async function showInlineAI(event, keyword) {
     const overlay = document.createElement('div');
     overlay.className = 'inline-ai-overlay';
     overlay.onclick = closeInlineAI;
+    overlay.ontouchstart = closeInlineAI; // Add touch support
     document.body.appendChild(overlay);
     
     const popup = document.createElement('div');
     popup.className = 'inline-ai-popup';
     popup.onclick = (e) => e.stopPropagation();
+    popup.ontouchstart = (e) => e.stopPropagation(); // Prevent closing on touch inside
     
-    popup.style.left = rect.left + (rect.width / 2) + 'px';
-    popup.style.top = rect.top + 'px';
-    popup.style.transform = 'translate(-50%, 0) scale(0.8)';
+    // Mobile-specific positioning
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+        // Center popup on mobile
+        popup.style.left = '50%';
+        popup.style.top = '50%';
+        popup.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        popup.style.maxWidth = '90vw';
+        popup.style.width = '90vw';
+    } else {
+        // Desktop positioning
+        popup.style.left = rect.left + (rect.width / 2) + 'px';
+        popup.style.top = rect.top + 'px';
+        popup.style.transform = 'translate(-50%, 0) scale(0.8)';
+    }
+    
     popup.style.opacity = '0';
     popup.style.visibility = 'hidden';
     
@@ -9158,22 +9862,23 @@ async function showInlineAI(event, keyword) {
     currentInlinePopup = { overlay, popup };
     
     setTimeout(() => {
-        overlay.classList.add('active');
-        popup.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        
+    overlay.classList.add('active');
+    popup.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    
+    if (isMobile) {
+        // Mobile: scale up to center
+        popup.style.transform = 'translate(-50%, -50%) scale(1)';
+        popup.style.opacity = '1';
+    } else {
+        // Desktop: existing logic
         if (arrowPosition === 'bottom') {
             popup.style.transform = 'translate(-50%, -100%) scale(1)';
         } else {
             popup.style.transform = 'translate(-50%, 0) scale(1)';
         }
-        
         popup.style.opacity = '1';
-        
-        const ripple = document.createElement('div');
-        ripple.className = 'popup-ripple';
-        popup.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 1000);
-    }, 50);
+    }
+}, 50);
     
     const startTime = Date.now();
     
@@ -9584,19 +10289,136 @@ function enhanceCodeExamples() {
     });
 }
 
-// Modify the displayMessage function to include preview panel
-const originalDisplayMessage = displayMessage;
-displayMessage = function(sender, text) {
-    originalDisplayMessage(sender, text);
+// ============================================
+// KEYWORD TOOLTIP PORTAL SYSTEM
+// ============================================
+
+let activeTooltip = null;
+let tooltipTimeout = null;
+
+// Create and show tooltip
+function showKeywordTooltip(element) {
+    // Clear any pending hide
+    if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
+    }
     
-    // Create preview panel if in lesson view
-    if (currentView === 'lesson' && sender === 'bot') {
-        setTimeout(() => {
-            createPreviewPanel();
-            enhanceCodeExamples();
+    // Remove existing tooltip
+    if (activeTooltip) {
+        hideKeywordTooltip();
+    }
+    
+    const rect = element.getBoundingClientRect();
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    
+    // Create tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = 'keyword-tooltip-portal';
+    tooltip.innerHTML = '💡 Ask AI';
+    
+    // Position ABOVE the keyword with spacing
+    const tooltipTop = rect.top + scrollY - 60; // 60px above
+    const tooltipLeft = rect.left + scrollX + (rect.width / 2);
+    
+    tooltip.style.top = tooltipTop + 'px';
+    tooltip.style.left = tooltipLeft + 'px';
+    tooltip.style.transform = 'translateX(-50%) translateY(10px) scale(0.9)';
+    tooltip.style.opacity = '0';
+    
+    // Create arrow
+    const arrow = document.createElement('div');
+    arrow.className = 'keyword-tooltip-arrow';
+    
+    const arrowTop = rect.top + scrollY - 12; // Just above keyword
+    const arrowLeft = rect.left + scrollX + (rect.width / 2);
+    
+    arrow.style.top = arrowTop + 'px';
+    arrow.style.left = arrowLeft + 'px';
+    arrow.style.transform = 'translateX(-50%) scale(0)';
+    arrow.style.opacity = '0';
+    
+    // Add to body
+    document.body.appendChild(tooltip);
+    document.body.appendChild(arrow);
+    
+    // Animate in
+    requestAnimationFrame(() => {
+        tooltip.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        tooltip.style.transform = 'translateX(-50%) translateY(0) scale(1)';
+        tooltip.style.opacity = '1';
+        
+        arrow.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        arrow.style.transform = 'translateX(-50%) scale(1)';
+        arrow.style.opacity = '1';
+    });
+    
+    activeTooltip = { tooltip, arrow, element };
+}
+
+// Hide tooltip
+function hideKeywordTooltip() {
+    if (!activeTooltip) return;
+    
+    const { tooltip, arrow } = activeTooltip;
+    
+    // Animate out
+    tooltip.style.transform = 'translateX(-50%) translateY(10px) scale(0.9)';
+    tooltip.style.opacity = '0';
+    arrow.style.transform = 'translateX(-50%) scale(0)';
+    arrow.style.opacity = '0';
+    
+    // Remove after animation
+    setTimeout(() => {
+        if (tooltip && tooltip.parentNode) tooltip.remove();
+        if (arrow && arrow.parentNode) arrow.remove();
+    }, 300);
+    
+    activeTooltip = null;
+}
+
+// Event listeners for desktop
+document.addEventListener('mouseover', function(e) {
+    if (e.target.classList.contains('keyword-highlight')) {
+        // Only show on desktop
+        if (window.innerWidth > 768) {
+            showKeywordTooltip(e.target);
+        }
+    }
+});
+
+document.addEventListener('mouseout', function(e) {
+    if (e.target.classList.contains('keyword-highlight')) {
+        // Delay hiding slightly to prevent flicker
+        tooltipTimeout = setTimeout(() => {
+            hideKeywordTooltip();
         }, 100);
     }
-}
+});
+
+// Update position on scroll
+let scrollTimeout;
+window.addEventListener('scroll', function() {
+    if (activeTooltip) {
+        // Hide tooltip on scroll
+        hideKeywordTooltip();
+    }
+}, true);
+
+// Update position on resize
+window.addEventListener('resize', function() {
+    if (activeTooltip) {
+        hideKeywordTooltip();
+    }
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+    if (activeTooltip) {
+        hideKeywordTooltip();
+    }
+});
 </script>
 </body>
 </html>
