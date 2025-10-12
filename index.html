@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DevLearn Pro - Master Programming</title>
     <style>
         * {
@@ -285,6 +285,36 @@ body.light-mode .auth-screen {
             box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
         }
 
+        /* TAB ICONS SCALE ANIMATION */
+.nav-tab {
+    animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards;
+}
+
+.nav-tab:nth-child(1) { animation-delay: 0s; }
+.nav-tab:nth-child(2) { animation-delay: 0.1s; }
+.nav-tab:nth-child(3) { animation-delay: 0.15s; }
+.nav-tab:nth-child(4) { animation-delay: 0.2s; }
+.nav-tab:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes scaleIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Apply animation when tabs reappear */
+.nav-tabs.show-tabs .nav-tab {
+    animation: scaleIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards;
+}
+
         .search-icon {
             padding: 12px 20px;
             border: none;
@@ -313,20 +343,27 @@ body.light-mode .auth-screen {
         }
 
         .search-input-container {
-            display: none;
-            position: relative;
-            width: 100%;
-            padding: 8px 20px;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
+    display: none;
+    position: relative;
+    width: 100%;
+    padding: 8px 20px;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    background: rgba(30, 30, 30, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 50px;
+}
 
-        .search-input-container.active {
-            display: block;
-            opacity: 1;
-            transform: scale(1);
-        }
+body.light-mode .search-input-container {
+    background: rgba(255, 255, 255, 0.98);
+}
+
+.search-input-container.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+}
 
         .search-input-wrapper {
             position: relative;
@@ -439,62 +476,112 @@ body.light-mode .auth-screen {
             font-size: 0.85em;
         }
 
-        /* MOBILE BOTTOM NAVIGATION - FIXED */
+        /* MODERN OVAL BOTTOM NAVIGATION */
 .mobile-nav {
     display: none;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(30, 30, 30, 0.98);
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    width: calc(100% - 30px);
+    max-width: 420px;
+    background: rgba(30, 30, 30, 0.95);
     backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(100, 255, 218, 0.1);
-    padding: 10px 0;
+    border: 1px solid rgba(100, 255, 218, 0.2);
+    padding: 10px 5px;
     z-index: 1000;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-    /* CRITICAL: This ensures it never moves */
-    transform: translateZ(0);
-    will-change: transform;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 
+                0 0 0 1px rgba(100, 255, 218, 0.1);
+    border-radius: 30px;
+    transition: all 0.3s ease;
 }
 
 body.light-mode .mobile-nav {
-    background: rgba(255, 255, 255, 0.98);
-    border-top-color: rgba(10, 122, 94, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(10, 122, 94, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(10, 122, 94, 0.1);
 }
 
-        .mobile-nav-items {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
+@media (max-width: 768px) {
+    .mobile-nav {
+        display: block;
+    }
+    
+    body {
+        padding-bottom: 100px;
+    }
+}
 
-        .mobile-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 8px 12px;
-            color: #8b949e;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            min-width: 60px;
-        }
+.mobile-nav-items {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 5px;
+}
 
-        .mobile-nav-item.active {
-            color: #64ffda;
-            background: rgba(100, 255, 218, 0.1);
-        }
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px;
+    color: #8b949e;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 18px;
+    min-width: 60px;
+    position: relative;
+}
 
-        .mobile-nav-icon {
-            font-size: 1.4em;
-        }
+.mobile-nav-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(100, 255, 218, 0.1);
+    border-radius: 18px;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
-        .mobile-nav-label {
-            font-size: 0.7em;
-            font-weight: 600;
-        }
+.mobile-nav-item.active::before {
+    opacity: 1;
+    transform: scale(1);
+}
 
+.mobile-nav-item.active {
+    color: #64ffda;
+    transform: translateY(-3px);
+}
+
+body.light-mode .mobile-nav-item.active {
+    color: #0a7a5e;
+}
+
+.mobile-nav-icon {
+    font-size: 1.5em;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.mobile-nav-item.active .mobile-nav-icon {
+    transform: scale(1.15);
+}
+
+.mobile-nav-label {
+    font-size: 0.7em;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+/* Ripple effect on tap */
+.mobile-nav-item:active {
+    transform: scale(0.95) translateY(-3px);
+}
         /* MOBILE SEARCH */
         .mobile-search-overlay {
             display: none;
@@ -513,26 +600,26 @@ body.light-mode .mobile-nav {
         }
 
         .mobile-search-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(30, 30, 30, 0.98);
-            backdrop-filter: blur(20px);
-            padding: 20px;
-            transform: translateY(-100%);
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 2001;
-            border-bottom: 2px solid rgba(100, 255, 218, 0.2);
-        }
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(30, 30, 30, 0.98);
+    backdrop-filter: blur(20px);
+    padding: 20px;
+    transform: translateY(-100%);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 2001;
+    border-bottom: 2px solid rgba(100, 255, 218, 0.2);
+}
 
-        body.light-mode .mobile-search-container {
-            background: rgba(255, 255, 255, 0.98);
-        }
+body.light-mode .mobile-search-container {
+    background: rgba(255, 255, 255, 0.98);
+}
 
-        .mobile-search-container.active {
-            transform: translateY(0);
-        }
+.mobile-search-container.active {
+    transform: translateY(0);
+}
 
         .mobile-search-header {
             display: flex;
@@ -2262,6 +2349,47 @@ body.light-mode .setting-card h3 {
     flex: 1;
 }
 
+/* MOBILE SETTINGS OPTIMIZATION */
+@media (max-width: 768px) {
+    .settings-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .setting-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+        gap: 15px;
+    }
+    
+    .setting-card h3 {
+        font-size: 1em;
+        margin-bottom: 0;
+    }
+    
+    .setting-card p {
+        font-size: 0.85em;
+        margin: 0;
+    }
+    
+    .setting-card > div:first-child {
+        flex: 1;
+    }
+    
+    .toggle-switch {
+        flex-shrink: 0;
+    }
+    
+    .submit-button {
+        flex-shrink: 0;
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+}
+
 /* SMOOTH ANIMATIONS */
 .nav-tabs {
     opacity: 1;
@@ -3498,81 +3626,104 @@ body.light-mode .bar-value {
     line-height: 1.2;
 }
 
-/* Mobile optimizations */
+/* OPTIMIZED MOBILE PROGRESS BARS */
 @media (max-width: 768px) {
     .bar-chart {
-        height: 280px;
-        padding: 15px 10px 55px 55px;
-        gap: 12px;
+        height: 260px;
+        padding: 15px 5px 50px 50px;
+        gap: 10px;
         overflow-x: auto;
         overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
         justify-content: flex-start;
+        scroll-padding-left: 50px;
+    }
+    
+    .bar-chart::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .bar-chart::-webkit-scrollbar-track {
+        background: rgba(100, 255, 218, 0.1);
+        border-radius: 10px;
+        margin: 0 50px 0 10px;
+    }
+    
+    .bar-chart::-webkit-scrollbar-thumb {
+        background: rgba(100, 255, 218, 0.4);
+        border-radius: 10px;
+    }
+    
+    .bar-chart::before {
+        left: 48px;
+        bottom: 45px;
+        height: calc(100% - 60px);
+    }
+    
+    .bar-chart::after {
+        left: 48px;
+        bottom: 45px;
+        width: calc(100% - 55px);
     }
     
     .chart-y-labels {
         left: 5px;
-        font-size: 0.7em;
-        bottom: 55px;
+        font-size: 0.65em;
+        bottom: 50px;
     }
     
     .chart-y-labels span {
-        padding: 3px 6px;
+        padding: 2px 4px;
+        font-size: 0.9em;
     }
     
     .bar-item {
         flex: 0 0 65px;
         min-width: 65px;
-        height: 200px;
+        height: 180px;
     }
     
     .bar {
-        width: 100%;
+        border-radius: 8px 8px 0 0;
     }
     
     .bar-value {
-        font-size: 0.8em;
-        top: -32px;
+        font-size: 0.75em;
+        top: -28px;
         padding: 4px 8px;
-        white-space: nowrap;
     }
     
     .bar-label {
-        font-size: 0.7em;
-        bottom: -42px;
-        max-width: 70px;
+        font-size: 0.68em;
+        bottom: -38px;
+        max-width: 65px;
         line-height: 1.1;
     }
 }
 
 @media (max-width: 480px) {
     .bar-chart {
-        height: 260px;
-        padding: 15px 5px 50px 45px;
-        gap: 10px;
-    }
-    
-    .chart-y-labels {
-        left: 2px;
-        font-size: 0.65em;
+        height: 240px;
+        padding: 12px 5px 45px 45px;
+        gap: 8px;
     }
     
     .bar-item {
-        flex: 0 0 55px;
-        min-width: 55px;
-        height: 180px;
+        flex: 0 0 58px;
+        min-width: 58px;
+        height: 165px;
     }
     
     .bar-value {
-        font-size: 0.75em;
-        top: -28px;
+        font-size: 0.7em;
+        top: -26px;
         padding: 3px 6px;
     }
     
     .bar-label {
         font-size: 0.65em;
-        bottom: -40px;
-        max-width: 60px;
+        bottom: -36px;
+        max-width: 58px;
     }
 }
 
@@ -5175,6 +5326,256 @@ body.light-mode .notification-toast {
     color: #1a1f35;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
+
+/* MOBILE STATS CAROUSEL */
+.mobile-stats-carousel {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        display: none;
+    }
+    
+    .mobile-stats-carousel {
+        display: block;
+        width: 100%;
+        overflow: hidden;
+        padding: 0;
+        margin-bottom: 50px;
+    }
+    
+    .stats-carousel-track {
+        display: flex;
+        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        touch-action: pan-y;
+    }
+    
+    .stats-carousel-slide {
+        min-width: 100%;
+        padding: 0 10px;
+    }
+    
+    .stats-carousel-dots {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .stats-carousel-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(100, 255, 218, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .stats-carousel-dot.active {
+        background: #64ffda;
+        width: 30px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+    }
+    
+    body.light-mode .stats-carousel-dot {
+        background: rgba(10, 122, 94, 0.3);
+    }
+    
+    body.light-mode .stats-carousel-dot.active {
+        background: #0a7a5e;
+    }
+}
+
+/* FIX PRACTICE SECTION ON MOBILE */
+@media (max-width: 768px) {
+    .panel-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    
+    #languageDetector {
+        order: 1;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .run-button {
+        order: 2;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* FIX SETTINGS LOGOUT BUTTON ON MOBILE */
+@media (max-width: 768px) {
+    .account-header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+    }
+    
+    .account-info {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .logout-btn {
+        width: 100%;
+        padding: 15px 30px;
+    }
+}
+
+/* FIX PROGRESS BARS ALIGNMENT */
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    height: 320px;
+    padding: 20px 20px 60px 90px; /* Increased left padding */
+    justify-content: center;
+    position: relative;
+    background: 
+        linear-gradient(90deg, rgba(100, 255, 218, 0.03) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(100, 255, 218, 0.03) 1px, transparent 1px);
+    background-size: 50px 35px;
+}
+
+.chart-y-labels {
+    position: absolute;
+    left: 15px; /* Better positioning */
+    top: 20px;
+    bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #64ffda;
+    font-size: 0.85em;
+    font-weight: 600;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .bar-chart {
+        height: 280px;
+        padding: 15px 10px 55px 65px; /* Adjusted padding */
+        gap: 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+    }
+    
+    .chart-y-labels {
+        left: 8px;
+        font-size: 0.7em;
+        bottom: 55px;
+    }
+    
+    .bar-item {
+        flex: 0 0 70px;
+        min-width: 70px;
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bar-chart {
+        padding: 15px 5px 50px 55px; /* Further adjusted */
+    }
+    
+    .chart-y-labels {
+        left: 5px;
+        font-size: 0.65em;
+    }
+}
+
+/* REMOVE BUGGY LINES BETWEEN CHAT MESSAGES */
+.chat-messages {
+    overflow-x: hidden !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    border: none !important;
+    outline: none !important;
+}
+
+.message {
+    display: flex;
+    gap: 15px;
+    animation: messageSlide 0.4s ease-out;
+    min-height: fit-content;
+    width: 100%;
+    margin-bottom: 25px;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.message-avatar {
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    min-height: 45px;
+    border-radius: 50%;
+    background: rgba(100, 255, 218, 0.2);
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    flex-shrink: 0;
+    box-shadow: none !important;
+}
+
+.message-bubble {
+    background: rgba(100, 255, 218, 0.05);
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    padding: 18px 22px;
+    border-radius: 15px;
+    line-height: 1.7;
+    font-size: 1.05em;
+    color: #e0e0e0;
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    contain: layout;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+body.light-mode .message-bubble {
+    background: rgba(10, 122, 94, 0.05);
+    color: #1a1a1a;
+    border-color: rgba(10, 122, 94, 0.1);
+}
+
+/* Remove any default borders/outlines */
+.chat-container * {
+    outline: none !important;
+}
+
+.content-panel {
+    border: none !important;
+    outline: none !important;
+}
+
+.chat-container {
+    background: rgba(30, 30, 30, 0.4);
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    border-radius: 20px;
+    padding: 35px;
+    overflow: hidden !important;
+}
+
+body.light-mode .chat-container {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(10, 122, 94, 0.2);
+}
     </style>
 </head>
 <body>
@@ -5527,12 +5928,6 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                 </div>
                 
                 <div class="setting-card">
-                    <h3>🔊 Sound Effects</h3>
-                    <p>Play sounds on interactions</p>
-                    <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                </div>
-                
-                <div class="setting-card">
                     <h3>⏩ Auto-advance</h3>
                     <p>Move to next lesson automatically</p>
                     <div class="toggle-switch" onclick="toggleSetting(this)"></div>
@@ -5548,12 +5943,6 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                     <h3>🎯 Daily Goals</h3>
                     <p>Set learning time targets</p>
                     <div class="toggle-switch" onclick="toggleSetting(this)"></div>
-                </div>
-                
-                <div class="setting-card">
-                    <h3>🔄 Clear Cache</h3>
-                    <p>Remove temporary data</p>
-                    <button class="submit-button" onclick="clearCache()">Clear</button>
                 </div>
             </div>
         </div>
@@ -6541,50 +6930,58 @@ function showNotification(message, type = 'info') {
 function handleForgotPassword(event) {
     event.preventDefault();
     
-    const email = document.getElementById('forgotEmail').value.trim();
+    const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
     
     if (!email) {
         showNotification('Please enter your email', 'error');
         return;
     }
     
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
-    const user = users[email];
+    // Check if user exists with the correct storage key
+    const userDataStr = localStorage.getItem('user_' + email);
     
-    if (!user) {
-        showNotification('Email not found', 'error');
+    if (!userDataStr) {
+        showNotification('Email not found. Please sign up first!', 'error');
         return;
     }
     
-    const tempPassword = Math.random().toString(36).slice(-8);
-    user.password = tempPassword;
-    users[email] = user;
-    localStorage.setItem('users', JSON.stringify(users));
+    const userData = JSON.parse(userDataStr);
     
-    // ✅ UPDATED: Use EMAIL_CONFIG
-    if (!EMAIL_CONFIG.serviceId || !EMAIL_CONFIG.templateId || !EMAIL_CONFIG.publicKey) {
-        showNotification('Password reset successful! Your temporary password is: ' + tempPassword, 'success');
-        console.log('Temp password (EmailJS not configured):', tempPassword);
-        return;
+    // Generate 6-digit verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Store verification data
+    currentVerificationCode = verificationCode;
+    currentForgotEmail = email;
+    
+    // Show notification
+    showNotification('Verification code: ' + verificationCode + ' (Check console for testing)', 'success');
+    console.log('🔑 Verification Code:', verificationCode);
+    
+    // Switch to verify form
+    setTimeout(() => {
+        switchAuthTab('verify');
+        document.getElementById('forgotMessage').innerHTML = '';
+    }, 2000);
+    
+    // Try to send email (if EmailJS is configured)
+    if (typeof emailjs !== 'undefined' && emailjs.send) {
+        const templateParams = {
+            to_email: email,
+            user_email: email,
+            verification_code: verificationCode,
+            user_name: userData.name || 'User'
+        };
+        
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+            .then(() => {
+                console.log('✅ Email sent successfully');
+            })
+            .catch((error) => {
+                console.warn('⚠️ Email send failed:', error);
+                showNotification('Code generated but email failed. Use code: ' + verificationCode, 'warning');
+            });
     }
-    
-    const templateParams = {
-        to_email: email,
-        user_email: email,
-        temp_password: tempPassword,
-        app_name: 'CodeQuest Learning'
-    };
-    
-    emailjs.send(EMAIL_CONFIG.serviceId, EMAIL_CONFIG.templateId, templateParams)
-        .then(() => {
-            showNotification('Password reset email sent! Check your inbox.', 'success');
-            document.getElementById('forgotPasswordForm').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
-        })
-        .catch((error) => {
-            console.error('Email error:', error);
-            showNotification('Email failed, but password was reset to: ' + tempPassword, 'warning');
-        });
 }
 
 // Step 1: Verify the code only
@@ -6931,6 +7328,13 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+window.addEventListener('resize', () => {
+    if (window.innerWidth <= 768) {
+        createMobileStatsCarousel();
+        updateMobileStatsCarousel();
+    }
+});
+
 function toggleTheme() {
     document.body.classList.toggle('light-mode');
     document.documentElement.classList.toggle('light-mode');
@@ -6945,20 +7349,42 @@ function toggleSearch() {
     const searchInput = document.getElementById('searchInput');
     
     if (container.classList.contains('search-active')) {
-        container.classList.remove('search-active');
-        setTimeout(() => {
-            tabs.style.display = 'flex';
-            searchContainer.classList.remove('active');
-        }, 200);
+        // Closing search - faster
+        searchContainer.classList.remove('active');
         document.getElementById('searchResults').classList.remove('active');
         searchInput.value = '';
-    } else {
-        container.classList.add('search-active');
-        tabs.style.display = 'none';
+        
+        // Wait for search to fade out (reduced time)
         setTimeout(() => {
-            searchContainer.classList.add('active');
-            searchInput.focus();
-        }, 100);
+            container.classList.remove('search-active');
+            tabs.style.opacity = '0';
+            tabs.style.display = 'flex';
+            tabs.classList.remove('show-tabs');
+            
+            // Trigger reflow to restart animation
+            void tabs.offsetWidth;
+            
+            // Fade in tabs with animation
+            setTimeout(() => {
+                tabs.classList.add('show-tabs');
+                tabs.style.transition = 'opacity 0.3s ease';
+                tabs.style.opacity = '1';
+            }, 30);
+        }, 200); // Reduced from 300ms
+    } else {
+        // Opening search - faster
+        tabs.style.transition = 'opacity 0.2s ease';
+        tabs.style.opacity = '0';
+        
+        setTimeout(() => {
+            container.classList.add('search-active');
+            tabs.style.display = 'none';
+            
+            setTimeout(() => {
+                searchContainer.classList.add('active');
+                searchInput.focus();
+            }, 50);
+        }, 200); // Reduced from 300ms
     }
 }
 
@@ -7641,6 +8067,182 @@ function completeLesson() {
 }
 
 function showStreakCelebration(streakNumber) {
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+        // Mobile: Navigate to streak card in carousel FIRST
+        showSection('home');
+        
+        setTimeout(() => {
+            // Slide to streak card (index 2 - third card)
+            goToStatsSlide(2);
+            
+            // Wait for carousel to settle
+            setTimeout(() => {
+                const statsCards = document.querySelectorAll('.stats-carousel-slide .stat-card');
+                const streakCard = statsCards[2]; // Third card is streak
+                
+                if (!streakCard) return;
+                
+                // Get card position
+                const rect = streakCard.getBoundingClientRect();
+                const oldStreak = streakNumber - 1;
+                
+                // Create floating card clone
+                const floatingCard = document.createElement('div');
+                floatingCard.className = 'floating-streak-card';
+                floatingCard.innerHTML = `
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-value" id="floatingStreakValue">${oldStreak}</div>
+                    <div class="stat-label">Day Streak</div>
+                `;
+                
+                floatingCard.style.cssText = `
+                    position: fixed;
+                    left: ${rect.left}px;
+                    top: ${rect.top}px;
+                    width: ${rect.width}px;
+                    height: ${rect.height}px;
+                    background: rgba(30, 30, 30, 0.95);
+                    border: 2px solid rgba(100, 255, 218, 0.3);
+                    border-radius: 20px;
+                    padding: 30px;
+                    z-index: 9999;
+                    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    box-shadow: 0 10px 40px rgba(100, 255, 218, 0.3);
+                `;
+                
+                // Hide original card
+                streakCard.style.opacity = '0';
+                
+                // Add to body
+                document.body.appendChild(floatingCard);
+                
+                // Create overlay
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0);
+                    z-index: 9998;
+                    transition: background 0.5s ease;
+                `;
+                document.body.appendChild(overlay);
+                
+                // Animate to center
+                setTimeout(() => {
+                    overlay.style.background = 'rgba(0, 0, 0, 0.8)';
+                    
+                    const centerX = window.innerWidth / 2;
+                    const centerY = window.innerHeight / 2;
+                    
+                    floatingCard.style.left = centerX + 'px';
+                    floatingCard.style.top = centerY + 'px';
+                    floatingCard.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                    floatingCard.style.boxShadow = '0 20px 60px rgba(100, 255, 218, 0.5)';
+                }, 100);
+                
+                // Animate number change
+                setTimeout(() => {
+                    const valueElement = document.getElementById('floatingStreakValue');
+                    
+                    // Create number slide container
+                    valueElement.style.position = 'relative';
+                    valueElement.style.overflow = 'hidden';
+                    valueElement.style.height = '60px';
+                    
+                    const numberContainer = document.createElement('div');
+                    numberContainer.style.cssText = `
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    `;
+                    
+                    const oldNumber = document.createElement('div');
+                    oldNumber.textContent = oldStreak;
+                    oldNumber.style.cssText = `
+                        font-size: 2.5em;
+                        color: #64ffda;
+                        font-weight: 700;
+                        min-height: 60px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    `;
+                    
+                    const newNumber = document.createElement('div');
+                    newNumber.textContent = streakNumber;
+                    newNumber.style.cssText = `
+                        font-size: 2.5em;
+                        color: #64ffda;
+                        font-weight: 700;
+                        min-height: 60px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        text-shadow: 0 0 30px rgba(100, 255, 218, 0.8);
+                    `;
+                    
+                    numberContainer.appendChild(oldNumber);
+                    numberContainer.appendChild(newNumber);
+                    
+                    valueElement.innerHTML = '';
+                    valueElement.appendChild(numberContainer);
+                    
+                    // Slide animation
+                    setTimeout(() => {
+                        numberContainer.style.transform = 'translateY(-60px)';
+                    }, 100);
+                    
+                    // Pulse card
+                    setTimeout(() => {
+                        floatingCard.style.transform = 'translate(-50%, -50%) scale(1.25)';
+                    }, 300);
+                    
+                    setTimeout(() => {
+                        floatingCard.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                    }, 600);
+                    
+                }, 1000);
+                
+                // Fly back to original position
+                setTimeout(() => {
+                    overlay.style.background = 'rgba(0, 0, 0, 0)';
+                    floatingCard.style.left = rect.left + 'px';
+                    floatingCard.style.top = rect.top + 'px';
+                    floatingCard.style.transform = 'translate(0, 0) scale(1)';
+                    floatingCard.style.boxShadow = '0 10px 40px rgba(100, 255, 218, 0.3)';
+                }, 3000);
+                
+                // Clean up
+                setTimeout(() => {
+                    floatingCard.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        floatingCard.remove();
+                        overlay.remove();
+                        streakCard.style.opacity = '1';
+                        
+                        // Update the actual streak value
+                        document.getElementById('streakDays').textContent = streakNumber;
+                        updateMobileStatsCarousel();
+                    }, 500);
+                }, 3500);
+                
+            }, 600);
+        }, 300);
+        
+        return; // Exit early for mobile
+    }
+    
+    // DESKTOP VERSION (keep existing desktop code below)
     const celebration = document.getElementById('streakCelebration');
     const card = celebration.querySelector('.streak-card-animated');
     const numberContainer = card.querySelector('.streak-number-container');
@@ -7754,6 +8356,12 @@ function updateDashboard() {
     document.getElementById('totalTime').textContent = `${hours}h ${minutes}m`;
     
     updateCharts();
+    
+    // ADD THIS LINE:
+    if (window.innerWidth <= 768) {
+        createMobileStatsCarousel();
+        updateMobileStatsCarousel();
+    }
 }
 
 function updateCharts() {
@@ -7796,111 +8404,106 @@ function updateCharts() {
     });
 }
 
-function createMobileCarousel() {
+function createMobileStatsCarousel() {
     const isMobile = window.innerWidth <= 768;
     if (!isMobile) return;
     
-    const progressSection = document.querySelector('.progress-section');
-    if (!progressSection) return;
+    const dashboard = document.querySelector('.dashboard');
+    if (!dashboard) return;
     
-    const mobileCarousel = document.createElement('div');
-    mobileCarousel.className = 'mobile-progress-carousel';
-    mobileCarousel.innerHTML = `
-        <div class="carousel-container">
-            <div class="carousel-track" id="carouselTrack"></div>
-        </div>
-        <div class="carousel-dots" id="carouselDots"></div>
+    // Check if carousel already exists
+    if (document.querySelector('.mobile-stats-carousel')) return;
+    
+    const statsGrid = document.querySelector('.stats-grid');
+    if (!statsGrid) return;
+    
+    // Create carousel
+    const carousel = document.createElement('div');
+    carousel.className = 'mobile-stats-carousel';
+    carousel.innerHTML = `
+        <div class="stats-carousel-track" id="statsCarouselTrack"></div>
+        <div class="stats-carousel-dots" id="statsCarouselDots"></div>
     `;
     
-    const chartTabs = progressSection.querySelector('.chart-tabs');
-    const allCharts = progressSection.querySelectorAll('.chart-container');
+    // Insert carousel before stats-grid
+    statsGrid.parentNode.insertBefore(carousel, statsGrid);
     
-    if (chartTabs) chartTabs.style.display = 'none';
-    allCharts.forEach(chart => chart.style.display = 'none');
-    
-    if (!progressSection.querySelector('.mobile-progress-carousel')) {
-        progressSection.appendChild(mobileCarousel);
-    }
-    
-    updateMobileCarousel();
+    updateMobileStatsCarousel();
 }
 
-function updateMobileCarousel() {
-    const track = document.getElementById('carouselTrack');
-    const dots = document.getElementById('carouselDots');
+function updateMobileStatsCarousel() {
+    const track = document.getElementById('statsCarouselTrack');
+    const dots = document.getElementById('statsCarouselDots');
     
     if (!track || !dots) return;
+    
+    // Get all stat cards data
+    const statsData = [
+        {
+            icon: '📚',
+            value: document.getElementById('totalCourses').textContent,
+            label: 'Courses Started'
+        },
+        {
+            icon: '✅',
+            value: document.getElementById('completedLessons').textContent,
+            label: 'Lessons Completed'
+        },
+        {
+            icon: '🔥',
+            value: document.getElementById('streakDays').textContent,
+            label: 'Day Streak'
+        },
+        {
+            icon: '⏱️',
+            value: document.getElementById('totalTime').textContent,
+            label: 'Time Studied'
+        }
+    ];
     
     track.innerHTML = '';
     dots.innerHTML = '';
     
-    const languages = ['python', 'javascript', 'html', 'css', 'react'];
-    const languageNames = {
-        python: '🐍 Python',
-        javascript: '⚡ JavaScript',
-        html: '🌐 HTML',
-        css: '🎨 CSS',
-        react: '⚛️ React'
-    };
-    
-    languages.forEach((lang, index) => {
+    statsData.forEach((stat, index) => {
+        // Create slide
         const slide = document.createElement('div');
-        slide.className = 'carousel-slide';
-        
-        const coursesData = courses[lang];
-        let slideHTML = `<h3 class="carousel-title">${languageNames[lang]}</h3>`;
-        
-        coursesData.forEach(course => {
-            const progress = userProgress[lang][course.id]?.progress || 0;
-            slideHTML += `
-                <div class="mobile-course-bar">
-                    <div class="mobile-course-header">
-                        <span class="mobile-course-name">${course.icon} ${course.title}</span>
-                        <span class="mobile-course-percent">${progress}%</span>
-                    </div>
-                    <div class="mobile-progress-bar">
-                        <div class="mobile-progress-fill" style="width: 0%" data-target="${progress}"></div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        slide.innerHTML = slideHTML;
+        slide.className = 'stats-carousel-slide';
+        slide.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-icon">${stat.icon}</div>
+                <div class="stat-value">${stat.value}</div>
+                <div class="stat-label">${stat.label}</div>
+            </div>
+        `;
         track.appendChild(slide);
         
+        // Create dot
         const dot = document.createElement('div');
-        dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
-        dot.onclick = () => goToSlide(index);
+        dot.className = 'stats-carousel-dot' + (index === 0 ? ' active' : '');
+        dot.onclick = () => goToStatsSlide(index);
         dots.appendChild(dot);
     });
     
-    setTimeout(() => {
-        document.querySelectorAll('.mobile-progress-fill').forEach(fill => {
-            const target = fill.getAttribute('data-target');
-            fill.style.width = target + '%';
-        });
-    }, 300);
-    
-    initCarouselSwipe();
+    initStatsCarouselSwipe();
 }
 
-let currentSlide = 0;
-let startX = 0;
-let isDragging = false;
+let currentStatsSlide = 0;
+let statsStartX = 0;
+let statsIsDragging = false;
 
-function initCarouselSwipe() {
-    const track = document.getElementById('carouselTrack');
+function initStatsCarouselSwipe() {
+    const track = document.getElementById('statsCarouselTrack');
     if (!track) return;
     
     track.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        isDragging = true;
+        statsStartX = e.touches[0].clientX;
+        statsIsDragging = true;
     });
     
     track.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
+        if (!statsIsDragging) return;
         const currentX = e.touches[0].clientX;
-        const diff = startX - currentX;
+        const diff = statsStartX - currentX;
         
         if (Math.abs(diff) > 10) {
             e.preventDefault();
@@ -7908,26 +8511,26 @@ function initCarouselSwipe() {
     });
     
     track.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
+        if (!statsIsDragging) return;
         const endX = e.changedTouches[0].clientX;
-        const diff = startX - endX;
+        const diff = statsStartX - endX;
         
         if (Math.abs(diff) > 50) {
-            if (diff > 0 && currentSlide < 4) {
-                goToSlide(currentSlide + 1);
-            } else if (diff < 0 && currentSlide > 0) {
-                goToSlide(currentSlide - 1);
+            if (diff > 0 && currentStatsSlide < 3) {
+                goToStatsSlide(currentStatsSlide + 1);
+            } else if (diff < 0 && currentStatsSlide > 0) {
+                goToStatsSlide(currentStatsSlide - 1);
             }
         }
         
-        isDragging = false;
+        statsIsDragging = false;
     });
 }
 
-function goToSlide(index) {
-    currentSlide = index;
-    const track = document.getElementById('carouselTrack');
-    const dots = document.querySelectorAll('.carousel-dot');
+function goToStatsSlide(index) {
+    currentStatsSlide = index;
+    const track = document.getElementById('statsCarouselTrack');
+    const dots = document.querySelectorAll('.stats-carousel-dot');
     
     if (track) {
         track.style.transform = `translateX(-${index * 100}%)`;
@@ -7990,9 +8593,9 @@ function runCode() {
     }
     
     if (language === 'Python') {
-        const encodedCode = btoa(unescape(encodeURIComponent(code)));
-        
-        outputFrame.srcdoc = `<!DOCTYPE html>
+    const encodedCode = btoa(unescape(encodeURIComponent(code)));
+    
+    outputFrame.srcdoc = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <style>
 body { font-family: Arial; padding: 20px; background: #fff; }
@@ -8003,80 +8606,32 @@ body { font-family: Arial; padding: 20px; background: #fff; }
 .output-title { font-weight: bold; color: #495057; border-bottom: 2px solid #dee2e6; padding-bottom: 8px; margin-bottom: 10px; }
 .output-line { margin: 5px 0; color: #0066cc; }
 .error { color: #dc3545; font-weight: bold; background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 10px; margin: 10px 0; }
-.input-prompt { background: #e8f4f8; border: 2px solid #0066cc; border-radius: 8px; padding: 15px; margin: 10px 0; }
-.input-label { color: #0066cc; font-weight: bold; margin-bottom: 8px; }
-.input-field { width: 100%; padding: 10px; border: 2px solid #0066cc; border-radius: 5px; font-size: 16px; font-family: monospace; }
-.input-button { background: #0066cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 8px; }
-.input-button:hover { background: #0052a3; }
 </style>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"><\/script>
 </head><body>
 <div class="loading" id="loading"><div class="loading-spinner"></div><div>Loading Python...</div></div>
 <div id="output" class="output" style="display:none;"><div class="output-title">🐍 Python Output</div><div id="output-content"></div></div>
 <script>
-let pyodide;
-let inputCounter = 0;
-
 async function runPython() {
   const outputDiv = document.getElementById("output");
   const outputContent = document.getElementById("output-content");
   const loading = document.getElementById("loading");
   
   try {
-    pyodide = await loadPyodide();
+    const pyodide = await loadPyodide();
     loading.style.display = "none";
     outputDiv.style.display = "block";
-    
-    window.getInputValue = (prompt) => {
-      return new Promise((resolve) => {
-        inputCounter++;
-        const currentId = "input-" + inputCounter;
-        
-        const inputDiv = document.createElement("div");
-        inputDiv.className = "input-prompt";
-        inputDiv.id = currentId;
-        inputDiv.innerHTML = 
-          '<div class="input-label">' + (prompt || "Enter input:") + '</div>' +
-          '<input type="text" class="input-field" id="' + currentId + '-field" autofocus>' +
-          '<button class="input-button" id="' + currentId + '-btn">Submit</button>';
-        
-        outputContent.appendChild(inputDiv);
-        
-        const inputField = document.getElementById(currentId + "-field");
-        const submitBtn = document.getElementById(currentId + "-btn");
-        
-        inputField.focus();
-        
-        const handleSubmit = () => {
-          const value = inputField.value;
-          inputDiv.remove();
-          
-          const resultDiv = document.createElement("div");
-          resultDiv.className = "output-line";
-          resultDiv.innerHTML = '<strong style="color: #28a745;">➤ ' + value + '</strong>';
-          outputContent.appendChild(resultDiv);
-          
-          resolve(value);
-        };
-        
-        submitBtn.onclick = handleSubmit;
-        inputField.onkeypress = (e) => {
-          if (e.key === "Enter") handleSubmit();
-        };
-      });
-    };
     
     await pyodide.runPythonAsync(\`
 import sys
 from io import StringIO
 sys.stdout = StringIO()
-    \`);
+\`);
     
     const userCodeBase64 = "${encodedCode}";
-    const decodedCode = atob(userCodeBase64);
-    const transformedCode = decodedCode.replace(/input\\(/g, '(await __import__("js").getInputValue(');
+    const decodedCode = decodeURIComponent(escape(atob(userCodeBase64)));
     
-    await pyodide.runPythonAsync(transformedCode);
+    await pyodide.runPythonAsync(decodedCode);
     
     const output = pyodide.runPython("sys.stdout.getvalue()");
     if (output) {
@@ -8088,20 +8643,22 @@ sys.stdout = StringIO()
           outputContent.appendChild(lineDiv);
         }
       });
+    } else {
+      outputContent.innerHTML = "<div class='output-line'>Program executed successfully (no output)</div>";
     }
     
   } catch (error) {
     loading.style.display = "none";
     outputDiv.style.display = "block";
     const errorMsg = error.message || error.toString();
-    outputContent.innerHTML = "<div class='error'>✗ " + errorMsg + "</div>";
+    outputContent.innerHTML = "<div class='error'>✗ Error: " + errorMsg + "</div>";
   }
 }
 runPython();
 <\/script>
 </body></html>`;
-        return;
-    }
+    return;
+}
 
     if (language === 'HTML') {
         outputFrame.srcdoc = code;
@@ -8249,15 +8806,10 @@ function resetProgress() {
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
         localStorage.setItem('studyTime_' + currentUser, '0');
         
-        renderCourses();
+        renderCourses();update
+
         updateDashboard();
         alert('✅ Progress reset successfully!');
-    }
-}
-
-function clearCache() {
-    if (confirm('Clear temporary cache data?')) {
-        alert('✓ Cache cleared successfully!');
     }
 }
 
