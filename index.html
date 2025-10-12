@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DevLearn Pro - Master Programming</title>
+    <title>DevLearn - Master Programming</title>
     <style>
         * {
             margin: 0;
@@ -6063,10 +6063,35 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
 <script src="main.js"></script>
 
     <script>
-        const AI_CONFIG = {
-  apiKey: '',
-  endpoint: 'https://api.openai.com/v1/chat/completions'
-};
+
+        // Mistral AI Configuration
+function getAIConfig() {
+    return {
+        apiKey: '', // Will be fetched from backend
+        endpoint: 'https://api.mistral.ai/v1/chat/completions',
+        model: 'mistral-tiny' // or 'mistral-small', 'mistral-medium'
+    };
+}
+
+// Fetch AI config from backend
+async function fetchAIConfig() {
+    try {
+        const response = await fetch('/api/ai-config');
+        const config = await response.json();
+        return {
+            apiKey: config.MISTRAL_API_KEY || '',
+            endpoint: 'https://api.mistral.ai/v1/chat/completions',
+            model: 'mistral-tiny'
+        };
+    } catch (error) {
+        console.warn('AI config not available:', error);
+        return {
+            apiKey: '',
+            endpoint: 'https://api.mistral.ai/v1/chat/completions',
+            model: 'mistral-small'
+        };
+    }
+}
 
 // Fetch EmailJS config from backend (Vercel serverless function)
 fetch('/api/email-config')
@@ -8881,72 +8906,73 @@ async function highlightKeywords(text) {
     }
     
     try {
-    const config = getAIConfig();
-    
-    if (!config.apiKey) {
-        highlightCache.set(text, text);
-        return text;
-    }
-    
-    const response = await fetch(config.endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.apiKey}`
-        },
-        body: JSON.stringify({
-            model: config.model,
-            messages: [
-                {
-                    role: 'user',
-                    content: `Identify 2-4 CORE programming concepts/terms from this lesson that a beginner MUST understand. Only return technical terms, NOT common words like "automatically", "important", "essential". Return ONLY a JSON array: "${text.replace(/"/g, '\\"').substring(0, 500)}"`
+        const config = await fetchAIConfig();
+        
+        if (!config.apiKey) {
+            highlightCache.set(text, text);
+            return text;
+        }
+        
+        const response = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.apiKey}`
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: `Identify 2-4 CORE programming concepts/terms from this lesson that a beginner MUST understand. Only return technical terms, NOT common words like "automatically", "important", "essential". Return ONLY a JSON array: "${text.replace(/"/g, '\\"').substring(0, 500)}"`
+                    }
+                ],
+                max_tokens: 40,
+                temperature: 0.2
+            })
+        });
+        
+        if (!response.ok) throw new Error('API failed');
+        
+        const data = await response.json();
+        const content = data.choices[0].message.content;
+        
+        const match = content.match(/\[.*\]/);
+        if (!match) {
+            highlightCache.set(text, text);
+            return text;
+        }
+        
+        const keywords = JSON.parse(match[0]);
+        let highlightedText = text;
+        
+        const technicalKeywords = keywords.filter(keyword => {
+            const lower = keyword.toLowerCase();
+            const commonWords = ['automatically', 'important', 'essential', 'fundamental', 'basic', 'simple', 'easy', 'quickly', 'useful', 'great', 'good', 'best'];
+            return !commonWords.includes(lower) && keyword.length > 2;
+        });
+        
+        technicalKeywords.forEach(keyword => {
+            const parts = highlightedText.split(/(<[^>]+>)/);
+            highlightedText = parts.map((part, index) => {
+                if (index % 2 === 0) {
+                    const regex = new RegExp(`\\b(${keyword.replace(/[()]/g, '\\$&')})\\b`, 'gi');
+                    return part.replace(regex, match => {
+                        return `<span class="keyword-highlight" onclick="showInlineAI(event, '${match}')">${match}</span>`;
+                    });
                 }
-            ],
-            max_tokens: 40,
-            temperature: 0.2
-        })
-    });
-    
-    if (!response.ok) throw new Error('API failed');
-    
-    const data = await response.json();
-    const content = data.choices[0].message.content;
-    
-    const match = content.match(/\[.*\]/);
-    if (!match) {
+                return part;
+            }).join('');
+        });
+        
+        highlightCache.set(text, highlightedText);
+        return highlightedText;
+        
+    } catch (error) {
+        console.error('Highlight error:', error);
         highlightCache.set(text, text);
         return text;
     }
-    
-    const keywords = JSON.parse(match[0]);
-    let highlightedText = text;
-    
-    const technicalKeywords = keywords.filter(keyword => {
-        const lower = keyword.toLowerCase();
-        const commonWords = ['automatically', 'important', 'essential', 'fundamental', 'basic', 'simple', 'easy', 'quickly', 'useful', 'great', 'good', 'best'];
-        return !commonWords.includes(lower) && keyword.length > 2;
-    });
-    
-    technicalKeywords.forEach(keyword => {
-        const parts = highlightedText.split(/(<[^>]+>)/);
-        highlightedText = parts.map((part, index) => {
-            if (index % 2 === 0) {
-                const regex = new RegExp(`\\b(${keyword.replace(/[()]/g, '\\$&')})\\b`, 'gi');
-                return part.replace(regex, match => {
-                    return `<span class="keyword-highlight" onclick="showInlineAI(event, '${match}')">${match}</span>`;
-                });
-            }
-            return part;
-        }).join('');
-    });
-    
-    highlightCache.set(text, highlightedText);
-    return highlightedText;
-    
-} catch (error) {
-    console.error('Highlight error:', error);
-    highlightCache.set(text, text);
-    return text;
 }
 
 let currentInlinePopup = null;
@@ -9067,36 +9093,37 @@ async function showInlineAI(event, keyword) {
     
     const startTime = Date.now();
     
-    // ✅ UPDATED: Now uses environment variable
-    try {
-        const config = getAIConfig();
-        
-        if (!config.apiKey) {
-            throw new Error('AI API key not configured');
-        }
-        
-        const response = await fetch(config.endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${config.apiKey}`
-            },
-            body: JSON.stringify({
-                model: config.model,
-                messages: [
-                    {
-                        role: 'user',
-                        content: `Explain "${keyword}" in programming in 2-3 simple sentences for beginners.`
-                    }
-                ],
-                max_tokens: 100,
-                temperature: 0.7
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-        }
+    // Inside showInlineAI() function, replace the API call with:
+try {
+    const config = await fetchAIConfig();
+    
+    if (!config.apiKey) {
+        throw new Error('AI API key not configured');
+    }
+    
+    const response = await fetch(config.endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${config.apiKey}`
+        },
+        body: JSON.stringify({
+            model: config.model,
+            messages: [
+                {
+                    role: 'user',
+                    content: `Explain "${keyword}" in programming in 2-3 simple sentences for beginners.`
+                }
+            ],
+            max_tokens: 100,
+            temperature: 0.7
+        })
+    });
+    
+    if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+    }
+    
         
         const data = await response.json();
         
