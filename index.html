@@ -6240,31 +6240,26 @@ body.light-mode .set-goals-btn {
     box-shadow: 0 6px 20px rgba(100, 255, 218, 0.3);
 }
 
-/* Goals Modal - FIXED ANIMATION */
+/* Goals Modal */
 .goals-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    display: flex;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.4s ease;
+    animation: fadeIn 0.3s ease;
     overflow-y: auto;
     padding: 20px;
 }
 
 .goals-modal.active {
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px);
-    opacity: 1;
-    visibility: visible;
+    display: flex;
 }
 
 .goals-modal-content {
@@ -6276,20 +6271,11 @@ body.light-mode .set-goals-btn {
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
-    transform: scale(0.7) translateY(50px);
-    opacity: 0;
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-.goals-modal.active .goals-modal-content {
-    transform: scale(1) translateY(0);
-    opacity: 1;
+    animation: modalSlide 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 body.light-mode .goals-modal-content {
     background: rgba(255, 255, 255, 0.98);
-    border-color: rgba(10, 122, 94, 0.3);
 }
 
 .goals-header {
@@ -6453,6 +6439,127 @@ body.light-mode .goal-input-row input {
     
     .goals-actions {
         flex-direction: column;
+    }
+}
+
+/* HIDE DESKTOP CHART TABS ON MOBILE */
+@media (max-width: 768px) {
+    .chart-tabs {
+        display: none !important; /* Hide the oval language buttons on mobile */
+    }
+    
+    /* Make filter visible on mobile */
+    .language-filter {
+        display: block;
+    }
+}
+
+/* INCREASE CHART SIZE ON MOBILE */
+@media (max-width: 768px) {
+    .bar-chart {
+        height: 350px; /* Increased from 280px */
+        padding: 15px 5px 55px 55px;
+        gap: 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+        scroll-padding-left: 50px;
+    }
+    
+    .bar-item {
+        flex: 0 0 70px;
+        min-width: 70px;
+        height: 260px; /* Increased from 180px */
+    }
+    
+    .bar {
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .bar-value {
+        font-size: 0.8em;
+        top: -30px;
+        padding: 5px 10px;
+    }
+    
+    .bar-label {
+        font-size: 0.7em;
+        bottom: -40px;
+        max-width: 70px;
+        line-height: 1.1;
+    }
+    
+    /* Adjust Y-axis labels */
+    .chart-y-labels {
+        left: 5px;
+        font-size: 0.7em;
+        bottom: 55px;
+        top: 15px;
+    }
+    
+    .chart-y-labels span {
+        padding: 3px 6px;
+        font-size: 0.85em;
+    }
+    
+    /* Adjust axis lines */
+    .bar-chart::before {
+        left: 50px;
+        bottom: 50px;
+        height: calc(100% - 65px);
+    }
+    
+    .bar-chart::after {
+        left: 50px;
+        bottom: 50px;
+        width: calc(100% - 55px);
+    }
+}
+
+@media (max-width: 480px) {
+    .bar-chart {
+        height: 320px; /* Slightly smaller for very small screens */
+        padding: 12px 5px 50px 50px;
+        gap: 10px;
+    }
+    
+    .bar-item {
+        flex: 0 0 65px;
+        min-width: 65px;
+        height: 240px;
+    }
+    
+    .bar-value {
+        font-size: 0.75em;
+        top: -28px;
+        padding: 4px 8px;
+    }
+    
+    .bar-label {
+        font-size: 0.68em;
+        bottom: -38px;
+        max-width: 65px;
+    }
+}
+
+/* HIDE SET GOALS BUTTON */
+.set-goals-btn {
+    display: none !important;
+}
+
+/* Adjust progress controls when goals button is hidden */
+.progress-controls {
+    justify-content: flex-start; /* Align filter to left */
+}
+
+@media (max-width: 768px) {
+    .progress-controls {
+        justify-content: stretch;
+    }
+    
+    .language-filter {
+        width: 100%; /* Make filter full width on mobile */
     }
 }
     </style>
@@ -10569,10 +10676,15 @@ window.addEventListener('beforeunload', function() {
     }
 });
 
-// FILTER FUNCTIONS
+// ============================================
+// LANGUAGE FILTER FUNCTIONS
+// ============================================
+
 function toggleFilter() {
     const filter = document.getElementById('languageFilter');
-    filter.classList.toggle('active');
+    if (filter) {
+        filter.classList.toggle('active');
+    }
 }
 
 function filterChart(language) {
@@ -10584,7 +10696,7 @@ function filterChart(language) {
     options.forEach(opt => opt.classList.remove('active'));
     event.target.classList.add('active');
     
-    // Update filter text
+    // Update filter text with icons
     const icons = {
         'all': '🌐 All Languages',
         'python': '🐍 Python',
@@ -10593,16 +10705,21 @@ function filterChart(language) {
         'css': '🎨 CSS',
         'react': '⚛️ React'
     };
-    filterText.textContent = icons[language];
+    
+    if (filterText) {
+        filterText.textContent = icons[language] || '🌐 All Languages';
+    }
     
     // Close dropdown
-    filter.classList.remove('active');
+    if (filter) {
+        filter.classList.remove('active');
+    }
     
-    // Switch chart
+    // Switch to the selected chart
     switchChart(language);
 }
 
-// Close filter when clicking outside
+// Close filter dropdown when clicking outside
 document.addEventListener('click', function(e) {
     const filter = document.getElementById('languageFilter');
     if (filter && !filter.contains(e.target)) {
@@ -10610,111 +10727,40 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// GOALS MODAL FUNCTIONS - UPDATED
-function openGoalsModal() {
-    const modal = document.getElementById('goalsModal');
-    const container = document.getElementById('goalsContainer');
-    
-    // Generate goal inputs for each language
-    const languages = [
-        { id: 'python', name: 'Python', icon: '🐍' },
-        { id: 'javascript', name: 'JavaScript', icon: '⚡' },
-        { id: 'html', name: 'HTML', icon: '🌐' },
-        { id: 'css', name: 'CSS', icon: '🎨' },
-        { id: 'react', name: 'React', icon: '⚛️' }
-    ];
-    
-    container.innerHTML = '';
-    
-    languages.forEach(lang => {
-        const savedGoals = JSON.parse(localStorage.getItem('goals_' + currentUser) || '{}');
-        const langGoals = savedGoals[lang.id] || { courses: 0, hours: 0 };
-        
-        const section = document.createElement('div');
-        section.className = 'goal-language-section';
-        section.innerHTML = `
-            <div class="goal-lang-header">
-                <div class="goal-lang-icon">${lang.icon}</div>
-                <div class="goal-lang-name">${lang.name}</div>
-            </div>
-            <div class="goal-input-group">
-                <div class="goal-input-row">
-                    <label>Courses to Complete:</label>
-                    <input type="number" 
-                           min="0" 
-                           max="7" 
-                           value="${langGoals.courses}" 
-                           data-lang="${lang.id}" 
-                           data-type="courses"
-                           placeholder="0-7">
-                </div>
-                <div class="goal-input-row">
-                    <label>Study Hours:</label>
-                    <input type="number" 
-                           min="0" 
-                           value="${langGoals.hours}" 
-                           data-lang="${lang.id}" 
-                           data-type="hours"
-                           placeholder="e.g., 10">
-                </div>
-            </div>
-        `;
-        container.appendChild(section);
-    });
-    
-    // Show modal with smooth animation
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Prevent background scroll
-}
+// ============================================
+// CHART SWITCHING (Update existing function)
+// ============================================
 
-function closeGoalsModal() {
-    const modal = document.getElementById('goalsModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = ''; // Restore scroll
-}
-
-function saveGoals() {
-    const inputs = document.querySelectorAll('.goal-input-row input');
-    const goals = {};
+function switchChart(type) {
+    // Remove active from all tabs
+    document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
     
-    inputs.forEach(input => {
-        const lang = input.dataset.lang;
-        const type = input.dataset.type;
-        const value = parseInt(input.value) || 0;
-        
-        if (!goals[lang]) {
-            goals[lang] = { courses: 0, hours: 0 };
-        }
-        goals[lang][type] = value;
-    });
+    // Remove active from all containers
+    document.querySelectorAll('.chart-container').forEach(c => c.classList.remove('active'));
     
-    localStorage.setItem('goals_' + currentUser, JSON.stringify(goals));
-    
-    showNotification('✅ Goals saved successfully!', 'success');
-    
-    // Close with animation
-    closeGoalsModal();
-}
-
-// Close modals when clicking outside
-document.addEventListener('click', function(e) {
-    const goalsModal = document.getElementById('goalsModal');
-    const modalContent = document.querySelector('.goals-modal-content');
-    
-    if (e.target === goalsModal && !modalContent.contains(e.target)) {
-        closeGoalsModal();
+    // Add active to clicked tab (if triggered by tab click)
+    if (event && event.target && event.target.classList.contains('chart-tab')) {
+        event.target.classList.add('active');
+    } else {
+        // If triggered by filter, activate the corresponding tab
+        const tabs = document.querySelectorAll('.chart-tab');
+        tabs.forEach(tab => {
+            const tabText = tab.textContent.toLowerCase();
+            if (tabText.includes(type) || (type === 'all' && tabText.includes('all'))) {
+                tab.classList.add('active');
+            }
+        });
     }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const goalsModal = document.getElementById('goalsModal');
-        if (goalsModal.classList.contains('active')) {
-            closeGoalsModal();
-        }
+    
+    // Show the selected chart
+    const chartToShow = document.getElementById(type + 'Chart');
+    if (chartToShow) {
+        chartToShow.classList.add('active');
     }
-});
+    
+    // Update charts
+    updateCharts();
+}
 </script>
 </body>
 </html>
