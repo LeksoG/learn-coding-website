@@ -10311,6 +10311,15 @@ function completeLesson() {
         document.getElementById('lessonView').classList.remove('active');
         currentLesson = null;
         
+        // ✅ FIX: Update both courses list AND roadmap
+        renderCourses();
+        
+        // Check if roadmap is visible and regenerate it
+        const roadmapView = document.getElementById('roadmapView');
+        if (roadmapView && roadmapView.classList.contains('active')) {
+            generateRoadmap();
+        }
+        
         showSection('home');
         
         if (showStreak && newStreak > 0) {
@@ -11976,9 +11985,10 @@ function switchLearnMode(mode) {
     
     if (mode === 'courses') {
         document.getElementById('coursesView').classList.add('active');
+        renderCourses(); // ✅ Refresh courses
     } else if (mode === 'roadmap') {
         document.getElementById('roadmapView').classList.add('active');
-        generateRoadmap();
+        generateRoadmap(); // Already there, this will show updated state
     }
 }
 
