@@ -12746,7 +12746,16 @@ async function showCompletionStats() {
 async function closeStatsAndSuggest() {
     document.querySelector('.completion-stats-modal').remove();
     
-    // First, close lesson and go to overview
+    // ✅ CALCULATE ACCURACY BEFORE CLOSING LESSON
+    const totalQuestions = lessonContent[currentLesson.language]?.[currentLesson.courseId]?.exercises.length || 0;
+    const wrongAttempts = wrongAnswers.length;
+    const accuracy = totalQuestions > 0 ? Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100) : 100;
+    
+    // ✅ STORE LESSON INFO BEFORE NULLING
+    const wasRetryMode = isRetryMode;
+    const shouldShowSuggestion = !wasRetryMode && accuracy >= 60 && accuracy < 80;
+    
+    // Now close lesson and go to overview
     document.getElementById('lessonView').classList.remove('active');
     currentLesson = null;
     
@@ -12763,19 +12772,15 @@ async function closeStatsAndSuggest() {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     // Check and show streak
-    if (!isRetryMode) {
+    if (!wasRetryMode) {
         checkAndShowStreak();
     }
     
     // Wait another 0.5 seconds before checking for AI suggestion
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Determine if AI suggestion needed (if accuracy < 80%)
-    const totalQuestions = lessonContent[currentLesson ? currentLesson.language : '']?.[currentLesson ? currentLesson.courseId : '']?.exercises.length || 0;
-    const wrongAttempts = wrongAnswers.length;
-    const accuracy = totalQuestions > 0 ? Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100) : 100;
-    
-    if (!isRetryMode && accuracy < 80) {
+    // ✅ SHOW AI SUGGESTION IF NEEDED (60-79% accuracy)
+    if (shouldShowSuggestion) {
         await generateAISuggestion();
     }
     
@@ -12846,6 +12851,14 @@ async function generateAISuggestion() {
         const config = await fetchAIConfig();
         if (!config.apiKey) return;
         
+        // ✅ USE STORED LESSON INFO FROM CLOSURE
+        const lastLesson = {
+            courseName: document.getElementById('lessonTitle').textContent.replace('🤖 ', ''),
+            language: Object.keys(courses).find(lang => 
+                courses[lang].some(c => c.title === document.getElementById('lessonTitle').textContent.replace('🤖 ', ''))
+            ) || 'programming'
+        };
+        
         const response = await fetch(config.endpoint, {
             method: 'POST',
             headers: {
@@ -12856,7 +12869,7 @@ async function generateAISuggestion() {
                 model: config.model,
                 messages: [{
                     role: 'user',
-                    content: `Based on completing "${currentLesson.courseName}" in ${currentLesson.language}, suggest ONE related mini-course topic in 5-8 words that would reinforce this learning. Just the title.`
+                    content: `Based on completing "${lastLesson.courseName}" in ${lastLesson.language}, suggest ONE related mini-course topic in 5-8 words that would reinforce this learning. Just the title.`
                 }],
                 max_tokens: 20,
                 temperature: 0.7
