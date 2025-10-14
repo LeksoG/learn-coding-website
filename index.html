@@ -8413,14 +8413,17 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
         <p class="update-version">Version 3.6</p>
         
         <div class="changelog">
-            <h3>🎨 What's New</h3>
-            <ul>
-                <li>📱 New sidebar for mobile with swipe gestures</li>
-                <li>🗺️ Interactive learning Roadmap</li>
-                <li>👤 Personalized greetings using your name</li>
-                <li>⚡ Better performance and bug fixes</li>
-            </ul>
-        </div>
+    <h3>🚀 What's New in 4.0</h3>
+    <ul>
+        <li>🗺️ Interactive Learning Roadmap with visual progress tracking</li>
+        <li>⏱️ Smart Time Estimation for each course and total learning path</li>
+        <li>🤖 AI-Powered Course Suggestions based on your performance</li>
+        <li>💡 Personalized AI mini-courses when you score 55-79%</li>
+        <li>📊 Enhanced progress visualization with dynamic charts</li>
+        <li>✨ Improved animations and user experience throughout</li>
+        <li>🎯 Better mobile optimization and touch interactions</li>
+    </ul>
+</div>
         
         <button class="close-splash-btn" onclick="closeUpdateSplash()">Let's Go! 🚀</button>
     </div>
@@ -10224,7 +10227,7 @@ function openLesson(language, courseId, courseName) {
 }
 
 function closeLesson() {
-    if (studyStartTime && currentLesson && !isRetryMode) {
+    if (studyStartTime && currentLesson && !isRetryMode && !currentLesson.isAI) {
         const sessionTime = Math.floor((Date.now() - studyStartTime) / 1000);
         userProgress[currentLesson.language][currentLesson.courseId].time += sessionTime;
         totalStudyTime += sessionTime;
@@ -10232,15 +10235,29 @@ function closeLesson() {
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
         localStorage.setItem('studyTime_' + currentUser, totalStudyTime.toString());
     }
+    
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
     }
+    
+    // Clear all AI course data
+    if (currentLesson && currentLesson.isAI) {
+        currentAICourse = null;
+        aiCourseContent = null;
+        wrongAnswers = [];
+    }
+    
     studyStartTime = null;
     isRetryMode = false;
+    learnCompleted = false;
+    learnMessageIndex = 0;
+    correctAnswers = 0;
+    selectedMCQ = {};
     
     document.getElementById('lessonView').classList.remove('active');
     currentLesson = null;
+    
     renderCourses();
     updateDashboard();
 }
@@ -10265,8 +10282,15 @@ function switchPanel(panel) {
     } else {
         document.getElementById('questionsTabBtn').classList.add('active');
         document.getElementById('questionsPanel').classList.add('active');
-        if (document.getElementById('questionMessages').children.length === 0) {
-            displayQuestions();
+        
+        const questionMessages = document.getElementById('questionMessages');
+        if (questionMessages.children.length === 0) {
+            // Check if it's an AI course
+            if (currentLesson && currentLesson.isAI) {
+                displayAIQuestions(aiCourseContent.exercises);
+            } else {
+                displayQuestions();
+            }
         }
     }
 }
@@ -11397,7 +11421,7 @@ function resetProgress() {
 }
 
 // Define version constant at top of script (around line 127)
-const APP_VERSION = '3.6';
+const APP_VERSION = '4.0';
 
 // Replace checkForUpdates() function
 function checkForUpdates() {
@@ -12778,7 +12802,7 @@ async function closeStatsAndSuggest() {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     // ✅ SHOW AI SUGGESTION IF ACCURACY IS 60-79%
-    if (!isRetryMode && accuracy >= 60 && accuracy < 80) {
+    if (!isRetryMode && accuracy < 55) {
         console.log('✨ Showing AI Suggestion!'); // Debug
         await generateAISuggestion(lessonName, lessonLang);
     } else {
@@ -12947,23 +12971,23 @@ async function openAISuggestedCourse(title) {
             throw new Error('AI API key not configured');
         }
         
-        // Generate 4-5 lesson messages
-        const lessonResponse = await fetch(config.endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${config.apiKey}`
-            },
-            body: JSON.stringify({
-                model: config.model,
-                messages: [{
-                    role: 'user',
-                    content: `Create 4 short teaching messages about "${title}" for beginners. Each 2-3 sentences. Format: ["message 1", "message 2", "message 3", "message 4"]`
-                }],
-                max_tokens: 400,
-                temperature: 0.7
-            })
-        });
+        // Generate 4-5 lesson messages WITH CODE EXAMPLES
+const lessonResponse = await fetch(config.endpoint, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiKey}`
+    },
+    body: JSON.stringify({
+        model: config.model,
+        messages: [{
+            role: 'user',
+            content: `Create 5 teaching messages about "${title}" for beginners. Include 2 code examples wrapped in <div class="code-example"><code>...</code></div>. Each message 2-3 sentences. Format as JSON array: ["message 1", "message 2 with <div class='code-example'><code>example</code></div>", ...]`
+        }],
+        max_tokens: 600,
+        temperature: 0.7
+    })
+});
         
         if (!lessonResponse.ok) {
             throw new Error('Failed to generate lesson content');
@@ -13155,8 +13179,11 @@ async function displayNextAIMessage() {
     
     if (learnMessageIndex >= aiCourseContent.learn.length) {
         learnCompleted = true;
-        document.getElementById('questionsTabBtn').disabled = false;
-        document.getElementById('questionsTabBtn').innerHTML = 'Questions ✓';
+        const questionsBtn = document.getElementById('questionsTabBtn');
+        if (questionsBtn) {
+            questionsBtn.disabled = false;
+            questionsBtn.innerHTML = 'Questions ✓';
+        }
         
         const unlockMsg = document.createElement('div');
         unlockMsg.className = 'message';
@@ -13168,13 +13195,9 @@ async function displayNextAIMessage() {
         `;
         learnMessages.appendChild(unlockMsg);
         learnMessages.scrollTop = learnMessages.scrollHeight;
-        
-        // Display AI questions
-        displayAIQuestions(aiCourseContent.exercises);
-        return;
+        return; // Don't display questions yet - wait for user to switch tabs
     }
     
-    // Show typing indicator
     const typingDiv = document.createElement('div');
     typingDiv.className = 'message';
     typingDiv.innerHTML = `
@@ -13208,6 +13231,27 @@ async function displayNextAIMessage() {
         
         if (learnMessageIndex < aiCourseContent.learn.length) {
             setTimeout(displayNextAIMessage, 600);
+        } else {
+            // Final message - unlock questions
+            setTimeout(() => {
+                learnCompleted = true;
+                const questionsBtn = document.getElementById('questionsTabBtn');
+                if (questionsBtn) {
+                    questionsBtn.disabled = false;
+                    questionsBtn.innerHTML = 'Questions ✓';
+                }
+                
+                const unlockMsg = document.createElement('div');
+                unlockMsg.className = 'message';
+                unlockMsg.innerHTML = `
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-bubble">
+                        ✅ Excellent! Switch to <strong>Questions</strong> tab to test yourself!
+                    </div>
+                `;
+                learnMessages.appendChild(unlockMsg);
+                learnMessages.scrollTop = learnMessages.scrollHeight;
+            }, 600);
         }
     }, 800);
 }
