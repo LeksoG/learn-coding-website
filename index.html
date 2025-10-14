@@ -7735,10 +7735,10 @@ body.light-mode .mobile-top-search-results .search-result-title {
     background: linear-gradient(135deg, rgba(100, 255, 218, 0.3), rgba(0, 212, 255, 0.3));
     border: 2px solid #64ffda;
     border-radius: 50px;
-    padding: 12px 24px; /* Reduced from 16px 32px */
+    padding: 12px 24px;
     color: #64ffda;
     font-weight: 700;
-    font-size: 0.95em; /* Reduced */
+    font-size: 0.95em;
     cursor: pointer;
     z-index: 9000;
     opacity: 0;
@@ -7748,7 +7748,7 @@ body.light-mode .mobile-top-search-results .search-result-title {
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     animation: aiGlow 2s ease-in-out infinite;
-    max-width: 85%; /* Reduced from 90% */
+    max-width: 85%;
     text-align: center;
 }
 
@@ -12746,16 +12746,14 @@ async function showCompletionStats() {
 async function closeStatsAndSuggest() {
     document.querySelector('.completion-stats-modal').remove();
     
-    // ✅ CALCULATE ACCURACY BEFORE CLOSING LESSON
-    const totalQuestions = lessonContent[currentLesson.language]?.[currentLesson.courseId]?.exercises.length || 0;
-    const wrongAttempts = wrongAnswers.length;
-    const accuracy = totalQuestions > 0 ? Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100) : 100;
+    // ✅ GET STORED ACCURACY
+    const accuracy = parseInt(localStorage.getItem('lastLessonAccuracy') || '100');
+    const lessonName = localStorage.getItem('lastLessonName') || '';
+    const lessonLang = localStorage.getItem('lastLessonLanguage') || '';
     
-    // ✅ STORE LESSON INFO BEFORE NULLING
-    const wasRetryMode = isRetryMode;
-    const shouldShowSuggestion = !wasRetryMode && accuracy >= 60 && accuracy < 80;
+    console.log('🎯 Accuracy:', accuracy, '- Lesson:', lessonName); // Debug
     
-    // Now close lesson and go to overview
+    // Close lesson and go to overview
     document.getElementById('lessonView').classList.remove('active');
     currentLesson = null;
     
@@ -12772,19 +12770,26 @@ async function closeStatsAndSuggest() {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     // Check and show streak
-    if (!wasRetryMode) {
+    if (!isRetryMode) {
         checkAndShowStreak();
     }
     
-    // Wait another 0.5 seconds before checking for AI suggestion
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Wait another 1 second before checking for AI suggestion
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // ✅ SHOW AI SUGGESTION IF NEEDED (60-79% accuracy)
-    if (shouldShowSuggestion) {
-        await generateAISuggestion();
+    // ✅ SHOW AI SUGGESTION IF ACCURACY IS 60-79%
+    if (!isRetryMode && accuracy >= 60 && accuracy < 80) {
+        console.log('✨ Showing AI Suggestion!'); // Debug
+        await generateAISuggestion(lessonName, lessonLang);
+    } else {
+        console.log('❌ No AI Suggestion - Accuracy:', accuracy); // Debug
     }
     
+    // Clean up
     wrongAnswers = [];
+    localStorage.removeItem('lastLessonAccuracy');
+    localStorage.removeItem('lastLessonName');
+    localStorage.removeItem('lastLessonLanguage');
 }
 
 // NEW: Separate function for streak checking
@@ -12846,18 +12851,18 @@ function finishLessonCompletely() {
     showSection('home');
 }
 
-async function generateAISuggestion() {
+async function generateAISuggestion(courseName, language) {
+    console.log('🤖 Generating AI suggestion for:', courseName); // Debug
+    
     try {
         const config = await fetchAIConfig();
-        if (!config.apiKey) return;
         
-        // ✅ USE STORED LESSON INFO FROM CLOSURE
-        const lastLesson = {
-            courseName: document.getElementById('lessonTitle').textContent.replace('🤖 ', ''),
-            language: Object.keys(courses).find(lang => 
-                courses[lang].some(c => c.title === document.getElementById('lessonTitle').textContent.replace('🤖 ', ''))
-            ) || 'programming'
-        };
+        if (!config.apiKey) {
+            console.warn('⚠️ No AI API key - showing fallback'); // Debug
+            // Show fallback suggestion without API
+            showAISuggestionButton(`Practice More ${courseName}`);
+            return;
+        }
         
         const response = await fetch(config.endpoint, {
             method: 'POST',
@@ -12869,26 +12874,37 @@ async function generateAISuggestion() {
                 model: config.model,
                 messages: [{
                     role: 'user',
-                    content: `Based on completing "${lastLesson.courseName}" in ${lastLesson.language}, suggest ONE related mini-course topic in 5-8 words that would reinforce this learning. Just the title.`
+                    content: `Based on completing "${courseName}" in ${language}, suggest ONE related mini-course topic in 5-8 words that would reinforce this learning. Just the title.`
                 }],
                 max_tokens: 20,
                 temperature: 0.7
             })
         });
         
-        if (!response.ok) return;
+        if (!response.ok) {
+            console.warn('⚠️ API failed - showing fallback'); // Debug
+            showAISuggestionButton(`Review ${courseName} Concepts`);
+            return;
+        }
         
         const data = await response.json();
         const suggestedTitle = data.choices[0].message.content.replace(/['"]/g, '').trim();
         
+        console.log('✅ AI Suggestion:', suggestedTitle); // Debug
         showAISuggestionButton(suggestedTitle);
         
     } catch (error) {
-        console.error('AI Suggestion Error:', error);
+        console.error('❌ AI Suggestion Error:', error);
+        // Show fallback on error
+        showAISuggestionButton(`Advanced ${courseName}`);
     }
 }
 
 function showAISuggestionButton(title) {
+    // Remove any existing button
+    const existingBtn = document.querySelector('.ai-suggestion-btn');
+    if (existingBtn) existingBtn.remove();
+    
     const btn = document.createElement('div');
     btn.className = 'ai-suggestion-btn';
     btn.innerHTML = `
@@ -12899,7 +12915,10 @@ function showAISuggestionButton(title) {
     
     document.body.appendChild(btn);
     
-    setTimeout(() => btn.classList.add('show'), 500);
+    // Animate in after a short delay
+    setTimeout(() => btn.classList.add('show'), 100);
+    
+    console.log('✨ AI Suggestion button shown!'); // Debug
 }
 
 async function openAISuggestedCourse(title) {
@@ -13134,7 +13153,6 @@ function completeLesson() {
     if (!isRetryMode) {
         // Handle AI course completion
         if (currentLesson.isAI) {
-            // Save AI completion to a special storage
             const aiCompletions = JSON.parse(localStorage.getItem('aiCompletions_' + currentUser) || '[]');
             aiCompletions.push({
                 title: currentAICourse.title,
@@ -13142,8 +13160,6 @@ function completeLesson() {
                 accuracy: Math.round(((aiCourseContent.exercises.length - wrongAnswers.length) / aiCourseContent.exercises.length) * 100)
             });
             localStorage.setItem('aiCompletions_' + currentUser, JSON.stringify(aiCompletions));
-            
-            // Show completion without streak
             showAICompletionStats();
             return;
         }
@@ -13152,6 +13168,16 @@ function completeLesson() {
         userProgress[currentLesson.language][currentLesson.courseId].completed = true;
         userProgress[currentLesson.language][currentLesson.courseId].progress = 100;
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
+        
+        // ✅ CALCULATE AND STORE ACCURACY BEFORE SHOWING STATS
+        const totalQuestions = lessonContent[currentLesson.language][currentLesson.courseId].exercises.length;
+        const wrongAttempts = wrongAnswers.length;
+        const finalAccuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
+        
+        // Store for later use
+        localStorage.setItem('lastLessonAccuracy', finalAccuracy.toString());
+        localStorage.setItem('lastLessonName', currentLesson.courseName);
+        localStorage.setItem('lastLessonLanguage', currentLesson.language);
         
         showCompletionStats();
         
