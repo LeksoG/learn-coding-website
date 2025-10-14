@@ -12922,7 +12922,16 @@ function showAISuggestionButton(title) {
 }
 
 async function openAISuggestedCourse(title) {
-    document.querySelector('.ai-suggestion-btn').remove();
+    // Remove the suggestion button
+    const btn = document.querySelector('.ai-suggestion-btn');
+    if (btn) btn.remove();
+    
+    // Show loading overlay
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('active');
+        document.querySelector('.loading-text').textContent = 'Generating AI Course...';
+    }
     
     // Store AI course info
     currentAICourse = {
@@ -12931,12 +12940,11 @@ async function openAISuggestedCourse(title) {
         courseId: 'ai_' + Date.now()
     };
     
-    // Generate AI content
     try {
         const config = await fetchAIConfig();
+        
         if (!config.apiKey) {
-            showNotification('AI features not available', 'error');
-            return;
+            throw new Error('AI API key not configured');
         }
         
         // Generate 4-5 lesson messages
@@ -12950,15 +12958,45 @@ async function openAISuggestedCourse(title) {
                 model: config.model,
                 messages: [{
                     role: 'user',
-                    content: `Create 4 short teaching messages about "${title}" for beginners. Each 2-3 sentences. Return as JSON array of strings.`
+                    content: `Create 4 short teaching messages about "${title}" for beginners. Each 2-3 sentences. Format: ["message 1", "message 2", "message 3", "message 4"]`
                 }],
-                max_tokens: 300,
+                max_tokens: 400,
                 temperature: 0.7
             })
         });
         
+        if (!lessonResponse.ok) {
+            throw new Error('Failed to generate lesson content');
+        }
+        
         const lessonData = await lessonResponse.json();
-        const messages = JSON.parse(lessonData.choices[0].message.content.match(/\[.*\]/)[0]);
+        console.log('📚 Lesson Response:', lessonData); // Debug
+        
+        let messages;
+        try {
+            const content = lessonData.choices[0].message.content;
+            const jsonMatch = content.match(/\[[\s\S]*\]/);
+            
+            if (!jsonMatch) {
+                throw new Error('No JSON array found in response');
+            }
+            
+            messages = JSON.parse(jsonMatch[0]);
+            
+            // Validate messages
+            if (!Array.isArray(messages) || messages.length === 0) {
+                throw new Error('Invalid messages format');
+            }
+        } catch (parseError) {
+            console.error('Parse error:', parseError);
+            // Fallback messages
+            messages = [
+                `Welcome to ${title}! Let's learn the basics.`,
+                `Understanding ${title} will help you become a better programmer.`,
+                `This concept is used frequently in modern development.`,
+                `Practice makes perfect - let's test your knowledge!`
+            ];
+        }
         
         // Generate 3 questions
         const questionsResponse = await fetch(config.endpoint, {
@@ -12971,15 +13009,84 @@ async function openAISuggestedCourse(title) {
                 model: config.model,
                 messages: [{
                     role: 'user',
-                    content: `Create 3 multiple choice questions about "${title}". Return as JSON: [{"question":"...", "options":["a","b","c","d"], "correct":0}]`
+                    content: `Create 3 multiple choice questions about "${title}". Format: [{"question":"What is...", "options":["Option A","Option B","Option C","Option D"], "correct":0}]`
                 }],
-                max_tokens: 300,
+                max_tokens: 400,
                 temperature: 0.7
             })
         });
         
+        if (!questionsResponse.ok) {
+            throw new Error('Failed to generate questions');
+        }
+        
         const questionsData = await questionsResponse.json();
-        const questions = JSON.parse(questionsData.choices[0].message.content.match(/\[.*\]/)[0]);
+        console.log('❓ Questions Response:', questionsData); // Debug
+        
+        let questions;
+        try {
+            const content = questionsData.choices[0].message.content;
+            const jsonMatch = content.match(/\[[\s\S]*\]/);
+            
+            if (!jsonMatch) {
+                throw new Error('No JSON array found in questions');
+            }
+            
+            questions = JSON.parse(jsonMatch[0]);
+            
+            // Validate questions
+            if (!Array.isArray(questions) || questions.length === 0) {
+                throw new Error('Invalid questions format');
+            }
+            
+            // Validate each question has required fields
+            questions = questions.filter(q => 
+                q.question && 
+                Array.isArray(q.options) && 
+                q.options.length >= 2 &&
+                typeof q.correct === 'number'
+            );
+            
+            if (questions.length === 0) {
+                throw new Error('No valid questions found');
+            }
+            
+        } catch (parseError) {
+            console.error('Questions parse error:', parseError);
+            // Fallback questions
+            questions = [
+                {
+                    question: `What is the main purpose of ${title}?`,
+                    options: [
+                        'To improve code quality',
+                        'To slow down development',
+                        'To confuse developers',
+                        'None of the above'
+                    ],
+                    correct: 0
+                },
+                {
+                    question: `When should you use ${title}?`,
+                    options: [
+                        'Never',
+                        'Always',
+                        'When it improves your code',
+                        'Only on Mondays'
+                    ],
+                    correct: 2
+                },
+                {
+                    question: `Which best describes ${title}?`,
+                    options: [
+                        'A programming concept',
+                        'A type of food',
+                        'A car brand',
+                        'A movie genre'
+                    ],
+                    correct: 0
+                }
+            ];
+        }
         
         // Store AI course content
         aiCourseContent = {
@@ -12992,12 +13099,23 @@ async function openAISuggestedCourse(title) {
             }))
         };
         
-        // Open like a normal lesson
+        console.log('✅ AI Course Content:', aiCourseContent); // Debug
+        
+        // Hide loading and open lesson
+        if (loadingOverlay) loadingOverlay.classList.remove('active');
+        
         openAILesson();
         
     } catch (error) {
-        console.error('AI Course Generation Error:', error);
-        showNotification('Failed to generate AI course', 'error');
+        console.error('❌ AI Course Generation Error:', error);
+        
+        // Hide loading
+        if (loadingOverlay) loadingOverlay.classList.remove('active');
+        
+        // Show error notification
+        showNotification('Failed to generate AI course. Please try again later.', 'error');
+        
+        currentAICourse = null;
     }
 }
 
