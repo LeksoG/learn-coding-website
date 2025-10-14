@@ -7052,6 +7052,22 @@ body.light-mode .roadmap-stat-value {
     position: relative;
 }
 
+@media (max-width: 768px) {
+    .roadmap-language-section {
+        margin-bottom: 40px;
+    }
+    
+    .roadmap-language-header {
+        margin-bottom: 30px;
+        padding: 0 10px;
+    }
+    
+    .roadmap-language-title {
+        font-size: 1.4em;
+        padding: 12px 30px;
+    }
+}
+
 .roadmap-language-section:nth-child(1) { animation-delay: 0.1s; }
 .roadmap-language-section:nth-child(2) { animation-delay: 0.2s; }
 .roadmap-language-section:nth-child(3) { animation-delay: 0.3s; }
@@ -7395,19 +7411,34 @@ body.light-mode .roadmap-course-title {
     }
 }
 
-/* MOBILE TOP SEARCH BAR - ALIGNED WITH HAMBURGER */
+/* MOBILE TOP SEARCH BAR - ALWAYS FIXED */
 .mobile-top-search {
     display: none;
     position: fixed;
-    top: 20px; /* Same as hamburger */
-    left: 80px; /* After hamburger (50px width + 20px left + 10px gap) */
-    right: 20px; /* 20px from right edge */
+    top: 20px;
+    left: 80px;
+    right: 20px;
     z-index: 9996;
+    /* CRITICAL: Prevent movement on scroll/keyboard */
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
 @media (max-width: 768px) {
     .mobile-top-search {
         display: block;
+    }
+    
+    /* Prevent body shift when keyboard opens */
+    body {
+        position: fixed;
+        width: 100%;
+    }
+    
+    body.keyboard-open {
+        position: fixed;
+        overflow: hidden;
     }
 }
 
@@ -7415,7 +7446,7 @@ body.light-mode .roadmap-course-title {
     display: flex;
     align-items: center;
     gap: 12px;
-    background: rgba(30, 30, 30, 0.4);
+    background: rgba(30, 30, 30, 0.95);
     backdrop-filter: blur(30px) saturate(180%);
     -webkit-backdrop-filter: blur(30px) saturate(180%);
     border: 2px solid rgba(100, 255, 218, 0.25);
@@ -7423,12 +7454,11 @@ body.light-mode .roadmap-course-title {
     padding: 14px 22px;
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1),
-        0 0 0 1px rgba(100, 255, 218, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    height: 50px; /* Same height as hamburger */
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    height: 50px;
+    /* CRITICAL: Keep it anchored */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
 }
 
 .mobile-search-wrapper::before {
@@ -7584,25 +7614,301 @@ body.light-mode .mobile-top-search-results .search-result-title {
     }
 }
 
-/* MOBILE ROADMAP - LINE ON LEFT */
 @media (max-width: 768px) {
     .roadmap-timeline::before {
-        left: 30px; /* Move to left on mobile */
+        left: 30px;
         transform: none;
     }
     
-    .roadmap-progress-line {
-        left: 30px; /* Move progress line to left too */
-        transform: none;
+    .roadmap-timeline {
+        padding-left: 0;
+        padding-right: 0;
     }
     
     .roadmap-item {
-        padding-left: 80px; /* Make room for left-side line */
+        padding-left: 80px;
+        padding-right: 10px;
+        margin-bottom: 40px; /* Reduced spacing */
+    }
+    
+    .roadmap-card {
+        width: 100%;
+        max-width: 100%;
     }
     
     .roadmap-node {
         left: 30px; /* Align nodes with left line */
         transform: none;
+    }
+}
+
+/* ROADMAP ENHANCEMENTS */
+.roadmap-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: rgba(30, 30, 30, 0.6);
+    border: 2px solid rgba(100, 255, 218, 0.2);
+    border-radius: 20px;
+}
+
+.roadmap-path-indicator {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(100, 255, 218, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(100, 255, 218, 0.3);
+    font-size: 0.85em;
+    color: #64ffda;
+    font-weight: 600;
+}
+
+.course-time-estimate {
+    color: #8b949e;
+    font-size: 0.85em;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.skill-branch-indicator {
+    position: absolute;
+    left: 30px;
+    width: 3px;
+    background: linear-gradient(180deg, 
+        rgba(100, 255, 218, 0.5) 0%,
+        rgba(100, 255, 218, 0.2) 100%);
+    border-radius: 2px;
+}
+
+/* MOBILE QUESTION OPTIMIZATION */
+@media (max-width: 768px) {
+    .code-fill {
+        padding: 15px;
+        font-size: 0.9em;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .code-blank-wrapper {
+        display: inline-flex;
+        margin: 2px;
+    }
+    
+    .code-blank {
+        min-width: 70px;
+        max-width: 150px;
+        font-size: 0.95em;
+        padding: 8px 12px;
+    }
+    
+    .mcq-option {
+        padding: 15px 18px;
+        font-size: 0.95em;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .exercise-box {
+        padding: 20px 15px;
+    }
+    
+    .submit-button,
+    .next-button {
+        width: 100%;
+        padding: 14px;
+        font-size: 1em;
+    }
+}
+
+/* AI SUGGESTION OVAL BUTTON */
+.ai-suggestion-btn {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.3), rgba(0, 212, 255, 0.3));
+    border: 2px solid #64ffda;
+    border-radius: 50px;
+    padding: 16px 32px;
+    color: #64ffda;
+    font-weight: 700;
+    font-size: 1.05em;
+    cursor: pointer;
+    z-index: 9000;
+    opacity: 0;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(100, 255, 218, 0.5),
+                0 0 60px rgba(100, 255, 218, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: aiGlow 2s ease-in-out infinite;
+    max-width: 90%;
+    text-align: center;
+}
+
+.ai-suggestion-btn.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.ai-suggestion-btn:hover {
+    transform: translateX(-50%) translateY(-5px);
+    box-shadow: 0 0 40px rgba(100, 255, 218, 0.7),
+                0 0 80px rgba(100, 255, 218, 0.4);
+}
+
+@keyframes aiGlow {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(100, 255, 218, 0.5),
+                    0 0 60px rgba(100, 255, 218, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(100, 255, 218, 0.7),
+                    0 0 80px rgba(100, 255, 218, 0.5);
+    }
+}
+
+.ai-suggestion-title {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.ai-suggestion-desc {
+    font-size: 0.85em;
+    color: #8b949e;
+    font-weight: 500;
+}
+
+/* COMPLETION STATS MODAL */
+.completion-stats-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.completion-stats-modal.active {
+    display: flex;
+}
+
+.completion-stats-content {
+    background: rgba(30, 30, 30, 0.98);
+    border: 2px solid #64ffda;
+    border-radius: 25px;
+    padding: 40px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideUp 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.stats-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.stats-icon {
+    font-size: 4em;
+    margin-bottom: 15px;
+    animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.stats-title {
+    font-size: 2.2em;
+    color: #64ffda;
+    margin-bottom: 10px;
+}
+
+.stats-score {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.score-item {
+    background: rgba(100, 255, 218, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.score-value {
+    font-size: 2.5em;
+    color: #64ffda;
+    font-weight: 700;
+}
+
+.score-label {
+    color: #8b949e;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.wrong-answers-list {
+    background: rgba(255, 100, 100, 0.1);
+    border: 1px solid rgba(255, 100, 100, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.wrong-answer-item {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 100, 100, 0.2);
+    color: #e0e0e0;
+}
+
+.continue-btn {
+    width: 100%;
+    padding: 15px;
+    background: rgba(100, 255, 218, 0.2);
+    border: 2px solid #64ffda;
+    color: #64ffda;
+    border-radius: 50px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.continue-btn:hover {
+    background: rgba(100, 255, 218, 0.3);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 100px;
+        position: relative !important; /* FIX: Ensure body can scroll */
+    }
+
+    @media (max-width: 768px) {
+    .roadmap-progress-line {
+        left: 30px !important;
+        transform: none !important;
     }
 }
     </style>
@@ -12000,16 +12306,38 @@ function generateRoadmap() {
     let completedCourses = 0;
     let inProgressCourses = 0;
     let lockedCourses = 0;
+    let totalEstimatedTime = 0;
     
-    // Create progress line element
+    // IMPROVED: Better structured overview
+    const overview = document.createElement('div');
+    overview.className = 'roadmap-overview';
+    overview.innerHTML = `
+        <div class="roadmap-overview-card">
+            <div class="overview-icon">🎯</div>
+            <div class="overview-value" id="roadmapProgress">0%</div>
+            <div class="overview-label">Overall Progress</div>
+        </div>
+        <div class="roadmap-overview-card">
+            <div class="overview-icon">⏱️</div>
+            <div class="overview-value" id="estimatedTime">0h</div>
+            <div class="overview-label">Time Remaining</div>
+        </div>
+        <div class="roadmap-overview-card">
+            <div class="overview-icon">🎓</div>
+            <div class="overview-value" id="nextMilestone" style="font-size: 1.8em;">-</div>
+            <div class="overview-label">Next Milestone</div>
+        </div>
+    `;
+    timeline.appendChild(overview);
+    
+    // Create progress line (will be positioned absolutely)
     const progressLine = document.createElement('div');
     progressLine.className = 'roadmap-progress-line';
     progressLine.style.height = '0';
     timeline.appendChild(progressLine);
     
-    let totalHeight = 0;
-    let progressHeight = 0;
-    let foundInProgress = false;
+    let nextMilestone = null;
+    let lastActiveItemTop = 0;
     
     // Generate roadmap for each language
     Object.keys(courses).forEach((lang, langIndex) => {
@@ -12039,11 +12367,23 @@ function generateRoadmap() {
             const progress = userProgress[lang][course.id];
             const isCompleted = progress?.completed || false;
             const isInProgress = progress?.progress > 0 && !isCompleted;
-            const isLocked = index > 0 && !userProgress[lang]['course' + index]?.completed;
+            
+            // FIX: Proper unlock logic
+            const prevCourse = index > 0 ? userProgress[lang]['course' + index] : null;
+            const isLocked = index > 0 && !prevCourse?.completed;
             
             if (isCompleted) completedCourses++;
             else if (isInProgress) inProgressCourses++;
             else if (isLocked) lockedCourses++;
+            
+            // Estimate 15-30 minutes per course
+            const estimatedMinutes = 20;
+            if (!isCompleted) totalEstimatedTime += estimatedMinutes;
+            
+            // Find next milestone
+            if (!nextMilestone && !isCompleted && !isLocked) {
+                nextMilestone = course.title;
+            }
             
             let status = 'locked';
             let statusText = '🔒 Locked';
@@ -12057,12 +12397,14 @@ function generateRoadmap() {
                 status = 'in-progress';
                 statusText = '📚 In Progress';
                 nodeIcon = '📚';
-                foundInProgress = true;
+            } else if (!isLocked) {
+                status = 'available';
+                statusText = '🎯 Available';
+                nodeIcon = '🎯';
             }
             
             const item = document.createElement('div');
             item.className = 'roadmap-item';
-            item.setAttribute('data-status', status);
             item.innerHTML = `
                 <div class="roadmap-node ${status}">${nodeIcon}</div>
                 <div class="roadmap-card ${status}" onclick="${!isLocked ? `openCourseFromRoadmap('${lang}', '${course.id}', '${course.title}')` : ''}">
@@ -12071,6 +12413,7 @@ function generateRoadmap() {
                         <div class="roadmap-status-badge ${status}">${statusText}</div>
                     </div>
                     <div class="roadmap-course-desc">${course.desc}</div>
+                    ${!isLocked ? `<div class="course-time-estimate">⏱️ ~${estimatedMinutes} min</div>` : ''}
                     <div class="roadmap-progress-bar">
                         <div class="roadmap-progress-fill" style="width: ${progress?.progress || 0}%"></div>
                     </div>
@@ -12083,30 +12426,46 @@ function generateRoadmap() {
         timeline.appendChild(section);
     });
     
-    // Calculate progress line height after DOM is ready
-    setTimeout(() => {
-        const items = document.querySelectorAll('.roadmap-item');
-        let lastActiveIndex = -1;
+    // Update overview stats
+    const overallProgress = totalCourses > 0 ? Math.round((completedCourses / totalCourses) * 100) : 0;
+    document.getElementById('roadmapProgress').textContent = overallProgress + '%';
+    
+    const hours = Math.floor(totalEstimatedTime / 60);
+    const mins = totalEstimatedTime % 60;
+    document.getElementById('estimatedTime').textContent = hours + 'h ' + mins + 'm';
+    document.getElementById('nextMilestone').textContent = nextMilestone || '🎉 Done!';
+    
+    // Calculate progress line height - IMPROVED
+setTimeout(() => {
+    const sections = document.querySelectorAll('.roadmap-language-section');
+    let lastActiveNode = null;
+    
+    sections.forEach(section => {
+        const items = section.querySelectorAll('.roadmap-item');
         
-        items.forEach((item, index) => {
-            const status = item.getAttribute('data-status');
+        items.forEach(item => {
+            const node = item.querySelector('.roadmap-node');
+            const status = node.classList.contains('completed') ? 'completed' : 
+                          node.classList.contains('in-progress') ? 'in-progress' : 'locked';
+            
+            // Find the LAST completed or in-progress node
             if (status === 'completed' || status === 'in-progress') {
-                lastActiveIndex = index;
+                lastActiveNode = node;
             }
         });
+    });
+    
+    if (lastActiveNode) {
+        const nodeRect = lastActiveNode.getBoundingClientRect();
+        const timelineRect = timeline.getBoundingClientRect();
         
-        if (lastActiveIndex >= 0) {
-            const lastActiveItem = items[lastActiveIndex];
-            const rect = lastActiveItem.getBoundingClientRect();
-            const timelineRect = timeline.getBoundingClientRect();
-            const relativeTop = rect.top - timelineRect.top;
-            const itemHeight = rect.height;
-            
-            // Set height to center of last active item
-            progressHeight = relativeTop + (itemHeight / 2);
-            progressLine.style.height = progressHeight + 'px';
-        }
-    }, 100);
+        // Calculate from top of timeline to CENTER of last active node
+        const nodeCenter = nodeRect.top + (nodeRect.height / 2);
+        const heightFromTop = nodeCenter - timelineRect.top;
+        
+        progressLine.style.height = Math.max(0, heightFromTop) + 'px';
+    }
+}, 200); // Increased delay to ensure DOM is ready
     
     // Update stats
     document.getElementById('roadmapTotal').textContent = totalCourses;
@@ -12205,6 +12564,440 @@ document.addEventListener('click', function(e) {
         document.getElementById('mobileTopSearchResults').classList.remove('active');
     }
 });
+
+// Prevent search bar movement on mobile
+if (window.innerWidth <= 768) {
+    const searchInput = document.getElementById('mobileTopSearchInput');
+    
+    if (searchInput) {
+        searchInput.addEventListener('focus', () => {
+            document.body.classList.add('keyboard-open');
+        });
+        
+        searchInput.addEventListener('blur', () => {
+            document.body.classList.remove('keyboard-open');
+            // Force reposition
+            window.scrollTo(window.scrollX, window.scrollY);
+        });
+    }
+}
+
+// Track wrong answers
+let wrongAnswers = [];
+
+function trackWrongAnswer(question, userAnswer, correctAnswer) {
+    wrongAnswers.push({
+        question,
+        userAnswer,
+        correctAnswer
+    });
+}
+
+// Update checkMCQAnswer and checkFillAnswer to track wrong answers
+function checkMCQAnswer(exerciseIndex) {
+    const content = lessonContent[currentLesson.language][currentLesson.courseId];
+    const exercise = content.exercises[exerciseIndex];
+    const selected = selectedMCQ[exerciseIndex];
+    const feedbackDiv = document.getElementById('feedback-' + exerciseIndex);
+    const optionsContainer = document.querySelector(`.mcq-options[data-exercise="${exerciseIndex}"]`);
+    const options = optionsContainer.querySelectorAll('.mcq-option');
+    const submitBtn = optionsContainer.closest('.exercise-box').querySelector('.submit-button');
+    
+    if (selected === undefined) {
+        feedbackDiv.innerHTML = '<div class="feedback incorrect">Select an answer!</div>';
+        return;
+    }
+    
+    if (selected === exercise.correct) {
+        options[selected].classList.add('correct');
+        options.forEach(opt => {
+            opt.style.pointerEvents = 'none';
+            opt.style.cursor = 'not-allowed';
+            opt.style.opacity = '0.7';
+        });
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+        feedbackDiv.innerHTML = '<div class="feedback correct">✅ Correct!</div>';
+        correctAnswers++;
+        updateLessonProgress();
+        checkCompletion();
+    } else {
+        // Track wrong answer
+        if (!isRetryMode) {
+            trackWrongAnswer(
+                exercise.question,
+                exercise.options[selected],
+                exercise.options[exercise.correct]
+            );
+        }
+        
+        options[selected].classList.add('incorrect');
+        options[exercise.correct].classList.add('correct');
+        feedbackDiv.innerHTML = '<div class="feedback incorrect">❌ Try again!</div>';
+        setTimeout(() => {
+            options[selected].classList.remove('incorrect', 'selected');
+            options[exercise.correct].classList.remove('correct');
+            selectedMCQ[exerciseIndex] = undefined;
+        }, 1500);
+    }
+}
+
+function checkFillAnswer(exerciseIndex, correctAnswer) {
+    const blank = document.querySelector(`.code-blank[data-index="${exerciseIndex}"]`);
+    const wrapper = blank.parentElement;
+    const userAnswer = blank.value.trim();
+    const feedbackDiv = document.getElementById('feedback-' + exerciseIndex);
+    const submitBtn = wrapper.closest('.exercise-box').querySelector('.submit-button');
+    
+    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+        wrapper.classList.remove('incorrect');
+        wrapper.classList.add('correct');
+        blank.disabled = true;
+        blank.style.cursor = 'not-allowed';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+        feedbackDiv.innerHTML = '<div class="feedback correct">✅ Correct!</div>';
+        correctAnswers++;
+        updateLessonProgress();
+        checkCompletion();
+    } else {
+        // Track wrong answer
+        if (!isRetryMode) {
+            const content = lessonContent[currentLesson.language][currentLesson.courseId];
+            const exercise = content.exercises[exerciseIndex];
+            trackWrongAnswer(exercise.question, userAnswer, correctAnswer);
+        }
+        
+        wrapper.classList.remove('correct');
+        wrapper.classList.add('incorrect');
+        feedbackDiv.innerHTML = '<div class="feedback incorrect">❌ Wrong! Answer: ' + correctAnswer + '</div>';
+        setTimeout(() => {
+            wrapper.classList.remove('incorrect');
+            blank.value = '';
+        }, 500);
+    }
+}
+
+// Show completion stats
+async function showCompletionStats() {
+    const totalQuestions = lessonContent[currentLesson.language][currentLesson.courseId].exercises.length;
+    const wrongAttempts = wrongAnswers.length;
+    const accuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
+    
+    const modal = document.createElement('div');
+    modal.className = 'completion-stats-modal';
+    modal.innerHTML = `
+        <div class="completion-stats-content">
+            <div class="stats-header">
+                <div class="stats-icon">🎉</div>
+                <div class="stats-title">Course Completed!</div>
+                <p style="color: #8b949e;">Great job on finishing ${currentLesson.courseName}!</p>
+            </div>
+            
+            <div class="stats-score">
+                <div class="score-item">
+                    <div class="score-value">${totalQuestions}</div>
+                    <div class="score-label">Total Questions</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value">${wrongAttempts}</div>
+                    <div class="score-label">Wrong Attempts</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value">${accuracy}%</div>
+                    <div class="score-label">Accuracy</div>
+                </div>
+            </div>
+            
+            ${wrongAttempts > 0 ? `
+                <div class="wrong-answers-list">
+                    <h3 style="color: #ff6b6b; margin-bottom: 15px;">📝 Review These:</h3>
+                    ${wrongAnswers.map(wa => `
+                        <div class="wrong-answer-item">
+                            <strong>Q:</strong> ${wa.question}<br>
+                            <span style="color: #ff6b6b;">Your answer: ${wa.userAnswer}</span><br>
+                            <span style="color: #00ff00;">Correct: ${wa.correctAnswer}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<div style="text-align: center; color: #00ff00; padding: 20px;">🌟 Perfect score! No mistakes!</div>'}
+            
+            <button class="continue-btn" onclick="closeStatsAndSuggest()">Continue</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('active'), 100);
+}
+
+async function closeStatsAndSuggest() {
+    document.querySelector('.completion-stats-modal').remove();
+    
+    // Determine if AI suggestion needed (if accuracy < 80%)
+    const totalQuestions = lessonContent[currentLesson.language][currentLesson.courseId].exercises.length;
+    const wrongAttempts = wrongAnswers.length;
+    const accuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
+    
+    if (!isRetryMode && accuracy < 80) {
+        await generateAISuggestion();
+    }
+    
+    // CRITICAL: Check streak status AFTER user continues
+    checkAndShowStreak();
+    
+    // Then finish
+    finishLessonCompletely();
+}
+
+// NEW: Separate function for streak checking
+function checkAndShowStreak() {
+    const today = new Date().toDateString();
+    const lastActivity = localStorage.getItem('lastActivity_' + currentUser);
+    const currentStreak = parseInt(localStorage.getItem('streak_' + currentUser) || '0');
+    
+    let newStreak = currentStreak;
+    let showStreak = false;
+    
+    if (!lastActivity) {
+        newStreak = 1;
+        showStreak = true;
+        localStorage.setItem('streak_' + currentUser, '1');
+        localStorage.setItem('lastActivity_' + currentUser, today);
+    } else if (lastActivity !== today) {
+        const lastDate = new Date(lastActivity);
+        const todayDate = new Date(today);
+        const diffTime = todayDate - lastDate;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+            newStreak = currentStreak + 1;
+            showStreak = true;
+        } else if (diffDays > 1) {
+            newStreak = 1;
+            showStreak = false;
+        }
+        
+        localStorage.setItem('streak_' + currentUser, newStreak.toString());
+        localStorage.setItem('lastActivity_' + currentUser, today);
+    }
+    
+    // Show streak celebration if needed
+    if (showStreak && newStreak > 0) {
+        setTimeout(() => {
+            showStreakCelebration(newStreak);
+        }, 300);
+    }
+}
+
+function finishLessonCompletely() {
+    wrongAnswers = [];
+    
+    // Close lesson and navigate to home
+    document.getElementById('lessonView').classList.remove('active');
+    currentLesson = null;
+    
+    // Update both courses list AND roadmap
+    renderCourses();
+    
+    // Check if roadmap is visible and regenerate it
+    const roadmapView = document.getElementById('roadmapView');
+    if (roadmapView && roadmapView.classList.contains('active')) {
+        generateRoadmap();
+    }
+    
+    showSection('home');
+}
+
+async function generateAISuggestion() {
+    try {
+        const config = await fetchAIConfig();
+        if (!config.apiKey) return;
+        
+        const response = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.apiKey}`
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [{
+                    role: 'user',
+                    content: `Based on completing "${currentLesson.courseName}" in ${currentLesson.language}, suggest ONE related mini-course topic in 5-8 words that would reinforce this learning. Just the title.`
+                }],
+                max_tokens: 20,
+                temperature: 0.7
+            })
+        });
+        
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        const suggestedTitle = data.choices[0].message.content.replace(/['"]/g, '').trim();
+        
+        showAISuggestionButton(suggestedTitle);
+        
+    } catch (error) {
+        console.error('AI Suggestion Error:', error);
+    }
+}
+
+function showAISuggestionButton(title) {
+    const btn = document.createElement('div');
+    btn.className = 'ai-suggestion-btn';
+    btn.innerHTML = `
+        <div class="ai-suggestion-title">💡 ${title}</div>
+        <div class="ai-suggestion-desc">AI-recommended based on your performance</div>
+    `;
+    btn.onclick = () => openAISuggestedCourse(title);
+    
+    document.body.appendChild(btn);
+    
+    setTimeout(() => btn.classList.add('show'), 500);
+}
+
+async function openAISuggestedCourse(title) {
+    document.querySelector('.ai-suggestion-btn').remove();
+    
+    // Create new lesson view with AI content
+    document.getElementById('lessonTitle').textContent = '🤖 ' + title;
+    document.getElementById('learnMessages').innerHTML = '';
+    document.getElementById('questionMessages').innerHTML = '';
+    document.getElementById('questionsTabBtn').disabled = true;
+    switchPanel('learn');
+    
+    try {
+        const config = await fetchAIConfig();
+        
+        // Generate 4-5 lesson messages
+        const lessonResponse = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.apiKey}`
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [{
+                    role: 'user',
+                    content: `Create 4 short teaching messages about "${title}" for beginners. Each 2-3 sentences. Return as JSON array of strings.`
+                }],
+                max_tokens: 300,
+                temperature: 0.7
+            })
+        });
+        
+        const lessonData = await lessonResponse.json();
+        const messages = JSON.parse(lessonData.choices[0].message.content.match(/\[.*\]/)[0]);
+        
+        // Display messages
+        for (let i = 0; i < messages.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            displayAIMessage(messages[i]);
+        }
+        
+        // Generate 3 questions
+        const questionsResponse = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.apiKey}`
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [{
+                    role: 'user',
+                    content: `Create 3 multiple choice questions about "${title}". Return as JSON: [{"question":"...", "options":["a","b","c","d"], "correct":0}]`
+                }],
+                max_tokens: 300,
+                temperature: 0.7
+            })
+        });
+        
+        const questionsData = await questionsResponse.json();
+        const questions = JSON.parse(questionsData.choices[0].message.content.match(/\[.*\]/)[0]);
+        
+        // Enable questions tab
+        document.getElementById('questionsTabBtn').disabled = false;
+        document.getElementById('questionsTabBtn').innerHTML = 'Questions ✓';
+        displayAIQuestions(questions);
+        
+    } catch (error) {
+        console.error('AI Course Generation Error:', error);
+        displayAIMessage('Sorry, there was an error generating the AI course. Please try again later.');
+    }
+}
+
+function displayAIMessage(text) {
+    const learnMessages = document.getElementById('learnMessages');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message';
+    msgDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-bubble">${text}</div>
+    `;
+    learnMessages.appendChild(msgDiv);
+    learnMessages.scrollTop = learnMessages.scrollHeight;
+}
+
+function displayAIQuestions(questions) {
+    const questionMessages = document.getElementById('questionMessages');
+    questionMessages.innerHTML = '';
+    
+    const welcomeDiv = document.createElement('div');
+    welcomeDiv.className = 'message';
+    welcomeDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-bubble">🎯 Test your AI-generated knowledge!</div>
+    `;
+    questionMessages.appendChild(welcomeDiv);
+    
+    questions.forEach((q, index) => {
+        const exerciseDiv = document.createElement('div');
+        exerciseDiv.className = 'message';
+        
+        let optionsHTML = q.options.map((opt, i) => 
+            `<div class="mcq-option" onclick="selectOption(this, ${index}, ${i})">${opt}</div>`
+        ).join('');
+        
+        exerciseDiv.innerHTML = `
+            <div class="message-avatar">🤖</div>
+            <div class="message-bubble">
+                <div class="exercise-box">
+                    <div class="exercise-title">❓ ${q.question}</div>
+                    <div class="mcq-options" data-correct="${q.correct}" data-exercise="${index}">
+                        ${optionsHTML}
+                    </div>
+                    <button class="submit-button" onclick="checkMCQAnswer(${index})">Check</button>
+                    <div id="feedback-${index}"></div>
+                </div>
+            </div>
+        `;
+        
+        questionMessages.appendChild(exerciseDiv);
+    });
+}
+
+function finishLessonCompletely() {
+    wrongAnswers = [];
+    closeLesson();
+}
+
+function completeLesson() {
+    if (!isRetryMode) {
+        userProgress[currentLesson.language][currentLesson.courseId].completed = true;
+        userProgress[currentLesson.language][currentLesson.courseId].progress = 100;
+        localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
+        
+        // CRITICAL: Show completion stats first, streak happens AFTER user clicks continue
+        showCompletionStats();
+        
+    } else {
+        closeLesson();
+    }
+}
 </script>
 </body>
 </html>
