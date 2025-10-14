@@ -7727,7 +7727,6 @@ body.light-mode .mobile-top-search-results .search-result-title {
     }
 }
 
-/* AI SUGGESTION OVAL BUTTON */
 .ai-suggestion-btn {
     position: fixed;
     bottom: 100px;
@@ -7736,10 +7735,10 @@ body.light-mode .mobile-top-search-results .search-result-title {
     background: linear-gradient(135deg, rgba(100, 255, 218, 0.3), rgba(0, 212, 255, 0.3));
     border: 2px solid #64ffda;
     border-radius: 50px;
-    padding: 16px 32px;
+    padding: 12px 24px; /* Reduced from 16px 32px */
     color: #64ffda;
     font-weight: 700;
-    font-size: 1.05em;
+    font-size: 0.95em; /* Reduced */
     cursor: pointer;
     z-index: 9000;
     opacity: 0;
@@ -7749,7 +7748,7 @@ body.light-mode .mobile-top-search-results .search-result-title {
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     animation: aiGlow 2s ease-in-out infinite;
-    max-width: 90%;
+    max-width: 85%; /* Reduced from 90% */
     text-align: center;
 }
 
@@ -7776,12 +7775,12 @@ body.light-mode .mobile-top-search-results .search-result-title {
 }
 
 .ai-suggestion-title {
-    font-size: 1.1em;
-    margin-bottom: 5px;
+    font-size: 1em; /* Reduced from 1.1em */
+    margin-bottom: 4px; /* Reduced from 5px */
 }
 
 .ai-suggestion-desc {
-    font-size: 0.85em;
+    font-size: 0.75em; /* Reduced from 0.85em */
     color: #8b949e;
     font-weight: 500;
 }
@@ -9333,6 +9332,9 @@ let isRetryMode = false;
 let currentVerificationCode = null;
 let currentForgotEmail = null;
 
+let currentAICourse = null;
+let aiCourseContent = null;
+
 // ==================== NOTIFICATION SYSTEM ====================
 function showNotification(message, type = 'info') {
     // Remove any existing notifications
@@ -10410,6 +10412,15 @@ async function displayNextLearnMessage() {
 }
 
 function updateLessonProgress() {
+    // Handle AI courses
+    if (currentLesson.isAI) {
+        const totalSteps = aiCourseContent.learn.length + aiCourseContent.exercises.length;
+        const completedSteps = learnMessageIndex + correctAnswers;
+        const progress = Math.round((completedSteps / totalSteps) * 100);
+        document.getElementById('lessonProgressText').textContent = `${progress}% Complete`;
+        return;
+    }
+    
     const content = lessonContent[currentLesson.language]?.[currentLesson.courseId];
     if (!content) return;
     
@@ -12735,20 +12746,40 @@ async function showCompletionStats() {
 async function closeStatsAndSuggest() {
     document.querySelector('.completion-stats-modal').remove();
     
+    // First, close lesson and go to overview
+    document.getElementById('lessonView').classList.remove('active');
+    currentLesson = null;
+    
+    // Update courses and roadmap
+    renderCourses();
+    const roadmapView = document.getElementById('roadmapView');
+    if (roadmapView && roadmapView.classList.contains('active')) {
+        generateRoadmap();
+    }
+    
+    showSection('home');
+    
+    // Wait 0.5 seconds before showing streak
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Check and show streak
+    if (!isRetryMode) {
+        checkAndShowStreak();
+    }
+    
+    // Wait another 0.5 seconds before checking for AI suggestion
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     // Determine if AI suggestion needed (if accuracy < 80%)
-    const totalQuestions = lessonContent[currentLesson.language][currentLesson.courseId].exercises.length;
+    const totalQuestions = lessonContent[currentLesson ? currentLesson.language : '']?.[currentLesson ? currentLesson.courseId : '']?.exercises.length || 0;
     const wrongAttempts = wrongAnswers.length;
-    const accuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
+    const accuracy = totalQuestions > 0 ? Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100) : 100;
     
     if (!isRetryMode && accuracy < 80) {
         await generateAISuggestion();
     }
     
-    // CRITICAL: Check streak status AFTER user continues
-    checkAndShowStreak();
-    
-    // Then finish
-    finishLessonCompletely();
+    wrongAnswers = [];
 }
 
 // NEW: Separate function for streak checking
@@ -12861,15 +12892,20 @@ function showAISuggestionButton(title) {
 async function openAISuggestedCourse(title) {
     document.querySelector('.ai-suggestion-btn').remove();
     
-    // Create new lesson view with AI content
-    document.getElementById('lessonTitle').textContent = '🤖 ' + title;
-    document.getElementById('learnMessages').innerHTML = '';
-    document.getElementById('questionMessages').innerHTML = '';
-    document.getElementById('questionsTabBtn').disabled = true;
-    switchPanel('learn');
+    // Store AI course info
+    currentAICourse = {
+        title: title,
+        language: 'ai-generated',
+        courseId: 'ai_' + Date.now()
+    };
     
+    // Generate AI content
     try {
         const config = await fetchAIConfig();
+        if (!config.apiKey) {
+            showNotification('AI features not available', 'error');
+            return;
+        }
         
         // Generate 4-5 lesson messages
         const lessonResponse = await fetch(config.endpoint, {
@@ -12892,12 +12928,6 @@ async function openAISuggestedCourse(title) {
         const lessonData = await lessonResponse.json();
         const messages = JSON.parse(lessonData.choices[0].message.content.match(/\[.*\]/)[0]);
         
-        // Display messages
-        for (let i = 0; i < messages.length; i++) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            displayAIMessage(messages[i]);
-        }
-        
         // Generate 3 questions
         const questionsResponse = await fetch(config.endpoint, {
             method: 'POST',
@@ -12919,15 +12949,117 @@ async function openAISuggestedCourse(title) {
         const questionsData = await questionsResponse.json();
         const questions = JSON.parse(questionsData.choices[0].message.content.match(/\[.*\]/)[0]);
         
-        // Enable questions tab
-        document.getElementById('questionsTabBtn').disabled = false;
-        document.getElementById('questionsTabBtn').innerHTML = 'Questions ✓';
-        displayAIQuestions(questions);
+        // Store AI course content
+        aiCourseContent = {
+            learn: messages.map(msg => ({ bot: msg })),
+            exercises: questions.map(q => ({
+                type: 'mcq',
+                question: q.question,
+                options: q.options,
+                correct: q.correct
+            }))
+        };
+        
+        // Open like a normal lesson
+        openAILesson();
         
     } catch (error) {
         console.error('AI Course Generation Error:', error);
-        displayAIMessage('Sorry, there was an error generating the AI course. Please try again later.');
+        showNotification('Failed to generate AI course', 'error');
     }
+}
+
+function openAILesson() {
+    // Set up like normal lesson
+    currentLesson = {
+        language: 'ai-generated',
+        courseId: 'ai_course',
+        courseName: '🤖 ' + currentAICourse.title,
+        isAI: true // Flag to track it's AI
+    };
+    
+    learnCompleted = false;
+    learnMessageIndex = 0;
+    correctAnswers = 0;
+    selectedMCQ = {};
+    
+    studyStartTime = Date.now();
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+    
+    document.getElementById('lessonTitle').textContent = '🤖 ' + currentAICourse.title;
+    document.getElementById('lessonView').classList.add('active');
+    document.getElementById('learnMessages').innerHTML = '';
+    document.getElementById('questionMessages').innerHTML = '';
+    
+    document.getElementById('questionsTabBtn').disabled = true;
+    document.getElementById('questionsTabBtn').innerHTML = 'Questions 🔒';
+    
+    switchPanel('learn');
+    updateLessonProgress();
+    displayNextAIMessage();
+}
+
+async function displayNextAIMessage() {
+    const learnMessages = document.getElementById('learnMessages');
+    
+    if (learnMessageIndex >= aiCourseContent.learn.length) {
+        learnCompleted = true;
+        document.getElementById('questionsTabBtn').disabled = false;
+        document.getElementById('questionsTabBtn').innerHTML = 'Questions ✓';
+        
+        const unlockMsg = document.createElement('div');
+        unlockMsg.className = 'message';
+        unlockMsg.innerHTML = `
+            <div class="message-avatar">🤖</div>
+            <div class="message-bubble">
+                ✅ Great! Switch to <strong>Questions</strong> tab to test yourself!
+            </div>
+        `;
+        learnMessages.appendChild(unlockMsg);
+        learnMessages.scrollTop = learnMessages.scrollHeight;
+        
+        // Display AI questions
+        displayAIQuestions(aiCourseContent.exercises);
+        return;
+    }
+    
+    // Show typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message';
+    typingDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-bubble">
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+    `;
+    learnMessages.appendChild(typingDiv);
+    learnMessages.scrollTop = learnMessages.scrollHeight;
+    
+    setTimeout(() => {
+        typingDiv.remove();
+        
+        const msg = aiCourseContent.learn[learnMessageIndex];
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        messageDiv.innerHTML = `
+            <div class="message-avatar">🤖</div>
+            <div class="message-bubble">${msg.bot}</div>
+        `;
+        learnMessages.appendChild(messageDiv);
+        learnMessages.scrollTop = learnMessages.scrollHeight;
+        
+        learnMessageIndex++;
+        updateLessonProgress();
+        
+        if (learnMessageIndex < aiCourseContent.learn.length) {
+            setTimeout(displayNextAIMessage, 600);
+        }
+    }, 800);
 }
 
 function displayAIMessage(text) {
@@ -12987,16 +13119,94 @@ function finishLessonCompletely() {
 
 function completeLesson() {
     if (!isRetryMode) {
+        // Handle AI course completion
+        if (currentLesson.isAI) {
+            // Save AI completion to a special storage
+            const aiCompletions = JSON.parse(localStorage.getItem('aiCompletions_' + currentUser) || '[]');
+            aiCompletions.push({
+                title: currentAICourse.title,
+                completedAt: new Date().toISOString(),
+                accuracy: Math.round(((aiCourseContent.exercises.length - wrongAnswers.length) / aiCourseContent.exercises.length) * 100)
+            });
+            localStorage.setItem('aiCompletions_' + currentUser, JSON.stringify(aiCompletions));
+            
+            // Show completion without streak
+            showAICompletionStats();
+            return;
+        }
+        
+        // Normal course completion
         userProgress[currentLesson.language][currentLesson.courseId].completed = true;
         userProgress[currentLesson.language][currentLesson.courseId].progress = 100;
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
         
-        // CRITICAL: Show completion stats first, streak happens AFTER user clicks continue
         showCompletionStats();
         
     } else {
         closeLesson();
     }
+}
+
+function showAICompletionStats() {
+    const totalQuestions = aiCourseContent.exercises.length;
+    const wrongAttempts = wrongAnswers.length;
+    const accuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
+    
+    const modal = document.createElement('div');
+    modal.className = 'completion-stats-modal';
+    modal.innerHTML = `
+        <div class="completion-stats-content">
+            <div class="stats-header">
+                <div class="stats-icon">🎉</div>
+                <div class="stats-title">AI Course Completed!</div>
+                <p style="color: #8b949e;">Excellent work on <strong>${currentAICourse.title}</strong>! 🤖</p>
+                <div style="background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); padding: 10px; border-radius: 10px; margin-top: 15px;">
+                    <strong style="color: #64ffda;">✨ Extra Task Completed!</strong>
+                </div>
+            </div>
+            
+            <div class="stats-score">
+                <div class="score-item">
+                    <div class="score-value">${totalQuestions}</div>
+                    <div class="score-label">Total Questions</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value">${wrongAttempts}</div>
+                    <div class="score-label">Wrong Attempts</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value">${accuracy}%</div>
+                    <div class="score-label">Accuracy</div>
+                </div>
+            </div>
+            
+            ${wrongAttempts > 0 ? `
+                <div class="wrong-answers-list">
+                    <h3 style="color: #ff6b6b; margin-bottom: 15px;">📝 Review These:</h3>
+                    ${wrongAnswers.map(wa => `
+                        <div class="wrong-answer-item">
+                            <strong>Q:</strong> ${wa.question}<br>
+                            <span style="color: #ff6b6b;">Your answer: ${wa.userAnswer}</span><br>
+                            <span style="color: #00ff00;">Correct: ${wa.correctAnswer}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<div style="text-align: center; color: #00ff00; padding: 20px;">🌟 Perfect score! No mistakes!</div>'}
+            
+            <button class="continue-btn" onclick="closeAIStats()">Continue</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('active'), 100);
+}
+
+function closeAIStats() {
+    document.querySelector('.completion-stats-modal').remove();
+    wrongAnswers = [];
+    currentAICourse = null;
+    aiCourseContent = null;
+    closeLesson();
 }
 </script>
 </body>
