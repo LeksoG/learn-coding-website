@@ -7160,11 +7160,11 @@ body.light-mode .roadmap-language-title {
 
 .roadmap-item:nth-child(odd) .roadmap-card {
     margin-left: 0;
-    margin-right: calc(50% + 40px);
+    margin-right: calc(50% + 70px);
 }
 
 .roadmap-item:nth-child(even) .roadmap-card {
-    margin-left: calc(50% + 40px);
+    margin-left: calc(50% + 70px);
 }
 
 .roadmap-node {
@@ -7687,37 +7687,38 @@ body.light-mode .mobile-top-search-results .search-result-title {
     border-radius: 2px;
 }
 
-/* MOBILE QUESTION OPTIMIZATION */
 @media (max-width: 768px) {
     .code-fill {
-        padding: 15px;
-        font-size: 0.9em;
+        padding: 15px 10px;
+        font-size: 0.85em;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        white-space: normal; /* CHANGED */
+        word-wrap: break-word;
     }
     
     .code-blank-wrapper {
-        display: inline-flex;
-        margin: 2px;
+        display: inline-block; /* Keep inline */
+        margin: 2px 4px; /* More spacing */
+        max-width: 100%; /* Prevent overflow */
     }
     
     .code-blank {
-        min-width: 70px;
+        min-width: 80px; /* Increased from 70px */
         max-width: 150px;
-        font-size: 0.95em;
-        padding: 8px 12px;
-    }
-    
-    .mcq-option {
-        padding: 15px 18px;
-        font-size: 0.95em;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
+        font-size: 0.9em;
+        padding: 10px 12px; /* More padding */
+        width: auto; /* Let it adapt */
     }
     
     .exercise-box {
-        padding: 20px 15px;
+        padding: 20px 12px; /* More side padding */
     }
+    
+    .chat-container {
+        padding: 20px 12px; /* Wider container */
+    }
+}
     
     .submit-button,
     .next-button {
@@ -7908,6 +7909,468 @@ body.light-mode .mobile-top-search-results .search-result-title {
     .roadmap-progress-line {
         left: 30px !important;
         transform: none !important;
+    }
+}
+
+/* Hide mobile menu & search when in lesson view */
+.lesson-view.active ~ .mobile-menu-btn,
+.lesson-view.active ~ .mobile-top-search {
+    display: none !important;
+}
+
+body.lesson-active .mobile-menu-btn,
+body.lesson-active .mobile-top-search {
+    display: none !important;
+}
+
+/* Original single button */
+.scroll-to-top {
+    position: fixed;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px) scale(0);
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.9), rgba(0, 212, 255, 0.9));
+    border: 2px solid #64ffda;
+    border-radius: 50%;
+    display: none; /* CHANGED: Hidden by default */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 9500;
+    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.5);
+    font-size: 1.3em;
+    color: #0a0a0a;
+    opacity: 0;
+}
+
+.scroll-to-top.show {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+}
+
+.scroll-to-top:hover {
+    transform: translateX(-50%) translateY(-5px) scale(1.1);
+    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.7);
+}
+
+body.light-mode .scroll-to-top {
+    background: linear-gradient(135deg, rgba(10, 122, 94, 0.9), rgba(0, 168, 150, 0.9));
+    border-color: #0a7a5e;
+}
+
+@media (max-width: 768px) {
+    .scroll-to-top {
+        top: 85px; /* Below mobile search bar */
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
+}
+
+/* MOBILE ROADMAP FIXES */
+@media (max-width: 768px) {
+    .roadmap-card {
+        padding: 20px 15px;
+    }
+    
+    .roadmap-card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+    
+    .roadmap-course-title {
+        font-size: 1.2em;
+        width: 100%;
+    }
+    
+    .roadmap-status-badge {
+        align-self: flex-start;
+        padding: 5px 12px;
+        font-size: 0.8em;
+        white-space: nowrap;
+    }
+}
+
+/* Dynamic button container */
+.scroll-button-container {
+    position: fixed;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    display: none; /* CHANGED: Hidden by default */
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 9500;
+}
+
+.scroll-button-container.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* ONLY show on mobile screens */
+@media (max-width: 768px) {
+    .scroll-to-top,
+    .scroll-button-container {
+        display: flex; /* SHOW on mobile */
+    }
+    
+    .scroll-nav-btn {
+        width: 100px;
+        height: 45px;
+        font-size: 0.8em;
+    }
+    
+    .scroll-to-top-center {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
+}
+
+/* EXPLICITLY hide on desktop */
+@media (min-width: 769px) {
+    .scroll-to-top,
+    .scroll-button-container {
+        display: none !important; /* HIDE on desktop */
+    }
+}
+
+.scroll-nav-btn {
+    width: 120px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.9), rgba(0, 212, 255, 0.9));
+    border: 2px solid #64ffda;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.5);
+    color: #0a0a0a;
+    font-weight: 700;
+    font-size: 0.9em;
+    opacity: 0;
+    transform: scale(0);
+}
+
+.scroll-nav-btn.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.scroll-nav-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.7);
+}
+
+.scroll-to-top-center {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.9), rgba(0, 212, 255, 0.9));
+    border: 2px solid #64ffda;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.5);
+    font-size: 1.5em;
+    color: #0a0a0a;
+}
+
+.scroll-to-top-center:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.7);
+}
+
+body.light-mode .scroll-nav-btn,
+body.light-mode .scroll-to-top-center {
+    background: linear-gradient(135deg, rgba(10, 122, 94, 0.9), rgba(0, 168, 150, 0.9));
+    border-color: #0a7a5e;
+}
+
+@media (max-width: 768px) {
+    .scroll-button-container {
+        top: 85px;
+    }
+    
+    .scroll-nav-btn {
+        width: 100px;
+        height: 45px;
+        font-size: 0.8em;
+    }
+    
+    .scroll-to-top-center {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
+}
+
+.roadmap-progress-line {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    background: linear-gradient(to bottom, #64ffda, rgba(100, 255, 218, 0.3));
+    border-radius: 10px;
+    transition: height 0.5s ease;
+    z-index: 1;
+    box-shadow: 0 0 20px rgba(100, 255, 218, 0.5);
+    pointer-events: none;
+    /* Will be positioned dynamically by JS */
+}
+
+/* Hide the default timeline line */
+.roadmap-timeline::before {
+    display: none;
+}
+
+/* Center nodes on progress line */
+.roadmap-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.roadmap-node {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    flex-shrink: 0;
+    z-index: 2;
+    background: rgba(30, 30, 30, 0.9);
+    border: 3px solid rgba(100, 255, 218, 0.3);
+}
+
+/* Progress line positioning */
+.roadmap-progress-line {
+    position: absolute;
+    left: 25px; /* Center of node (50px / 2) */
+    width: 4px;
+    background: linear-gradient(to bottom, #64ffda, #667eea);
+    transform: translateX(-50%);
+    z-index: 1;
+    transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Animated ring fill effect */
+.roadmap-node::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.roadmap-node.completed::before,
+.roadmap-node.in-progress::before {
+    border-color: #64ffda;
+    opacity: 1;
+    animation: pulseRing 2s ease-in-out infinite;
+}
+
+/* Pulse animation for active nodes */
+@keyframes pulseRing {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+}
+
+/* Fill animation when reaching new node */
+.roadmap-node.just-completed {
+    animation: nodeFillIn 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes nodeFillIn {
+    0% {
+        transform: scale(0.5);
+        box-shadow: 0 0 0 0 rgba(100, 255, 218, 0.7);
+    }
+    50% {
+        transform: scale(1.2);
+        box-shadow: 0 0 0 20px rgba(100, 255, 218, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(100, 255, 218, 0.5);
+    }
+}
+
+/* Roadmap mobile centering */
+@media (max-width: 768px) {
+    .roadmap-item {
+        padding-left: 0;
+        margin-left: 25px; /* Half of node width to center line */
+    }
+    
+    .roadmap-node {
+        position: absolute;
+        left: 0;
+        transform: translateX(-50%); /* Center on the line */
+    }
+    
+    .roadmap-progress-line {
+        left: 0; /* Align with centered nodes */
+        transform: translateX(-50%);
+    }
+    
+    .roadmap-card {
+        margin-left: 10px; /* Space from the centered node */
+    }
+    
+    .roadmap-language-section {
+        padding-left: 0;
+    }
+}
+
+/* SCROLL TO TOP BUTTON (RING SHAPE) */
+.scroll-to-top {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    width: 50px;
+    height: 50px;
+    background: rgba(30, 30, 30, 0.95);
+    border: 3px solid #64ffda;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9995;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.3);
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.scroll-to-top:hover {
+    transform: translateX(-50%) translateY(-3px) scale(1.1);
+    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.5);
+    border-width: 4px;
+}
+
+.scroll-to-top svg {
+    width: 24px;
+    height: 24px;
+    stroke: #64ffda;
+    stroke-width: 3;
+    fill: none;
+}
+
+body.light-mode .scroll-to-top {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: #0a7a5e;
+}
+
+body.light-mode .scroll-to-top svg {
+    stroke: #0a7a5e;
+}
+
+/* DYNAMIC SECTION INDICATOR (OVAL) */
+.section-indicator {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(40px) translateY(-100px);
+    background: rgba(30, 30, 30, 0.95);
+    border: 2px solid #64ffda;
+    border-radius: 50px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 9994;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.3);
+    white-space: nowrap;
+}
+
+.section-indicator.visible {
+    opacity: 1;
+    transform: translateX(40px) translateY(0);
+}
+
+.section-indicator-icon {
+    font-size: 1.3em;
+    line-height: 1;
+}
+
+.section-indicator-text {
+    color: #64ffda;
+    font-weight: 700;
+    font-size: 0.95em;
+}
+
+body.light-mode .section-indicator {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: #0a7a5e;
+}
+
+body.light-mode .section-indicator-text {
+    color: #0a7a5e;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .scroll-to-top {
+        width: 45px;
+        height: 45px;
+        top: 15px;
+    }
+    
+    .scroll-to-top svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .section-indicator {
+        top: 15px;
+        transform: translateX(35px) translateY(-100px);
+        padding: 8px 15px;
+        font-size: 0.85em;
+    }
+    
+    .section-indicator.visible {
+        transform: translateX(35px) translateY(0);
+    }
+    
+    .section-indicator-icon {
+        font-size: 1.2em;
     }
 }
     </style>
@@ -8467,6 +8930,17 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
             <button class="custom-modal-btn confirm-btn" onclick="confirmLogout()">Logout</button>
         </div>
     </div>
+</div>
+
+<!-- Dynamic Scroll Button System -->
+<div class="scroll-button-container" id="scrollButtonContainer">
+    <button class="scroll-nav-btn" id="scrollPrevBtn" onclick="scrollToPrevSection()">
+        <span>↑ Previous</span>
+    </button>
+    <button class="scroll-to-top-center" onclick="scrollToTop()">↑</button>
+    <button class="scroll-nav-btn" id="scrollNextBtn" onclick="scrollToNextSection()">
+        <span>Next ↓</span>
+    </button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -10212,6 +10686,9 @@ function openLesson(language, courseId, courseName) {
     studyStartTime = Date.now();
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(updateTimer, 1000);
+
+    // ADD THIS:
+    document.body.classList.add('lesson-active');
     
     document.getElementById('lessonTitle').textContent = courseName;
     document.getElementById('lessonView').classList.add('active');
@@ -10254,6 +10731,9 @@ function closeLesson() {
     learnMessageIndex = 0;
     correctAnswers = 0;
     selectedMCQ = {};
+
+    // ADD THIS:
+    document.body.classList.remove('lesson-active');
     
     document.getElementById('lessonView').classList.remove('active');
     currentLesson = null;
@@ -10524,7 +11004,11 @@ function selectOption(element, exerciseIndex, optionIndex) {
 }
 
 function checkMCQAnswer(exerciseIndex) {
-    const content = lessonContent[currentLesson.language][currentLesson.courseId];
+    // FIX: Check if AI course or regular course
+    const content = currentLesson.isAI 
+        ? aiCourseContent 
+        : lessonContent[currentLesson.language][currentLesson.courseId];
+    
     const exercise = content.exercises[exerciseIndex];
     const selected = selectedMCQ[exerciseIndex];
     const feedbackDiv = document.getElementById('feedback-' + exerciseIndex);
@@ -10552,6 +11036,14 @@ function checkMCQAnswer(exerciseIndex) {
         updateLessonProgress();
         checkCompletion();
     } else {
+        if (!isRetryMode) {
+            trackWrongAnswer(
+                exercise.question,
+                exercise.options[selected],
+                exercise.options[exercise.correct]
+            );
+        }
+        
         options[selected].classList.add('incorrect');
         options[exercise.correct].classList.add('correct');
         feedbackDiv.innerHTML = '<div class="feedback incorrect">❌ Try again!</div>';
@@ -10594,7 +11086,11 @@ function checkFillAnswer(exerciseIndex, correctAnswer) {
 }
 
 function checkCompletion() {
-    const content = lessonContent[currentLesson.language][currentLesson.courseId];
+    // FIX: Support AI courses
+    const content = currentLesson.isAI 
+        ? aiCourseContent 
+        : lessonContent[currentLesson.language][currentLesson.courseId];
+    
     if (correctAnswers >= content.exercises.length) {
         const questionMessages = document.getElementById('questionMessages');
         
@@ -11344,10 +11840,11 @@ function detectLanguage(code) {
     }
     
     const trimmedCode = code.trim();
-    const lowerCode = trimmedCode.toLowerCase();
+    const lowerCode = trimmedCode.toLowerCase(); // IMPORTANT: Use this for ALL checks
     
-    if (/^<!DOCTYPE/i.test(trimmedCode) ||
-        /^<html/i.test(trimmedCode) ||
+    // HTML Detection
+    if (/^<!doctype/i.test(lowerCode) || // CHANGED: Use lowerCode
+        /^<html/i.test(lowerCode) ||
         /<html[\s>]/i.test(lowerCode) ||
         /<head>/i.test(lowerCode) ||
         /<body>/i.test(lowerCode) ||
@@ -11357,12 +11854,14 @@ function detectLanguage(code) {
         return 'HTML';
     }
     
-    if (/^\s*[\w-#.]+\s*\{[\s\S]*\}/m.test(code) ||
+    // CSS Detection - IMPROVED
+    if (/^\s*[\w-#.]+\s*\{[\s\S]*\}/m.test(lowerCode) || // Use lowerCode
         /@media|@keyframes/i.test(lowerCode) ||
         /body\s*\{|\.[\w-]+\s*\{|#[\w-]+\s*\{/i.test(lowerCode)) {
         return 'CSS';
     }
     
+    // Python Detection - ALL lowercase checks
     if (/\bdef\s+\w+\s*\(/i.test(lowerCode) ||
         /\bprint\s*\(/i.test(lowerCode) ||
         /\bimport\s+\w+/i.test(lowerCode) ||
@@ -11378,6 +11877,7 @@ function detectLanguage(code) {
         return 'Python';
     }
     
+    // JavaScript Detection
     if (/\bfunction\s+\w+\s*\(/i.test(lowerCode) ||
         /\b(const|let|var)\s+\w+/i.test(lowerCode) ||
         /=>/i.test(code) ||
@@ -11388,7 +11888,6 @@ function detectLanguage(code) {
     
     return 'Unknown';
 }
-
 window.addEventListener('message', (e) => {
     if (e.data.type === 'log' || e.data.type === 'error') {
         const consoleOutput = document.getElementById('consoleOutput');
@@ -12470,10 +12969,11 @@ function generateRoadmap() {
     document.getElementById('estimatedTime').textContent = hours + 'h ' + mins + 'm';
     document.getElementById('nextMilestone').textContent = nextMilestone || '🎉 Done!';
     
-    // Calculate progress line height - IMPROVED
+    // Calculate progress line height - START FROM FIRST NODE CENTER
 setTimeout(() => {
     const sections = document.querySelectorAll('.roadmap-language-section');
-    let lastActiveNode = null;
+    const firstNode = document.querySelector('.roadmap-node');
+    let lastActiveNode = firstNode;
     
     sections.forEach(section => {
         const items = section.querySelectorAll('.roadmap-item');
@@ -12483,24 +12983,42 @@ setTimeout(() => {
             const status = node.classList.contains('completed') ? 'completed' : 
                           node.classList.contains('in-progress') ? 'in-progress' : 'locked';
             
-            // Find the LAST completed or in-progress node
             if (status === 'completed' || status === 'in-progress') {
                 lastActiveNode = node;
+                // ADDED: Trigger fill animation
+                node.classList.add('just-completed');
+                setTimeout(() => node.classList.remove('just-completed'), 1000);
             }
         });
     });
     
-    if (lastActiveNode) {
-        const nodeRect = lastActiveNode.getBoundingClientRect();
+    if (firstNode && lastActiveNode) {
+        const firstRect = firstNode.getBoundingClientRect();
+        const lastRect = lastActiveNode.getBoundingClientRect();
         const timelineRect = timeline.getBoundingClientRect();
         
-        // Calculate from top of timeline to CENTER of last active node
-        const nodeCenter = nodeRect.top + (nodeRect.height / 2);
-        const heightFromTop = nodeCenter - timelineRect.top;
+        // Calculate from first node CENTER to last active node CENTER
+        const startPoint = firstRect.top + (firstRect.height / 2) - timelineRect.top;
+        const endPoint = lastRect.top + (lastRect.height / 2) - timelineRect.top;
         
-        progressLine.style.height = Math.max(0, heightFromTop) + 'px';
+        progressLine.style.top = startPoint + 'px';
+        progressLine.style.height = Math.max(0, endPoint - startPoint) + 'px';
     }
-}, 200); // Increased delay to ensure DOM is ready
+}, 200);
+
+// Auto-scroll to user's current progress
+setTimeout(() => {
+    const inProgressNode = document.querySelector('.roadmap-node.in-progress');
+    const firstAvailableNode = document.querySelector('.roadmap-node:not(.completed):not(.locked)');
+    const targetNode = inProgressNode || firstAvailableNode;
+    
+    if (targetNode) {
+        targetNode.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
+}, 500);
     
     // Update stats
     document.getElementById('roadmapTotal').textContent = totalCourses;
@@ -12770,18 +13288,14 @@ async function showCompletionStats() {
 async function closeStatsAndSuggest() {
     document.querySelector('.completion-stats-modal').remove();
     
-    // ✅ GET STORED ACCURACY
     const accuracy = parseInt(localStorage.getItem('lastLessonAccuracy') || '100');
     const lessonName = localStorage.getItem('lastLessonName') || '';
     const lessonLang = localStorage.getItem('lastLessonLanguage') || '';
     
-    console.log('🎯 Accuracy:', accuracy, '- Lesson:', lessonName); // Debug
-    
-    // Close lesson and go to overview
+    // Close lesson
     document.getElementById('lessonView').classList.remove('active');
     currentLesson = null;
     
-    // Update courses and roadmap
     renderCourses();
     const roadmapView = document.getElementById('roadmapView');
     if (roadmapView && roadmapView.classList.contains('active')) {
@@ -12790,26 +13304,19 @@ async function closeStatsAndSuggest() {
     
     showSection('home');
     
-    // Wait 0.5 seconds before showing streak
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Check and show streak
     if (!isRetryMode) {
         checkAndShowStreak();
     }
     
-    // Wait another 1 second before checking for AI suggestion
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // ✅ SHOW AI SUGGESTION IF ACCURACY IS 60-79%
-    if (!isRetryMode && accuracy < 55) {
-        console.log('✨ Showing AI Suggestion!'); // Debug
-        await generateAISuggestion(lessonName, lessonLang);
-    } else {
-        console.log('❌ No AI Suggestion - Accuracy:', accuracy); // Debug
+    // IMPROVED: Show AI suggestion if accuracy < 80%
+    if (!isRetryMode && accuracy < 80) {
+        await generateAISuggestionFromLesson(lessonName, lessonLang);
     }
     
-    // Clean up
     wrongAnswers = [];
     localStorage.removeItem('lastLessonAccuracy');
     localStorage.removeItem('lastLessonName');
@@ -12946,18 +13453,15 @@ function showAISuggestionButton(title) {
 }
 
 async function openAISuggestedCourse(title) {
-    // Remove the suggestion button
     const btn = document.querySelector('.ai-suggestion-btn');
     if (btn) btn.remove();
     
-    // Show loading overlay
     const loadingOverlay = document.getElementById('loadingOverlay');
     if (loadingOverlay) {
         loadingOverlay.classList.add('active');
         document.querySelector('.loading-text').textContent = 'Generating AI Course...';
     }
     
-    // Store AI course info
     currentAICourse = {
         title: title,
         language: 'ai-generated',
@@ -12971,23 +13475,25 @@ async function openAISuggestedCourse(title) {
             throw new Error('AI API key not configured');
         }
         
-        // Generate 4-5 lesson messages WITH CODE EXAMPLES
-const lessonResponse = await fetch(config.endpoint, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey}`
-    },
-    body: JSON.stringify({
-        model: config.model,
-        messages: [{
-            role: 'user',
-            content: `Create 5 teaching messages about "${title}" for beginners. Include 2 code examples wrapped in <div class="code-example"><code>...</code></div>. Each message 2-3 sentences. Format as JSON array: ["message 1", "message 2 with <div class='code-example'><code>example</code></div>", ...]`
-        }],
-        max_tokens: 600,
-        temperature: 0.7
-    })
-});
+        // IMPROVED: Reference the completed lesson
+        const completedLesson = localStorage.getItem('lastLessonName') || '';
+        
+        const lessonResponse = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.apiKey}`
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [{
+                    role: 'user',
+                    content: `Create 5 teaching messages about "${title}" (reinforcing "${completedLesson}") for beginners. Include 2 code examples in <div class="code-example"><code>...</code></div>. Each message 2-3 sentences. Format as JSON array.`
+                }],
+                max_tokens: 600,
+                temperature: 0.7
+            })
+        });
         
         if (!lessonResponse.ok) {
             throw new Error('Failed to generate lesson content');
@@ -13408,6 +13914,148 @@ function closeAIStats() {
     currentAICourse = null;
     aiCourseContent = null;
     closeLesson();
+}
+
+async function generateAISuggestionFromLesson(lessonName, language) {
+    try {
+        const config = await fetchAIConfig();
+        
+        if (!config.apiKey) {
+            showAISuggestionButton(`Review ${lessonName}`);
+            return;
+        }
+        
+        // IMPROVED PROMPT: Use the lesson that was just completed
+        const response = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.apiKey}`
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [{
+                    role: 'user',
+                    content: `The user just completed "${lessonName}" in ${language} but scored below 80%. Create a practice mini-course title (6-8 words) that reinforces "${lessonName}" concepts. Just the title.`
+                }],
+                max_tokens: 20,
+                temperature: 0.7
+            })
+        });
+        
+        if (!response.ok) {
+            showAISuggestionButton(`Practice ${lessonName}`);
+            return;
+        }
+        
+        const data = await response.json();
+        const title = data.choices[0].message.content.replace(/['"]/g, '').trim();
+        
+        showAISuggestionButton(title);
+        
+    } catch (error) {
+        console.error('AI Suggestion Error:', error);
+        showAISuggestionButton(`Master ${lessonName}`);
+    }
+}
+
+// Dynamic Scroll Button System
+let currentLanguageSection = null;
+const languageOrder = ['python', 'javascript', 'html', 'css', 'react'];
+
+window.addEventListener('scroll', function() {
+    const container = document.getElementById('scrollButtonContainer');
+    const prevBtn = document.getElementById('scrollPrevBtn');
+    const nextBtn = document.getElementById('scrollNextBtn');
+    
+    if (!container) return;
+    
+    // Always show scroll to top after 300px (both mobile & desktop)
+    if (window.pageYOffset > 300) {
+        container.classList.add('show');
+    } else {
+        container.classList.remove('show');
+    }
+    
+    // ✅ HIDE prev/next buttons on desktop (>768px)
+    const isDesktop = window.innerWidth > 768;
+    if (isDesktop) {
+        if (prevBtn) prevBtn.classList.remove('show');
+        if (nextBtn) nextBtn.classList.remove('show');
+        return; // Exit early on desktop
+    }
+    
+    // Check if on roadmap for prev/next buttons
+    const roadmapView = document.getElementById('roadmapView');
+    if (!roadmapView || !roadmapView.classList.contains('active')) {
+        // Not on roadmap - hide ONLY nav buttons, keep scroll to top
+        if (prevBtn) prevBtn.classList.remove('show');
+        if (nextBtn) nextBtn.classList.remove('show');
+        return;
+    }
+    
+    // On roadmap - detect current section for prev/next
+    const sections = document.querySelectorAll('.roadmap-language-section');
+    let currentSection = null;
+    
+    sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+            currentSection = section.getAttribute('data-lang');
+        }
+    });
+    
+    if (currentSection) {
+        currentLanguageSection = currentSection;
+        const currentIndex = languageOrder.indexOf(currentSection);
+        
+        // Show/hide prev button
+        if (currentIndex > 0 && prevBtn) {
+            prevBtn.classList.add('show');
+            prevBtn.querySelector('span').textContent = `↑ ${languageOrder[currentIndex - 1].toUpperCase()}`;
+        } else if (prevBtn) {
+            prevBtn.classList.remove('show');
+        }
+        
+        // Show/hide next button
+        if (currentIndex < languageOrder.length - 1 && nextBtn) {
+            nextBtn.classList.add('show');
+            nextBtn.querySelector('span').textContent = `${languageOrder[currentIndex + 1].toUpperCase()} ↓`;
+        } else if (nextBtn) {
+            nextBtn.classList.remove('show');
+        }
+    }
+}, true);
+
+function scrollToPrevSection() {
+    if (!currentLanguageSection) return;
+    const currentIndex = languageOrder.indexOf(currentLanguageSection);
+    if (currentIndex > 0) {
+        const prevLang = languageOrder[currentIndex - 1];
+        const prevSection = document.querySelector(`.roadmap-language-section[data-lang="${prevLang}"]`);
+        if (prevSection) {
+            prevSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+function scrollToNextSection() {
+    if (!currentLanguageSection) return;
+    const currentIndex = languageOrder.indexOf(currentLanguageSection);
+    if (currentIndex < languageOrder.length - 1) {
+        const nextLang = languageOrder[currentIndex + 1];
+        const nextSection = document.querySelector(`.roadmap-language-section[data-lang="${nextLang}"]`);
+        if (nextSection) {
+            nextSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
 </script>
 </body>
