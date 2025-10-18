@@ -14836,12 +14836,11 @@ function startSmartGoalMonitoring() {
         return;
     }
     
-    const reminderTime = goals.daily?.reminderTime || '19:00';
-    console.log(`✅ Smart goal monitoring started - Will remind at ${reminderTime}`);
+    console.log(`✅ Smart goal monitoring started`);
     
-    // Check every minute to see if it's reminder time
+    // ✅ FIX: Check progress every minute instead of checking reminder time
     goalMonitoringInterval = setInterval(() => {
-        checkIfReminderTime();
+        checkSmartGoalProgress();  // Use the actual function that exists
     }, 60000); // Check every 1 minute
     
     // Also check immediately
@@ -14910,7 +14909,8 @@ async function sendSmartGoalEmail(goals, completed, total, elapsed) {
             return `${status} ${langIcons[c.lang]} ${courseData.title} (${c.lang.toUpperCase()})`;
         }).join('\n');
         
-        const reminderTime = goals.daily?.reminderTime || '19:00';
+        // ✅ FIX: Define reminderThreshold here
+        const reminderThreshold = goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7);
         
         const subject = `⏰ Daily Goal Reminder - ${remaining} Course${remaining !== 1 ? 's' : ''} Left!`;
         const message = `Hi ${userData.name}!
