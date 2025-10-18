@@ -14369,8 +14369,6 @@ function saveGoalsWithCourses() {
     const timeGoal = parseInt(document.getElementById('dailyTimeGoal').value) || 60;
     const estimatedTimePerCourse = 15;
     const totalEstimatedTime = tempSelectedCourses.length * estimatedTimePerCourse;
-    
-    // ✅ Calculate reminder time (70% of time goal)
     const emailReminderThreshold = Math.floor(timeGoal * 0.7);
     
     const goalId = 'goal_' + Date.now();
@@ -14383,7 +14381,7 @@ function saveGoalsWithCourses() {
             timeGoal: timeGoal,
             estimatedTime: totalEstimatedTime,
             streak: document.getElementById('dailyStreak').checked,
-            emailReminderThreshold: emailReminderThreshold // ✅ ADD THIS BACK
+            emailReminderThreshold: emailReminderThreshold
         },
         emailNotifications: true,
         startDate: new Date().toISOString(),
@@ -14392,26 +14390,26 @@ function saveGoalsWithCourses() {
         total: tempSelectedCourses.length
     };
     
-    // ✅ Get existing goals array
     const allGoals = JSON.parse(localStorage.getItem('allUserGoals_' + currentUser) || '[]');
-    
-    // Add new goal
     allGoals.push(newGoal);
-    
-    // Save array
     localStorage.setItem('allUserGoals_' + currentUser, JSON.stringify(allGoals));
     
-    // Set as active goal
     localStorage.setItem('userGoals_' + currentUser, JSON.stringify(newGoal));
     localStorage.setItem('activeGoalId_' + currentUser, goalId);
+    
+    // ✅ RESET timer and email flag for NEW goal
     localStorage.setItem('goalStartTime_' + currentUser, Date.now().toString());
     localStorage.setItem('coursesCompletedToday_' + currentUser, '0');
     
-     showNotification(`✅ Goal saved! Reminder in ${emailReminderThreshold} minutes`, 'success');
+    // ✅ CLEAR any previous email sent flag
+    const oldGoalId = localStorage.getItem('activeGoalId_' + currentUser);
+    if (oldGoalId) {
+        localStorage.removeItem('goalEmailSent_' + currentUser + '_' + oldGoalId);
+    }
     
-    // Clear temp selection
+    showNotification(`✅ Goal saved! Reminder in ${emailReminderThreshold} minutes`, 'success');
+    
     tempSelectedCourses = [];
-    
     closeGoalsModal();
     
     setTimeout(() => {
@@ -14421,7 +14419,7 @@ function saveGoalsWithCourses() {
         }
     }, 400);
     
-    // ✅ Always start monitoring since emailNotifications is always true
+    // ✅ Always start monitoring
     startSmartGoalMonitoring();
 }
 
@@ -14847,39 +14845,44 @@ function startSmartGoalMonitoring() {
     }, 60000); // Check every 1 minute
     
     // Also check immediately
-    setTimeout(checkIfReminderTime, 5000); // Check after 5 seconds
+    setTimeout(checkSmartGoalProgress, 5000); // Check after 5 seconds
 }
 
-function checkIfReminderTime() {
+function checkSmartGoalProgress() {
     const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
     
     if (!goals.emailNotifications) return;
     
-    const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const reminderTime = goals.daily?.reminderTime || '19:00';
-    const today = now.toDateString();
+    const startTime = parseInt(localStorage.getItem('goalStartTime_' + currentUser) || Date.now());
+    const elapsed = Math.floor((Date.now() - startTime) / 60000); // minutes elapsed
+    const completed = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser) || '0');
     
-    const emailSent = localStorage.getItem('goalEmailSent_' + currentUser + '_' + today);
+    // ✅ CHANGED: Remove daily date check - use goal ID instead
+    const currentGoalId = localStorage.getItem('activeGoalId_' + currentUser);
+    const emailSent = localStorage.getItem('goalEmailSent_' + currentUser + '_' + currentGoalId);
     
-    console.log(`⏰ Current: ${currentTime}, Reminder: ${reminderTime}, Sent: ${emailSent}`);
+    const totalCourses = goals.daily.selectedCourses.length;
+    const remainingCourses = totalCourses - completed;
+    const progressPercent = totalCourses > 0 ? (completed / totalCourses) * 100 : 0;
     
-    // ✅ Check if current time matches reminder time (within same minute)
-    if (currentTime === reminderTime && !emailSent) {
-        const completed = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser) || '0');
-        const totalCourses = goals.daily.selectedCourses.length;
-        const progressPercent = totalCourses > 0 ? (completed / totalCourses) * 100 : 0;
+    const reminderThreshold = goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7);
+    
+    console.log(`📊 Progress Check: ${completed}/${totalCourses} courses (${progressPercent.toFixed(0)}%), ${elapsed}/${goals.daily.timeGoal} min (threshold: ${reminderThreshold})`);
+    
+    // Send email if:
+    // 1. Passed the threshold time (70% of goal)
+    // 2. Completed less than 50% of courses
+    // 3. Haven't sent email for THIS GOAL yet
+    if (elapsed >= reminderThreshold && 
+        progressPercent < 50 && 
+        remainingCourses > 0 && 
+        !emailSent) {
         
-        console.log(`📊 Reminder Time! Progress: ${completed}/${totalCourses} (${progressPercent.toFixed(0)}%)`);
+        console.log('⚠️ Sending smart reminder email...');
+        sendSmartGoalEmail(goals, completed, totalCourses, elapsed);
         
-        // Send email if goal not completed
-        if (progressPercent < 100) {
-            console.log('⚠️ Sending reminder email...');
-            sendSmartGoalEmail(goals, completed, totalCourses, 0);
-            localStorage.setItem('goalEmailSent_' + currentUser + '_' + today, 'true');
-        } else {
-            console.log('✅ Goal already completed - no reminder needed');
-        }
+        // ✅ CHANGED: Mark email as sent for THIS GOAL (not per day)
+        localStorage.setItem('goalEmailSent_' + currentUser + '_' + currentGoalId, 'true');
     }
 }
 
@@ -14912,25 +14915,26 @@ async function sendSmartGoalEmail(goals, completed, total, elapsed) {
         const subject = `⏰ Daily Goal Reminder - ${remaining} Course${remaining !== 1 ? 's' : ''} Left!`;
         const message = `Hi ${userData.name}!
 
-It's ${reminderTime} and time to check on your learning goals! 📚
+⏰ You've been studying for ${elapsed} minutes.
 
-📊 Today's Progress: ${progressPercent}% Complete
+Your goal was to complete ${total} courses in ${goals.daily.timeGoal} minutes, but you're running behind schedule!
+
+📊 Current Progress: ${progressPercent}%
 ✅ Completed: ${completed} course${completed !== 1 ? 's' : ''}
 ⏳ Remaining: ${remaining} course${remaining !== 1 ? 's' : ''}
 
 🎯 Your Daily Goals:
 ${coursesList}
 
-${remaining > 0 ? `You still have ${remaining} course${remaining !== 1 ? 's' : ''} to complete today!` : 'Great job! You\'re all done!'}
+⚡ Quick action needed! You still have ${goals.daily.timeGoal - elapsed} minutes to complete ${remaining} more course${remaining !== 1 ? 's' : ''}!
 
-Log in now to continue your learning journey and maintain your streak! 🔥
+Log in now and finish strong! 💪🔥
 
-Keep coding!
+Keep learning!
 DevLearn Pro Team
 
 ---
-📧 You're receiving this because you enabled goal reminders.
-To change your reminder settings, visit your Goals dashboard.`;
+📧 This reminder was sent after ${reminderThreshold} minutes of study time to help you stay on track.`;
         
         await emailjs.send(
             config.EMAIL_SERVICE_ID,
