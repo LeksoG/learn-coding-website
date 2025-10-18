@@ -8649,6 +8649,300 @@ body.lesson-active {
     font-weight: 700;
     font-size: 0.9em;
 }
+
+.ai-suggestion-btn {
+    animation: buttonPulse 2s ease-in-out infinite;
+}
+
+@keyframes buttonPulse {
+    0%, 100% {
+        box-shadow: 0 8px 32px rgba(100, 255, 218, 0.4);
+    }
+    50% {
+        box-shadow: 0 8px 32px rgba(100, 255, 218, 0.7), 0 0 0 8px rgba(100, 255, 218, 0.1);
+    }
+}
+
+.ai-suggestion-btn:active {
+    transform: translateX(-50%) translateY(0) scale(0.98) !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .ai-suggestion-btn {
+        bottom: 90px !important; /* Above mobile nav */
+        max-width: 85% !important;
+        padding: 15px 20px !important;
+    }
+    
+    .ai-suggestion-title {
+        font-size: 1em !important;
+    }
+    
+    .ai-suggestion-desc {
+        font-size: 0.8em !important;
+    }
+}
+
+/* Smooth transitions for layout shifts */
+.progress-section {
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.chart-container {
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    transform-origin: top center;
+}
+
+.stats-buttons-container {
+    will-change: max-height, opacity, transform;
+    transform-origin: top center;
+}
+
+/* Ensure smooth expansion */
+.stats-buttons-container > div {
+    transition: all 0.4s ease;
+}
+
+/* Prevent layout jank */
+.chart-tabs {
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Smooth goals container animation */
+#goalsButtonContainer {
+    will-change: opacity, transform;
+    transform-origin: right center;
+}
+
+/* Hide scrollbar during page load */
+body {
+    overflow-x: hidden !important;
+}
+
+html {
+    overflow-x: hidden !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 255, 218, 0.3) rgba(30, 30, 30, 0.3);
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(30, 30, 30, 0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 255, 218, 0.3);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 255, 218, 0.5);
+}
+
+/* Prevent layout shift during load */
+.section,
+.progress-section,
+.stats-grid {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Smooth page load */
+body.loading {
+    overflow: hidden !important;
+}
+
+body.loading * {
+    animation-play-state: paused !important;
+    transition: none !important;
+}
+
+/* Enhanced Bar Chart Styles */
+.bar-item {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.bar-item:hover {
+    transform: translateY(-5px);
+}
+
+.bar-item:hover .bar {
+    box-shadow: 
+        0 -4px 20px rgba(100, 255, 218, 0.6),
+        0 8px 30px rgba(100, 255, 218, 0.3);
+}
+
+.bar {
+    position: relative;
+    background: rgba(30, 30, 30, 0.6);
+    border: 2px solid rgba(100, 255, 218, 0.2);
+    border-radius: 8px 8px 0 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    overflow: visible;
+}
+
+/* Pulse animation for bars */
+@keyframes barPulse {
+    0%, 100% {
+        box-shadow: 0 -4px 20px rgba(100, 255, 218, 0.4);
+    }
+    50% {
+        box-shadow: 0 -4px 30px rgba(100, 255, 218, 0.7);
+    }
+}
+
+.bar-item:hover .bar-gradient {
+    animation: barPulse 2s ease-in-out infinite;
+}
+
+.splash-features {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 25px 0;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.splash-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(100, 255, 218, 0.05);
+    border: 1px solid rgba(100, 255, 218, 0.2);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.splash-feature:hover {
+    background: rgba(100, 255, 218, 0.1);
+    border-color: rgba(100, 255, 218, 0.4);
+    transform: translateX(5px);
+}
+
+.feature-icon {
+    font-size: 2em;
+    flex-shrink: 0;
+}
+
+.splash-feature strong {
+    color: #64ffda;
+    font-size: 1.05em;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.splash-feature p {
+    color: #8b949e;
+    font-size: 0.9em;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.splash-version {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(102, 126, 234, 0.2);
+    border: 1px solid rgba(102, 126, 234, 0.4);
+    border-radius: 20px;
+    color: #667eea;
+    font-weight: 600;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+}
+
+.splash-button {
+    margin-top: 20px;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, #667eea, #64ffda);
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(100, 255, 218, 0.4);
+}
+
+.splash-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.6);
+}
+
+/* Enhanced Bar Chart */
+.chart-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    padding: 30px 20px 60px 60px; /* ✅ More bottom padding for labels */
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 15px;
+    min-height: 450px; /* ✅ Increased from 300px */
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+    position: relative;
+}
+
+.bar {
+    width: 100%;
+    max-width: 80px;
+    background: rgba(30, 30, 30, 0.8);
+    border: 2px solid rgba(100, 255, 218, 0.2);
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.bar-label {
+    position: absolute;
+    bottom: -50px; /* ✅ Fixed position below bar */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85em;
+    text-align: center;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Y-axis labels */
+.chart-y-labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: absolute;
+    left: 10px;
+    top: 30px;
+    bottom: 60px; /* Match chart bottom padding */
+    color: #8b949e;
+    font-size: 0.85em;
+    font-weight: 600;
+}
     </style>
 </head>
 <body>
@@ -9156,26 +9450,53 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
         </div>
     </div>
 
-    <div class="update-splash" id="updateSplash">
-    <div class="update-content">
-        <div class="update-icon">✨</div>
-        <h1 class="update-title" id="splashTitle">New Version</h1>
-        <p class="update-version">Version 3.6</p>
+    <div id="updateSplash" class="update-splash">
+    <div class="splash-content">
+        <div class="splash-icon">🚀</div>
+        <h2 id="splashTitle" class="splash-title">Welcome to DevLearn Pro</h2>
+        <div class="splash-version">Version 4.6</div>
         
-        <div class="changelog">
-    <h3>🚀 What's New in 4.0</h3>
-    <ul>
-        <li>🗺️ Interactive Learning Roadmap with visual progress tracking</li>
-        <li>⏱️ Smart Time Estimation for each course and total learning path</li>
-        <li>🤖 AI-Powered Course Suggestions based on your performance</li>
-        <li>💡 Personalized AI mini-courses when you score 55-79%</li>
-        <li>📊 Enhanced progress visualization with dynamic charts</li>
-        <li>✨ Improved animations and user experience throughout</li>
-        <li>🎯 Better mobile optimization and touch interactions</li>
-    </ul>
-</div>
+        <div class="splash-features">
+            <div class="splash-feature">
+                <span class="feature-icon">✨</span>
+                <div>
+                    <strong>AI-Powered Learning</strong>
+                    <p>Get personalized course suggestions based on your performance</p>
+                </div>
+            </div>
+            <div class="splash-feature">
+                <span class="feature-icon">🎯</span>
+                <div>
+                    <strong>Smart Goals</strong>
+                    <p>Set daily learning goals with intelligent email reminders</p>
+                </div>
+            </div>
+            <div class="splash-feature">
+                <span class="feature-icon">📊</span>
+                <div>
+                    <strong>Detailed Analytics</strong>
+                    <p>Track your progress with interactive charts and insights</p>
+                </div>
+            </div>
+            <div class="splash-feature">
+                <span class="feature-icon">🔥</span>
+                <div>
+                    <strong>Learning Streaks</strong>
+                    <p>Build consistent coding habits with daily streak tracking</p>
+                </div>
+            </div>
+            <div class="splash-feature">
+                <span class="feature-icon">🗺️</span>
+                <div>
+                    <strong>Learning Roadmap</strong>
+                    <p>Visual journey through your programming courses</p>
+                </div>
+            </div>
+        </div>
         
-        <button class="close-splash-btn" onclick="closeUpdateSplash()">Let's Go! 🚀</button>
+        <button onclick="closeUpdateSplash()" class="splash-button">
+            Get Started 🚀
+        </button>
     </div>
 </div>
 
@@ -9224,6 +9545,16 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
 <script src="main.js"></script>
 
     <script>
+
+        // Add at the very top of your script, before everything else
+(function() {
+    document.body.classList.add('loading');
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            document.body.classList.remove('loading');
+        }, 100);
+    });
+})();
 
         // Mistral AI Configuration
 function getAIConfig() {
@@ -9354,9 +9685,9 @@ const courses = {
         { id: 'course5', title: 'Concatenation', desc: 'Joining strings', icon: '🔗' },
         { id: 'course6', title: 'Loops', desc: 'Repeat code', icon: '🔄' },
         { id: 'course7', title: 'Lists', desc: 'Store multiple items', icon: '📋' },
-        { id: 'course8', title: 'Dictionaries', desc: 'Key-value pairs', icon: '📚', isNew: true },
-        { id: 'course9', title: 'Functions', desc: 'Reusable code blocks', icon: '⚙️', isNew: true },
-        { id: 'course10', title: 'Conditionals', desc: 'If/else statements', icon: '🔀', isNew: true },
+        { id: 'course8', title: 'Dictionaries', desc: 'Key-value pairs', icon: '📚' },
+        { id: 'course9', title: 'Functions', desc: 'Reusable code blocks', icon: '⚙️' },
+        { id: 'course10', title: 'Conditionals', desc: 'If/else statements', icon: '🔀' },
     ],
     javascript: [
         { id: 'course1', title: 'Variables', desc: 'let, const & types', icon: '📦' },
@@ -9366,9 +9697,9 @@ const courses = {
         { id: 'course5', title: 'Arrays & Objects', desc: 'Data structures', icon: '📚' },
         { id: 'course6', title: 'Events', desc: 'User interactions', icon: '🖱️' },
         { id: 'course7', title: 'Async & Promises', desc: 'Handle async code', icon: '⏳' },
-        { id: 'course8', title: 'ES6 Features', desc: 'Modern JavaScript', icon: '✨', isNew: true },
-        { id: 'course9', title: 'Error Handling', desc: 'Try, catch & debug', icon: '🐛', isNew: true },
-        { id: 'course10', title: 'Modules & Import', desc: 'Code organization', icon: '📦', isNew: true },
+        { id: 'course8', title: 'ES6 Features', desc: 'Modern JavaScript', icon: '✨' },
+        { id: 'course9', title: 'Error Handling', desc: 'Try, catch & debug', icon: '🐛' },
+        { id: 'course10', title: 'Modules & Import', desc: 'Code organization', icon: '📦'},
 
     ],
     html: [
@@ -9379,9 +9710,9 @@ const courses = {
         { id: 'course5', title: 'Forms', desc: 'User input', icon: '📋' },
         { id: 'course6', title: 'Links', desc: 'Connect pages', icon: '🔗' },
         { id: 'course7', title: 'Tables', desc: 'Display data', icon: '📊' },
-        { id: 'course8', title: 'Semantic HTML', desc: 'Meaningful structure', icon: '🏗️', isNew: true },
-        { id: 'course9', title: 'Meta Tags & SEO', desc: 'Optimize for search', icon: '🔍', isNew: true },
-        { id: 'course10', title: 'Accessibility', desc: 'Web for everyone', icon: '♿', isNew: true },
+        { id: 'course8', title: 'Semantic HTML', desc: 'Meaningful structure', icon: '🏗️' },
+        { id: 'course9', title: 'Meta Tags & SEO', desc: 'Optimize for search', icon: '🔍' },
+        { id: 'course10', title: 'Accessibility', desc: 'Web for everyone', icon: '♿' },
     ],
     css: [
         { id: 'course1', title: 'CSS Selectors', desc: 'Target elements', icon: '🎯' },
@@ -9391,9 +9722,9 @@ const courses = {
         { id: 'course5', title: 'Flexbox & Grid', desc: 'Modern layouts', icon: '📐' },
         { id: 'course6', title: 'Responsive Design', desc: 'Mobile-first CSS', icon: '📱' },
         { id: 'course7', title: 'Animations', desc: 'Bring pages to life', icon: '✨' },
-        { id: 'course8', title: 'CSS Variables', desc: 'Custom properties', icon: '🎛️', isNew: true },
-        { id: 'course9', title: 'Pseudo Classes', desc: 'Dynamic styling', icon: '🎭', isNew: true },
-        { id: 'course10', title: 'CSS Grid Advanced', desc: 'Complex layouts', icon: '🎨', isNew: true },
+        { id: 'course8', title: 'CSS Variables', desc: 'Custom properties', icon: '🎛️' },
+        { id: 'course9', title: 'Pseudo Classes', desc: 'Dynamic styling', icon: '🎭'},
+        { id: 'course10', title: 'CSS Grid Advanced', desc: 'Complex layouts', icon: '🎨' },
     ],
     react: [
         { id: 'course1', title: 'Components & JSX', desc: 'React basics', icon: '⚛️' },
@@ -9403,9 +9734,9 @@ const courses = {
         { id: 'course5', title: 'Conditionals', desc: 'Dynamic UI', icon: '🔀' },
         { id: 'course6', title: 'Lists & Keys', desc: 'Render arrays', icon: '📋' },
         { id: 'course7', title: 'useEffect Hook', desc: 'Side effects', icon: '🪝' },
-        { id: 'course8', title: 'Custom Hooks', desc: 'Reusable logic', icon: '🔧', isNew: true },
-        { id: 'course9', title: 'Context API', desc: 'Global state', icon: '🌍', isNew: true },
-        { id: 'course10', title: 'React Router', desc: 'Navigation & routing', icon: '🧭', isNew: true },
+        { id: 'course8', title: 'Custom Hooks', desc: 'Reusable logic', icon: '🔧' },
+        { id: 'course9', title: 'Context API', desc: 'Global state', icon: '🌍' },
+        { id: 'course10', title: 'React Router', desc: 'Navigation & routing', icon: '🧭' },
     ]
 };
 
@@ -10800,7 +11131,19 @@ function initializeApp() {
     // Check for updates - will show splash for new users after 0.3s
     checkForUpdates();
 
-    startGoalMonitoring();
+    // Start goal monitoring if goals exist
+const savedGoals = localStorage.getItem('userGoals_' + currentUser);
+if (savedGoals) {
+    const goals = JSON.parse(savedGoals);
+    if (goals.emailNotifications) {
+        startSmartGoalMonitoring();
+    }
+}
+    
+    // ADD THESE LINES AT THE VERY END
+    setTimeout(() => {
+        initializeGoalsButtons();
+    }, 500);
 }
 
 function logout() {
@@ -10863,6 +11206,7 @@ function checkAuth() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    injectSplashScreenCSS();
     checkAuth();
     
     const codeEditor = document.getElementById('codeEditor');
@@ -11191,6 +11535,13 @@ function showSection(sectionId) {
     if (sectionId === 'home') {
         updateDashboard();
     }
+    
+    // ADD THIS CODE HERE
+    if (sectionId === 'stats') {
+        setTimeout(() => {
+            initializeGoalsButtons();
+        }, 100);
+    }
 }
 
 function showSectionMobile(sectionId, element) {
@@ -11287,13 +11638,12 @@ function renderCourses() {
         existingSection.remove();
     }
     
-    // Find the learn section to append to
     const learnSection = document.getElementById('learn');
     const languageContent = learnSection.querySelector('.language-content.active');
     
     if (!languageContent) return;
     
-    // Create main container
+    // Create coming soon container
     const comingSoonContainer = document.createElement('div');
     comingSoonContainer.id = 'globalComingSoonSection';
     comingSoonContainer.style.cssText = `
@@ -11307,7 +11657,6 @@ function renderCourses() {
         box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
     `;
     
-    // Title Section
     const titleSection = document.createElement('div');
     titleSection.style.cssText = `
         display: flex;
@@ -11341,83 +11690,30 @@ function renderCourses() {
         font-size: 0.5em;
         box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     `;
-    badge.textContent = 'NEW COURSES';
+    badge.textContent = 'FUTURE COURSES';
     title.appendChild(badge);
     
     titleSection.appendChild(title);
-    
-    // Language Tabs
-    const tabsContainer = document.createElement('div');
-    tabsContainer.style.cssText = `
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    `;
-    
-    const langIcons = {
-        python: '🐍',
-        javascript: '⚡',
-        html: '🌐',
-        css: '🎨',
-        react: '⚛️'
-    };
-    
-    Object.keys(courses).forEach((lang, index) => {
-        const tab = document.createElement('button');
-        tab.className = 'coming-soon-tab';
-        tab.dataset.lang = lang;
-        tab.style.cssText = `
-            padding: 10px 20px;
-            background: ${index === 0 ? 'rgba(102, 126, 234, 0.2)' : 'rgba(100, 255, 218, 0.05)'};
-            border: 2px solid ${index === 0 ? 'rgba(102, 126, 234, 0.5)' : 'rgba(100, 255, 218, 0.2)'};
-            border-radius: 50px;
-            color: ${index === 0 ? '#667eea' : '#64ffda'};
-            font-weight: 600;
-            font-size: 0.95em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        `;
-        tab.innerHTML = `${langIcons[lang]} ${lang.toUpperCase()}`;
-        
-        tab.onmouseenter = function() {
-            if (!this.classList.contains('active')) {
-                this.style.background = 'rgba(102, 126, 234, 0.15)';
-                this.style.borderColor = 'rgba(102, 126, 234, 0.4)';
-                this.style.transform = 'translateY(-2px)';
-            }
-        };
-        
-        tab.onmouseleave = function() {
-            if (!this.classList.contains('active')) {
-                this.style.background = 'rgba(100, 255, 218, 0.05)';
-                this.style.borderColor = 'rgba(100, 255, 218, 0.2)';
-                this.style.transform = 'translateY(0)';
-            }
-        };
-        
-        tab.onclick = () => switchComingSoonTab(lang);
-        
-        if (index === 0) tab.classList.add('active');
-        
-        tabsContainer.appendChild(tab);
-    });
-    
-    titleSection.appendChild(tabsContainer);
     comingSoonContainer.appendChild(titleSection);
     
-    // Cards Container
-    const cardsContainer = document.createElement('div');
-    cardsContainer.id = 'comingSoonCards';
-    comingSoonContainer.appendChild(cardsContainer);
+    // Empty state message
+    const emptyState = document.createElement('div');
+    emptyState.style.cssText = `
+        text-align: center;
+        padding: 60px 20px;
+        background: rgba(100, 255, 218, 0.03);
+        border: 2px dashed rgba(100, 255, 218, 0.2);
+        border-radius: 15px;
+    `;
     
-    // Append to the active language content
+    emptyState.innerHTML = `
+        <div style="font-size: 4em; margin-bottom: 15px; opacity: 0.6;">📦</div>
+        <div style="color: #fff; font-size: 1.3em; font-weight: 700; margin-bottom: 10px;">No courses coming soon yet</div>
+        <div style="color: #8b949e; font-size: 1em; font-weight: 500;">More exciting courses will be added in future updates!</div>
+    `;
+    
+    comingSoonContainer.appendChild(emptyState);
     languageContent.appendChild(comingSoonContainer);
-    
-    // Show first language's coming soon courses
-    switchComingSoonTab('python');
 }
 
 function switchComingSoonTab(lang) {
@@ -11730,20 +12026,24 @@ async function displayNextLearnMessage() {
 
 function updateLessonProgress() {
     // Handle AI courses
-    if (currentLesson.isAI) {
+    if (currentLesson && currentLesson.isAI) {
         const totalSteps = aiCourseContent.learn.length + aiCourseContent.exercises.length;
         const completedSteps = learnMessageIndex + correctAnswers;
-        const progress = Math.round((completedSteps / totalSteps) * 100);
+        const progress = Math.min(100, Math.round((completedSteps / totalSteps) * 100));
         document.getElementById('lessonProgressText').textContent = `${progress}% Complete`;
         return;
     }
+    
+    if (!currentLesson || !currentLesson.language || !currentLesson.courseId) return;
     
     const content = lessonContent[currentLesson.language]?.[currentLesson.courseId];
     if (!content) return;
     
     const totalSteps = content.learn.length + content.exercises.length;
     const completedSteps = learnMessageIndex + correctAnswers;
-    const progress = Math.round((completedSteps / totalSteps) * 100);
+    
+    // Calculate progress - will be forced to 100% by checkCompletion() when done
+    const progress = Math.min(100, Math.round((completedSteps / totalSteps) * 100));
     
     document.getElementById('lessonProgressText').textContent = `${progress}% Complete`;
     
@@ -11758,6 +12058,7 @@ function displayQuestions() {
     if (!content) return;
     
     const questionMessages = document.getElementById('questionMessages');
+    questionMessages.innerHTML = ''; // Clear any existing content
     
     const welcomeDiv = document.createElement('div');
     welcomeDiv.className = 'message';
@@ -11767,53 +12068,82 @@ function displayQuestions() {
     `;
     questionMessages.appendChild(welcomeDiv);
     
+    // ✅ DEBUG: Log total exercises
+    console.log('Total exercises to display:', content.exercises.length);
+    
     content.exercises.forEach((exercise, index) => {
+        console.log('Creating question', index + 1, ':', exercise.question); // Debug
+        
         const exerciseDiv = document.createElement('div');
         exerciseDiv.className = 'message';
         
-        if (exercise.type === 'fill') {
-    const isMobile = window.innerWidth <= 768;
-    
-    if (isMobile) {
-        // MOBILE: Show clickable options instead of input
-        const options = generateFillOptions(exercise.answer, exercise.code);
-        
-        exerciseDiv.innerHTML = `
-            <div class="message-avatar">🤖</div>
-            <div class="message-bubble">
-                <div class="exercise-box">
-                    <div class="exercise-title">✏️ ${exercise.question}</div>
-                    <div class="code-fill">${exercise.code.replace(/___BLANK___/g, '<span class="code-blank-placeholder">____</span>')}</div>
-                    <div class="fill-options">
-                        ${options.map((opt, i) => `
-                            <button class="fill-option-btn" onclick="selectFillOption(${index}, '${opt}', '${exercise.answer}')">${opt}</button>
-                        `).join('')}
+        if (exercise.type === 'mcq') {
+            let optionsHTML = exercise.options.map((opt, i) => 
+                `<div class="mcq-option" onclick="selectOption(this, ${index}, ${i})">${opt}</div>`
+            ).join('');
+            
+            exerciseDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-bubble">
+                    <div class="exercise-box">
+                        <div class="exercise-title">❓ ${exercise.question}</div>
+                        <div class="mcq-options" data-exercise="${index}">
+                            ${optionsHTML}
+                        </div>
+                        <button class="submit-button" onclick="checkMCQAnswer(${index})">Check</button>
+                        <div id="feedback-${index}"></div>
                     </div>
-                    <div id="feedback-${index}"></div>
                 </div>
-            </div>
-        `;
-    } else {
-        // DESKTOP: Keep original input
-        const codeWithBlanks = exercise.code.replace(/___BLANK___/g, 
-            `<span class="code-blank-wrapper"><input type="text" class="code-blank" data-index="${index}" placeholder="____"></span>`);
-        
-        exerciseDiv.innerHTML = `
-            <div class="message-avatar">🤖</div>
-            <div class="message-bubble">
-                <div class="exercise-box">
-                    <div class="exercise-title">✏️ ${exercise.question}</div>
-                    <div class="code-fill">${codeWithBlanks}</div>
-                    <button class="submit-button" onclick="checkFillAnswer(${index}, '${exercise.answer}')">Check</button>
-                    <div id="feedback-${index}"></div>
-                </div>
-            </div>
-        `;
-    }
-}
+            `;
+        } else if (exercise.type === 'fill') {
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // Mobile version with clickable options
+                const options = generateFillOptions(exercise.answer, exercise.code);
+                
+                exerciseDiv.innerHTML = `
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-bubble">
+                        <div class="exercise-box">
+                            <div class="exercise-title">✏️ ${exercise.question}</div>
+                            <div class="code-fill">${exercise.code.replace(/___BLANK___/g, '<span class="code-blank-placeholder">____</span>')}</div>
+                            <div class="fill-options">
+                                ${options.map((opt, i) => `
+                                    <button class="fill-option-btn" onclick="selectFillOption(${index}, '${opt}', '${exercise.answer}')">${opt}</button>
+                                `).join('')}
+                            </div>
+                            <div id="feedback-${index}"></div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Desktop version with input field
+                const codeWithBlanks = exercise.code.replace(/___BLANK___/g, 
+                    `<span class="code-blank-wrapper"><input type="text" class="code-blank" data-index="${index}" placeholder="____"></span>`);
+                
+                exerciseDiv.innerHTML = `
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-bubble">
+                        <div class="exercise-box">
+                            <div class="exercise-title">✏️ ${exercise.question}</div>
+                            <div class="code-fill">${codeWithBlanks}</div>
+                            <button class="submit-button" onclick="checkFillAnswer(${index}, '${exercise.answer}')">Check</button>
+                            <div id="feedback-${index}"></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
         
         questionMessages.appendChild(exerciseDiv);
     });
+    
+    // ✅ Force scroll to top of questions panel
+    questionMessages.scrollTop = 0;
+    
+    // ✅ DEBUG: Log how many questions were created
+    console.log('Questions created:', questionMessages.children.length - 1); // -1 for welcome message
 }
 
 function selectOption(element, exerciseIndex, optionIndex) {
@@ -11999,6 +12329,21 @@ function checkCompletion() {
         : lessonContent[currentLesson.language][currentLesson.courseId];
     
     if (correctAnswers >= content.exercises.length) {
+        // ✅ CRITICAL: Update progress to 100% BEFORE showing completion message
+        if (!isRetryMode) {
+            if (currentLesson.isAI) {
+                // For AI courses, just update display
+                document.getElementById('lessonProgressText').textContent = '100% Complete';
+            } else {
+                // For regular courses, save to storage
+                userProgress[currentLesson.language][currentLesson.courseId].progress = 100;
+                localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
+                document.getElementById('lessonProgressText').textContent = '100% Complete';
+            }
+        } else {
+            document.getElementById('lessonProgressText').textContent = '100% Complete';
+        }
+        
         const questionMessages = document.getElementById('questionMessages');
         
         const completeMsg = document.createElement('div');
@@ -12995,10 +13340,12 @@ function monitorRoadmapScroll() {
     }, true);
 }
 
-// Add buttons to chart section
 function addStatsButtons() {
     // Check if buttons already exist
-    if (document.getElementById('statsButtonsContainer')) return;
+    if (document.getElementById('statsButtonsContainer')) {
+        console.log('Buttons already exist, skipping creation');
+        return;
+    }
     
     // Find the progress section
     const progressSection = document.querySelector('.progress-section');
@@ -13008,38 +13355,80 @@ function addStatsButtons() {
     const chartTabs = progressSection.querySelector('.chart-tabs');
     if (!chartTabs) return;
     
+    // ✅ Add transition to chart containers BEFORE inserting buttons
+    const allChartContainers = document.querySelectorAll('.chart-container');
+    allChartContainers.forEach(container => {
+        container.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    });
+    
     // Create buttons container
     const buttonsContainer = document.createElement('div');
     buttonsContainer.id = 'statsButtonsContainer';
     buttonsContainer.className = 'stats-buttons-container';
+    
+    // ✅ Start with 0 height and hidden
+    buttonsContainer.style.cssText = `
+        opacity: 0;
+        transform: translateY(-20px);
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
+    
     buttonsContainer.innerHTML = `
-    <div style="display: flex; flex: 1; gap: 12px; flex-wrap: wrap;">
-        <button class="stat-toggle-btn" onclick="showStatDetail('language')">
+    <div style="display: flex; flex: 1; gap: 12px; flex-wrap: wrap; padding: 20px; transition: all 0.4s ease;">
+        <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('language')">
             <span class="stat-btn-icon">📚</span>
             <span>Language Progress</span>
         </button>
-        <button class="stat-toggle-btn" onclick="showStatDetail('time')">
+        <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('time')">
             <span class="stat-btn-icon">⏱️</span>
             <span>Time Breakdown</span>
         </button>
-        <button class="stat-toggle-btn" onclick="showStatDetail('performance')">
+        <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('performance')">
             <span class="stat-btn-icon">🎯</span>
             <span>Performance</span>
         </button>
-        <button class="stat-toggle-btn" onclick="showStatDetail('activity')">
+        <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('activity')">
             <span class="stat-btn-icon">📅</span>
             <span>Recent Activity</span>
         </button>
     </div>
-    <button class="goals-btn" onclick="openGoals()">
-        <span class="goals-btn-icon">🎯</span>
-        <span>Set Goals</span>
-    </button>
-`;
+    `;
     
     // Insert after chart tabs
     chartTabs.parentNode.insertBefore(buttonsContainer, chartTabs.nextSibling);
     
+    // ✅ Measure the natural height
+    buttonsContainer.style.maxHeight = 'none';
+    buttonsContainer.style.position = 'absolute';
+    buttonsContainer.style.visibility = 'hidden';
+    const naturalHeight = buttonsContainer.scrollHeight;
+    buttonsContainer.style.position = '';
+    buttonsContainer.style.visibility = '';
+    buttonsContainer.style.maxHeight = '0';
+    
+    // ✅ Animate container expanding
+    setTimeout(() => {
+        buttonsContainer.style.maxHeight = naturalHeight + 'px';
+        buttonsContainer.style.opacity = '1';
+        buttonsContainer.style.transform = 'translateY(0)';
+    }, 100);
+    
+    // ✅ After expansion, set to auto for responsiveness
+    setTimeout(() => {
+        buttonsContainer.style.maxHeight = 'none';
+    }, 700);
+    
+    // Animate buttons in one by one
+    const buttons = buttonsContainer.querySelectorAll('.stat-btn-animate');
+    buttons.forEach((btn, index) => {
+        setTimeout(() => {
+            btn.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            btn.style.opacity = '1';
+            btn.style.transform = 'translateX(0)';
+        }, 300 + (index * 100)); // Stagger by 100ms
+    });
     
     // Create detail views
     createDetailViews();
@@ -13048,7 +13437,7 @@ function addStatsButtons() {
     makeChartTabsClickable();
 }
 
-// Add Goals Button
+// Find where you have the goals button and update addGoalsButton function:
 function addGoalsButton(chartTabs) {
     // Check if already exists
     if (document.getElementById('goalsButtonContainer')) return;
@@ -13056,15 +13445,129 @@ function addGoalsButton(chartTabs) {
     const goalsContainer = document.createElement('div');
     goalsContainer.id = 'goalsButtonContainer';
     goalsContainer.className = 'goals-button-container';
-    goalsContainer.innerHTML = `
-        <button class="goals-btn" onclick="openGoals()">
-            <span class="goals-btn-icon">🎯</span>
-            <span>Set Goals</span>
-        </button>
+    goalsContainer.style.cssText = `
+        display: flex;
+        gap: 10px;
+        align-items: center;
     `;
+    
+    // Set Goals Button
+    const setGoalsBtn = document.createElement('button');
+    setGoalsBtn.className = 'goals-btn';
+    setGoalsBtn.onclick = openGoals;
+    setGoalsBtn.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: rgba(102, 126, 234, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        border-radius: 50px;
+        color: #667eea;
+        font-weight: 600;
+        font-size: 0.95em;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        white-space: nowrap;
+    `;
+    setGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">🎯</span><span>Set Goals</span>';
+    
+    setGoalsBtn.onmouseenter = function() {
+        this.style.background = 'rgba(102, 126, 234, 0.2)';
+        this.style.borderColor = 'rgba(102, 126, 234, 0.6)';
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
+    };
+    
+    setGoalsBtn.onmouseleave = function() {
+        this.style.background = 'rgba(102, 126, 234, 0.1)';
+        this.style.borderColor = 'rgba(102, 126, 234, 0.3)';
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = 'none';
+    };
+    
+    // View Goals Button (initially hidden)
+    const viewGoalsBtn = document.createElement('button');
+    viewGoalsBtn.id = 'viewGoalsBtn';
+    viewGoalsBtn.className = 'goals-btn';
+    viewGoalsBtn.onclick = openViewGoals;
+    viewGoalsBtn.style.cssText = `
+        display: none;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: rgba(100, 255, 218, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(100, 255, 218, 0.3);
+        border-radius: 50px;
+        color: #64ffda;
+        font-weight: 600;
+        font-size: 0.95em;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        white-space: nowrap;
+    `;
+    viewGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">👁️</span><span>View Goals</span>';
+    
+    viewGoalsBtn.onmouseenter = function() {
+        this.style.background = 'rgba(100, 255, 218, 0.2)';
+        this.style.borderColor = 'rgba(100, 255, 218, 0.6)';
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = '0 8px 20px rgba(100, 255, 218, 0.4)';
+    };
+    
+    viewGoalsBtn.onmouseleave = function() {
+        this.style.background = 'rgba(100, 255, 218, 0.1)';
+        this.style.borderColor = 'rgba(100, 255, 218, 0.3)';
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = 'none';
+    };
+    
+    goalsContainer.appendChild(setGoalsBtn);
+    goalsContainer.appendChild(viewGoalsBtn);
     
     // Insert after chart tabs
     chartTabs.parentNode.insertBefore(goalsContainer, chartTabs.nextSibling);
+    
+    // Check if goals exist and show view button
+    checkAndShowViewGoalsButton();
+}
+
+function checkAndShowViewGoalsButton() {
+    const viewBtn = document.getElementById('viewGoalsBtn');
+    const goals = localStorage.getItem('userGoals_' + currentUser);
+    
+    console.log('Checking view button:', {viewBtn, goals}); // Debug
+    
+    if (!viewBtn) {
+        console.warn('View button not found - recreating'); // Debug
+        // Button doesn't exist, recreate it
+        initializeGoalsButtons();
+        return;
+    }
+    
+    if (goals) {
+        // Animate button in
+        viewBtn.style.display = 'flex';
+        // Force reflow
+        void viewBtn.offsetWidth;
+        setTimeout(() => {
+            viewBtn.style.opacity = '1';
+            viewBtn.style.transform = 'scale(1)';
+        }, 50);
+        console.log('View button shown'); // Debug
+    } else {
+        // Hide button if no goals
+        viewBtn.style.opacity = '0';
+        viewBtn.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+            viewBtn.style.display = 'none';
+        }, 300);
+        console.log('View button hidden'); // Debug
+    }
 }
 
 function openGoals() {
@@ -13079,7 +13582,147 @@ function openGoals() {
     
     // Show modal with animation
     modal.style.display = 'flex';
-    setTimeout(() => modal.classList.add('active'), 10);
+    setTimeout(() => {
+        modal.classList.add('active');
+        modal.style.opacity = '1';
+        const content = modal.querySelector('.goals-modal-content');
+        if (content) {
+            content.style.transform = 'scale(1) translateY(0)';
+        }
+    }, 10);
+}
+
+function initializeGoalsButtons() {
+    // Find the chart tabs in stats section
+    const chartTabs = document.querySelector('.chart-tabs');
+    if (!chartTabs) {
+        console.log('Chart tabs not found');
+        return;
+    }
+    
+    // Remove existing goals container if it exists
+    const existingContainer = document.getElementById('goalsButtonContainer');
+    if (existingContainer) {
+        existingContainer.remove();
+    }
+    
+    // Create new goals container
+    const goalsContainer = document.createElement('div');
+    goalsContainer.id = 'goalsButtonContainer';
+    goalsContainer.style.cssText = `
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 15px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
+    
+    // View Goals Button (initially hidden)
+    const viewGoalsBtn = document.createElement('button');
+    viewGoalsBtn.id = 'viewGoalsBtn';
+    viewGoalsBtn.onclick = openViewGoals;
+    viewGoalsBtn.style.cssText = `
+        display: none;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(100, 255, 218, 0.08));
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(100, 255, 218, 0.3);
+        border-radius: 50px;
+        color: #64ffda;
+        font-weight: 600;
+        font-size: 0.95em;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
+        opacity: 0;
+        transform: scale(0.8) translateX(-20px);
+    `;
+    viewGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">👁️</span><span>View Goals</span>';
+    
+    viewGoalsBtn.onmouseenter = function() {
+        this.style.background = 'linear-gradient(135deg, rgba(100, 255, 218, 0.25), rgba(100, 255, 218, 0.15))';
+        this.style.borderColor = 'rgba(100, 255, 218, 0.6)';
+        this.style.transform = 'translateY(-3px) scale(1) translateX(0)';
+        this.style.boxShadow = '0 8px 20px rgba(100, 255, 218, 0.4)';
+    };
+    
+    viewGoalsBtn.onmouseleave = function() {
+        this.style.background = 'linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(100, 255, 218, 0.08))';
+        this.style.borderColor = 'rgba(100, 255, 218, 0.3)';
+        this.style.transform = 'translateY(0) scale(1) translateX(0)';
+        this.style.boxShadow = '0 4px 12px rgba(100, 255, 218, 0.2)';
+    };
+    
+    // Set Goals Button
+    const setGoalsBtn = document.createElement('button');
+    setGoalsBtn.id = 'setGoalsBtn';
+    setGoalsBtn.onclick = openGoals;
+    setGoalsBtn.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.08));
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        border-radius: 50px;
+        color: #667eea;
+        font-weight: 600;
+        font-size: 0.95em;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        opacity: 0;
+        transform: scale(0.8) translateX(20px);
+    `;
+    setGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">🎯</span><span>Set Goals</span>';
+    
+    setGoalsBtn.onmouseenter = function() {
+        this.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(102, 126, 234, 0.15))';
+        this.style.borderColor = 'rgba(102, 126, 234, 0.6)';
+        this.style.transform = 'translateY(-3px) scale(1) translateX(0)';
+        this.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
+    };
+    
+    setGoalsBtn.onmouseleave = function() {
+        this.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.08))';
+        this.style.borderColor = 'rgba(102, 126, 234, 0.3)';
+        this.style.transform = 'translateY(0) scale(1) translateX(0)';
+        this.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.2)';
+    };
+    
+    // Add buttons to container
+    goalsContainer.appendChild(viewGoalsBtn);
+    goalsContainer.appendChild(setGoalsBtn);
+    
+    // Insert after chart tabs
+    chartTabs.parentNode.insertBefore(goalsContainer, chartTabs.nextSibling);
+    
+    // Animate container in
+    setTimeout(() => {
+        goalsContainer.style.opacity = '1';
+        goalsContainer.style.transform = 'translateY(0)';
+        
+        // Animate Set Goals button
+        setTimeout(() => {
+            setGoalsBtn.style.opacity = '1';
+            setGoalsBtn.style.transform = 'scale(1) translateX(0)';
+        }, 100);
+    }, 300);
+    
+    // Check if goals exist and show view button with animation
+    setTimeout(() => {
+        checkAndShowViewGoalsButton();
+    }, 500);
 }
 
 function createGoalsModal() {
@@ -13093,163 +13736,606 @@ function createGoalsModal() {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.85);
         backdrop-filter: blur(10px);
         z-index: 10000;
         justify-content: center;
         align-items: center;
         opacity: 0;
         transition: opacity 0.3s ease;
+        overflow-y: auto;
+        padding: 20px;
     `;
     
-    modal.onclick = (e) => {
-        if (e.target === modal) closeGoalsModal();
-    };
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeGoalsModal();
+        }
+    });
     
     const content = document.createElement('div');
     content.className = 'goals-modal-content';
-    content.style.cssText = `
-        background: rgba(30, 30, 30, 0.95);
-        backdrop-filter: blur(20px);
-        border: 2px solid rgba(100, 255, 218, 0.3);
-        border-radius: 20px;
-        padding: 0;
-        max-width: 500px;
-        width: 90%;
-        max-height: 90vh;
-        overflow-y: auto;
-        transform: scale(0.9) translateY(20px);
-        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
-    `;
+    // FIND the modal content styles and UPDATE:
+content.style.cssText = `
+    background: rgba(30, 30, 30, 0.98);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    border-radius: 20px;
+    padding: 0;
+    max-width: 550px;
+    width: 100%;
+    max-height: 90vh;  /* Changed from 85vh to 90vh */
+    overflow: hidden;
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
+    margin: auto;
+`;
+    
+    content.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    
+    const langIcons = {
+        python: '🐍',
+        javascript: '⚡',
+        html: '🌐',
+        css: '🎨',
+        react: '⚛️'
+    };
     
     content.innerHTML = `
-        <div style="padding: 30px; border-bottom: 2px solid rgba(100, 255, 218, 0.2);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="color: #fff; margin: 0; font-size: 1.8em; display: flex; align-items: center; gap: 10px;">
-                    🎯 Set Your Goals
-                </h2>
-                <button onclick="closeGoalsModal()" style="background: none; border: none; color: #64ffda; font-size: 2em; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease;">×</button>
+        <!-- Header (Fixed) -->
+        <div style="padding: 30px 30px 20px 30px; border-bottom: 1px solid rgba(100, 255, 218, 0.15);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div>
+                    <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 1.5em; font-weight: 700;">
+                        🎯 Daily Learning Goal
+                    </h2>
+                    <p style="color: #8b949e; margin: 0; font-size: 0.9em;">Set your target for today</p>
+                </div>
+                <button onclick="closeGoalsModal()" style="background: none; border: none; color: #8b949e; font-size: 1.8em; cursor: pointer; padding: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease; line-height: 1;">×</button>
             </div>
         </div>
         
-        <div style="padding: 30px;">
-            <!-- Test Mode Toggle -->
-            <div style="background: rgba(255, 193, 7, 0.1); border: 2px solid rgba(255, 193, 7, 0.3); border-radius: 12px; padding: 15px; margin-bottom: 25px;">
-                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-                    <input type="checkbox" id="testModeCheckbox" onchange="toggleTestMode()" style="width: 20px; height: 20px; cursor: pointer;">
-                    <span style="color: #ffc107; font-weight: 600; font-size: 1.05em;">🧪 Test Mode (1 course in 1 minute)</span>
-                </label>
-                <div id="testModeInfo" style="display: none; margin-top: 10px; padding: 10px; background: rgba(255, 193, 7, 0.1); border-radius: 8px; font-size: 0.9em; color: #ffc107;">
-                    ⚠️ Test mode enabled! You'll receive an email in 40 seconds if no course is completed.
-                </div>
+        <!-- Content Container (Scrollable) -->
+        <div id="goalsContentContainer" style="max-height: calc(90vh - 120px); overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 0 5px;">
+    <div style="padding: 35px;">  <!-- Changed from 30px to 35px -->
+    
+        <!-- Step 1: Time Goal -->
+        <div style="margin-bottom: 35px;">  <!-- Changed from 30px to 35px -->
+            <div style="margin-bottom: 18px;">  <!-- Changed from 15px to 18px -->
+                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">⏱️ How much time do you have?</h3>  <!-- Increased from 1.05em to 1.1em -->
             </div>
             
-            <!-- Goal Tabs -->
-            <div style="display: flex; gap: 10px; margin-bottom: 25px;">
-                <button class="goal-tab" data-tab="daily" onclick="switchGoalTab('daily')" style="flex: 1; padding: 12px; background: rgba(100, 255, 218, 0.2); border: 2px solid rgba(100, 255, 218, 0.5); border-radius: 12px; color: #64ffda; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                    Daily Goals
-                </button>
-                <button class="goal-tab" data-tab="weekly" onclick="switchGoalTab('weekly')" style="flex: 1; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px; color: #64ffda; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                    Weekly Goals
-                </button>
+            <div style="display: flex; gap: 15px; align-items: center; padding: 18px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px;">  <!-- Changed padding from 15px to 18px -->
+                <input type="number" id="dailyTimeGoal" min="10" max="300" value="60" step="10" style="flex: 1; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 8px; color: #fff; font-size: 1.4em; font-weight: 600; text-align: center;">  <!-- Changed padding from 12px to 14px -->
+                <span style="color: #8b949e; font-weight: 500; font-size: 1em;">minutes</span>  <!-- Increased from 0.95em to 1em -->
             </div>
-            
-            <!-- Daily Goals Section -->
-            <div id="dailyGoals" class="goal-section" style="display: block;">
-                <div style="margin-bottom: 20px;">
-                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; margin-bottom: 10px; font-weight: 600;">
-                        <span style="font-size: 1.5em;">📚</span>
-                        <span>Courses per Day</span>
-                    </label>
-                    <input type="number" id="dailyCourses" min="0" max="10" value="1" style="width: 100%; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #fff; font-size: 1.1em; font-weight: 600;">
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; margin-bottom: 10px; font-weight: 600;">
-                        <span style="font-size: 1.5em;">⏱️</span>
-                        <span>Study Time (minutes)</span>
-                    </label>
-                    <input type="number" id="dailyTime" min="0" max="300" value="30" style="width: 100%; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #fff; font-size: 1.1em; font-weight: 600;">
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(100, 255, 218, 0.05); border-radius: 10px;">
-                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600;">
-                        <span style="font-size: 1.5em;">🔥</span>
-                        <span>Maintain Streak</span>
-                    </label>
-                    <label style="position: relative; display: inline-block; width: 50px; height: 26px;">
-                        <input type="checkbox" id="dailyStreak" checked style="opacity: 0; width: 0; height: 0;">
-                        <span onclick="toggleSwitch('dailyStreak')" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #64ffda; border-radius: 26px; transition: 0.4s;"></span>
-                    </label>
-                </div>
-            </div>
-            
-            <!-- Weekly Goals Section -->
-            <div id="weeklyGoals" class="goal-section" style="display: none;">
-                <div style="margin-bottom: 20px;">
-                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; margin-bottom: 10px; font-weight: 600;">
-                        <span style="font-size: 1.5em;">📚</span>
-                        <span>Courses per Week</span>
-                    </label>
-                    <input type="number" id="weeklyCourses" min="0" max="50" value="5" style="width: 100%; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #fff; font-size: 1.1em; font-weight: 600;">
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; margin-bottom: 10px; font-weight: 600;">
-                        <span style="font-size: 1.5em;">⏱️</span>
-                        <span>Study Time (hours)</span>
-                    </label>
-                    <input type="number" id="weeklyTime" min="0" max="40" value="3" style="width: 100%; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #fff; font-size: 1.1em; font-weight: 600;">
-                </div>
-            </div>
-            
-            <!-- Email Notifications -->
-            <div style="margin-top: 25px; padding: 15px; background: rgba(102, 126, 234, 0.1); border: 2px solid rgba(102, 126, 234, 0.3); border-radius: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="color: #fff; font-weight: 600; margin-bottom: 5px;">📧 Email Reminders</div>
-                        <div style="color: #8b949e; font-size: 0.85em;">Get notified if you're falling behind</div>
-                    </div>
-                    <label style="position: relative; display: inline-block; width: 50px; height: 26px;">
-                        <input type="checkbox" id="emailNotifications" checked style="opacity: 0; width: 0; height: 0;">
-                        <span onclick="toggleSwitch('emailNotifications')" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #667eea; border-radius: 26px; transition: 0.4s;"></span>
-                    </label>
-                </div>
-            </div>
-            
-            <!-- Save Button -->
-            <button onclick="saveGoals()" style="width: 100%; margin-top: 25px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #64ffda 100%); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1.1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);">
-                💾 Save Goals
-            </button>
         </div>
+
+        <!-- Step 1.5: Task Count -->
+        <div style="margin-bottom: 35px;">  <!-- Changed from 30px to 35px -->
+            <div style="margin-bottom: 18px;">  <!-- Changed from 15px to 18px -->
+                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">📚 How many courses?</h3>  <!-- Increased from 1.05em to 1.1em -->
+            </div>
+            
+            <div style="display: flex; gap: 15px; align-items: center; padding: 18px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px;">  <!-- Changed padding from 15px to 18px -->
+                <button onclick="adjustTaskCount(-1)" style="width: 44px; height: 44px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 50%; color: #64ffda; font-size: 1.5em; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">-</button>  <!-- Increased from 40px to 44px -->
+                <input type="number" id="taskCountGoal" min="1" max="10" value="3" style="flex: 1; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 8px; color: #fff; font-size: 1.4em; font-weight: 600; text-align: center;" readonly>  <!-- Changed padding from 12px to 14px -->
+                <button onclick="adjustTaskCount(1)" style="width: 44px; height: 44px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 50%; color: #64ffda; font-size: 1.5em; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">+</button>  <!-- Increased from 40px to 44px -->
+                <span style="color: #8b949e; font-weight: 500; font-size: 1em;">courses</span>  <!-- Increased from 0.95em to 1em -->
+            </div>
+            <div id="taskCountWarning" style="margin-top: 10px; font-size: 0.85em; color: #ff6b6b; display: none;"></div>  <!-- Increased margin-top from 8px to 10px -->
+        </div>
+        
+        <!-- Step 2: Language Selection -->
+<div id="languageSelectionScreen" style="margin-bottom: 35px; transition: opacity 0.3s ease;">
+    <div style="margin-bottom: 18px;">
+        <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">🎯 Choose a language to add courses</h3>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+        ${Object.keys(courses).map(lang => {
+            const availableCount = courses[lang].filter((c, idx) => {
+                const isNew = c.isNew;
+                const isCompleted = userProgress[lang][c.id]?.completed;
+                const isLocked = idx > 0 && !userProgress[lang][courses[lang][idx - 1].id]?.completed;
+                return !isNew && !isCompleted && !isLocked;
+            }).length;
+            
+            if (availableCount === 0) return '';
+            
+            return `
+                <button onclick="showCourseSelection('${lang}')" style="padding: 20px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 10px;" 
+                        onmouseenter="this.style.background='rgba(100, 255, 218, 0.1)'; this.style.borderColor='rgba(100, 255, 218, 0.4)'; this.style.transform='translateY(-2px)'" 
+                        onmouseleave="this.style.background='rgba(100, 255, 218, 0.05)'; this.style.borderColor='rgba(100, 255, 218, 0.2)'; this.style.transform='translateY(0)'">
+                    <span style="font-size: 2.8em;">${langIcons[lang]}</span>
+                    <span style="color: #fff; font-weight: 600; font-size: 1em;">${lang.charAt(0).toUpperCase() + lang.slice(1)}</span>
+                    <span style="color: #64ffda; font-size: 0.9em; font-weight: 500;">${availableCount} available</span>
+                </button>
+            `;
+        }).join('')}
+    </div>
+</div>
+
+            <!-- Course Selection Screen (Hidden Initially) -->
+<div id="courseSelectionScreen" style="display: none; margin-bottom: 35px; opacity: 0; transition: opacity 0.3s ease;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px;">
+        <button onclick="backToLanguageSelection()" style="background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.2); color: #64ffda; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3em; transition: all 0.3s ease;"
+                onmouseenter="this.style.background='rgba(100, 255, 218, 0.2)'"
+                onmouseleave="this.style.background='rgba(100, 255, 218, 0.1)'">
+            ←
+        </button>
+        <h3 id="courseSelectionTitle" style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">Select Courses</h3>
+    </div>
+    
+    <div id="coursesList" style="display: flex; flex-direction: column; gap: 10px; padding: 18px; background: rgba(100, 255, 218, 0.03); border: 2px solid rgba(100, 255, 218, 0.15); border-radius: 12px; max-height: 320px; overflow-y: auto;">
+        <!-- Courses will be populated here -->
+    </div>
+</div>
+
+            <!-- ADD THIS NEW SECTION -->
+<div id="selectedCoursesSummary" style="
+    display: none;
+    margin-top: 20px;
+    padding: 18px;
+    background: rgba(100, 255, 218, 0.08);
+    border: 2px solid rgba(100, 255, 218, 0.25);
+    border-radius: 15px;
+    animation: slideIn 0.3s ease;
+">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <span style="color: #64ffda; font-weight: 600; font-size: 0.95em;">
+            ✓ Selected Courses
+        </span>
+        <span id="selectedCoursesCount" style="
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9em;
+        ">0</span>
+    </div>
+    <div id="selectedCoursesList" style="
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    "></div>
+</div>
+        
+        <!-- Settings -->
+        <div style="margin-bottom: 30px;">  <!-- Increased from 25px to 30px -->
+            <div style="margin-bottom: 18px;">  <!-- Changed from 15px to 18px -->
+                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">⚙️ Additional settings</h3>  <!-- Increased from 1.05em to 1.1em -->
+            </div>
+            
+            <!-- Streak -->
+            <div style="margin-bottom: 15px; padding: 16px; background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.15); border-radius: 10px;">  <!-- Changed padding from 14px to 16px, margin from 12px to 15px -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">  <!-- Increased margin from 8px to 10px -->
+                    <div style="display: flex; align-items: center; gap: 12px;">  <!-- Increased gap from 10px to 12px -->
+                        <span style="font-size: 1.5em;">🔥</span>  <!-- Increased from 1.4em to 1.5em -->
+                        <span style="color: #fff; font-weight: 500; font-size: 1em;">Count towards streak</span>  <!-- Increased from 0.95em to 1em -->
+                    </div>
+                    <div class="modern-toggle" id="streakToggle" onclick="toggleModernSwitch('dailyStreak')" style="width: 56px; height: 30px; background: #64ffda; border-radius: 30px; position: relative; cursor: pointer; transition: 0.3s; box-shadow: 0 3px 10px rgba(100, 255, 218, 0.3);">
+                        <input type="checkbox" id="dailyStreak" checked style="display: none;">
+                        <div class="toggle-circle" style="position: absolute; height: 24px; width: 24px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; transform: translateX(26px); box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+                    </div>
+                </div>
+                <div id="streakStatusMessage" style="font-size: 0.9em; color: #64ffda; line-height: 1.5;">  <!-- Increased from 0.85em to 0.9em -->
+                    Goal courses will add to your learning streak
+                </div>
+            </div>
+            
+            <!-- Email -->
+            <div style="padding: 16px; background: rgba(102, 126, 234, 0.08); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 10px;">  <!-- Changed padding from 14px to 16px -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">  <!-- Increased margin from 8px to 10px -->
+                    <div style="display: flex; align-items: center; gap: 12px;">  <!-- Increased gap from 10px to 12px -->
+                        <span style="font-size: 1.5em;">📧</span>  <!-- Increased from 1.4em to 1.5em -->
+                        <span style="color: #fff; font-weight: 500; font-size: 1em;">Send me reminders</span>  <!-- Increased from 0.95em to 1em -->
+                    </div>
+                    <div class="modern-toggle" id="emailToggle" onclick="toggleModernSwitch('emailNotifications')" style="width: 56px; height: 30px; background: #667eea; border-radius: 30px; position: relative; cursor: pointer; transition: 0.3s; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);">
+                        <input type="checkbox" id="emailNotifications" checked style="display: none;">
+                        <div class="toggle-circle" style="position: absolute; height: 24px; width: 24px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; transform: translateX(26px); box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+                    </div>
+                </div>
+                <div id="emailStatusMessage" style="font-size: 0.9em; color: #667eea; line-height: 1.5;">  <!-- Increased from 0.85em to 0.9em -->
+                    We'll email you if you're falling behind
+                </div>
+            </div>
+        </div>
+        
+        <!-- Save Button -->
+        <button onclick="saveGoalsWithCourses()" style="width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #64ffda 100%); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1.1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);">  <!-- Increased padding from 15px to 16px, font from 1.05em to 1.1em -->
+            💾 Save My Goal
+        </button>
+    </div>
+</div>
     `;
+    
+    // Add scrollbar hiding CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        #goalsContentContainer::-webkit-scrollbar {
+            width: 6px;
+        }
+        #goalsContentContainer::-webkit-scrollbar-track {
+            background: rgba(100, 255, 218, 0.05);
+            border-radius: 10px;
+        }
+        #goalsContentContainer::-webkit-scrollbar-thumb {
+            background: rgba(100, 255, 218, 0.3);
+            border-radius: 10px;
+        }
+        #coursesList::-webkit-scrollbar {
+            width: 6px;
+        }
+        #coursesList::-webkit-scrollbar-track {
+            background: rgba(100, 255, 218, 0.05);
+            border-radius: 10px;
+        }
+        #coursesList::-webkit-scrollbar-thumb {
+            background: rgba(100, 255, 218, 0.3);
+            border-radius: 10px;
+        }
+    `;
+    document.head.appendChild(style);
     
     modal.appendChild(content);
     document.body.appendChild(modal);
     
-    // Animate in
-    setTimeout(() => {
-        modal.classList.add('active');
-        modal.style.opacity = '1';
-        content.style.transform = 'scale(1) translateY(0)';
-    }, 10);
+    // Add event listener for close button after modal is created
+setTimeout(() => {
+    const closeBtn = content.querySelector('button[onclick*="closeGoalsModal"]');
+    if (closeBtn) {
+        // Remove inline onclick and use proper event listener
+        closeBtn.removeAttribute('onclick');
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeGoalsModal();
+        });
+    }
+}, 100);
     
     return modal;
 }
 
-function closeGoalsModal() {
-    const modal = document.getElementById('goalsModal');
-    if (modal) {
-        modal.style.opacity = '0';
-        const content = modal.querySelector('.goals-modal-content');
-        if (content) {
-            content.style.transform = 'scale(0.9) translateY(20px)';
-        }
+function adjustTaskCount(delta) {
+    const input = document.getElementById('taskCountGoal');
+    const warning = document.getElementById('taskCountWarning');
+    let newValue = parseInt(input.value) + delta;
+    
+    // Get max available courses
+    const maxCourses = tempSelectedCourses.length || 10;
+    
+    if (newValue < 1) newValue = 1;
+    if (newValue > maxCourses) {
+        newValue = maxCourses;
+        warning.textContent = `Maximum ${maxCourses} courses available in your selection`;
+        warning.style.display = 'block';
         setTimeout(() => {
-            modal.style.display = 'none';
-            modal.classList.remove('active');
-        }, 300);
+            warning.style.display = 'none';
+        }, 3000);
+    } else {
+        warning.style.display = 'none';
+    }
+    
+    input.value = newValue;
+}
+
+// Store selected courses temporarily
+let tempSelectedCourses = [];
+
+function showCourseSelection(lang) {
+    const langScreen = document.getElementById('languageSelectionScreen');
+    const courseScreen = document.getElementById('courseSelectionScreen');
+    const courseTitle = document.getElementById('courseSelectionTitle');
+    const coursesList = document.getElementById('coursesList');
+    
+    const langIcons = {
+        python: '🐍',
+        javascript: '⚡',
+        html: '🌐',
+        css: '🎨',
+        react: '⚛️'
+    };
+    
+    // Update title
+    courseTitle.innerHTML = `${langIcons[lang]} ${lang.charAt(0).toUpperCase() + lang.slice(1)} Courses`;
+    
+    // ✅ Get ALL courses (not just available ones)
+    const allCourses = courses[lang];
+    
+    // Group courses by status
+    const unlockedCourses = [];
+    const lockedCourses = [];
+    
+    allCourses.forEach((course, idx) => {
+        const isNew = course.isNew;
+        const isCompleted = userProgress[lang][course.id]?.completed;
+        const isLocked = idx > 0 && !userProgress[lang][courses[lang][idx - 1].id]?.completed;
+        
+        if (isNew) return; // Skip "coming soon" courses
+        
+        if (isCompleted || isLocked) {
+            lockedCourses.push({ course, idx, isCompleted, isLocked });
+        } else {
+            unlockedCourses.push({ course, idx });
+        }
+    });
+    
+    // Populate courses with better styling
+    coursesList.innerHTML = `
+        ${unlockedCourses.length > 0 ? `
+            <div style="margin-bottom: 20px;">
+                <div style="color: #64ffda; font-weight: 600; font-size: 0.95em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span>✓</span>
+                    <span>Available Courses (${unlockedCourses.length})</span>
+                </div>
+                ${unlockedCourses.map(({ course, idx }) => {
+                    const isSelected = tempSelectedCourses.some(c => c.lang === lang && c.courseId === course.id);
+                    
+                    return `
+                        <label class="enhanced-course-item ${isSelected ? 'selected' : ''}" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            padding: 16px;
+                            background: ${isSelected ? 'rgba(100, 255, 218, 0.12)' : 'rgba(100, 255, 218, 0.05)'};
+                            border: 2px solid ${isSelected ? 'rgba(100, 255, 218, 0.4)' : 'rgba(100, 255, 218, 0.15)'};
+                            border-radius: 12px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            margin-bottom: 10px;
+                        " 
+                           onmouseenter="if(!this.querySelector('input').checked) { this.style.background='rgba(100, 255, 218, 0.08)'; this.style.borderColor='rgba(100, 255, 218, 0.25)'; this.style.transform='translateX(5px)'; }" 
+                           onmouseleave="if(!this.querySelector('input').checked) { this.style.background='rgba(100, 255, 218, 0.05)'; this.style.borderColor='rgba(100, 255, 218, 0.15)'; this.style.transform='translateX(0)'; }">
+                            <input type="checkbox" class="temp-course-checkbox" data-lang="${lang}" data-course="${course.id}" ${isSelected ? 'checked' : ''} 
+                                   onchange="handleCourseSelection('${lang}', '${course.id}', this)" 
+                                   style="width: 22px; height: 22px; cursor: pointer; accent-color: #64ffda;">
+                            <span style="font-size: 1.8em; filter: drop-shadow(0 2px 6px rgba(100, 255, 218, 0.4));">${course.icon}</span>
+                            <div style="flex: 1;">
+                                <div style="color: #fff; font-weight: 700; font-size: 1em; margin-bottom: 4px;">${course.title}</div>
+                                <div style="color: #8b949e; font-size: 0.85em;">${course.desc}</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="background: rgba(100, 255, 218, 0.15); color: #64ffda; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">⏱️ 15 min</span>
+                            </div>
+                        </label>
+                    `;
+                }).join('')}
+            </div>
+        ` : ''}
+        
+        ${lockedCourses.length > 0 ? `
+            <div>
+                <div style="color: #ff6b6b; font-weight: 600; font-size: 0.95em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span>🔒</span>
+                    <span>Locked/Completed (${lockedCourses.length})</span>
+                </div>
+                ${lockedCourses.map(({ course, idx, isCompleted, isLocked }) => {
+                    return `
+                        <div class="enhanced-course-item locked" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            padding: 16px;
+                            background: rgba(139, 148, 158, 0.05);
+                            border: 2px solid rgba(139, 148, 158, 0.15);
+                            border-radius: 12px;
+                            opacity: 0.6;
+                            margin-bottom: 10px;
+                        ">
+                            <input type="checkbox" disabled style="width: 22px; height: 22px; cursor: not-allowed; opacity: 0.5;">
+                            <span style="font-size: 1.8em; filter: grayscale(80%);">${course.icon}</span>
+                            <div style="flex: 1;">
+                                <div style="color: #8b949e; font-weight: 700; font-size: 1em; margin-bottom: 4px;">${course.title}</div>
+                                <div style="color: #5a6169; font-size: 0.85em;">${course.desc}</div>
+                            </div>
+                            <span style="background: ${isCompleted ? 'rgba(100, 255, 218, 0.1)' : 'rgba(255, 107, 107, 0.1)'}; color: ${isCompleted ? '#64ffda' : '#ff6b6b'}; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">
+                                ${isCompleted ? '✓ Done' : '🔒 Locked'}
+                            </span>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        ` : ''}
+    `;
+    
+    // Fade transition
+    langScreen.style.opacity = '0';
+    
+    setTimeout(() => {
+        langScreen.style.display = 'none';
+        courseScreen.style.display = 'block';
+        
+        setTimeout(() => {
+            courseScreen.style.opacity = '1';
+        }, 50);
+    }, 300);
+}
+
+function backToLanguageSelection() {
+    const langScreen = document.getElementById('languageSelectionScreen');
+    const courseScreen = document.getElementById('courseSelectionScreen');
+    
+    // Fade transition
+    courseScreen.style.opacity = '0';
+    
+    setTimeout(() => {
+        courseScreen.style.display = 'none';
+        langScreen.style.display = 'block';
+        
+        setTimeout(() => {
+            langScreen.style.opacity = '1';
+        }, 50);
+        
+        // Update summary
+        updateSelectedCoursesSummary();
+    }, 300);
+}
+
+function handleCourseSelection(lang, courseId, checkbox) {
+    const label = checkbox.closest('label');
+    
+    if (checkbox.checked) {
+        // Add to temp selection
+        if (!tempSelectedCourses.some(c => c.lang === lang && c.courseId === courseId)) {
+            tempSelectedCourses.push({ lang, courseId });
+        }
+        label.style.background = 'rgba(100, 255, 218, 0.12)';
+        label.style.borderColor = 'rgba(100, 255, 218, 0.4)';
+    } else {
+        // Remove from temp selection
+        tempSelectedCourses = tempSelectedCourses.filter(c => !(c.lang === lang && c.courseId === courseId));
+        label.style.background = 'rgba(100, 255, 218, 0.05)';
+        label.style.borderColor = 'rgba(100, 255, 218, 0.15)';
+    }
+    
+    // Update count in real-time
+    updateSelectedCoursesCountInline();
+}
+
+function updateSelectedCoursesCountInline() {
+    const summary = document.getElementById('selectedCoursesSummary');
+    const countEl = document.getElementById('selectedCoursesCount');
+    const listEl = document.getElementById('selectedCoursesList');
+    
+    if (!summary || !countEl || !listEl) return;
+    
+    if (tempSelectedCourses.length === 0) {
+        summary.style.display = 'none';
+        return;
+    }
+    
+    summary.style.display = 'block';
+    countEl.textContent = tempSelectedCourses.length;
+    
+    const langIcons = {
+        python: '🐍',
+        javascript: '⚡',
+        html: '🌐',
+        css: '🎨',
+        react: '⚛️'
+    };
+    
+    // Show oval badges
+    listEl.innerHTML = tempSelectedCourses.map(selected => {
+        const course = courses[selected.lang].find(c => c.id === selected.courseId);
+        return `
+            <div style="
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 14px;
+                background: rgba(100, 255, 218, 0.15);
+                border: 2px solid rgba(100, 255, 218, 0.3);
+                border-radius: 25px;
+                font-size: 0.85em;
+                transition: all 0.3s ease;
+            " onmouseenter="this.style.background='rgba(100, 255, 218, 0.25)'; this.style.transform='scale(1.05)'" onmouseleave="this.style.background='rgba(100, 255, 218, 0.15)'; this.style.transform='scale(1)'">
+                <span>${course.icon}</span>
+                <span style="color: #fff; font-weight: 600;">${course.title}</span>
+                <button onclick="removeCourseFromSelection('${selected.lang}', '${selected.courseId}')" style="
+                    background: none;
+                    border: none;
+                    color: #ff6b6b;
+                    cursor: pointer;
+                    padding: 0;
+                    margin-left: 4px;
+                    font-size: 1.1em;
+                    line-height: 1;
+                    transition: transform 0.2s ease;
+                " onmouseenter="this.style.transform='scale(1.3)'" onmouseleave="this.style.transform='scale(1)'">×</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateSelectedCoursesSummary() {
+    updateSelectedCoursesCountInline();
+}
+
+function removeCourseFromSelection(lang, courseId) {
+    tempSelectedCourses = tempSelectedCourses.filter(c => !(c.lang === lang && c.courseId === courseId));
+    
+    // Update checkbox if on that screen
+    const checkbox = document.querySelector(`.temp-course-checkbox[data-lang="${lang}"][data-course="${courseId}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+        const label = checkbox.closest('label');
+        label.style.background = 'rgba(100, 255, 218, 0.05)';
+        label.style.borderColor = 'rgba(100, 255, 218, 0.15)';
+    }
+    
+    updateSelectedCoursesSummary();
+}
+
+function updateSelectedCoursesCount() {
+    const selected = document.querySelectorAll('.course-checkbox:checked').length;
+    const countEl = document.getElementById('selectedCoursesCount');
+    if (countEl) {
+        if (selected === 0) {
+            countEl.textContent = 'No courses selected';
+            countEl.style.background = 'rgba(102, 126, 234, 0.1)';
+            countEl.style.color = '#667eea';
+        } else if (selected === 1) {
+            countEl.textContent = '1 course selected ✓';
+            countEl.style.background = 'rgba(100, 255, 218, 0.15)';
+            countEl.style.color = '#64ffda';
+        } else {
+            countEl.textContent = `${selected} courses selected ✓`;
+            countEl.style.background = 'rgba(100, 255, 218, 0.15)';
+            countEl.style.color = '#64ffda';
+        }
+    }
+}
+
+function toggleModernSwitch(id) {
+    const checkbox = document.getElementById(id);
+    const toggle = checkbox.closest('.modern-toggle');
+    const circle = toggle.querySelector('.toggle-circle');
+    
+    checkbox.checked = !checkbox.checked;
+    
+    if (checkbox.checked) {
+        circle.style.transform = 'translateX(26px)';
+        toggle.style.background = id === 'emailNotifications' ? '#667eea' : '#64ffda';
+        toggle.style.boxShadow = id === 'emailNotifications' ? '0 3px 10px rgba(102, 126, 234, 0.3)' : '0 3px 10px rgba(100, 255, 218, 0.3)';
+    } else {
+        circle.style.transform = 'translateX(0)';
+        toggle.style.background = '#8b949e';
+        toggle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+    }
+    
+    // Update email status message
+    if (id === 'emailNotifications') {
+        const statusMessage = document.getElementById('emailStatusMessage');
+        if (statusMessage) {
+            if (checkbox.checked) {
+                statusMessage.textContent = "We'll email you if you're falling behind";
+                statusMessage.style.color = '#667eea';
+            } else {
+                statusMessage.textContent = "No email reminders will be sent";
+                statusMessage.style.color = '#8b949e';
+            }
+        }
+    }
+    
+    // ✅ NEW: Update streak status message
+    if (id === 'dailyStreak') {
+        const streakMessage = document.getElementById('streakStatusMessage');
+        if (streakMessage) {
+            if (checkbox.checked) {
+                streakMessage.textContent = "Goal courses will add to your learning streak";
+                streakMessage.style.color = '#64ffda';
+            } else {
+                streakMessage.textContent = "Goal courses won't affect your streak";
+                streakMessage.style.color = '#8b949e';
+            }
+        }
     }
 }
 
@@ -13266,52 +14352,55 @@ function switchGoalTab(tab) {
     document.getElementById('weeklyGoals').style.display = tab === 'weekly' ? 'block' : 'none';
 }
 
-function toggleSwitch(id) {
-    const checkbox = document.getElementById(id);
-    checkbox.checked = !checkbox.checked;
-    
-    const slider = checkbox.nextElementSibling;
-    slider.style.background = checkbox.checked ? '#64ffda' : '#8b949e';
-}
-
-function toggleTestMode() {
-    const testMode = document.getElementById('testModeCheckbox').checked;
-    const testInfo = document.getElementById('testModeInfo');
-    
-    if (testMode) {
-        testInfo.style.display = 'block';
-        document.getElementById('dailyCourses').value = 1;
-        showNotification('🧪 Test mode enabled! Complete 1 course in 60 seconds.', 'warning');
-    } else {
-        testInfo.style.display = 'none';
-        showNotification('Test mode disabled', 'info');
+function saveGoalsWithCourses() {
+    if (tempSelectedCourses.length === 0) {
+        showNotification('⚠️ Please select at least one course!', 'warning');
+        return;
     }
-}
-
-function saveGoals() {
+    
+    const timeGoal = parseInt(document.getElementById('dailyTimeGoal').value) || 60;
+    const estimatedTimePerCourse = 15;
+    const totalEstimatedTime = tempSelectedCourses.length * estimatedTimePerCourse;
+    
+    const emailReminderThreshold = Math.floor(timeGoal * 0.7);
+    
     const goals = {
         daily: {
-            courses: parseInt(document.getElementById('dailyCourses').value) || 0,
-            time: parseInt(document.getElementById('dailyTime').value) || 0,
-            streak: document.getElementById('dailyStreak').checked
-        },
-        weekly: {
-            courses: parseInt(document.getElementById('weeklyCourses').value) || 0,
-            time: parseInt(document.getElementById('weeklyTime').value) || 0
+            selectedCourses: [...tempSelectedCourses],
+            timeGoal: timeGoal,
+            estimatedTime: totalEstimatedTime,
+            streak: document.getElementById('dailyStreak').checked,
+            emailReminderThreshold: emailReminderThreshold
         },
         emailNotifications: document.getElementById('emailNotifications').checked,
-        testMode: document.getElementById('testModeCheckbox').checked,
-        startDate: new Date().toISOString()
+        startDate: new Date().toISOString(),
+        startTime: Date.now()
     };
     
     localStorage.setItem('userGoals_' + currentUser, JSON.stringify(goals));
+    localStorage.setItem('goalStartTime_' + currentUser, Date.now().toString());
+    localStorage.setItem('coursesCompletedToday_' + currentUser, '0');
     
-    showNotification('✅ Goals saved successfully!', 'success');
+    showNotification('✅ Goals saved! Smart reminders activated.', 'success');
+    
+    // Clear temp selection
+    tempSelectedCourses = [];
+    
+    // ✅ FIXED: Ensure view button appears immediately
+    closeGoalsModal();
+    
+    // Refresh the buttons container after modal closes
+    setTimeout(() => {
+        const statsSection = document.getElementById('stats');
+        if (statsSection && statsSection.classList.contains('active')) {
+            initializeGoalsButtons(); // Recreate buttons with view button visible
+        }
+    }, 400);
     
     // Start monitoring
-    startGoalMonitoring();
-    
-    closeGoalsModal();
+    if (goals.emailNotifications) {
+        startSmartGoalMonitoring();
+    }
 }
 
 function loadSavedGoals() {
@@ -13319,176 +14408,528 @@ function loadSavedGoals() {
     if (saved) {
         const goals = JSON.parse(saved);
         
-        document.getElementById('dailyCourses').value = goals.daily.courses;
-        document.getElementById('dailyTime').value = goals.daily.time;
-        document.getElementById('dailyStreak').checked = goals.daily.streak;
-        document.getElementById('weeklyCourses').value = goals.weekly.courses;
-        document.getElementById('weeklyTime').value = goals.weekly.time;
-        document.getElementById('emailNotifications').checked = goals.emailNotifications;
-        document.getElementById('testModeCheckbox').checked = goals.testMode || false;
+        // Set time goal
+        if (document.getElementById('dailyTimeGoal')) {
+            document.getElementById('dailyTimeGoal').value = goals.daily.timeGoal || 60;
+        }
         
-        if (goals.testMode) {
-            document.getElementById('testModeInfo').style.display = 'block';
+        // Set checkboxes
+        if (document.getElementById('dailyStreak')) {
+            document.getElementById('dailyStreak').checked = goals.daily.streak;
+            updateToggleVisualState('dailyStreak', goals.daily.streak);
+        }
+        
+        if (document.getElementById('emailNotifications')) {
+            document.getElementById('emailNotifications').checked = goals.emailNotifications;
+            updateToggleVisualState('emailNotifications', goals.emailNotifications);
+        }
+        
+        // Load selected courses into temp
+        if (goals.daily.selectedCourses) {
+            tempSelectedCourses = [...goals.daily.selectedCourses];
+            setTimeout(() => {
+                updateSelectedCoursesSummary();
+            }, 200);
         }
     }
 }
 
-// Goal Monitoring System
+function updateToggleVisualState(id, isChecked) {
+    const checkbox = document.getElementById(id);
+    if (!checkbox) return;
+    
+    const toggle = checkbox.closest('.modern-toggle');
+    const circle = toggle.querySelector('.toggle-circle');
+    
+    if (isChecked) {
+        circle.style.transform = 'translateX(26px)';
+        toggle.style.background = id === 'emailNotifications' ? '#667eea' : '#64ffda';
+        toggle.style.boxShadow = id === 'emailNotifications' ? '0 3px 10px rgba(102, 126, 234, 0.3)' : '0 3px 10px rgba(100, 255, 218, 0.3)';
+    } else {
+        circle.style.transform = 'translateX(0)';
+        toggle.style.background = '#8b949e';
+        toggle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+    }
+    
+    // Update email status message when loading saved goals
+    if (id === 'emailNotifications') {
+        const statusMessage = document.getElementById('emailStatusMessage');
+        if (statusMessage) {
+            if (isChecked) {
+                statusMessage.textContent = "We'll email you if you're falling behind";
+                statusMessage.style.color = '#667eea';
+            } else {
+                statusMessage.textContent = "No email reminders will be sent";
+                statusMessage.style.color = '#8b949e';
+            }
+        }
+    }
+    
+    // ✅ NEW: Update streak status message when loading saved goals
+    if (id === 'dailyStreak') {
+        const streakMessage = document.getElementById('streakStatusMessage');
+        if (streakMessage) {
+            if (isChecked) {
+                streakMessage.textContent = "Goal courses will add to your learning streak";
+                streakMessage.style.color = '#64ffda';
+            } else {
+                streakMessage.textContent = "Goal courses won't affect your streak";
+                streakMessage.style.color = '#8b949e';
+            }
+        }
+    }
+}
+
+function openViewGoals() {
+    const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser));
+    if (!goals) {
+        showNotification('No goals set yet!', 'info');
+        return;
+    }
+    
+    const modal = document.createElement('div');
+    modal.id = 'viewGoalsModal';
+    modal.style.cssText = `
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+    
+    modal.onclick = (e) => {
+    if (e.target === modal) {
+        closeViewGoalsModal();
+    }
+};
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background: rgba(30, 30, 30, 0.98);
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(100, 255, 218, 0.3);
+        border-radius: 20px;
+        padding: 0;
+        max-width: 550px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+        transform: scale(0.9);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
+    `;
+    
+    content.onclick = (e) => e.stopPropagation();
+    
+    const langIcons = { python: '🐍', javascript: '⚡', html: '🌐', css: '🎨', react: '⚛️' };
+    
+    // Calculate progress
+    const startTime = parseInt(localStorage.getItem('goalStartTime_' + currentUser) || Date.now());
+    const elapsed = Math.floor((Date.now() - startTime) / 60000); // minutes
+    const completed = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser) || '0');
+    const remaining = goals.daily.selectedCourses.length - completed;
+    const progress = goals.daily.selectedCourses.length > 0 ? Math.round((completed / goals.daily.selectedCourses.length) * 100) : 0;
+    
+    content.innerHTML = `
+        <div style="padding: 25px; border-bottom: 2px solid rgba(100, 255, 218, 0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="color: #fff; margin: 0; font-size: 1.6em; display: flex; align-items: center; gap: 10px;">
+                    👁️ Your Goals
+                </h2>
+                <button onclick="closeViewGoalsModal()" style="background: none; border: none; color: #64ffda; font-size: 2em; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">×</button>
+            </div>
+        </div>
+        
+        <div style="padding: 25px;">
+            <!-- Progress Overview -->
+            <div style="margin-bottom: 25px; padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(100, 255, 218, 0.15)); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 15px;">
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div style="font-size: 3em; margin-bottom: 10px;">${progress === 100 ? '🎉' : '📊'}</div>
+                    <div style="font-size: 2.5em; font-weight: 700; color: #64ffda; margin-bottom: 5px;">${progress}%</div>
+                    <div style="color: #8b949e; font-weight: 600;">Daily Progress</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); height: 12px; border-radius: 12px; overflow: hidden; margin-bottom: 15px;">
+                    <div style="height: 100%; background: linear-gradient(90deg, #667eea, #64ffda); width: ${progress}%; transition: width 0.5s ease;"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
+                    <div>
+                        <div style="font-size: 1.8em; color: #64ffda; font-weight: 700;">${completed}</div>
+                        <div style="font-size: 0.85em; color: #8b949e;">Completed</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 1.8em; color: #667eea; font-weight: 700;">${remaining}</div>
+                        <div style="font-size: 0.85em; color: #8b949e;">Remaining</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 1.8em; color: #ffc107; font-weight: 700;">${elapsed}</div>
+                        <div style="font-size: 0.85em; color: #8b949e;">Minutes</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Time Goal -->
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(100, 255, 218, 0.05); border-radius: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; margin-bottom: 8px;">
+                    <span style="font-size: 1.3em;">⏱️</span>
+                    <span>Time Goal</span>
+                </div>
+                <div style="color: #64ffda; font-size: 1.3em; font-weight: 700;">${goals.daily.timeGoal} minutes</div>
+                <div style="color: #8b949e; font-size: 0.85em; margin-top: 5px;">
+                    ${goals.emailNotifications ? `Smart reminder after ${goals.daily.emailReminderThreshold} minutes` : 'Email reminders disabled'}
+                </div>
+            </div>
+            
+            <!-- Selected Courses -->
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; margin-bottom: 12px;">
+                    <span style="font-size: 1.3em;">📚</span>
+                    <span>Today's Courses</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${goals.daily.selectedCourses.map(course => {
+                        const courseData = courses[course.lang].find(c => c.id === course.courseId);
+                        const isCompleted = userProgress[course.lang][course.courseId]?.completed;
+                        return `
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: ${isCompleted ? 'rgba(100, 255, 218, 0.1)' : 'rgba(100, 255, 218, 0.05)'}; border: 2px solid ${isCompleted ? 'rgba(100, 255, 218, 0.3)' : 'rgba(100, 255, 218, 0.15)'}; border-radius: 10px;">
+                                <span style="font-size: 1.5em;">${courseData.icon}</span>
+                                <div style="flex: 1;">
+                                    <div style="color: #fff; font-weight: 600;">${courseData.title}</div>
+                                    <div style="color: #8b949e; font-size: 0.85em;">${langIcons[course.lang]} ${course.lang.toUpperCase()}</div>
+                                </div>
+                                <span style="font-size: 1.3em;">${isCompleted ? '✅' : '⏳'}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+            
+            <!-- Settings Status -->
+            <div style="display: flex; gap: 10px; margin-bottom: 25px;">
+                <div style="flex: 1; padding: 12px; background: rgba(100, 255, 218, 0.05); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.5em; margin-bottom: 5px;">${goals.daily.streak ? '🔥' : '❌'}</div>
+                    <div style="color: #8b949e; font-size: 0.85em;">Streak Goal</div>
+                </div>
+                <div style="flex: 1; padding: 12px; background: rgba(102, 126, 234, 0.08); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.5em; margin-bottom: 5px;">${goals.emailNotifications ? '📧' : '🔕'}</div>
+                    <div style="color: #8b949e; font-size: 0.85em;">Email Alerts</div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 10px;">
+                <button onclick="openGoals()" style="flex: 1; padding: 14px; background: rgba(102, 126, 234, 0.15); border: 2px solid rgba(102, 126, 234, 0.3); border-radius: 12px; color: #667eea; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    ✏️ Edit Goals
+                </button>
+                <button onclick="confirmDeleteGoals()" style="flex: 1; padding: 14px; background: rgba(255, 107, 107, 0.15); border: 2px solid rgba(255, 107, 107, 0.3); border-radius: 12px; color: #ff6b6b; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    🗑️ Delete Goals
+                </button>
+            </div>
+        </div>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        content.style.transform = 'scale(1)';
+    }, 10);
+}
+
+function closeGoalsModal() {
+    const modal = document.getElementById('goalsModal');
+    if (modal) {
+        modal.style.opacity = '0';
+        const content = modal.querySelector('.goals-modal-content');
+        if (content) {
+            content.style.transform = 'scale(0.9) translateY(20px)';
+        }
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.classList.remove('active');
+            
+            // Check and show view button after modal closes
+            checkAndShowViewGoalsButton();
+        }, 300);
+    }
+}
+
+function closeViewGoalsModal() {
+    const modal = document.getElementById('viewGoalsModal');
+    if (modal) {
+        modal.style.opacity = '0';
+        const content = modal.querySelector('div[style*="background"]');
+        if (content) {
+            content.style.transform = 'scale(0.9)';
+        }
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+}
+
+function confirmDeleteGoals() {
+    // Create custom modal
+    const modal = document.createElement('div');
+    modal.className = 'custom-delete-modal';
+    modal.style.cssText = `
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        z-index: 10001;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+    
+    modal.innerHTML = `
+        <div class="delete-modal-content" style="
+            background: rgba(30, 30, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 107, 107, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 20px 60px rgba(255, 107, 107, 0.3);
+        ">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div style="font-size: 4em; margin-bottom: 15px;">⚠️</div>
+                <h2 style="color: #fff; margin: 0 0 10px 0; font-size: 1.6em;">Delete Goals?</h2>
+                <p style="color: #8b949e; margin: 0; line-height: 1.6;">This will remove all your daily goals, stop email reminders, and reset today's progress. This action cannot be undone.</p>
+            </div>
+            
+            <div style="display: flex; gap: 12px;">
+                <button onclick="closeDeleteModal()" style="
+                    flex: 1;
+                    padding: 14px;
+                    background: rgba(139, 148, 158, 0.15);
+                    border: 2px solid rgba(139, 148, 158, 0.3);
+                    border-radius: 12px;
+                    color: #8b949e;
+                    font-weight: 600;
+                    font-size: 1em;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">Cancel</button>
+                <button onclick="deleteGoalsConfirmed()" style="
+                    flex: 1;
+                    padding: 14px;
+                    background: rgba(255, 107, 107, 0.15);
+                    border: 2px solid rgba(255, 107, 107, 0.4);
+                    border-radius: 12px;
+                    color: #ff6b6b;
+                    font-weight: 700;
+                    font-size: 1em;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">Delete Goals</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        const content = modal.querySelector('.delete-modal-content');
+        content.style.transform = 'scale(1)';
+    }, 10);
+}
+
+function closeDeleteModal() {
+    const modal = document.querySelector('.custom-delete-modal');
+    if (modal) {
+        modal.style.opacity = '0';
+        const content = modal.querySelector('.delete-modal-content');
+        content.style.transform = 'scale(0.9)';
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+function deleteGoalsConfirmed() {
+    closeDeleteModal();
+    deleteGoals();
+}
+
+function deleteGoals() {
+    localStorage.removeItem('userGoals_' + currentUser);
+    localStorage.removeItem('goalStartTime_' + currentUser);
+    localStorage.removeItem('coursesCompletedToday_' + currentUser);
+    
+    // Stop monitoring
+    if (goalMonitoringInterval) {
+        clearInterval(goalMonitoringInterval);
+        goalMonitoringInterval = null;
+    }
+    
+    // Hide view button with animation
+    const viewBtn = document.getElementById('viewGoalsBtn');
+    if (viewBtn) {
+        viewBtn.style.opacity = '0';
+        viewBtn.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+            viewBtn.style.display = 'none';
+        }, 300);
+    }
+    
+    showNotification('✅ Goals deleted successfully!', 'success');
+    closeViewGoalsModal();
+}
+
 let goalMonitoringInterval = null;
 
-function startGoalMonitoring() {
-    // Clear existing interval
+function startSmartGoalMonitoring() {
     if (goalMonitoringInterval) {
         clearInterval(goalMonitoringInterval);
     }
     
     const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
     
+    if (!goals.emailNotifications) {
+        console.log('📧 Email notifications disabled');
+        return;
+    }
+    
+    console.log('✅ Smart goal monitoring started');
+    console.log('⏱️ Will check every 5 minutes');
+    
+    // Check every 5 minutes
+    goalMonitoringInterval = setInterval(() => {
+        checkSmartGoalProgress();
+    }, 300000); // 5 minutes
+    
+    // Also check immediately
+    setTimeout(checkSmartGoalProgress, 60000); // Check after 1 minute
+}
+
+function checkSmartGoalProgress() {
+    const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
+    
     if (!goals.emailNotifications) return;
     
-    if (goals.testMode) {
-        // TEST MODE: Check every 5 seconds, send email after 40 seconds
-        const startTime = Date.now();
-        localStorage.setItem('testModeStartTime_' + currentUser, startTime.toString());
-        localStorage.setItem('testModeCourseCount_' + currentUser, '0');
+    const startTime = parseInt(localStorage.getItem('goalStartTime_' + currentUser) || Date.now());
+    const elapsed = Math.floor((Date.now() - startTime) / 60000); // minutes elapsed
+    const completed = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser) || '0');
+    const emailSent = localStorage.getItem('goalEmailSent_' + currentUser + '_' + new Date().toDateString());
+    
+    const totalCourses = goals.daily.selectedCourses.length;
+    const remainingCourses = totalCourses - completed;
+    const progressPercent = totalCourses > 0 ? (completed / totalCourses) * 100 : 0;
+    
+    console.log(`📊 Progress Check: ${completed}/${totalCourses} courses (${progressPercent.toFixed(0)}%), ${elapsed}/${goals.daily.timeGoal} min`);
+    
+    // Send email if:
+    // 1. Passed the threshold time (70% of goal)
+    // 2. Completed less than 50% of courses
+    // 3. Haven't sent email today
+    if (elapsed >= goals.daily.emailReminderThreshold && 
+        progressPercent < 50 && 
+        remainingCourses > 0 && 
+        !emailSent) {
         
-        console.log('🧪 Test mode monitoring started!');
-        
-        goalMonitoringInterval = setInterval(() => {
-            checkTestModeGoal(startTime);
-        }, 5000); // Check every 5 seconds
-    } else {
-        // NORMAL MODE: Check every hour
-        goalMonitoringInterval = setInterval(() => {
-            checkDailyGoals();
-        }, 3600000); // Check every hour
+        console.log('⚠️ Sending smart reminder email...');
+        sendSmartGoalEmail(goals, completed, totalCourses, elapsed);
+        localStorage.setItem('goalEmailSent_' + currentUser + '_' + new Date().toDateString(), 'true');
     }
 }
 
-function checkTestModeGoal(startTime) {
-    const elapsed = (Date.now() - startTime) / 1000; // seconds
-    const coursesCompleted = parseInt(localStorage.getItem('testModeCourseCount_' + currentUser) || '0');
-    
-    console.log(`🧪 Test Mode: ${elapsed.toFixed(0)}s elapsed, ${coursesCompleted} courses completed`);
-    
-    // If 40 seconds passed and no course completed, send warning email
-    if (elapsed >= 40 && coursesCompleted === 0) {
-        const emailSent = localStorage.getItem('testModeEmailSent_' + currentUser);
-        
-        if (!emailSent) {
-            sendGoalWarningEmail('test');
-            localStorage.setItem('testModeEmailSent_' + currentUser, 'true');
-            console.log('📧 Warning email sent!');
-        }
-    }
-    
-    // Stop monitoring after 60 seconds or if goal achieved
-    if (elapsed >= 60 || coursesCompleted >= 1) {
-        clearInterval(goalMonitoringInterval);
-        console.log('🧪 Test mode monitoring stopped');
-        
-        if (coursesCompleted >= 1) {
-            showNotification('✅ Test goal achieved! Great job!', 'success');
-        } else {
-            showNotification('❌ Test goal failed. Try again!', 'error');
-        }
-        
-        // Reset test mode
-        localStorage.removeItem('testModeStartTime_' + currentUser);
-        localStorage.removeItem('testModeCourseCount_' + currentUser);
-        localStorage.removeItem('testModeEmailSent_' + currentUser);
-    }
-}
-
-function checkDailyGoals() {
-    const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
-    const today = new Date().toDateString();
-    const lastCheck = localStorage.getItem('lastGoalCheck_' + currentUser);
-    
-    if (lastCheck === today) return; // Already checked today
-    
-    // Get today's progress
-    const todayProgress = getTodayProgress();
-    
-    // Check if falling behind (less than 50% of goal with 6 hours left in day)
-    const now = new Date();
-    const hoursLeft = 24 - now.getHours();
-    
-    if (hoursLeft <= 6) {
-        if (todayProgress.courses < goals.daily.courses * 0.5) {
-            sendGoalWarningEmail('daily');
-        }
-    }
-    
-    localStorage.setItem('lastGoalCheck_' + currentUser, today);
-}
-
-function getTodayProgress() {
-    // Get courses completed today
-    const today = new Date().toDateString();
-    const completedToday = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser + '_' + today) || '0');
-    
-    return {
-        courses: completedToday,
-        time: 0 // You can track this if needed
-    };
-}
-
-async function sendGoalWarningEmail(type) {
+async function sendSmartGoalEmail(goals, completed, total, elapsed) {
     try {
         const userData = JSON.parse(localStorage.getItem('user_' + currentUser));
-        const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
+        const remaining = total - completed;
         
-        const config = await fetch('/api/email-config').then(res => res.json());
+        const response = await fetch('/api/email-config');
+        const config = await response.json();
         
-        let subject, message;
+        const coursesList = goals.daily.selectedCourses.map(c => {
+            const courseData = courses[c.lang].find(course => course.id === c.courseId);
+            return `${courseData.icon} ${courseData.title} (${c.lang.toUpperCase()})`;
+        }).join('\n');
         
-        if (type === 'test') {
-            subject = '🧪 Test Goal Warning - DevLearn Pro';
-            message = `Hi ${userData.name},\n\nThis is a TEST notification.\n\nYou set a goal to complete 1 course in 1 minute, but 40 seconds have passed with no completion.\n\nTime to get back to learning! 🚀\n\nBest,\nDevLearn Pro Team`;
-        } else {
-            subject = '⚠️ Daily Goal Reminder - DevLearn Pro';
-            message = `Hi ${userData.name},\n\nYou're falling behind on your daily goal of ${goals.daily.courses} courses!\n\nThere's still time - log in now to catch up.\n\nYou've got this! 💪\n\nBest,\nDevLearn Pro Team`;
-        }
-        
-        const templateParams = {
-            to_email: userData.email,
-            to_name: userData.name,
-            subject: subject,
-            message: message,
-            user_name: userData.name
-        };
+        const subject = '⚠️ Learning Goal Reminder - DevLearn Pro';
+        const message = `Hi ${userData.name}!
+
+You're ${elapsed} minutes into your ${goals.daily.timeGoal}-minute study goal.
+
+📊 Progress Update:
+✅ Completed: ${completed} courses
+⏳ Remaining: ${remaining} courses
+
+🎯 Your Today's Goals:
+${coursesList}
+
+You still have time! Log in now to complete your remaining courses and hit your daily goal.
+
+Keep up the momentum! 💪
+
+Best regards,
+DevLearn Pro Team`;
         
         await emailjs.send(
             config.EMAIL_SERVICE_ID,
             config.EMAIL_TEMPLATE_ID,
-            templateParams,
+            {
+                to_email: userData.email,
+                to_name: userData.name,
+                user_name: userData.name,
+                message: message,
+                subject: subject
+            },
             config.EMAIL_PUBLIC_KEY
         );
         
-        console.log('✅ Goal warning email sent to:', userData.email);
+        console.log('✅ Smart reminder email sent!');
         showNotification('📧 Reminder email sent!', 'info');
         
     } catch (error) {
-        console.error('Email send error:', error);
+        console.error('❌ Email error:', error);
     }
 }
 
-// Track course completions for test mode
 function trackCourseCompletion() {
+    const count = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser) || '0');
+    localStorage.setItem('coursesCompletedToday_' + currentUser, (count + 1).toString());
+    
+    console.log('🎓 Course completed! Today\'s count:', count + 1);
+    
+    // Check if all goals completed
     const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
-    
-    if (goals.testMode) {
-        const count = parseInt(localStorage.getItem('testModeCourseCount_' + currentUser) || '0');
-        localStorage.setItem('testModeCourseCount_' + currentUser, (count + 1).toString());
-        console.log('🎓 Course completed! Test mode count:', count + 1);
+    if (goals.daily && goals.daily.selectedCourses) {
+        if (count + 1 >= goals.daily.selectedCourses.length) {
+            showNotification('🎉 Daily goal achieved! Great work!', 'success');
+            
+            // ✅ NEW: Only update streak if streak toggle is ON
+            if (goals.daily.streak) {
+                // Update streak logic here (existing code in completeLesson)
+                console.log('✅ Streak updated for goal completion');
+            } else {
+                console.log('ℹ️ Streak NOT updated (setting is off)');
+            }
+            
+            // Stop monitoring for today
+            if (goalMonitoringInterval) {
+                clearInterval(goalMonitoringInterval);
+                console.log('✅ Goal achieved - monitoring stopped');
+            }
+        }
     }
-    
-    // Track daily completions
-    const today = new Date().toDateString();
-    const key = 'coursesCompletedToday_' + currentUser + '_' + today;
-    const count = parseInt(localStorage.getItem(key) || '0');
-    localStorage.setItem(key, (count + 1).toString());
 }
 
 // Make chart tabs clickable to return from detail view
@@ -13915,15 +15356,26 @@ function updateActivityDetail() {
     });
 }
 
-// Initialize
 function initDetailedStats() {
     injectDetailedStatsCSS();
     createRoadmapScrollButton();
     monitorRoadmapScroll();
     
+    // ✅ Add smooth transition to all chart elements FIRST
     setTimeout(() => {
+        const progressSection = document.querySelector('.progress-section');
+        if (progressSection) {
+            progressSection.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        }
+        
+        const chartContainers = document.querySelectorAll('.chart-container');
+        chartContainers.forEach(container => {
+            container.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        });
+        
+        // Now add the buttons with animation
         addStatsButtons();
-    }, 500);
+    }, 100);
 }
 
 function updateDashboard() {
@@ -13958,6 +15410,30 @@ function updateDashboard() {
 }
 
 function updateCharts() {
+
+    // ✅ ADD THIS CODE HERE (at the very top)
+    const chartStyle = document.createElement('style');
+    chartStyle.id = 'dynamicChartStyles';
+    if (document.getElementById('dynamicChartStyles')) {
+        document.getElementById('dynamicChartStyles').remove();
+    }
+    chartStyle.textContent = `
+        .chart-container {
+            min-height: 450px !important;
+            padding: 30px !important;
+        }
+        .bar-chart {
+            min-height: 350px !important;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                min-height: 350px !important;
+                padding: 20px !important;
+            }
+        }
+    `;
+    document.head.appendChild(chartStyle);
+
     const allChart = document.getElementById('allBarChart');
     allChart.innerHTML = `
         <div class="chart-y-labels">
@@ -14150,18 +15626,78 @@ function createBarItem(label, progress) {
     const heightPercent = Math.min(progress, 100);
     
     div.innerHTML = `
-        <div class="bar" style="height: 0%" data-target="${heightPercent}">
-            <div class="bar-value" data-target="${progress}">0%</div>
+        <div class="bar" style="height: 0%; position: relative;" data-target="${heightPercent}">
+            <div class="bar-gradient" style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(180deg, 
+                    rgba(100, 255, 218, 0.8) 0%, 
+                    rgba(102, 126, 234, 0.6) 100%);
+                border-radius: 8px 8px 0 0;
+                box-shadow: 
+                    0 -4px 20px rgba(100, 255, 218, 0.4),
+                    inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            "></div>
+            <div class="bar-shine" style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 30%;
+                background: linear-gradient(180deg, 
+                    rgba(255, 255, 255, 0.3) 0%, 
+                    transparent 100%);
+                border-radius: 8px 8px 0 0;
+            "></div>
+            <div class="bar-glow" style="
+                position: absolute;
+                bottom: -10px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 120%;
+                height: 20px;
+                background: radial-gradient(ellipse at center, 
+                    rgba(100, 255, 218, 0.6) 0%, 
+                    transparent 70%);
+                filter: blur(8px);
+            "></div>
+            <div class="bar-value" data-target="${progress}" style="
+                position: absolute;
+                top: -35px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: #64ffda;
+                font-weight: 800;
+                font-size: 1.1em;
+                text-shadow: 
+                    0 0 10px rgba(100, 255, 218, 0.8),
+                    0 2px 4px rgba(0, 0, 0, 0.5);
+                white-space: nowrap;
+            ">0%</div>
         </div>
-        <div class="bar-label">${label}</div>
+        <div class="bar-label" style="
+            margin-top: 8px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-align: center;
+        ">${label}</div>
     `;
     
     setTimeout(() => {
         const bar = div.querySelector('.bar');
         const valueEl = div.querySelector('.bar-value');
-        bar.style.height = heightPercent + '%';        
+        
+        // Animate height
+        bar.style.transition = 'height 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        bar.style.height = heightPercent + '%';
+        
+        // Animate value counter
         let current = 0;
-        const increment = Math.max(1, Math.ceil(progress / 30));
+        const increment = Math.max(1, Math.ceil(progress / 50));
         const interval = setInterval(() => {
             current += increment;
             if (current >= progress) {
@@ -14169,7 +15705,7 @@ function createBarItem(label, progress) {
                 clearInterval(interval);
             }
             valueEl.textContent = current + '%';
-        }, 30);
+        }, 25);
     }, 100);
     
     return div;
@@ -14409,8 +15945,248 @@ function resetProgress() {
     }
 }
 
-// Define version constant at top of script (around line 127)
-const APP_VERSION = '4.3';
+// Add this function near the top of your script (after the global variables)
+function injectSplashScreenCSS() {
+    if (document.getElementById('splashScreenCSS')) return; // Already injected
+    
+    const style = document.createElement('style');
+    style.id = 'splashScreenCSS';
+    style.textContent = `
+        /* ==================== SPLASH SCREEN STYLES ==================== */
+        
+        .update-splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+
+        .update-splash.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .splash-content {
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 2px solid rgba(100, 255, 218, 0.3);
+            border-radius: 25px;
+            padding: 50px 40px;
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(100, 255, 218, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .update-splash.active .splash-content {
+            transform: scale(1);
+        }
+
+        .splash-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 0%, 
+                rgba(100, 255, 218, 0.05) 50%, 
+                transparent 100%);
+            animation: splashShimmer 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes splashShimmer {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(10%, 10%) rotate(5deg); }
+        }
+
+        .splash-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: splashIconBounce 1s ease infinite;
+            filter: drop-shadow(0 10px 30px rgba(100, 255, 218, 0.4));
+        }
+
+        @keyframes splashIconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .splash-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            margin: 0 0 15px 0;
+            background: linear-gradient(135deg, #667eea 0%, #64ffda 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        .splash-version {
+            font-size: 1.2em;
+            color: #64ffda;
+            font-weight: 700;
+            margin-bottom: 35px;
+            padding: 8px 20px;
+            background: rgba(100, 255, 218, 0.1);
+            border: 2px solid rgba(100, 255, 218, 0.3);
+            border-radius: 50px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.2);
+        }
+
+        .splash-features {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 35px;
+            text-align: left;
+        }
+
+        .splash-feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            background: rgba(100, 255, 218, 0.05);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .splash-feature:hover {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: rgba(100, 255, 218, 0.4);
+            transform: translateX(5px);
+        }
+
+        .feature-icon {
+            font-size: 2em;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
+        }
+
+        .feature-text {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        .splash-button {
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #64ffda 100%);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 25px rgba(100, 255, 218, 0.4);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .splash-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .splash-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .splash-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(100, 255, 218, 0.6);
+        }
+
+        .splash-button:active {
+            transform: translateY(-1px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .splash-content {
+                padding: 40px 25px;
+                max-width: 90%;
+            }
+
+            .splash-icon {
+                font-size: 3.5em;
+            }
+
+            .splash-title {
+                font-size: 2em;
+            }
+
+            .splash-version {
+                font-size: 1em;
+                margin-bottom: 25px;
+            }
+
+            .splash-features {
+                gap: 12px;
+                margin-bottom: 25px;
+            }
+
+            .splash-feature {
+                padding: 12px 15px;
+            }
+
+            .feature-icon {
+                font-size: 1.6em;
+            }
+
+            .feature-text {
+                font-size: 0.95em;
+            }
+
+            .splash-button {
+                padding: 14px 30px;
+                font-size: 1em;
+                width: 100%;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+const APP_VERSION = '4.7';
 
 // Replace checkForUpdates() function
 function checkForUpdates() {
@@ -15776,11 +17552,15 @@ async function showCompletionStats() {
 }
 
 async function closeStatsAndSuggest() {
-    document.querySelector('.completion-stats-modal').remove();
+    // Close the stats modal
+    const statsModal = document.querySelector('.completion-stats-modal');
+    if (statsModal) statsModal.remove();
     
     const accuracy = parseInt(localStorage.getItem('lastLessonAccuracy') || '100');
     const lessonName = localStorage.getItem('lastLessonName') || '';
     const lessonLang = localStorage.getItem('lastLessonLanguage') || '';
+    
+    console.log('📊 Lesson completed - Accuracy:', accuracy); // Debug
     
     // Close lesson
     document.getElementById('lessonView').classList.remove('active');
@@ -15794,19 +17574,26 @@ async function closeStatsAndSuggest() {
     
     showSection('home');
     
+    // Wait for transition
     await new Promise(resolve => setTimeout(resolve, 500));
     
+    // Check and show streak
     if (!isRetryMode) {
         checkAndShowStreak();
     }
     
+    // Wait for streak animation
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // IMPROVED: Show AI suggestion if accuracy < 80%
-    if (!isRetryMode && accuracy < 80) {
+    // ✅ FIXED: Show AI suggestion if accuracy < 80%
+    if (!isRetryMode && accuracy < 80 && lessonName && lessonLang) {
+        console.log('🤖 Generating AI suggestion...'); // Debug
         await generateAISuggestionFromLesson(lessonName, lessonLang);
+    } else {
+        console.log('ℹ️ No AI suggestion needed - Accuracy:', accuracy); // Debug
     }
     
+    // Clean up stored values
     wrongAnswers = [];
     localStorage.removeItem('lastLessonAccuracy');
     localStorage.removeItem('lastLessonName');
@@ -15928,23 +17715,93 @@ function showAISuggestionButton(title) {
     
     const btn = document.createElement('div');
     btn.className = 'ai-suggestion-btn';
-    btn.innerHTML = `
-        <div class="ai-suggestion-title">💡 ${title}</div>
-        <div class="ai-suggestion-desc">AI-recommended based on your performance</div>
+    btn.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px) scale(0.9);
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(100, 255, 218, 0.95));
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 2px solid rgba(100, 255, 218, 0.6);
+        border-radius: 50px;
+        padding: 18px 30px;
+        box-shadow: 0 8px 32px rgba(100, 255, 218, 0.4);
+        cursor: pointer;
+        z-index: 9999;
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        max-width: 90%;
+        text-align: center;
     `;
+    
+    btn.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+            <div style="font-size: 1.8em;">💡</div>
+            <div>
+                <div class="ai-suggestion-title" style="color: #fff; font-weight: 700; font-size: 1.1em; margin-bottom: 4px;">${title}</div>
+                <div class="ai-suggestion-desc" style="color: rgba(255, 255, 255, 0.9); font-size: 0.85em;">AI-recommended based on your performance</div>
+            </div>
+        </div>
+    `;
+    
     btn.onclick = () => openAISuggestedCourse(title);
+    
+    // Hover effects
+    btn.onmouseenter = function() {
+        this.style.transform = 'translateX(-50%) translateY(0) scale(1.05)';
+        this.style.boxShadow = '0 12px 40px rgba(100, 255, 218, 0.6)';
+    };
+    
+    btn.onmouseleave = function() {
+        this.style.transform = 'translateX(-50%) translateY(0) scale(1)';
+        this.style.boxShadow = '0 8px 32px rgba(100, 255, 218, 0.4)';
+    };
     
     document.body.appendChild(btn);
     
     // Animate in after a short delay
-    setTimeout(() => btn.classList.add('show'), 100);
+    setTimeout(() => {
+        btn.style.opacity = '1';
+        btn.style.transform = 'translateX(-50%) translateY(0) scale(1)';
+    }, 100);
     
-    console.log('✨ AI Suggestion button shown!'); // Debug
+    console.log('✨ AI Suggestion button shown with title:', title); // Debug
+    
+    // Auto-hide after 15 seconds
+    setTimeout(() => {
+        if (btn && btn.parentNode) {
+            btn.style.opacity = '0';
+            btn.style.transform = 'translateX(-50%) translateY(100px) scale(0.9)';
+            setTimeout(() => btn.remove(), 500);
+        }
+    }, 15000);
+}
+
+function closeAISuggestion() {
+    const btn = document.querySelector('.ai-suggestion-btn');
+    const overlay = document.querySelector('.ai-suggestion-overlay');
+    
+    if (btn) {
+        btn.style.opacity = '0';
+        btn.style.transform = 'translateX(-50%) translateY(150px)';
+    }
+    
+    if (overlay) {
+        overlay.style.background = 'rgba(0, 0, 0, 0)';
+        overlay.style.backdropFilter = 'blur(0px)';
+        overlay.style.webkitBackdropFilter = 'blur(0px)';
+        overlay.style.opacity = '0';
+    }
+    
+    setTimeout(() => {
+        if (btn && btn.parentNode) btn.remove();
+        if (overlay && overlay.parentNode) overlay.remove();
+    }, 600);
 }
 
 async function openAISuggestedCourse(title) {
-    const btn = document.querySelector('.ai-suggestion-btn');
-    if (btn) btn.remove();
+    closeAISuggestion(); // CHANGE: Use new close function
     
     const loadingOverlay = document.getElementById('loadingOverlay');
     if (loadingOverlay) {
@@ -16018,23 +17875,23 @@ async function openAISuggestedCourse(title) {
             ];
         }
         
-        // Generate 3 questions
-        const questionsResponse = await fetch(config.endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${config.apiKey}`
-            },
-            body: JSON.stringify({
-                model: config.model,
-                messages: [{
-                    role: 'user',
-                    content: `Create 3 multiple choice questions about "${title}". Format: [{"question":"What is...", "options":["Option A","Option B","Option C","Option D"], "correct":0}]`
-                }],
-                max_tokens: 400,
-                temperature: 0.7
-            })
-        });
+        // ✅ FIXED: Generate 5 questions instead of 3
+const questionsResponse = await fetch(config.endpoint, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiKey}`
+    },
+    body: JSON.stringify({
+        model: config.model,
+        messages: [{
+            role: 'user',
+            content: `Create 5 multiple choice questions about "${title}". Each question should test understanding. Format: [{"question":"What is...", "options":["Option A","Option B","Option C","Option D"], "correct":0}]`
+        }],
+        max_tokens: 700, // ✅ Increased from 400 to 700 for more questions
+        temperature: 0.7
+    })
+});
         
         if (!questionsResponse.ok) {
             throw new Error('Failed to generate questions');
@@ -16073,40 +17930,61 @@ async function openAISuggestedCourse(title) {
             
         } catch (parseError) {
             console.error('Questions parse error:', parseError);
-            // Fallback questions
-            questions = [
-                {
-                    question: `What is the main purpose of ${title}?`,
-                    options: [
-                        'To improve code quality',
-                        'To slow down development',
-                        'To confuse developers',
-                        'None of the above'
-                    ],
-                    correct: 0
-                },
-                {
-                    question: `When should you use ${title}?`,
-                    options: [
-                        'Never',
-                        'Always',
-                        'When it improves your code',
-                        'Only on Mondays'
-                    ],
-                    correct: 2
-                },
-                {
-                    question: `Which best describes ${title}?`,
-                    options: [
-                        'A programming concept',
-                        'A type of food',
-                        'A car brand',
-                        'A movie genre'
-                    ],
-                    correct: 0
-                }
-            ];
-        }
+            // ✅ FIXED: 5 fallback questions instead of 3
+questions = [
+    {
+        question: `What is the main purpose of ${title}?`,
+        options: [
+            'To improve code quality',
+            'To slow down development',
+            'To confuse developers',
+            'None of the above'
+        ],
+        correct: 0
+    },
+    {
+        question: `When should you use ${title}?`,
+        options: [
+            'Never',
+            'Always',
+            'When it improves your code',
+            'Only on Mondays'
+        ],
+        correct: 2
+    },
+    {
+        question: `Which best describes ${title}?`,
+        options: [
+            'A programming concept',
+            'A type of food',
+            'A car brand',
+            'A movie genre'
+        ],
+        correct: 0
+    },
+    {
+        question: `What is a key benefit of ${title}?`,
+        options: [
+            'Makes code harder to read',
+            'Increases file size',
+            'Improves code organization',
+            'Slows execution'
+        ],
+        correct: 2
+    },
+    {
+        question: `How does ${title} help developers?`,
+        options: [
+            'It doesn\'t help',
+            'Makes coding more efficient',
+            'Creates more bugs',
+            'Removes all errors'
+        ],
+        correct: 1
+    }
+];
+}
+
         
         // Store AI course content
         aiCourseContent = {
