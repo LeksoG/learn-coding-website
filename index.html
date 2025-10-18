@@ -14891,8 +14891,24 @@ async function sendSmartGoalEmail(goals, completed, total, elapsed) {
         const remaining = total - completed;
         const progressPercent = Math.round((completed / total) * 100);
         
+        const reminderThreshold = goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7);
+        
+        // ✅ Fetch email config
         const response = await fetch('/api/email-config');
         const config = await response.json();
+        
+        console.log('📧 Email Config:', config); // Debug - check what templates we have
+        
+        // ✅ FIX: Use the goal template ID, NOT the password reset template
+        const templateId = config.EMAIL_GOAL_TEMPLATE_ID;
+        
+        if (!templateId) {
+            console.error('❌ EMAIL_GOAL_TEMPLATE_ID not found in config!');
+            showNotification('Goal reminder template not configured', 'error');
+            return;
+        }
+        
+        console.log('✅ Using template ID:', templateId);
         
         const langIcons = {
             python: '🐍',
@@ -14909,51 +14925,38 @@ async function sendSmartGoalEmail(goals, completed, total, elapsed) {
             return `${status} ${langIcons[c.lang]} ${courseData.title} (${c.lang.toUpperCase()})`;
         }).join('\n');
         
-        // ✅ FIX: Define reminderThreshold here
-        const reminderThreshold = goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7);
+        const emailParams = {
+            to_email: userData.email,
+            to_name: userData.name,
+            user_name: userData.name,
+            subject: `⏰ Daily Goal Reminder - ${remaining} Course${remaining !== 1 ? 's' : ''} Left!`,
+            greeting: `Hi ${userData.name}!`,
+            elapsed_time: elapsed,
+            total_courses: total,
+            time_goal: goals.daily.timeGoal,
+            progress_percent: progressPercent,
+            completed_courses: completed,
+            remaining_courses: remaining,
+            courses_list: coursesList,
+            remaining_time: goals.daily.timeGoal - elapsed,
+            reminder_threshold: reminderThreshold
+        };
         
-        const subject = `⏰ Daily Goal Reminder - ${remaining} Course${remaining !== 1 ? 's' : ''} Left!`;
-        const message = `Hi ${userData.name}!
-
-⏰ You've been studying for ${elapsed} minutes.
-
-Your goal was to complete ${total} courses in ${goals.daily.timeGoal} minutes, but you're running behind schedule!
-
-📊 Current Progress: ${progressPercent}%
-✅ Completed: ${completed} course${completed !== 1 ? 's' : ''}
-⏳ Remaining: ${remaining} course${remaining !== 1 ? 's' : ''}
-
-🎯 Your Daily Goals:
-${coursesList}
-
-⚡ Quick action needed! You still have ${goals.daily.timeGoal - elapsed} minutes to complete ${remaining} more course${remaining !== 1 ? 's' : ''}!
-
-Log in now and finish strong! 💪🔥
-
-Keep learning!
-DevLearn Pro Team
-
----
-📧 This reminder was sent after ${reminderThreshold} minutes of study time to help you stay on track.`;
+        console.log('📤 Sending email with params:', emailParams);
         
         await emailjs.send(
             config.EMAIL_SERVICE_ID,
-            config.EMAIL_TEMPLATE_ID,
-            {
-                to_email: userData.email,
-                to_name: userData.name,
-                user_name: userData.name,
-                message: message,
-                subject: subject
-            },
+            templateId, // ✅ Use the goal template ID
+            emailParams,
             config.EMAIL_PUBLIC_KEY
         );
         
-        console.log('✅ Goal reminder email sent!');
-        showNotification('📧 Reminder email sent!', 'info');
+        console.log('✅ Goal reminder email sent successfully!');
+        showNotification('📧 Reminder email sent!', 'success');
         
     } catch (error) {
         console.error('❌ Email error:', error);
+        showNotification('Failed to send reminder email', 'error');
     }
 }
 
