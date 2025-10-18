@@ -704,11 +704,11 @@ body.light-mode .mobile-search-container {
         }
 
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
-        }
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;  /* Increase from 20px to 25px */
+    margin-bottom: 0 !important;
+}
 
         .stat-card {
             background: rgba(30, 30, 30, 0.6);
@@ -757,6 +757,7 @@ body.light-mode .mobile-search-container {
             padding: 40px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
+            margin-top: 30px; 
         }
 
         body.light-mode .progress-section {
@@ -8098,6 +8099,103 @@ body.light-mode .scroll-to-top-center {
     border-color: #0a7a5e;
 }
 
+/* Roadmap Navigation Buttons */
+.roadmap-nav-container {
+    position: fixed;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    display: none;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 9500;
+}
+
+.roadmap-nav-container[style*="display: flex"] {
+    display: flex !important;
+}
+
+.roadmap-nav-container.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.roadmap-nav-btn {
+    width: 120px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.9), rgba(0, 212, 255, 0.9));
+    border: 2px solid #64ffda;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.5);
+    color: #0a0a0a;
+    font-weight: 700;
+    font-size: 0.9em;
+    opacity: 0;
+    transform: scale(0);
+}
+
+.roadmap-nav-btn.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.roadmap-nav-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.7);
+}
+
+.roadmap-scroll-top {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.9), rgba(0, 212, 255, 0.9));
+    border: 2px solid #64ffda;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.5);
+    font-size: 1.5em;
+    color: #0a0a0a;
+}
+
+.roadmap-scroll-top:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.7);
+}
+
+body.light-mode .roadmap-nav-btn,
+body.light-mode .roadmap-scroll-top {
+    background: linear-gradient(135deg, rgba(10, 122, 94, 0.9), rgba(0, 168, 150, 0.9));
+    border-color: #0a7a5e;
+}
+
+@media (max-width: 768px) {
+    .roadmap-nav-container {
+        top: 85px;
+    }
+    
+    .roadmap-nav-btn {
+        width: 100px;
+        height: 45px;
+        font-size: 0.8em;
+    }
+    
+    .roadmap-scroll-top {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
+}
+
 @media (max-width: 768px) {
     .scroll-button-container {
         top: 85px;
@@ -8372,6 +8470,184 @@ body.light-mode .section-indicator-text {
     .section-indicator-icon {
         font-size: 1.2em;
     }
+}
+
+/* Add this to your CSS */
+body.lesson-active {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.lesson-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent viewport resize on keyboard */
+@media (max-width: 768px) {
+    .lesson-view {
+        height: 100dvh; /* Use dynamic viewport height */
+    }
+}
+
+/* Mobile fill options */
+.fill-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.fill-option-btn {
+    padding: 12px 20px;
+    background: rgba(100, 255, 218, 0.1);
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    border-radius: 12px;
+    color: #64ffda;
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+}
+
+.fill-option-btn:hover {
+    background: rgba(100, 255, 218, 0.2);
+    border-color: rgba(100, 255, 218, 0.5);
+    transform: translateY(-2px);
+}
+
+.fill-option-btn:active {
+    transform: translateY(0);
+}
+
+.fill-option-btn.correct-option {
+    background: rgba(0, 255, 0, 0.2);
+    border-color: #00ff00;
+    color: #00ff00;
+}
+
+.fill-option-btn.incorrect-option {
+    background: rgba(255, 0, 0, 0.2);
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.code-blank-placeholder {
+    display: inline-block;
+    min-width: 60px;
+    padding: 4px 8px;
+    background: rgba(100, 255, 218, 0.1);
+    border-bottom: 2px dashed rgba(100, 255, 218, 0.5);
+    color: #8b949e;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .stats-buttons-container {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .stat-toggle-btn {
+        padding: 10px 18px;
+        font-size: 0.9em;
+        width: 100%;  /* Full width on mobile */
+        justify-content: center;
+    }
+    
+    .goals-btn {
+        width: auto;  /* Auto width */
+        padding: 8px 16px;  /* Smaller */
+        font-size: 0.85em;  /* Smaller text */
+        margin: 0 auto;  /* Center it */
+        border-radius: 50px;  /* More oval */
+    }
+    
+    .goals-btn-icon {
+        font-size: 1em;  /* Smaller icon */
+    }
+}
+
+/* Coming Soon Section */
+.coming-soon-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px dashed rgba(100, 255, 218, 0.2);
+}
+
+.coming-soon-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+    padding: 15px 20px;
+    background: rgba(100, 255, 218, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.coming-soon-icon {
+    font-size: 1.8em;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.coming-soon-title {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: #64ffda;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.coming-soon-card {
+    position: relative;
+    background: rgba(20, 20, 20, 0.6);
+    border: 2px solid rgba(100, 255, 218, 0.15);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 20px;
+    cursor: not-allowed;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.coming-soon-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(100, 255, 218, 0.3);
+    box-shadow: 0 8px 24px rgba(100, 255, 218, 0.1);
+}
+
+.coming-soon-overlay {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 8px 16px;
+    background: rgba(102, 126, 234, 0.2);
+    border: 2px solid rgba(102, 126, 234, 0.4);
+    border-radius: 20px;
+    color: #667eea;
+    font-weight: 700;
+    font-size: 0.9em;
 }
     </style>
 </head>
@@ -8738,6 +9014,17 @@ body.light-mode .section-indicator-text {
                     </div>
                 </div>
 
+                <!-- Roadmap Navigation Buttons -->
+                <div class="roadmap-nav-container" id="roadmapNavContainer">
+                    <button class="roadmap-nav-btn" id="roadmapPrevBtn" onclick="scrollToPrevSection()">
+                        <span>↑ Previous</span>
+                    </button>
+                    <button class="roadmap-scroll-top" onclick="scrollToTop()">↑</button>
+                    <button class="roadmap-nav-btn" id="roadmapNextBtn" onclick="scrollToNextSection()">
+                        <span>Next ↓</span>
+                    </button>
+                </div>
+
                 <div class="roadmap-timeline" id="roadmapTimeline">
                     <!-- Timeline will be generated by JavaScript -->
                 </div>
@@ -8932,16 +9219,6 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
     </div>
 </div>
 
-<!-- Dynamic Scroll Button System -->
-<div class="scroll-button-container" id="scrollButtonContainer">
-    <button class="scroll-nav-btn" id="scrollPrevBtn" onclick="scrollToPrevSection()">
-        <span>↑ Previous</span>
-    </button>
-    <button class="scroll-to-top-center" onclick="scrollToTop()">↑</button>
-    <button class="scroll-nav-btn" id="scrollNextBtn" onclick="scrollToNextSection()">
-        <span>Next ↓</span>
-    </button>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="main.js"></script>
@@ -9013,7 +9290,10 @@ let userProgress = {
         course4: { completed: false, progress: 0, time: 0 },
         course5: { completed: false, progress: 0, time: 0 },
         course6: { completed: false, progress: 0, time: 0 },
-        course7: { completed: false, progress: 0, time: 0 }  // ← NEW
+        course7: { completed: false, progress: 0, time: 0 },
+        course8: { completed: false, progress: 0, time: 0 },  // ADD
+        course9: { completed: false, progress: 0, time: 0 },   // ADD
+        course10: { completed: false, progress: 0, time: 0 },  // ADD THIS
     },
     javascript: { 
         course1: { completed: false, progress: 0, time: 0 },
@@ -9022,7 +9302,10 @@ let userProgress = {
         course4: { completed: false, progress: 0, time: 0 },
         course5: { completed: false, progress: 0, time: 0 },
         course6: { completed: false, progress: 0, time: 0 },
-        course7: { completed: false, progress: 0, time: 0 }  // ← NEW
+        course7: { completed: false, progress: 0, time: 0 },
+        course8: { completed: false, progress: 0, time: 0 },  // ADD
+        course9: { completed: false, progress: 0, time: 0 },   // ADD
+        course10: { completed: false, progress: 0, time: 0 },  // ADD THIS
     },
     html: { 
         course1: { completed: false, progress: 0, time: 0 },
@@ -9031,7 +9314,10 @@ let userProgress = {
         course4: { completed: false, progress: 0, time: 0 },
         course5: { completed: false, progress: 0, time: 0 },
         course6: { completed: false, progress: 0, time: 0 },
-        course7: { completed: false, progress: 0, time: 0 }  // ← NEW
+        course7: { completed: false, progress: 0, time: 0 },
+        course8: { completed: false, progress: 0, time: 0 },  // ADD
+        course9: { completed: false, progress: 0, time: 0 },  // ADD
+        course10: { completed: false, progress: 0, time: 0 },  // ADD THIS
     },
     css: { 
         course1: { completed: false, progress: 0, time: 0 },
@@ -9040,7 +9326,10 @@ let userProgress = {
         course4: { completed: false, progress: 0, time: 0 },
         course5: { completed: false, progress: 0, time: 0 },
         course6: { completed: false, progress: 0, time: 0 },
-        course7: { completed: false, progress: 0, time: 0 }  // ← NEW
+        course7: { completed: false, progress: 0, time: 0 },
+        course8: { completed: false, progress: 0, time: 0 },  // ADD
+        course9: { completed: false, progress: 0, time: 0 },   // ADD
+        course10: { completed: false, progress: 0, time: 0 },  // ADD THIS
     },
     react: { 
         course1: { completed: false, progress: 0, time: 0 },
@@ -9049,7 +9338,10 @@ let userProgress = {
         course4: { completed: false, progress: 0, time: 0 },
         course5: { completed: false, progress: 0, time: 0 },
         course6: { completed: false, progress: 0, time: 0 },
-        course7: { completed: false, progress: 0, time: 0 }  // ← NEW
+        course7: { completed: false, progress: 0, time: 0 },
+        course8: { completed: false, progress: 0, time: 0 },  // ADD
+        course9: { completed: false, progress: 0, time: 0 },   // ADD
+        course10: { completed: false, progress: 0, time: 0 },  // ADD THIS
     }
 };
 
@@ -9060,8 +9352,11 @@ const courses = {
         { id: 'course3', title: 'Strings', desc: 'Text manipulation', icon: '📝' },
         { id: 'course4', title: 'Math Operators', desc: 'Calculations', icon: '➗' },
         { id: 'course5', title: 'Concatenation', desc: 'Joining strings', icon: '🔗' },
-        { id: 'course6', title: 'Loops', desc: 'Repeat code', icon: '🔄', isNew: true },
-        { id: 'course7', title: 'Lists', desc: 'Store multiple items', icon: '📋', isNew: true }
+        { id: 'course6', title: 'Loops', desc: 'Repeat code', icon: '🔄' },
+        { id: 'course7', title: 'Lists', desc: 'Store multiple items', icon: '📋' },
+        { id: 'course8', title: 'Dictionaries', desc: 'Key-value pairs', icon: '📚', isNew: true },
+        { id: 'course9', title: 'Functions', desc: 'Reusable code blocks', icon: '⚙️', isNew: true },
+        { id: 'course10', title: 'Conditionals', desc: 'If/else statements', icon: '🔀', isNew: true },
     ],
     javascript: [
         { id: 'course1', title: 'Variables', desc: 'let, const & types', icon: '📦' },
@@ -9069,8 +9364,12 @@ const courses = {
         { id: 'course3', title: 'Functions', desc: 'Reusable code', icon: '🎯' },
         { id: 'course4', title: 'DOM Manipulation', desc: 'Control web pages', icon: '🌐' },
         { id: 'course5', title: 'Arrays & Objects', desc: 'Data structures', icon: '📚' },
-        { id: 'course6', title: 'Events', desc: 'User interactions', icon: '🖱️', isNew: true },
-        { id: 'course7', title: 'Async & Promises', desc: 'Handle async code', icon: '⏳', isNew: true }
+        { id: 'course6', title: 'Events', desc: 'User interactions', icon: '🖱️' },
+        { id: 'course7', title: 'Async & Promises', desc: 'Handle async code', icon: '⏳' },
+        { id: 'course8', title: 'ES6 Features', desc: 'Modern JavaScript', icon: '✨', isNew: true },
+        { id: 'course9', title: 'Error Handling', desc: 'Try, catch & debug', icon: '🐛', isNew: true },
+        { id: 'course10', title: 'Modules & Import', desc: 'Code organization', icon: '📦', isNew: true },
+
     ],
     html: [
         { id: 'course1', title: 'HTML Structure', desc: 'Basic tags', icon: '🌐' },
@@ -9078,8 +9377,11 @@ const courses = {
         { id: 'course3', title: 'Lists', desc: 'Organize content', icon: '📝' },
         { id: 'course4', title: 'Images & Media', desc: 'Visual content', icon: '🖼️' },
         { id: 'course5', title: 'Forms', desc: 'User input', icon: '📋' },
-        { id: 'course6', title: 'Links', desc: 'Connect pages', icon: '🔗', isNew: true },
-        { id: 'course7', title: 'Tables', desc: 'Display data', icon: '📊', isNew: true }
+        { id: 'course6', title: 'Links', desc: 'Connect pages', icon: '🔗' },
+        { id: 'course7', title: 'Tables', desc: 'Display data', icon: '📊' },
+        { id: 'course8', title: 'Semantic HTML', desc: 'Meaningful structure', icon: '🏗️', isNew: true },
+        { id: 'course9', title: 'Meta Tags & SEO', desc: 'Optimize for search', icon: '🔍', isNew: true },
+        { id: 'course10', title: 'Accessibility', desc: 'Web for everyone', icon: '♿', isNew: true },
     ],
     css: [
         { id: 'course1', title: 'CSS Selectors', desc: 'Target elements', icon: '🎯' },
@@ -9087,8 +9389,11 @@ const courses = {
         { id: 'course3', title: 'Box Model', desc: 'Spacing & layout', icon: '📦' },
         { id: 'course4', title: 'Fonts & Text', desc: 'Typography', icon: '✍️' },
         { id: 'course5', title: 'Flexbox & Grid', desc: 'Modern layouts', icon: '📐' },
-        { id: 'course6', title: 'Responsive Design', desc: 'Mobile-first CSS', icon: '📱', isNew: true },
-        { id: 'course7', title: 'Animations', desc: 'Bring pages to life', icon: '✨', isNew: true }
+        { id: 'course6', title: 'Responsive Design', desc: 'Mobile-first CSS', icon: '📱' },
+        { id: 'course7', title: 'Animations', desc: 'Bring pages to life', icon: '✨' },
+        { id: 'course8', title: 'CSS Variables', desc: 'Custom properties', icon: '🎛️', isNew: true },
+        { id: 'course9', title: 'Pseudo Classes', desc: 'Dynamic styling', icon: '🎭', isNew: true },
+        { id: 'course10', title: 'CSS Grid Advanced', desc: 'Complex layouts', icon: '🎨', isNew: true },
     ],
     react: [
         { id: 'course1', title: 'Components & JSX', desc: 'React basics', icon: '⚛️' },
@@ -9096,8 +9401,39 @@ const courses = {
         { id: 'course3', title: 'State', desc: 'Dynamic data', icon: '🔄' },
         { id: 'course4', title: 'Events', desc: 'User interactions', icon: '🎯' },
         { id: 'course5', title: 'Conditionals', desc: 'Dynamic UI', icon: '🔀' },
-        { id: 'course6', title: 'Lists & Keys', desc: 'Render arrays', icon: '📋', isNew: true },
-        { id: 'course7', title: 'useEffect Hook', desc: 'Side effects', icon: '🪝', isNew: true }
+        { id: 'course6', title: 'Lists & Keys', desc: 'Render arrays', icon: '📋' },
+        { id: 'course7', title: 'useEffect Hook', desc: 'Side effects', icon: '🪝' },
+        { id: 'course8', title: 'Custom Hooks', desc: 'Reusable logic', icon: '🔧', isNew: true },
+        { id: 'course9', title: 'Context API', desc: 'Global state', icon: '🌍', isNew: true },
+        { id: 'course10', title: 'React Router', desc: 'Navigation & routing', icon: '🧭', isNew: true },
+    ]
+};
+
+const comingSoonCourses = {
+    python: [
+        { title: 'File Handling', desc: 'Read & write files', icon: '📁' },
+        { title: 'Error Handling', desc: 'Try, except, finally', icon: '⚠️' },
+        { title: 'Object-Oriented', desc: 'Classes & objects', icon: '🏗️' }
+    ],
+    javascript: [
+        { title: 'Local Storage', desc: 'Save data locally', icon: '💾' },
+        { title: 'Fetch API', desc: 'HTTP requests', icon: '🌐' },
+        { title: 'Regex', desc: 'Pattern matching', icon: '🔤' }
+    ],
+    html: [
+        { title: 'Canvas API', desc: 'Draw graphics', icon: '🎨' },
+        { title: 'Web Storage', desc: 'localStorage & sessionStorage', icon: '💾' },
+        { title: 'Geolocation', desc: 'User location', icon: '📍' }
+    ],
+    css: [
+        { title: 'CSS Filters', desc: 'Image effects', icon: '🖼️' },
+        { title: 'Transforms 3D', desc: '3D transformations', icon: '🎲' },
+        { title: 'CSS Shapes', desc: 'Clip-path & shapes', icon: '⭐' }
+    ],
+    react: [
+        { title: 'Redux', desc: 'State management', icon: '🗄️' },
+        { title: 'Testing', desc: 'Jest & React Testing', icon: '🧪' },
+        { title: 'Performance', desc: 'Optimize React apps', icon: '⚡' }
     ]
 };
 
@@ -9239,8 +9575,65 @@ const lessonContent = {
                 { type: 'mcq', question: 'Get list length?', options: ['size()', 'length()', 'len()', 'count()'], correct: 2 },
                 { type: 'fill', question: 'Check if exists', code: 'if "apple" ___BLANK___ fruits:', answer: 'in' }
             ]
-        }
-    },
+        },
+        course8: {
+    learn: [
+        { bot: 'Dictionaries store key-value pairs! 📚 Like a real dictionary.' },
+        { bot: 'Create with curly braces:<br><div class="code-example"><code>person = {<br>  "name": "Alice",<br>  "age": 25,<br>  "city": "NYC"<br>}</code></div>' },
+        { bot: 'Access values by key:<br><div class="code-example"><code>print(person["name"])  # Alice<br>print(person["age"])   # 25</code></div>' },
+        { bot: 'Add or modify items:<br><div class="code-example"><code>person["email"] = "alice@email.com"<br>person["age"] = 26  # Update</code></div>' },
+        { bot: '<span class="keyword-highlight">.get()</span> is safer:<br><div class="code-example"><code>print(person.get("phone", "N/A"))<br># Returns "N/A" if key doesn\'t exist</code></div>' },
+        { bot: 'Loop through dictionaries:<br><div class="code-example"><code>for key, value in person.items():<br>    print(f"{key}: {value}")</code></div>' },
+        { bot: 'Useful methods:<br><div class="code-example"><code>person.keys()    # All keys<br>person.values()  # All values<br>person.items()   # Key-value pairs<br>"name" in person # Check if key exists</code></div>' },
+        { bot: '✅ Dictionaries organize data perfectly!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Create dictionary', code: 'user = ___BLANK___"name": "Bob"}', answer: '{' },
+        { type: 'mcq', question: 'Access dictionary value?', options: ['dict[key]', 'dict.key', 'dict->key', 'dict(key)'], correct: 0 },
+        { type: 'fill', question: 'Safe access with default', code: 'val = person.___BLANK___("age", 0)', answer: 'get' },
+        { type: 'mcq', question: 'Get all dictionary keys?', options: ['.keys()', '.getKeys()', '.allKeys()', '.keyList()'], correct: 0 },
+        { type: 'fill', question: 'Check if key exists', code: 'if "name" ___BLANK___ person:', answer: 'in' }
+    ]
+},
+course9: {
+    learn: [
+        { bot: 'Functions are reusable code blocks! ⚙️ Write once, use many times.' },
+        { bot: 'Define with <span class="keyword-highlight">def</span>:<br><div class="code-example"><code>def greet():<br>    print("Hello!")<br><br>greet()  # Call it</code></div>' },
+        { bot: 'Functions can take <span class="keyword-highlight">parameters</span>:<br><div class="code-example"><code>def greet(name):<br>    print(f"Hello, {name}!")<br><br>greet("Alice")</code></div>' },
+        { bot: 'Return values with <span class="keyword-highlight">return</span>:<br><div class="code-example"><code>def add(a, b):<br>    return a + b<br><br>result = add(5, 3)  # 8</code></div>' },
+        { bot: 'Default parameters:<br><div class="code-example"><code>def greet(name="Guest"):<br>    print(f"Hello, {name}!")<br><br>greet()         # Hello, Guest!<br>greet("Bob")    # Hello, Bob!</code></div>' },
+        { bot: 'Multiple return values:<br><div class="code-example"><code>def get_user():<br>    return "Alice", 25<br><br>name, age = get_user()</code></div>' },
+        { bot: '<span class="keyword-highlight">Docstrings</span> document functions:<br><div class="code-example"><code>def add(a, b):<br>    """Add two numbers together"""<br>    return a + b</code></div>' },
+        { bot: '✅ Functions keep code organized!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Define function', code: '___BLANK___ calculate():<br>    return 5', answer: 'def' },
+        { type: 'mcq', question: 'Return a value?', options: ['return', 'give', 'send', 'output'], correct: 0 },
+        { type: 'fill', question: 'Call function', code: '___BLANK___()', answer: 'greet' },
+        { type: 'mcq', question: 'Function with parameters?', options: ['def func():', 'def func(x):', 'def func[]:', 'def func<x>:'], correct: 1 },
+        { type: 'fill', question: 'Default parameter', code: 'def greet(name___BLANK___"Guest"):', answer: '=' }
+    ]
+},
+course10: {
+    learn: [
+        { bot: 'Conditionals control program flow! 🔀 Make decisions in code.' },
+        { bot: 'The <span class="keyword-highlight">if</span> statement:<br><div class="code-example"><code>age = 18<br>if age >= 18:<br>    print("You can vote!")</code></div>' },
+        { bot: '<span class="keyword-highlight">else</span> handles the alternative:<br><div class="code-example"><code>if age >= 18:<br>    print("Adult")<br>else:<br>    print("Minor")</code></div>' },
+        { bot: '<span class="keyword-highlight">elif</span> for multiple conditions:<br><div class="code-example"><code>score = 85<br>if score >= 90:<br>    print("A")<br>elif score >= 80:<br>    print("B")<br>else:<br>    print("C")</code></div>' },
+        { bot: 'Comparison operators:<br>- == (equal)<br>- != (not equal)<br>- > (greater)<br>- < (less)<br>- >= (greater or equal)<br>- <= (less or equal)' },
+        { bot: 'Logical operators combine conditions:<br><div class="code-example"><code>age = 20<br>has_license = True<br>if age >= 18 and has_license:<br>    print("Can drive!")</code></div>' },
+        { bot: 'Use <span class="keyword-highlight">or</span> for either condition:<br><div class="code-example"><code>if age < 5 or age > 65:<br>    print("Discount applies")</code></div>' },
+        { bot: '✅ Conditionals make programs smart!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Start condition', code: '___BLANK___ x > 10:<br>    print("Big")', answer: 'if' },
+        { type: 'mcq', question: 'Check if equal?', options: ['=', '==', '===', 'equals'], correct: 1 },
+        { type: 'fill', question: 'Alternative path', code: 'if x > 5:<br>    print("Yes")<br>___BLANK___:<br>    print("No")', answer: 'else' },
+        { type: 'mcq', question: 'Multiple conditions?', options: ['elif', 'elseif', 'else if', 'if else'], correct: 0 },
+        { type: 'fill', question: 'Both conditions true', code: 'if age > 18 ___BLANK___ has_id:', answer: 'and' }
+    ]
+  }
+},
 
     javascript: {
         course1: {
@@ -9379,8 +9772,65 @@ const lessonContent = {
                 { type: 'mcq', question: 'Catch async errors?', options: ['error', 'catch', 'fail', 'exception'], correct: 1 },
                 { type: 'fill', question: 'Fetch from API', code: 'const res = await ___BLANK___("url")', answer: 'fetch' }
             ]
-        }
-    },
+        },
+        course8: {
+    learn: [
+        { bot: 'ES6 brought modern JavaScript features! ✨ Let\'s explore them.' },
+        { bot: '<span class="keyword-highlight">Destructuring</span> extracts values:<br><div class="code-example"><code>const person = { name: "Alice", age: 25 };<br>const { name, age } = person;<br>console.log(name);  // Alice</code></div>' },
+        { bot: 'Array destructuring:<br><div class="code-example"><code>const colors = ["red", "green", "blue"];<br>const [first, second] = colors;<br>console.log(first);  // red</code></div>' },
+        { bot: '<span class="keyword-highlight">Spread operator ...</span> expands arrays:<br><div class="code-example"><code>const arr1 = [1, 2, 3];<br>const arr2 = [4, 5, 6];<br>const combined = [...arr1, ...arr2];<br>// [1, 2, 3, 4, 5, 6]</code></div>' },
+        { bot: 'Spread with objects:<br><div class="code-example"><code>const user = { name: "Bob" };<br>const fullUser = { ...user, age: 30 };<br>// { name: "Bob", age: 30 }</code></div>' },
+        { bot: '<span class="keyword-highlight">Default parameters</span>:<br><div class="code-example"><code>function greet(name = "Guest") {<br>  console.log(`Hello ${name}`);<br>}<br>greet();  // Hello Guest</code></div>' },
+        { bot: '<span class="keyword-highlight">Rest parameters ...</span> collect arguments:<br><div class="code-example"><code>function sum(...numbers) {<br>  return numbers.reduce((a, b) => a + b);<br>}<br>sum(1, 2, 3, 4);  // 10</code></div>' },
+        { bot: '✅ ES6 makes code cleaner!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Destructure object', code: 'const ___BLANK___ name } = person;', answer: '{' },
+        { type: 'mcq', question: 'Spread operator?', options: ['...', '***', '..', '::'], correct: 0 },
+        { type: 'fill', question: 'Default parameter', code: 'function greet(name ___BLANK___ "Guest") {}', answer: '=' },
+        { type: 'mcq', question: 'Collect remaining arguments?', options: ['...args', 'args[]', '*args', 'args...'], correct: 0 },
+        { type: 'fill', question: 'Array destructuring', code: 'const ___BLANK___a, b] = [1, 2];', answer: '[' }
+    ]
+},
+course9: {
+    learn: [
+        { bot: 'Error handling prevents crashes! 🐛 Handle problems gracefully.' },
+        { bot: '<span class="keyword-highlight">try/catch</span> catches errors:<br><div class="code-example"><code>try {<br>  const data = JSON.parse(invalidJSON);<br>} catch (error) {<br>  console.log("Error:", error.message);<br>}</code></div>' },
+        { bot: 'Without try/catch, errors crash your program!' },
+        { bot: '<span class="keyword-highlight">finally</span> always runs:<br><div class="code-example"><code>try {<br>  riskyOperation();<br>} catch (error) {<br>  console.log("Failed");<br>} finally {<br>  console.log("Cleanup");<br>}</code></div>' },
+        { bot: 'Throw custom errors:<br><div class="code-example"><code>function divide(a, b) {<br>  if (b === 0) {<br>    throw new Error("Cannot divide by zero");<br>  }<br>  return a / b;<br>}</code></div>' },
+        { bot: 'Error object properties:<br><div class="code-example"><code>catch (error) {<br>  console.log(error.name);     // Error type<br>  console.log(error.message);  // Description<br>  console.log(error.stack);    // Stack trace<br>}</code></div>' },
+        { bot: 'Handle async errors:<br><div class="code-example"><code>async function getData() {<br>  try {<br>    const res = await fetch(url);<br>    const data = await res.json();<br>  } catch (error) {<br>    console.log("Fetch failed:", error);<br>  }<br>}</code></div>' },
+        { bot: '✅ Good error handling = reliable code!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Start error handling', code: '___BLANK___ {<br>  riskyCode();<br>}', answer: 'try' },
+        { type: 'mcq', question: 'Catch errors?', options: ['error', 'catch', 'handle', 'except'], correct: 1 },
+        { type: 'fill', question: 'Always runs cleanup', code: '___BLANK___ {<br>  cleanup();<br>}', answer: 'finally' },
+        { type: 'mcq', question: 'Throw custom error?', options: ['error new', 'throw new Error()', 'raise error', 'throw error()'], correct: 1 },
+        { type: 'fill', question: 'Catch block parameter', code: 'catch (___BLANK___) {<br>  console.log(error);<br>}', answer: 'error' }
+    ]
+},
+course10: {
+    learn: [
+        { bot: 'Modules organize code! 📦 Split into reusable files.' },
+        { bot: '<span class="keyword-highlight">export</span> makes code available:<br><div class="code-example"><code>// math.js<br>export function add(a, b) {<br>  return a + b;<br>}</code></div>' },
+        { bot: '<span class="keyword-highlight">import</span> uses exported code:<br><div class="code-example"><code>// main.js<br>import { add } from "./math.js";<br>console.log(add(5, 3));</code></div>' },
+        { bot: 'Default exports:<br><div class="code-example"><code>// utils.js<br>export default function greet() {<br>  return "Hello!";<br>}</code></div>' },
+        { bot: 'Import default exports:<br><div class="code-example"><code>import greet from "./utils.js";<br>console.log(greet());</code></div>' },
+        { bot: 'Import everything with *:<br><div class="code-example"><code>import * as math from "./math.js";<br>math.add(1, 2);</code></div>' },
+        { bot: 'Rename imports:<br><div class="code-example"><code>import { add as sum } from "./math.js";<br>console.log(sum(3, 4));</code></div>' },
+        { bot: '✅ Modules keep code organized!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Make function available', code: '___BLANK___ function test() {}', answer: 'export' },
+        { type: 'mcq', question: 'Use exported code?', options: ['require', 'import', 'include', 'use'], correct: 1 },
+        { type: 'fill', question: 'Default export', code: 'export ___BLANK___ function main() {}', answer: 'default' },
+        { type: 'mcq', question: 'Import all exports?', options: ['import all', 'import *', 'import everything', 'import {}'], correct: 1 },
+        { type: 'fill', question: 'Import specific function', code: 'import ___BLANK___ add } from "./math.js"', answer: '{' }
+    ]
+  }
+},
 
     html: {
         course1: {
@@ -9519,8 +9969,66 @@ const lessonContent = {
                 { type: 'mcq', question: 'Create header cell?', options: ['<th>', '<header>', '<td>', '<head>'], correct: 0 },
                 { type: 'fill', question: 'Span columns', code: '&lt;td ___BLANK___="2"&gt;', answer: 'colspan' }
             ]
-        }
-    },
+        },
+        course8: {
+    learn: [
+        { bot: 'Semantic HTML gives meaning to content! 🏗️ Better than generic divs.' },
+        { bot: '<span class="keyword-highlight">&lt;header&gt;</span> for top section:<br><div class="code-example"><code>&lt;header&gt;<br>  &lt;h1&gt;My Website&lt;/h1&gt;<br>  &lt;nav&gt;Navigation&lt;/nav&gt;<br>&lt;/header&gt;</code></div>' },
+        { bot: '<span class="keyword-highlight">&lt;nav&gt;</span> for navigation:<br><div class="code-example"><code>&lt;nav&gt;<br>  &lt;a href="/"&gt;Home&lt;/a&gt;<br>  &lt;a href="/about"&gt;About&lt;/a&gt;<br>&lt;/nav&gt;</code></div>' },
+        { bot: '<span class="keyword-highlight">&lt;main&gt;</span> for main content:<br><div class="code-example"><code>&lt;main&gt;<br>  &lt;article&gt;Main content here&lt;/article&gt;<br>&lt;/main&gt;</code></div>' },
+        { bot: '<span class="keyword-highlight">&lt;article&gt;</span> for independent content:<br><div class="code-example"><code>&lt;article&gt;<br>  &lt;h2&gt;Blog Post Title&lt;/h2&gt;<br>  &lt;p&gt;Content...&lt;/p&gt;<br>&lt;/article&gt;</code></div>' },
+        { bot: '<span class="keyword-highlight">&lt;section&gt;</span> groups related content:<br><div class="code-example"><code>&lt;section&gt;<br>  &lt;h2&gt;Services&lt;/h2&gt;<br>  &lt;p&gt;Our services...&lt;/p&gt;<br>&lt;/section&gt;</code></div>' },
+        { bot: '<span class="keyword-highlight">&lt;footer&gt;</span> for bottom section:<br><div class="code-example"><code>&lt;footer&gt;<br>  &lt;p&gt;&copy; 2024 Company&lt;/p&gt;<br>&lt;/footer&gt;</code></div>' },
+        { bot: '✅ Semantic HTML improves accessibility and SEO!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Create header', code: '&lt;___BLANK___&gt;<br>  &lt;h1&gt;Title&lt;/h1&gt;<br>&lt;/header&gt;', answer: 'header' },
+        { type: 'mcq', question: 'Navigation element?', options: ['<navigation>', '<nav>', '<menu>', '<links>'], correct: 1 },
+        { type: 'fill', question: 'Main content area', code: '&lt;___BLANK___&gt;Content&lt;/main&gt;', answer: 'main' },
+        { type: 'mcq', question: 'Independent content?', options: ['<content>', '<article>', '<post>', '<item>'], correct: 1 },
+        { type: 'fill', question: 'Page footer', code: '&lt;___BLANK___&gt;<br>  Copyright<br>&lt;/footer&gt;', answer: 'footer' }
+    ]
+},
+course9: {
+    learn: [
+        { bot: 'Meta tags control how pages appear! 🔍 Essential for SEO.' },
+        { bot: '<span class="keyword-highlight">Charset</span> sets character encoding:<br><div class="code-example"><code>&lt;meta charset="UTF-8"&gt;</code></div>' },
+        { bot: 'Always include this in your <code>&lt;head&gt;</code>!' },
+        { bot: '<span class="keyword-highlight">Viewport</span> for mobile:<br><div class="code-example"><code>&lt;meta name="viewport" <br>  content="width=device-width, initial-scale=1.0"&gt;</code></div>' },
+        { bot: '<span class="keyword-highlight">Description</span> for search engines:<br><div class="code-example"><code>&lt;meta name="description" <br>  content="Learn web development online"&gt;</code></div>' },
+        { bot: 'Shows in search results - keep under 160 characters!' },
+        { bot: '<span class="keyword-highlight">Keywords</span> (less important now):<br><div class="code-example"><code>&lt;meta name="keywords" <br>  content="html, css, javascript"&gt;</code></div>' },
+        { bot: 'Open Graph for social media:<br><div class="code-example"><code>&lt;meta property="og:title" content="Page Title"&gt;<br>&lt;meta property="og:image" content="image.jpg"&gt;</code></div>' },
+        { bot: '✅ Meta tags boost discoverability!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Set character encoding', code: '&lt;meta ___BLANK___="UTF-8"&gt;', answer: 'charset' },
+        { type: 'mcq', question: 'Mobile-friendly meta?', options: ['mobile', 'viewport', 'responsive', 'device'], correct: 1 },
+        { type: 'fill', question: 'Page description', code: '&lt;meta ___BLANK___="description" content="Text"&gt;', answer: 'name' },
+        { type: 'mcq', question: 'Description character limit?', options: ['100', '160', '200', '300'], correct: 1 },
+        { type: 'fill', question: 'Open Graph meta', code: '&lt;meta ___BLANK___="og:title" content="Title"&gt;', answer: 'property' }
+    ]
+},
+course10: {
+    learn: [
+        { bot: 'Accessibility makes web for everyone! ♿ Important for all users.' },
+        { bot: '<span class="keyword-highlight">alt</span> text describes images:<br><div class="code-example"><code>&lt;img src="cat.jpg" alt="Orange cat sleeping"&gt;</code></div>' },
+        { bot: '<span class="keyword-highlight">aria-label</span> adds descriptions:<br><div class="code-example"><code>&lt;button aria-label="Close menu"&gt;×&lt;/button&gt;</code></div>' },
+        { bot: 'Use semantic HTML for screen readers:<br><div class="code-example"><code>&lt;nav&gt;Navigation&lt;/nav&gt;<br>&lt;main&gt;Main content&lt;/main&gt;<br>&lt;footer&gt;Footer&lt;/footer&gt;</code></div>' },
+        { bot: '<span class="keyword-highlight">Labels</span> connect to inputs:<br><div class="code-example"><code>&lt;label for="email"&gt;Email:&lt;/label&gt;<br>&lt;input type="email" id="email"&gt;</code></div>' },
+        { bot: 'Add <span class="keyword-highlight">tabindex</span> for keyboard:<br><div class="code-example"><code>&lt;div tabindex="0"&gt;Focusable&lt;/div&gt;</code></div>' },
+        { bot: 'Use <span class="keyword-highlight">role</span> for custom elements:<br><div class="code-example"><code>&lt;div role="button"&gt;Click me&lt;/div&gt;</code></div>' },
+        { bot: '✅ Accessible web helps everyone!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Describe image', code: '&lt;img src="pic.jpg" ___BLANK___="Description"&gt;', answer: 'alt' },
+        { type: 'mcq', question: 'Label for input?', options: ['<label>', '<input-label>', '<for>', '<description>'], correct: 0 },
+        { type: 'fill', question: 'Add description', code: '&lt;button ___BLANK___-label="Close"&gt;×&lt;/button&gt;', answer: 'aria' },
+        { type: 'mcq', question: 'Semantic main content?', options: ['<div>', '<main>', '<content>', '<body>'], correct: 1 },
+        { type: 'fill', question: 'Make focusable', code: '&lt;div ___BLANK___="0"&gt;Focus&lt;/div&gt;', answer: 'tabindex' }
+    ]
+  }
+},
 
     css: {
         course1: {
@@ -9656,8 +10164,65 @@ const lessonContent = {
                 { type: 'mcq', question: 'Rotate element?', options: ['transform: rotate()', 'rotate()', 'animation: rotate()', 'turn()'], correct: 0 },
                 { type: 'fill', question: 'Scale to 2x', code: 'transform: ___BLANK___(2);', answer: 'scale' }
             ]
-        }
-    },
+        },
+        course8: {
+    learn: [
+        { bot: 'CSS Variables (Custom Properties)! 🎛️ Reusable values.' },
+        { bot: 'Define variables in <span class="keyword-highlight">:root</span>:<br><div class="code-example"><code>:root {<br>  --primary-color: #3498db;<br>  --spacing: 20px;<br>  --font-size: 16px;<br>}</code></div>' },
+        { bot: 'Use with <span class="keyword-highlight">var()</span>:<br><div class="code-example"><code>.button {<br>  background: var(--primary-color);<br>  padding: var(--spacing);<br>}</code></div>' },
+        { bot: 'Fallback values:<br><div class="code-example"><code>color: var(--text-color, black);</code></div>' },
+        { bot: 'Change variables with JavaScript:<br><div class="code-example"><code>document.documentElement.style<br>  .setProperty(\'--primary-color\', \'red\');</code></div>' },
+        { bot: 'Scope variables locally:<br><div class="code-example"><code>.card {<br>  --card-padding: 15px;<br>  padding: var(--card-padding);<br>}</code></div>' },
+        { bot: 'Great for themes:<br><div class="code-example"><code>:root {<br>  --bg: white;<br>  --text: black;<br>}<br>.dark-theme {<br>  --bg: black;<br>  --text: white;<br>}</code></div>' },
+        { bot: '✅ Variables make CSS maintainable!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Define CSS variable', code: ':root {<br>  ___BLANK___-color: blue;<br>}', answer: '--' },
+        { type: 'mcq', question: 'Use CSS variable?', options: ['var(--name)', 'variable(name)', '$(name)', '@name'], correct: 0 },
+        { type: 'fill', question: 'Use variable', code: 'color: ___BLANK___(--primary);', answer: 'var' },
+        { type: 'mcq', question: 'Variable with fallback?', options: ['var(--col, red)', 'var(--col || red)', 'var(--col : red)', 'var(--col -> red)'], correct: 0 },
+        { type: 'fill', question: 'Define in root', code: '___BLANK___ {<br>  --size: 20px;<br>}', answer: ':root' }
+    ]
+},
+course9: {
+    learn: [
+        { bot: 'Pseudo-classes style element states! 🎭 Dynamic styling.' },
+        { bot: '<span class="keyword-highlight">:hover</span> on mouse over:<br><div class="code-example"><code>button:hover {<br>  background: blue;<br>  transform: scale(1.1);<br>}</code></div>' },
+        { bot: '<span class="keyword-highlight">:active</span> while clicking:<br><div class="code-example"><code>button:active {<br>  transform: scale(0.95);<br>}</code></div>' },
+        { bot: '<span class="keyword-highlight">:focus</span> when focused:<br><div class="code-example"><code>input:focus {<br>  outline: 2px solid blue;<br>  border-color: blue;<br>}</code></div>' },
+        { bot: '<span class="keyword-highlight">:nth-child()</span> selects by position:<br><div class="code-example"><code>li:nth-child(odd) {<br>  background: lightgray;<br>}<br>li:nth-child(3) {<br>  color: red;  /* 3rd item */<br>}</code></div>' },
+        { bot: '<span class="keyword-highlight">:first-child</span> and <span class="keyword-highlight">:last-child</span>:<br><div class="code-example"><code>p:first-child {<br>  font-weight: bold;<br>}<br>p:last-child {<br>  margin-bottom: 0;<br>}</code></div>' },
+        { bot: '<span class="keyword-highlight">:not()</span> excludes elements:<br><div class="code-example"><code>button:not(.primary) {<br>  background: gray;<br>}</code></div>' },
+        { bot: '✅ Pseudo-classes add interactivity!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Style on hover', code: 'a___BLANK___ {<br>  color: red;<br>}', answer: ':hover' },
+        { type: 'mcq', question: 'Style first element?', options: [':first', ':first-child', ':nth(1)', ':child(1)'], correct: 1 },
+        { type: 'fill', question: 'Style odd children', code: 'li:nth-child(___BLANK___) {}', answer: 'odd' },
+        { type: 'mcq', question: 'Exclude elements?', options: [':except()', ':not()', ':exclude()', ':without()'], correct: 1 },
+        { type: 'fill', question: 'Style when focused', code: 'input___BLANK___ {<br>  border: blue;<br>}', answer: ':focus' }
+    ]
+},
+course10: {
+    learn: [
+        { bot: 'Advanced CSS Grid! 🎨 Complex layouts made easy.' },
+        { bot: '<span class="keyword-highlight">Grid template areas</span> name sections:<br><div class="code-example"><code>.container {<br>  display: grid;<br>  grid-template-areas:<br>    "header header"<br>    "sidebar content"<br>    "footer footer";<br>}</code></div>' },
+        { bot: 'Assign elements to areas:<br><div class="code-example"><code>.header { grid-area: header; }<br>.sidebar { grid-area: sidebar; }<br>.content { grid-area: content; }</code></div>' },
+        { bot: '<span class="keyword-highlight">repeat()</span> for columns:<br><div class="code-example"><code>grid-template-columns: repeat(3, 1fr);</code></div>' },
+        { bot: '<span class="keyword-highlight">minmax()</span> sets size range:<br><div class="code-example"><code>grid-template-columns: repeat(3, minmax(200px, 1fr));</code></div>' },
+        { bot: 'Auto-fit and auto-fill:<br><div class="code-example"><code>grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));</code></div>' },
+        { bot: 'Grid gap spacing:<br><div class="code-example"><code>gap: 20px;<br>row-gap: 10px;<br>column-gap: 15px;</code></div>' },
+        { bot: '✅ Grid makes complex layouts simple!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Name grid areas', code: '.container {<br>  grid-template-___BLANK___: "header";<br>}', answer: 'areas' },
+        { type: 'mcq', question: 'Assign to area?', options: ['grid-area', 'area', 'grid-assign', 'template-area'], correct: 0 },
+        { type: 'fill', question: 'Repeat columns', code: 'grid-template-columns: ___BLANK___(3, 1fr);', answer: 'repeat' },
+        { type: 'mcq', question: 'Flexible size range?', options: ['range()', 'minmax()', 'flex()', 'size()'], correct: 1 },
+        { type: 'fill', question: 'Set spacing', code: '___BLANK___: 20px;', answer: 'gap' }
+    ]
+  }
+},
 
     react: {
         course1: {
@@ -9795,8 +10360,64 @@ const lessonContent = {
                 { type: 'mcq', question: 'What does cleanup function do?', options: ['Deletes component', 'Runs before unmount', 'Cleans state', 'Resets props'], correct: 1 },
                 { type: 'fill', question: 'Complete useEffect syntax', code: '___BLANK___(() => {});', answer: 'useEffect' }
             ]
-        }
-    }
+        },
+        course8: {
+    learn: [
+        { bot: 'Custom Hooks reuse logic! 🔧 Keep code DRY.' },
+        { bot: 'Custom hooks are functions starting with "use":<br><div class="code-example"><code>function useCounter(initialValue = 0) {<br>  const [count, setCount] = useState(initialValue);<br>  <br>  const increment = () => setCount(count + 1);<br>  const decrement = () => setCount(count - 1);<br>  <br>  return { count, increment, decrement };<br>}</code></div>' },
+        { bot: 'Use your custom hook:<br><div class="code-example"><code>function Counter() {<br>  const { count, increment, decrement } = useCounter(0);<br>  <br>  return (<br>    &lt;div&gt;<br>      &lt;p&gt;Count: {count}&lt;/p&gt;<br>      &lt;button onClick={increment}&gt;+&lt;/button&gt;<br>      &lt;button onClick={decrement}&gt;-&lt;/button&gt;<br>    &lt;/div&gt;<br>  );<br>}</code></div>' },
+        { bot: 'Custom hooks can use other hooks!' },
+        { bot: '<span class="keyword-highlight">useLocalStorage</span> example:<br><div class="code-example"><code>function useLocalStorage(key, initialValue) {<br>  const [value, setValue] = useState(() => {<br>    const item = localStorage.getItem(key);<br>    return item ? JSON.parse(item) : initialValue;<br>  });<br>  <br>  useEffect(() => {<br>    localStorage.setItem(key, JSON.stringify(value));<br>  }, [key, value]);<br>  <br>  return [value, setValue];<br>}</code></div>' },
+        { bot: 'Benefits of custom hooks:<br>- Reuse logic across components<br>- Keep components simple<br>- Easier testing<br>- Better organization' },
+        { bot: '✅ Custom hooks = cleaner code!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Custom hook name', code: 'function ___BLANK___Counter() {}', answer: 'use' },
+        { type: 'mcq', question: 'Can custom hooks use useState?', options: ['No', 'Yes', 'Sometimes', 'Only once'], correct: 1 },
+        { type: 'fill', question: 'Return from custom hook', code: '___BLANK___ { count, increment };', answer: 'return' },
+        { type: 'mcq', question: 'Custom hooks must start with?', options: ['hook', 'use', 'custom', 'my'], correct: 1 },
+        { type: 'fill', question: 'Use custom hook', code: 'const { count } = ___BLANK___();', answer: 'useCounter' }
+    ]
+},
+course9: {
+    learn: [
+        { bot: 'Context API manages global state! 🌍 No prop drilling.' },
+        { bot: 'Create context:<br><div class="code-example"><code>import { createContext } from "react";<br><br>const ThemeContext = createContext();</code></div>' },
+        { bot: 'Provide context value:<br><div class="code-example"><code>function App() {<br>  const [theme, setTheme] = useState("light");<br>  <br>  return (<br>    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;<br>      &lt;Child /&gt;<br>    &lt;/ThemeContext.Provider&gt;<br>  );<br>}</code></div>' },
+        { bot: 'Consume with <span class="keyword-highlight">useContext</span>:<br><div class="code-example"><code>import { useContext } from "react";<br><br>function Child() {<br>  const { theme, setTheme } = useContext(ThemeContext);<br>  <br>  return (<br>    &lt;button onClick={() => setTheme("dark")}&gt;<br>      Current: {theme}<br>    &lt;/button&gt;<br>  );<br>}</code></div>' },
+        { bot: 'No need to pass props through every level!' },
+        { bot: 'Multiple contexts:<br><div class="code-example"><code>&lt;UserContext.Provider value={user}&gt;<br>  &lt;ThemeContext.Provider value={theme}&gt;<br>    &lt;App /&gt;<br>  &lt;/ThemeContext.Provider&gt;<br>&lt;/UserContext.Provider&gt;</code></div>' },
+        { bot: 'Common use cases:<br>- Theme switching<br>- User authentication<br>- Language/localization<br>- Shopping cart' },
+        { bot: '✅ Context = no prop drilling!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Create context', code: 'const ThemeContext = ___BLANK___();', answer: 'createContext' },
+        { type: 'mcq', question: 'Consume context?', options: ['getContext', 'useContext', 'readContext', 'contextValue'], correct: 1 },
+        { type: 'fill', question: 'Provide context', code: '&lt;ThemeContext.___BLANK___ value={theme}&gt;', answer: 'Provider' },
+        { type: 'mcq', question: 'Import createContext from?', options: ['context', 'react', 'react-context', 'hooks'], correct: 1 },
+        { type: 'fill', question: 'Use context hook', code: 'const theme = ___BLANK___(ThemeContext);', answer: 'useContext' }
+    ]
+},
+course10: {
+    learn: [
+        { bot: 'React Router enables navigation! 🧭 Multiple pages in single-page apps.' },
+        { bot: 'Install React Router:<br><div class="code-example"><code>npm install react-router-dom</code></div>' },
+        { bot: 'Setup <span class="keyword-highlight">BrowserRouter</span>:<br><div class="code-example"><code>import { BrowserRouter, Routes, Route } from "react-router-dom";<br><br>function App() {<br>  return (<br>    &lt;BrowserRouter&gt;<br>      &lt;Routes&gt;<br>        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;<br>      &lt;/Routes&gt;<br>    &lt;/BrowserRouter&gt;<br>  );<br>}</code></div>' },
+        { bot: '<span class="keyword-highlight">Link</span> component for navigation:<br><div class="code-example"><code>import { Link } from "react-router-dom";<br><br>&lt;Link to="/about"&gt;About&lt;/Link&gt;</code></div>' },
+        { bot: 'Dynamic routes with parameters:<br><div class="code-example"><code>&lt;Route path="/user/:id" element={&lt;User /&gt;} /&gt;</code></div>' },
+        { bot: 'Access route params:<br><div class="code-example"><code>import { useParams } from "react-router-dom";<br><br>function User() {<br>  const { id } = useParams();<br>  return &lt;h1&gt;User {id}&lt;/h1&gt;;<br>}</code></div>' },
+        { bot: 'Programmatic navigation:<br><div class="code-example"><code>import { useNavigate } from "react-router-dom";<br><br>const navigate = useNavigate();<br>navigate("/home");</code></div>' },
+        { bot: '✅ Routing creates multi-page feel!' }
+    ],
+    exercises: [
+        { type: 'fill', question: 'Setup router', code: '&lt;___BLANK___&gt;<br>  &lt;Routes /&gt;<br>&lt;/BrowserRouter&gt;', answer: 'BrowserRouter' },
+        { type: 'mcq', question: 'Navigate between pages?', options: ['<a>', '<Link>', '<Nav>', '<Navigate>'], correct: 1 },
+        { type: 'fill', question: 'Define route', code: '&lt;___BLANK___ path="/" element={&lt;Home /&gt;} /&gt;', answer: 'Route' },
+        { type: 'mcq', question: 'Get route parameters?', options: ['useParams', 'useRoute', 'getParams', 'useURL'], correct: 0 },
+        { type: 'fill', question: 'Navigate programmatically', code: 'const navigate = ___BLANK___();', answer: 'useNavigate' }
+    ]
+  }
+}
 };
 
 let currentLesson = null;
@@ -10178,6 +10799,8 @@ function initializeApp() {
     
     // Check for updates - will show splash for new users after 0.3s
     checkForUpdates();
+
+    startGoalMonitoring();
 }
 
 function logout() {
@@ -10597,13 +11220,11 @@ function switchChart(type) {
 }
 
 function renderCourses() {
-    // Check if user has seen new courses
     const newCoursesSeenDate = localStorage.getItem('newCoursesSeen_' + currentUser);
     const now = new Date().getTime();
     const oneDayMs = 24 * 60 * 60 * 1000;
     const shouldShowNew = !newCoursesSeenDate || (now - parseInt(newCoursesSeenDate)) < oneDayMs;
     
-    // Mark that user has seen new courses (first time only)
     if (!newCoursesSeenDate) {
         localStorage.setItem('newCoursesSeen_' + currentUser, now.toString());
     }
@@ -10612,16 +11233,17 @@ function renderCourses() {
         const container = document.getElementById(lang + '-courses');
         container.innerHTML = '';
         
-        courses[lang].forEach((course, index) => {
+        // Active Courses Section - FILTER OUT COURSES 8-10
+        const availableCourses = courses[lang].filter(course => !course.isNew);
+        
+        availableCourses.forEach((course, index) => {
             const isLocked = index > 0 && !userProgress[lang]['course' + index]?.completed;
             const isCompleted = userProgress[lang][course.id]?.completed;
             const progress = userProgress[lang][course.id]?.progress || 0;
-            const isNew = course.isNew && shouldShowNew;
             
             const card = document.createElement('div');
             card.className = 'course-card' + (isLocked ? ' locked' : '');
             card.innerHTML = `
-                ${isNew ? '<div class="new-badge">✨ NEW</div>' : ''}
                 ${isLocked ? '<div class="lock-overlay">🔒 Complete previous</div>' : ''}
                 ${isCompleted ? '<div class="completed-badge">✓ Completed</div>' : ''}
                 <div class="course-header">
@@ -10653,27 +11275,218 @@ function renderCourses() {
             container.appendChild(card);
         });
     });
-}
-
-function showRetryModal(language, courseId, courseName) {
-    pendingLesson = { language, courseId, courseName };
-    document.getElementById('retryModal').classList.add('active');
-}
-
-function closeModal() {
-    document.getElementById('retryModal').classList.remove('active');
-    pendingLesson = null;
-}
-
-function retryLesson() {
-    if (!pendingLesson) return;
-    isRetryMode = true;
-    const { language, courseId, courseName } = pendingLesson;
-    closeModal();
     
-    setTimeout(() => {
-        openLesson(language, courseId, courseName);
-    }, 300);
+    // ADD COMING SOON SECTION AT THE END (AFTER ALL LANGUAGES)
+    createComingSoonSection();
+}
+        
+        function createComingSoonSection() {
+    // Check if already exists
+    const existingSection = document.getElementById('globalComingSoonSection');
+    if (existingSection) {
+        existingSection.remove();
+    }
+    
+    // Find the learn section to append to
+    const learnSection = document.getElementById('learn');
+    const languageContent = learnSection.querySelector('.language-content.active');
+    
+    if (!languageContent) return;
+    
+    // Create main container
+    const comingSoonContainer = document.createElement('div');
+    comingSoonContainer.id = 'globalComingSoonSection';
+    comingSoonContainer.style.cssText = `
+        margin-top: 40px;
+        background: rgba(30, 30, 30, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+    `;
+    
+    // Title Section
+    const titleSection = document.createElement('div');
+    titleSection.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    `;
+    
+    const title = document.createElement('h2');
+    title.style.cssText = `
+        color: #fff;
+        font-size: 1.8em;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    `;
+    title.innerHTML = '🚀 Coming Soon';
+    
+    const badge = document.createElement('span');
+    badge.style.cssText = `
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(100, 255, 218, 0.2));
+        border: 2px solid rgba(102, 126, 234, 0.5);
+        padding: 6px 16px;
+        border-radius: 50px;
+        color: #667eea;
+        font-weight: 700;
+        font-size: 0.5em;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    `;
+    badge.textContent = 'NEW COURSES';
+    title.appendChild(badge);
+    
+    titleSection.appendChild(title);
+    
+    // Language Tabs
+    const tabsContainer = document.createElement('div');
+    tabsContainer.style.cssText = `
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    `;
+    
+    const langIcons = {
+        python: '🐍',
+        javascript: '⚡',
+        html: '🌐',
+        css: '🎨',
+        react: '⚛️'
+    };
+    
+    Object.keys(courses).forEach((lang, index) => {
+        const tab = document.createElement('button');
+        tab.className = 'coming-soon-tab';
+        tab.dataset.lang = lang;
+        tab.style.cssText = `
+            padding: 10px 20px;
+            background: ${index === 0 ? 'rgba(102, 126, 234, 0.2)' : 'rgba(100, 255, 218, 0.05)'};
+            border: 2px solid ${index === 0 ? 'rgba(102, 126, 234, 0.5)' : 'rgba(100, 255, 218, 0.2)'};
+            border-radius: 50px;
+            color: ${index === 0 ? '#667eea' : '#64ffda'};
+            font-weight: 600;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        tab.innerHTML = `${langIcons[lang]} ${lang.toUpperCase()}`;
+        
+        tab.onmouseenter = function() {
+            if (!this.classList.contains('active')) {
+                this.style.background = 'rgba(102, 126, 234, 0.15)';
+                this.style.borderColor = 'rgba(102, 126, 234, 0.4)';
+                this.style.transform = 'translateY(-2px)';
+            }
+        };
+        
+        tab.onmouseleave = function() {
+            if (!this.classList.contains('active')) {
+                this.style.background = 'rgba(100, 255, 218, 0.05)';
+                this.style.borderColor = 'rgba(100, 255, 218, 0.2)';
+                this.style.transform = 'translateY(0)';
+            }
+        };
+        
+        tab.onclick = () => switchComingSoonTab(lang);
+        
+        if (index === 0) tab.classList.add('active');
+        
+        tabsContainer.appendChild(tab);
+    });
+    
+    titleSection.appendChild(tabsContainer);
+    comingSoonContainer.appendChild(titleSection);
+    
+    // Cards Container
+    const cardsContainer = document.createElement('div');
+    cardsContainer.id = 'comingSoonCards';
+    comingSoonContainer.appendChild(cardsContainer);
+    
+    // Append to the active language content
+    languageContent.appendChild(comingSoonContainer);
+    
+    // Show first language's coming soon courses
+    switchComingSoonTab('python');
+}
+
+function switchComingSoonTab(lang) {
+    // Update active tab
+    document.querySelectorAll('.coming-soon-tab').forEach(tab => {
+        const isActive = tab.dataset.lang === lang;
+        tab.classList.toggle('active', isActive);
+        tab.style.background = isActive ? 'rgba(102, 126, 234, 0.2)' : 'rgba(100, 255, 218, 0.05)';
+        tab.style.borderColor = isActive ? 'rgba(102, 126, 234, 0.5)' : 'rgba(100, 255, 218, 0.2)';
+        tab.style.color = isActive ? '#667eea' : '#64ffda';
+    });
+    
+    // Get coming soon courses (courses 8-10)
+    const comingSoonCourses = courses[lang].filter(course => course.isNew);
+    
+    // Update cards
+    const cardsContainer = document.getElementById('comingSoonCards');
+    cardsContainer.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        animation: fadeIn 0.4s ease;
+    `;
+    
+    cardsContainer.innerHTML = '';
+    
+    comingSoonCourses.forEach(course => {
+        const card = document.createElement('div');
+        card.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(100, 255, 218, 0.05);
+            border: 2px solid rgba(100, 255, 218, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: not-allowed;
+            opacity: 0.8;
+        `;
+        
+        card.onmouseenter = function() {
+            this.style.background = 'rgba(100, 255, 218, 0.08)';
+            this.style.borderColor = 'rgba(100, 255, 218, 0.25)';
+            this.style.transform = 'translateY(-3px)';
+            this.style.boxShadow = '0 8px 20px rgba(100, 255, 218, 0.2)';
+        };
+        
+        card.onmouseleave = function() {
+            this.style.background = 'rgba(100, 255, 218, 0.05)';
+            this.style.borderColor = 'rgba(100, 255, 218, 0.15)';
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        };
+        
+        card.innerHTML = `
+            <div style="font-size: 3em; opacity: 0.7; flex-shrink: 0; filter: grayscale(30%);">${course.icon}</div>
+            <div style="flex: 1;">
+                <div style="font-weight: 700; color: #fff; font-size: 1.15em; margin-bottom: 8px; opacity: 0.9;">${course.title}</div>
+                <div style="color: #8b949e; font-size: 0.95em; font-weight: 500; margin-bottom: 8px;">${course.desc}</div>
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(102, 126, 234, 0.15); padding: 4px 12px; border-radius: 20px; font-size: 0.85em; color: #667eea; font-weight: 600;">
+                    <span>🔜</span>
+                    <span>Coming Soon</span>
+                </div>
+            </div>
+        `;
+        
+        cardsContainer.appendChild(card);
+    });
 }
 
 function openLesson(language, courseId, courseName) {
@@ -10959,39 +11772,45 @@ function displayQuestions() {
         exerciseDiv.className = 'message';
         
         if (exercise.type === 'fill') {
-            const codeWithBlanks = exercise.code.replace(/___BLANK___/g, 
-                `<span class="code-blank-wrapper"><input type="text" class="code-blank" data-index="${index}" placeholder="____"></span>`);
-            
-            exerciseDiv.innerHTML = `
-                <div class="message-avatar">🤖</div>
-                <div class="message-bubble">
-                    <div class="exercise-box">
-                        <div class="exercise-title">✏️ ${exercise.question}</div>
-                        <div class="code-fill">${codeWithBlanks}</div>
-                        <button class="submit-button" onclick="checkFillAnswer(${index}, '${exercise.answer}')">Check</button>
-                        <div id="feedback-${index}"></div>
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+        // MOBILE: Show clickable options instead of input
+        const options = generateFillOptions(exercise.answer, exercise.code);
+        
+        exerciseDiv.innerHTML = `
+            <div class="message-avatar">🤖</div>
+            <div class="message-bubble">
+                <div class="exercise-box">
+                    <div class="exercise-title">✏️ ${exercise.question}</div>
+                    <div class="code-fill">${exercise.code.replace(/___BLANK___/g, '<span class="code-blank-placeholder">____</span>')}</div>
+                    <div class="fill-options">
+                        ${options.map((opt, i) => `
+                            <button class="fill-option-btn" onclick="selectFillOption(${index}, '${opt}', '${exercise.answer}')">${opt}</button>
+                        `).join('')}
                     </div>
+                    <div id="feedback-${index}"></div>
                 </div>
-            `;
-        } else if (exercise.type === 'mcq') {
-            let optionsHTML = exercise.options.map((opt, i) => 
-                `<div class="mcq-option" onclick="selectOption(this, ${index}, ${i})">${opt}</div>`
-            ).join('');
-            
-            exerciseDiv.innerHTML = `
-                <div class="message-avatar">🤖</div>
-                <div class="message-bubble">
-                    <div class="exercise-box">
-                        <div class="exercise-title">❓ ${exercise.question}</div>
-                        <div class="mcq-options" data-correct="${exercise.correct}" data-exercise="${index}">
-                            ${optionsHTML}
-                        </div>
-                        <button class="submit-button" onclick="checkMCQAnswer(${index})">Check</button>
-                        <div id="feedback-${index}"></div>
-                    </div>
+            </div>
+        `;
+    } else {
+        // DESKTOP: Keep original input
+        const codeWithBlanks = exercise.code.replace(/___BLANK___/g, 
+            `<span class="code-blank-wrapper"><input type="text" class="code-blank" data-index="${index}" placeholder="____"></span>`);
+        
+        exerciseDiv.innerHTML = `
+            <div class="message-avatar">🤖</div>
+            <div class="message-bubble">
+                <div class="exercise-box">
+                    <div class="exercise-title">✏️ ${exercise.question}</div>
+                    <div class="code-fill">${codeWithBlanks}</div>
+                    <button class="submit-button" onclick="checkFillAnswer(${index}, '${exercise.answer}')">Check</button>
+                    <div id="feedback-${index}"></div>
                 </div>
-            `;
-        }
+            </div>
+        `;
+    }
+}
         
         questionMessages.appendChild(exerciseDiv);
     });
@@ -11085,6 +11904,94 @@ function checkFillAnswer(exerciseIndex, correctAnswer) {
     }
 }
 
+// Generate fill options for mobile
+function generateFillOptions(correctAnswer, codeSnippet) {
+    const options = [correctAnswer];
+    
+    // Common wrong answers based on context
+    const commonWrong = {
+        'print': ['println', 'console', 'echo'],
+        'let': ['var', 'const', 'int'],
+        'const': ['let', 'var', 'final'],
+        'function': ['func', 'def', 'method'],
+        'return': ['returns', 'give', 'send'],
+        'type': ['typeof', 'typeOf', 'Type'],
+        'len': ['length', 'size', 'count'],
+        'append': ['add', 'push', 'insert'],
+        'upper': ['uppercase', 'toUpper', 'UP'],
+        'replace': ['substitute', 'change', 'swap'],
+        'for': ['while', 'foreach', 'loop'],
+        'import': ['include', 'require', 'use'],
+        'def': ['function', 'func', 'define'],
+        'if': ['when', 'check', 'test'],
+        'else': ['otherwise', 'or', 'elif'],
+        'while': ['for', 'loop', 'until'],
+        'break': ['stop', 'exit', 'end'],
+        'in': ['of', 'from', 'inside'],
+        'addEventListener': ['addListener', 'on', 'listen'],
+        'querySelector': ['getElement', 'select', 'find'],
+        'getElementById': ['querySelector', 'getElement', 'findById'],
+        'style': ['css', 'styling', 'styles'],
+        'async': ['await', 'promise', 'asynchronous'],
+        'await': ['async', 'wait', 'promise'],
+        'then': ['next', 'after', 'done'],
+        'catch': ['error', 'fail', 'exception']
+    };
+    
+    // Add wrong options
+    if (commonWrong[correctAnswer]) {
+        options.push(...commonWrong[correctAnswer].slice(0, 2));
+    } else {
+        // Generic wrong options
+        options.push(correctAnswer + 's', correctAnswer.toUpperCase(), correctAnswer + '()');
+    }
+    
+    // Shuffle options
+    return options.sort(() => Math.random() - 0.5).slice(0, 4);
+}
+
+// Handle mobile fill option selection
+function selectFillOption(exerciseIndex, selected, correctAnswer) {
+    const feedbackDiv = document.getElementById('feedback-' + exerciseIndex);
+    const optionsContainer = document.querySelector(`#feedback-${exerciseIndex}`).closest('.exercise-box').querySelector('.fill-options');
+    const buttons = optionsContainer.querySelectorAll('.fill-option-btn');
+    const placeholder = document.querySelector(`#feedback-${exerciseIndex}`).closest('.exercise-box').querySelector('.code-blank-placeholder');
+    
+    if (selected.toLowerCase() === correctAnswer.toLowerCase()) {
+        buttons.forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            if (btn.textContent === selected) {
+                btn.classList.add('correct-option');
+            }
+        });
+        
+        placeholder.textContent = selected;
+        placeholder.style.color = '#64ffda';
+        placeholder.style.fontWeight = '700';
+        
+        feedbackDiv.innerHTML = '<div class="feedback correct">✅ Correct!</div>';
+        correctAnswers++;
+        updateLessonProgress();
+        checkCompletion();
+    } else {
+        buttons.forEach(btn => {
+            if (btn.textContent === selected) {
+                btn.classList.add('incorrect-option');
+                setTimeout(() => {
+                    btn.classList.remove('incorrect-option');
+                }, 1000);
+            }
+        });
+        
+        feedbackDiv.innerHTML = '<div class="feedback incorrect">❌ Try again!</div>';
+        setTimeout(() => {
+            feedbackDiv.innerHTML = '';
+        }, 1500);
+    }
+}
+
 function checkCompletion() {
     // FIX: Support AI courses
     const content = currentLesson.isAI 
@@ -11109,6 +12016,20 @@ function checkCompletion() {
 }
 
 function completeLesson() {
+
+    trackCourseCompletion();
+
+    // ADD THIS BLOCK AT THE START
+    if (studyStartTime && !isRetryMode && !currentLesson.isAI) {
+        const sessionTime = Math.floor((Date.now() - studyStartTime) / 1000);
+        userProgress[currentLesson.language][currentLesson.courseId].time += sessionTime;
+        totalStudyTime += sessionTime;
+        
+        // Save immediately
+        localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
+        localStorage.setItem('studyTime_' + currentUser, totalStudyTime.toString());
+    }
+
     if (!isRetryMode) {
         userProgress[currentLesson.language][currentLesson.courseId].completed = true;
         userProgress[currentLesson.language][currentLesson.courseId].progress = 100;
@@ -11438,6 +12359,1573 @@ function showStreakCelebration(streakNumber) {
     }, 500);
 }
 
+// ============================================
+// ENHANCED DETAILED STATS WITH GLASSMORPHISM
+// ============================================
+
+// Inject Enhanced CSS with Glassmorphism
+function injectDetailedStatsCSS() {
+    if (document.getElementById('detailedStatsCSS')) {
+        document.getElementById('detailedStatsCSS').remove();
+    }
+    
+    const style = document.createElement('style');
+    style.id = 'detailedStatsCSS';
+    style.textContent = `
+        /* Hide roadmap navigation buttons in top left */
+        #roadmapNavContainer {
+            display: none !important;
+        }
+
+        .roadmap-scroll-top-btn {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 56px;
+    background: transparent;  /* Changed */
+    backdrop-filter: none;    /* Changed */
+    -webkit-backdrop-filter: none;  /* Changed */
+    border: 3px solid #64ffda;  /* Changed - solid green ring */
+            width: 56px;
+            height: 56px;
+            background: rgba(100, 255, 218, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(100, 255, 218, 0.4);
+            border-radius: 50%;
+            color: #64ffda;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 32px rgba(100, 255, 218, 0.2);
+        }
+
+        .roadmap-scroll-top-btn.show {
+            display: flex;
+            animation: bounceIn 0.6s ease;
+        }
+
+        .roadmap-scroll-top-btn:hover {
+    background: rgba(100, 255, 218, 0.25);
+    border-color: rgba(100, 255, 218, 0.6);
+    transform: translateX(-50%) translateY(-5px) scale(1.1);  /* KEEP centered */
+    box-shadow: 0 12px 40px rgba(100, 255, 218, 0.4);
+}
+
+        .roadmap-scroll-top-btn:active {
+    transform: translateX(-50%) translateY(-3px) scale(1.05);  /* KEEP centered */
+}
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(20px);
+            }
+            50% {
+                transform: scale(1.05) translateY(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Remove gap in overview */
+        .stats-grid {
+            margin-bottom: 0 !important;
+        }
+
+        /* Stats Buttons Container - Enhanced Glassmorphism */
+        .stats-buttons-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 0;
+            padding: 20px;
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .stats-buttons-container:hover {
+            border-color: rgba(100, 255, 218, 0.3);
+            box-shadow: 0 12px 40px rgba(100, 255, 218, 0.15);
+        }
+
+        /* Enhanced Stat Toggle Buttons */
+        .stat-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(100, 255, 218, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(100, 255, 218, 0.3);
+            border-radius: 50px;
+            color: #64ffda;
+            font-weight: 600;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(100, 255, 218, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .stat-toggle-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .stat-toggle-btn:hover {
+            background: rgba(100, 255, 218, 0.15);
+            border-color: rgba(100, 255, 218, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(100, 255, 218, 0.4);
+        }
+
+        .stat-toggle-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .stat-btn-icon {
+            font-size: 1.3em;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 2px 4px rgba(100, 255, 218, 0.3));
+        }
+
+        .stat-toggle-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced Back Button */
+        .stats-back-btn {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(100, 255, 218, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(100, 255, 218, 0.5);
+            border-radius: 50px;
+            color: #64ffda;
+            font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-bottom: 20px;
+            width: fit-content;
+            box-shadow: 0 4px 16px rgba(100, 255, 218, 0.2);
+        }
+
+        .stats-back-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: rgba(100, 255, 218, 0.7);
+            transform: translateX(-5px) scale(1.05);
+            box-shadow: 0 8px 24px rgba(100, 255, 218, 0.4);
+        }
+
+        .stats-back-btn:active {
+            transform: translateX(-3px) scale(1.02);
+        }
+
+        .stats-back-btn.show {
+            display: flex;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Detail Views Container */
+        #statDetailViews {
+            position: relative;
+            width: 100%;
+            min-height: 200px;
+        }
+
+        /* Enhanced Detail View with Glassmorphism */
+        .stat-detail-view {
+            display: none;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-detail-view.active {
+            display: block;
+            animation: slideUpFade 0.6s ease forwards;
+        }
+
+        @keyframes slideUpFade {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            50% {
+                transform: translateY(-5px) scale(1.02);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Enhanced Detail Header */
+        .stat-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(100, 255, 218, 0.3);
+            position: relative;
+        }
+
+        .stat-detail-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, #64ffda, transparent);
+            animation: expandLine 0.8s ease;
+        }
+
+        @keyframes expandLine {
+            from { width: 0; }
+            to { width: 100px; }
+        }
+
+        .stat-detail-icon {
+            font-size: 2.8em;
+            filter: drop-shadow(0 4px 12px rgba(100, 255, 218, 0.5));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .stat-detail-title {
+            font-size: 2em;
+            color: #fff;
+            font-weight: 700;
+            background: linear-gradient(135deg, #64ffda 0%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(100, 255, 218, 0.3);
+        }
+
+        .stat-detail-content {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Enhanced Item Styles with Glassmorphism */
+        .language-item, .time-item, .metric-row, .activity-item {
+            background: rgba(100, 255, 218, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 255, 218, 0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .language-item:hover, .time-item:hover, .metric-row:hover, .activity-item:hover {
+            background: rgba(100, 255, 218, 0.12);
+            border-color: rgba(100, 255, 218, 0.4);
+            box-shadow: 0 8px 24px rgba(100, 255, 218, 0.2);
+        }
+
+        /* Language Items */
+        .language-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-radius: 16px;
+            cursor: pointer;
+        }
+
+        .language-item:hover {
+            transform: translateX(5px);
+        }
+
+        .language-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .language-icon {
+            font-size: 2em;
+            filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
+        }
+
+        .language-name {
+            font-weight: 700;
+            color: #fff;
+            font-size: 1.1em;
+        }
+
+        .language-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .language-progress {
+            font-size: 1.4em;
+            color: #64ffda;
+            font-weight: 800;
+            text-shadow: 0 0 15px rgba(100, 255, 218, 0.6);
+        }
+
+        .language-courses {
+            font-size: 0.9em;
+            color: #8b949e;
+            font-weight: 600;
+        }
+
+        /* Time Items */
+        .time-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-radius: 14px;
+            border-left: 4px solid #64ffda;
+        }
+
+        .time-item:hover {
+            transform: translateX(5px);
+            border-left-width: 6px;
+        }
+
+        .time-label {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        .time-value {
+            color: #64ffda;
+            font-weight: 800;
+            font-size: 1.3em;
+            text-shadow: 0 0 12px rgba(100, 255, 218, 0.6);
+        }
+
+        /* Performance Metrics */
+        .metric-row {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 16px 20px;
+            border-radius: 16px;
+        }
+
+        .metric-row:hover {
+             transform: scale(1.01);
+        }
+
+        .metric-icon {
+            font-size: 2.2em;
+            filter: drop-shadow(0 2px 10px rgba(100, 255, 218, 0.5));
+        }
+
+        .metric-info {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-label {
+            color: #8b949e;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .metric-value {
+            color: #64ffda;
+            font-weight: 800;
+            font-size: 1.4em;
+            text-shadow: 0 0 12px rgba(100, 255, 218, 0.6);
+        }
+
+        /* Activity Items */
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border-left: 4px solid #64ffda;
+        }
+
+        .activity-item:hover {
+            transform: translateX(5px);
+        }
+
+        .activity-icon {
+            font-size: 2em;
+            filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .activity-date {
+            color: #8b949e;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        /* Enhanced Scrollbar */
+        .stat-detail-content {
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+
+        .stat-detail-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .stat-detail-content::-webkit-scrollbar-track {
+            background: rgba(100, 255, 218, 0.05);
+            border-radius: 10px;
+        }
+
+        .stat-detail-content::-webkit-scrollbar-thumb {
+            background: rgba(100, 255, 218, 0.3);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-detail-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 255, 218, 0.5);
+        }
+
+        /* Chart Container Smooth Transitions */
+        .chart-container {
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .chart-container.hide {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+            height: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Goals Button */
+        .goals-button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        .goals-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(102, 126, 234, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 50px;
+    color: #667eea;
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;  /* ADD THIS */
+    margin-left: auto;     /* ADD THIS - pushes to right */
+}
+
+        .goals-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .goals-btn-icon {
+            font-size: 1.2em;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .roadmap-scroll-top-btn {
+                bottom: 80px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.3em;
+            }
+
+            .stats-buttons-container {
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .stat-toggle-btn {
+                padding: 10px 18px;
+                font-size: 0.85em;
+            }
+
+            .stat-detail-view {
+                padding: 20px;
+            }
+
+            .stat-detail-title {
+                font-size: 1.5em;
+            }
+
+            .stat-detail-icon {
+                font-size: 2.2em;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Create Roadmap Scroll to Top Button
+function createRoadmapScrollButton() {
+    // Check if already exists
+    if (document.getElementById('roadmapScrollTopBtn')) return;
+    
+    const btn = document.createElement('button');
+    btn.id = 'roadmapScrollTopBtn';
+    btn.className = 'roadmap-scroll-top-btn';
+    btn.innerHTML = '↑';
+    btn.onclick = scrollRoadmapToTop;
+    
+    document.body.appendChild(btn);
+}
+
+// Scroll roadmap to top
+function scrollRoadmapToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+// Monitor roadmap scroll
+function monitorRoadmapScroll() {
+    const roadmapView = document.getElementById('roadmapView');
+    const scrollBtn = document.getElementById('roadmapScrollTopBtn');
+    
+    if (!roadmapView || !scrollBtn) return;
+    
+    window.addEventListener('scroll', function() {
+        // Only show button if on roadmap view
+        if (roadmapView.classList.contains('active')) {
+            if (window.scrollY > 400) {
+                scrollBtn.classList.add('show');
+            } else {
+                scrollBtn.classList.remove('show');
+            }
+        } else {
+            scrollBtn.classList.remove('show');
+        }
+    }, true);
+}
+
+// Add buttons to chart section
+function addStatsButtons() {
+    // Check if buttons already exist
+    if (document.getElementById('statsButtonsContainer')) return;
+    
+    // Find the progress section
+    const progressSection = document.querySelector('.progress-section');
+    if (!progressSection) return;
+    
+    // Find the chart tabs
+    const chartTabs = progressSection.querySelector('.chart-tabs');
+    if (!chartTabs) return;
+    
+    // Create buttons container
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'statsButtonsContainer';
+    buttonsContainer.className = 'stats-buttons-container';
+    buttonsContainer.innerHTML = `
+    <div style="display: flex; flex: 1; gap: 12px; flex-wrap: wrap;">
+        <button class="stat-toggle-btn" onclick="showStatDetail('language')">
+            <span class="stat-btn-icon">📚</span>
+            <span>Language Progress</span>
+        </button>
+        <button class="stat-toggle-btn" onclick="showStatDetail('time')">
+            <span class="stat-btn-icon">⏱️</span>
+            <span>Time Breakdown</span>
+        </button>
+        <button class="stat-toggle-btn" onclick="showStatDetail('performance')">
+            <span class="stat-btn-icon">🎯</span>
+            <span>Performance</span>
+        </button>
+        <button class="stat-toggle-btn" onclick="showStatDetail('activity')">
+            <span class="stat-btn-icon">📅</span>
+            <span>Recent Activity</span>
+        </button>
+    </div>
+    <button class="goals-btn" onclick="openGoals()">
+        <span class="goals-btn-icon">🎯</span>
+        <span>Set Goals</span>
+    </button>
+`;
+    
+    // Insert after chart tabs
+    chartTabs.parentNode.insertBefore(buttonsContainer, chartTabs.nextSibling);
+    
+    
+    // Create detail views
+    createDetailViews();
+    
+    // Make chart tabs clickable to go back
+    makeChartTabsClickable();
+}
+
+// Add Goals Button
+function addGoalsButton(chartTabs) {
+    // Check if already exists
+    if (document.getElementById('goalsButtonContainer')) return;
+    
+    const goalsContainer = document.createElement('div');
+    goalsContainer.id = 'goalsButtonContainer';
+    goalsContainer.className = 'goals-button-container';
+    goalsContainer.innerHTML = `
+        <button class="goals-btn" onclick="openGoals()">
+            <span class="goals-btn-icon">🎯</span>
+            <span>Set Goals</span>
+        </button>
+    `;
+    
+    // Insert after chart tabs
+    chartTabs.parentNode.insertBefore(goalsContainer, chartTabs.nextSibling);
+}
+
+function openGoals() {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('goalsModal');
+    if (!modal) {
+        modal = createGoalsModal();
+    }
+    
+    // Load saved goals
+    loadSavedGoals();
+    
+    // Show modal with animation
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 10);
+}
+
+function createGoalsModal() {
+    const modal = document.createElement('div');
+    modal.id = 'goalsModal';
+    modal.className = 'goals-modal';
+    modal.style.cssText = `
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+    
+    modal.onclick = (e) => {
+        if (e.target === modal) closeGoalsModal();
+    };
+    
+    const content = document.createElement('div');
+    content.className = 'goals-modal-content';
+    content.style.cssText = `
+        background: rgba(30, 30, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(100, 255, 218, 0.3);
+        border-radius: 20px;
+        padding: 0;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: scale(0.9) translateY(20px);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
+    `;
+    
+    content.innerHTML = `
+        <div style="padding: 30px; border-bottom: 2px solid rgba(100, 255, 218, 0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="color: #fff; margin: 0; font-size: 1.8em; display: flex; align-items: center; gap: 10px;">
+                    🎯 Set Your Goals
+                </h2>
+                <button onclick="closeGoalsModal()" style="background: none; border: none; color: #64ffda; font-size: 2em; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease;">×</button>
+            </div>
+        </div>
+        
+        <div style="padding: 30px;">
+            <!-- Test Mode Toggle -->
+            <div style="background: rgba(255, 193, 7, 0.1); border: 2px solid rgba(255, 193, 7, 0.3); border-radius: 12px; padding: 15px; margin-bottom: 25px;">
+                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                    <input type="checkbox" id="testModeCheckbox" onchange="toggleTestMode()" style="width: 20px; height: 20px; cursor: pointer;">
+                    <span style="color: #ffc107; font-weight: 600; font-size: 1.05em;">🧪 Test Mode (1 course in 1 minute)</span>
+                </label>
+                <div id="testModeInfo" style="display: none; margin-top: 10px; padding: 10px; background: rgba(255, 193, 7, 0.1); border-radius: 8px; font-size: 0.9em; color: #ffc107;">
+                    ⚠️ Test mode enabled! You'll receive an email in 40 seconds if no course is completed.
+                </div>
+            </div>
+            
+            <!-- Goal Tabs -->
+            <div style="display: flex; gap: 10px; margin-bottom: 25px;">
+                <button class="goal-tab" data-tab="daily" onclick="switchGoalTab('daily')" style="flex: 1; padding: 12px; background: rgba(100, 255, 218, 0.2); border: 2px solid rgba(100, 255, 218, 0.5); border-radius: 12px; color: #64ffda; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    Daily Goals
+                </button>
+                <button class="goal-tab" data-tab="weekly" onclick="switchGoalTab('weekly')" style="flex: 1; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px; color: #64ffda; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    Weekly Goals
+                </button>
+            </div>
+            
+            <!-- Daily Goals Section -->
+            <div id="dailyGoals" class="goal-section" style="display: block;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; margin-bottom: 10px; font-weight: 600;">
+                        <span style="font-size: 1.5em;">📚</span>
+                        <span>Courses per Day</span>
+                    </label>
+                    <input type="number" id="dailyCourses" min="0" max="10" value="1" style="width: 100%; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #fff; font-size: 1.1em; font-weight: 600;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; margin-bottom: 10px; font-weight: 600;">
+                        <span style="font-size: 1.5em;">⏱️</span>
+                        <span>Study Time (minutes)</span>
+                    </label>
+                    <input type="number" id="dailyTime" min="0" max="300" value="30" style="width: 100%; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #fff; font-size: 1.1em; font-weight: 600;">
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(100, 255, 218, 0.05); border-radius: 10px;">
+                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600;">
+                        <span style="font-size: 1.5em;">🔥</span>
+                        <span>Maintain Streak</span>
+                    </label>
+                    <label style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                        <input type="checkbox" id="dailyStreak" checked style="opacity: 0; width: 0; height: 0;">
+                        <span onclick="toggleSwitch('dailyStreak')" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #64ffda; border-radius: 26px; transition: 0.4s;"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Weekly Goals Section -->
+            <div id="weeklyGoals" class="goal-section" style="display: none;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; margin-bottom: 10px; font-weight: 600;">
+                        <span style="font-size: 1.5em;">📚</span>
+                        <span>Courses per Week</span>
+                    </label>
+                    <input type="number" id="weeklyCourses" min="0" max="50" value="5" style="width: 100%; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #fff; font-size: 1.1em; font-weight: 600;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px; color: #fff; margin-bottom: 10px; font-weight: 600;">
+                        <span style="font-size: 1.5em;">⏱️</span>
+                        <span>Study Time (hours)</span>
+                    </label>
+                    <input type="number" id="weeklyTime" min="0" max="40" value="3" style="width: 100%; padding: 12px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #fff; font-size: 1.1em; font-weight: 600;">
+                </div>
+            </div>
+            
+            <!-- Email Notifications -->
+            <div style="margin-top: 25px; padding: 15px; background: rgba(102, 126, 234, 0.1); border: 2px solid rgba(102, 126, 234, 0.3); border-radius: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #fff; font-weight: 600; margin-bottom: 5px;">📧 Email Reminders</div>
+                        <div style="color: #8b949e; font-size: 0.85em;">Get notified if you're falling behind</div>
+                    </div>
+                    <label style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                        <input type="checkbox" id="emailNotifications" checked style="opacity: 0; width: 0; height: 0;">
+                        <span onclick="toggleSwitch('emailNotifications')" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #667eea; border-radius: 26px; transition: 0.4s;"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Save Button -->
+            <button onclick="saveGoals()" style="width: 100%; margin-top: 25px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #64ffda 100%); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1.1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);">
+                💾 Save Goals
+            </button>
+        </div>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    // Animate in
+    setTimeout(() => {
+        modal.classList.add('active');
+        modal.style.opacity = '1';
+        content.style.transform = 'scale(1) translateY(0)';
+    }, 10);
+    
+    return modal;
+}
+
+function closeGoalsModal() {
+    const modal = document.getElementById('goalsModal');
+    if (modal) {
+        modal.style.opacity = '0';
+        const content = modal.querySelector('.goals-modal-content');
+        if (content) {
+            content.style.transform = 'scale(0.9) translateY(20px)';
+        }
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.classList.remove('active');
+        }, 300);
+    }
+}
+
+function switchGoalTab(tab) {
+    // Update buttons
+    document.querySelectorAll('.goal-tab').forEach(btn => {
+        const isActive = btn.dataset.tab === tab;
+        btn.style.background = isActive ? 'rgba(100, 255, 218, 0.2)' : 'rgba(100, 255, 218, 0.05)';
+        btn.style.borderColor = isActive ? 'rgba(100, 255, 218, 0.5)' : 'rgba(100, 255, 218, 0.2)';
+    });
+    
+    // Update sections
+    document.getElementById('dailyGoals').style.display = tab === 'daily' ? 'block' : 'none';
+    document.getElementById('weeklyGoals').style.display = tab === 'weekly' ? 'block' : 'none';
+}
+
+function toggleSwitch(id) {
+    const checkbox = document.getElementById(id);
+    checkbox.checked = !checkbox.checked;
+    
+    const slider = checkbox.nextElementSibling;
+    slider.style.background = checkbox.checked ? '#64ffda' : '#8b949e';
+}
+
+function toggleTestMode() {
+    const testMode = document.getElementById('testModeCheckbox').checked;
+    const testInfo = document.getElementById('testModeInfo');
+    
+    if (testMode) {
+        testInfo.style.display = 'block';
+        document.getElementById('dailyCourses').value = 1;
+        showNotification('🧪 Test mode enabled! Complete 1 course in 60 seconds.', 'warning');
+    } else {
+        testInfo.style.display = 'none';
+        showNotification('Test mode disabled', 'info');
+    }
+}
+
+function saveGoals() {
+    const goals = {
+        daily: {
+            courses: parseInt(document.getElementById('dailyCourses').value) || 0,
+            time: parseInt(document.getElementById('dailyTime').value) || 0,
+            streak: document.getElementById('dailyStreak').checked
+        },
+        weekly: {
+            courses: parseInt(document.getElementById('weeklyCourses').value) || 0,
+            time: parseInt(document.getElementById('weeklyTime').value) || 0
+        },
+        emailNotifications: document.getElementById('emailNotifications').checked,
+        testMode: document.getElementById('testModeCheckbox').checked,
+        startDate: new Date().toISOString()
+    };
+    
+    localStorage.setItem('userGoals_' + currentUser, JSON.stringify(goals));
+    
+    showNotification('✅ Goals saved successfully!', 'success');
+    
+    // Start monitoring
+    startGoalMonitoring();
+    
+    closeGoalsModal();
+}
+
+function loadSavedGoals() {
+    const saved = localStorage.getItem('userGoals_' + currentUser);
+    if (saved) {
+        const goals = JSON.parse(saved);
+        
+        document.getElementById('dailyCourses').value = goals.daily.courses;
+        document.getElementById('dailyTime').value = goals.daily.time;
+        document.getElementById('dailyStreak').checked = goals.daily.streak;
+        document.getElementById('weeklyCourses').value = goals.weekly.courses;
+        document.getElementById('weeklyTime').value = goals.weekly.time;
+        document.getElementById('emailNotifications').checked = goals.emailNotifications;
+        document.getElementById('testModeCheckbox').checked = goals.testMode || false;
+        
+        if (goals.testMode) {
+            document.getElementById('testModeInfo').style.display = 'block';
+        }
+    }
+}
+
+// Goal Monitoring System
+let goalMonitoringInterval = null;
+
+function startGoalMonitoring() {
+    // Clear existing interval
+    if (goalMonitoringInterval) {
+        clearInterval(goalMonitoringInterval);
+    }
+    
+    const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
+    
+    if (!goals.emailNotifications) return;
+    
+    if (goals.testMode) {
+        // TEST MODE: Check every 5 seconds, send email after 40 seconds
+        const startTime = Date.now();
+        localStorage.setItem('testModeStartTime_' + currentUser, startTime.toString());
+        localStorage.setItem('testModeCourseCount_' + currentUser, '0');
+        
+        console.log('🧪 Test mode monitoring started!');
+        
+        goalMonitoringInterval = setInterval(() => {
+            checkTestModeGoal(startTime);
+        }, 5000); // Check every 5 seconds
+    } else {
+        // NORMAL MODE: Check every hour
+        goalMonitoringInterval = setInterval(() => {
+            checkDailyGoals();
+        }, 3600000); // Check every hour
+    }
+}
+
+function checkTestModeGoal(startTime) {
+    const elapsed = (Date.now() - startTime) / 1000; // seconds
+    const coursesCompleted = parseInt(localStorage.getItem('testModeCourseCount_' + currentUser) || '0');
+    
+    console.log(`🧪 Test Mode: ${elapsed.toFixed(0)}s elapsed, ${coursesCompleted} courses completed`);
+    
+    // If 40 seconds passed and no course completed, send warning email
+    if (elapsed >= 40 && coursesCompleted === 0) {
+        const emailSent = localStorage.getItem('testModeEmailSent_' + currentUser);
+        
+        if (!emailSent) {
+            sendGoalWarningEmail('test');
+            localStorage.setItem('testModeEmailSent_' + currentUser, 'true');
+            console.log('📧 Warning email sent!');
+        }
+    }
+    
+    // Stop monitoring after 60 seconds or if goal achieved
+    if (elapsed >= 60 || coursesCompleted >= 1) {
+        clearInterval(goalMonitoringInterval);
+        console.log('🧪 Test mode monitoring stopped');
+        
+        if (coursesCompleted >= 1) {
+            showNotification('✅ Test goal achieved! Great job!', 'success');
+        } else {
+            showNotification('❌ Test goal failed. Try again!', 'error');
+        }
+        
+        // Reset test mode
+        localStorage.removeItem('testModeStartTime_' + currentUser);
+        localStorage.removeItem('testModeCourseCount_' + currentUser);
+        localStorage.removeItem('testModeEmailSent_' + currentUser);
+    }
+}
+
+function checkDailyGoals() {
+    const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
+    const today = new Date().toDateString();
+    const lastCheck = localStorage.getItem('lastGoalCheck_' + currentUser);
+    
+    if (lastCheck === today) return; // Already checked today
+    
+    // Get today's progress
+    const todayProgress = getTodayProgress();
+    
+    // Check if falling behind (less than 50% of goal with 6 hours left in day)
+    const now = new Date();
+    const hoursLeft = 24 - now.getHours();
+    
+    if (hoursLeft <= 6) {
+        if (todayProgress.courses < goals.daily.courses * 0.5) {
+            sendGoalWarningEmail('daily');
+        }
+    }
+    
+    localStorage.setItem('lastGoalCheck_' + currentUser, today);
+}
+
+function getTodayProgress() {
+    // Get courses completed today
+    const today = new Date().toDateString();
+    const completedToday = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser + '_' + today) || '0');
+    
+    return {
+        courses: completedToday,
+        time: 0 // You can track this if needed
+    };
+}
+
+async function sendGoalWarningEmail(type) {
+    try {
+        const userData = JSON.parse(localStorage.getItem('user_' + currentUser));
+        const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
+        
+        const config = await fetch('/api/email-config').then(res => res.json());
+        
+        let subject, message;
+        
+        if (type === 'test') {
+            subject = '🧪 Test Goal Warning - DevLearn Pro';
+            message = `Hi ${userData.name},\n\nThis is a TEST notification.\n\nYou set a goal to complete 1 course in 1 minute, but 40 seconds have passed with no completion.\n\nTime to get back to learning! 🚀\n\nBest,\nDevLearn Pro Team`;
+        } else {
+            subject = '⚠️ Daily Goal Reminder - DevLearn Pro';
+            message = `Hi ${userData.name},\n\nYou're falling behind on your daily goal of ${goals.daily.courses} courses!\n\nThere's still time - log in now to catch up.\n\nYou've got this! 💪\n\nBest,\nDevLearn Pro Team`;
+        }
+        
+        const templateParams = {
+            to_email: userData.email,
+            to_name: userData.name,
+            subject: subject,
+            message: message,
+            user_name: userData.name
+        };
+        
+        await emailjs.send(
+            config.EMAIL_SERVICE_ID,
+            config.EMAIL_TEMPLATE_ID,
+            templateParams,
+            config.EMAIL_PUBLIC_KEY
+        );
+        
+        console.log('✅ Goal warning email sent to:', userData.email);
+        showNotification('📧 Reminder email sent!', 'info');
+        
+    } catch (error) {
+        console.error('Email send error:', error);
+    }
+}
+
+// Track course completions for test mode
+function trackCourseCompletion() {
+    const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
+    
+    if (goals.testMode) {
+        const count = parseInt(localStorage.getItem('testModeCourseCount_' + currentUser) || '0');
+        localStorage.setItem('testModeCourseCount_' + currentUser, (count + 1).toString());
+        console.log('🎓 Course completed! Test mode count:', count + 1);
+    }
+    
+    // Track daily completions
+    const today = new Date().toDateString();
+    const key = 'coursesCompletedToday_' + currentUser + '_' + today;
+    const count = parseInt(localStorage.getItem(key) || '0');
+    localStorage.setItem(key, (count + 1).toString());
+}
+
+// Make chart tabs clickable to return from detail view
+function makeChartTabsClickable() {
+    const chartTabs = document.querySelectorAll('.chart-tab');
+    
+    chartTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // If detail view is active, hide it first
+            const activeDetail = document.querySelector('.stat-detail-view.active');
+            if (activeDetail) {
+                hideStatDetails();
+            }
+        });
+    });
+}
+
+// Create detail view containers
+function createDetailViews() {
+    // Check if already exists
+    if (document.getElementById('statDetailViews')) return;
+    
+    // Find the buttons container
+    const buttonsContainer = document.getElementById('statsButtonsContainer');
+    if (!buttonsContainer) return;
+    
+    const detailContainer = document.createElement('div');
+    detailContainer.id = 'statDetailViews';
+    detailContainer.innerHTML = `
+        <button class="stats-back-btn" id="statsBackBtn" onclick="hideStatDetails()">
+            <span>← Back to Charts</span>
+        </button>
+        
+        <!-- Language Detail -->
+        <div id="languageDetail" class="stat-detail-view">
+            <div class="stat-detail-header">
+                <div class="stat-detail-icon">📚</div>
+                <div class="stat-detail-title">Language Progress</div>
+            </div>
+            <div id="languageDetailContent" class="stat-detail-content"></div>
+        </div>
+        
+        <!-- Time Detail -->
+        <div id="timeDetail" class="stat-detail-view">
+            <div class="stat-detail-header">
+                <div class="stat-detail-icon">⏱️</div>
+                <div class="stat-detail-title">Time Breakdown</div>
+            </div>
+            <div id="timeDetailContent" class="stat-detail-content"></div>
+        </div>
+        
+        <!-- Performance Detail -->
+        <div id="performanceDetail" class="stat-detail-view">
+            <div class="stat-detail-header">
+                <div class="stat-detail-icon">🎯</div>
+                <div class="stat-detail-title">Your Performance</div>
+            </div>
+            <div id="performanceDetailContent" class="stat-detail-content"></div>
+        </div>
+        
+        <!-- Activity Detail -->
+        <div id="activityDetail" class="stat-detail-view">
+            <div class="stat-detail-header">
+                <div class="stat-detail-icon">📅</div>
+                <div class="stat-detail-title">Recent Activity</div>
+            </div>
+            <div id="activityDetailContent" class="stat-detail-content"></div>
+        </div>
+    `;
+    
+    // Insert after buttons container
+    buttonsContainer.parentNode.insertBefore(detailContainer, buttonsContainer.nextSibling);
+}
+
+// Show stat detail
+function showStatDetail(type) {
+    // Hide all chart containers
+    const chartContainers = document.querySelectorAll('.chart-container');
+    chartContainers.forEach(c => c.classList.add('hide'));
+    
+    // Hide all detail views
+    const detailViews = document.querySelectorAll('.stat-detail-view');
+    detailViews.forEach(v => v.classList.remove('active'));
+    
+    // Show back button
+    const backBtn = document.getElementById('statsBackBtn');
+    if (backBtn) backBtn.classList.add('show');
+    
+    // Update content first
+    if (type === 'language') {
+        updateLanguageDetail();
+    } else if (type === 'time') {
+        updateTimeDetail();
+    } else if (type === 'performance') {
+        updatePerformanceDetail();
+    } else if (type === 'activity') {
+        updateActivityDetail();
+    }
+    
+    // Show selected detail
+    setTimeout(() => {
+        const detailView = document.getElementById(type + 'Detail');
+        if (detailView) {
+            detailView.classList.add('active');
+        }
+    }, 200);
+}
+
+// Hide stat details
+function hideStatDetails() {
+    // Hide all detail views
+    const detailViews = document.querySelectorAll('.stat-detail-view');
+    detailViews.forEach(v => v.classList.remove('active'));
+    
+    // Hide back button
+    const backBtn = document.getElementById('statsBackBtn');
+    if (backBtn) backBtn.classList.remove('show');
+    
+    // Show charts again
+    setTimeout(() => {
+        const chartContainers = document.querySelectorAll('.chart-container');
+        chartContainers.forEach(c => c.classList.remove('hide'));
+    }, 200);
+}
+
+// Navigate to language
+function navigateToLanguage(lang) {
+    showSection('learn');
+    setTimeout(() => {
+        const languageTabs = document.querySelectorAll('.language-tab');
+        languageTabs.forEach(tab => {
+            const tabText = tab.textContent.toLowerCase();
+            if (tabText.includes(lang.toLowerCase())) {
+                tab.click();
+                setTimeout(() => {
+                    const coursesContainer = document.getElementById(lang + '-content');
+                    if (coursesContainer) {
+                        coursesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 200);
+            }
+        });
+    }, 100);
+}
+
+// Update language detail
+function updateLanguageDetail() {
+    const container = document.getElementById('languageDetailContent');
+    if (!container) return;
+    
+    const langIcons = {
+        python: '🐍',
+        javascript: '⚡',
+        html: '🌐',
+        css: '🎨',
+        react: '⚛️'
+    };
+    
+    container.innerHTML = '';
+    
+    Object.keys(courses).forEach(lang => {
+        const totalCourses = courses[lang].length;
+        const completedCourses = Object.values(userProgress[lang]).filter(c => c.completed).length;
+        const avgProgress = calculateAvgProgress(lang);
+        
+        const item = document.createElement('div');
+        item.className = 'language-item';
+        item.onclick = () => navigateToLanguage(lang);
+        item.innerHTML = `
+            <div class="language-info">
+                <span class="language-icon">${langIcons[lang]}</span>
+                <span class="language-name">${lang.toUpperCase()}</span>
+            </div>
+            <div class="language-stats">
+                <span class="language-progress">${avgProgress}%</span>
+                <span class="language-courses">${completedCourses}/${totalCourses} courses</span>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+function updateTimeDetail() {
+    const container = document.getElementById('timeDetailContent');
+    if (!container) return;
+    
+    const langIcons = {
+        python: '🐍',
+        javascript: '⚡',
+        html: '🌐',
+        css: '🎨',
+        react: '⚛️'
+    };
+    
+    container.innerHTML = '';
+    
+    const timeByLang = {};
+    const detailsByLang = {};
+    
+    Object.keys(courses).forEach(lang => {
+        let totalTime = 0;
+        const courseDetails = [];
+        
+        Object.keys(userProgress[lang]).forEach(courseId => {
+            const time = userProgress[lang][courseId].time || 0;
+            totalTime += time;
+            
+            const course = courses[lang].find(c => c.id === courseId);
+            if (course && time > 0) {
+                const hours = Math.floor(time / 3600);
+                const mins = Math.floor((time % 3600) / 60);
+                const timeStr = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+                
+                courseDetails.push({
+                    title: course.title,
+                    icon: course.icon,
+                    time: time,
+                    timeStr: timeStr,
+                    completed: userProgress[lang][courseId].completed
+                });
+            }
+        });
+        
+        timeByLang[lang] = totalTime;
+        detailsByLang[lang] = courseDetails.sort((a, b) => b.time - a.time);
+    });
+    
+    const sortedLangs = Object.entries(timeByLang).sort((a, b) => b[1] - a[1]);
+    
+    sortedLangs.forEach(([lang, seconds]) => {
+        const hours = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const timeStr = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+        
+        const itemWrapper = document.createElement('div');
+        itemWrapper.style.marginBottom = '12px';
+        
+        const item = document.createElement('div');
+        item.className = 'time-item';
+        item.style.cursor = 'pointer';
+        item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                <span class="time-label">${langIcons[lang]} ${lang.toUpperCase()}</span>
+                <span style="color: #8b949e; font-size: 0.85em;">(${detailsByLang[lang].length} courses)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="time-value">${timeStr}</span>
+                <span class="expand-icon" style="color: #64ffda; font-size: 1.2em; transition: transform 0.3s ease;">▼</span>
+            </div>
+        `;
+        
+        // Create expandable details section
+        const detailsSection = document.createElement('div');
+        detailsSection.className = 'time-details-section';
+        detailsSection.style.cssText = `
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.4s ease, margin-top 0.4s ease;
+            opacity: 0;
+            margin-top: 0;
+        `;
+        
+        if (detailsByLang[lang].length > 0) {
+            detailsSection.innerHTML = detailsByLang[lang].map(course => `
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 10px 15px;
+                    margin: 8px 0;
+                    background: rgba(100, 255, 218, 0.03);
+                    border-left: 3px solid ${course.completed ? '#64ffda' : '#667eea'};
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                ">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.3em;">${course.icon}</span>
+                        <div>
+                            <div style="color: #fff; font-weight: 600; font-size: 0.95em;">${course.title}</div>
+                            <div style="color: #8b949e; font-size: 0.8em;">${course.completed ? '✓ Completed' : 'In Progress'}</div>
+                        </div>
+                    </div>
+                    <span style="color: #64ffda; font-weight: 700;">${course.timeStr}</span>
+                </div>
+            `).join('');
+        } else {
+            detailsSection.innerHTML = `
+                <div style="padding: 15px; text-align: center; color: #8b949e; font-size: 0.9em;">
+                    No time recorded yet
+                </div>
+            `;
+        }
+        
+        // Toggle expand/collapse
+        let isExpanded = false;
+        item.onclick = function() {
+            isExpanded = !isExpanded;
+            const expandIcon = item.querySelector('.expand-icon');
+            
+            if (isExpanded) {
+                detailsSection.style.maxHeight = (detailsByLang[lang].length * 60 + 50) + 'px';
+                detailsSection.style.opacity = '1';
+                detailsSection.style.marginTop = '12px';
+                expandIcon.style.transform = 'rotate(180deg)';
+                item.style.borderColor = 'rgba(100, 255, 218, 0.4)';
+            } else {
+                detailsSection.style.maxHeight = '0';
+                detailsSection.style.opacity = '0';
+                detailsSection.style.marginTop = '0';
+                expandIcon.style.transform = 'rotate(0deg)';
+                item.style.borderColor = 'rgba(100, 255, 218, 0.15)';
+            }
+        };
+        
+        itemWrapper.appendChild(item);
+        itemWrapper.appendChild(detailsSection);
+        container.appendChild(itemWrapper);
+    });
+}
+
+// Update performance detail
+function updatePerformanceDetail() {
+    const container = document.getElementById('performanceDetailContent');
+    if (!container) return;
+    
+    let bestLang = '';
+    let bestProgress = 0;
+    
+    Object.keys(courses).forEach(lang => {
+        const progress = calculateAvgProgress(lang);
+        if (progress > bestProgress) {
+            bestProgress = progress;
+            bestLang = lang;
+        }
+    });
+    
+    const langIcons = {
+        python: '🐍',
+        javascript: '⚡',
+        html: '🌐',
+        css: '🎨',
+        react: '⚛️'
+    };
+    
+    let totalProgress = 0;
+    let courseCount = 0;
+    Object.keys(courses).forEach(lang => {
+        Object.keys(userProgress[lang]).forEach(courseId => {
+            totalProgress += userProgress[lang][courseId].progress || 0;
+            courseCount++;
+        });
+    });
+    const avgCompletion = courseCount > 0 ? Math.round(totalProgress / courseCount) : 0;
+    
+    const activeDaysCount = localStorage.getItem('activeDaysCount_' + currentUser) || '1';
+    
+    container.innerHTML = `
+        <div class="metric-row">
+            <div class="metric-icon">🏆</div>
+            <div class="metric-info">
+                <span class="metric-label">Best Language</span>
+                <span class="metric-value">${bestLang ? `${langIcons[bestLang]} ${bestLang.toUpperCase()}` : 'None yet'}</span>
+            </div>
+        </div>
+        <div class="metric-row">
+            <div class="metric-icon">📈</div>
+            <div class="metric-info">
+                <span class="metric-label">Avg. Completion</span>
+                <span class="metric-value">${avgCompletion}%</span>
+            </div>
+        </div>
+        <div class="metric-row">
+            <div class="metric-icon">🔥</div>
+            <div class="metric-info">
+                <span class="metric-label">Active Days</span>
+                <span class="metric-value">${activeDaysCount}</span>
+            </div>
+        </div>
+    `;
+}
+
+// Update activity detail
+function updateActivityDetail() {
+    const container = document.getElementById('activityDetailContent');
+    if (!container) return;
+    
+    const activities = [];
+    
+    Object.keys(courses).forEach(lang => {
+        Object.keys(userProgress[lang]).forEach(courseId => {
+            const course = courses[lang].find(c => c.id === courseId);
+            const progress = userProgress[lang][courseId];
+            
+            if (progress.completed) {
+                activities.push({
+                    lang,
+                    course,
+                    progress
+                });
+            }
+        });
+    });
+    
+    const recentActivities = activities.slice(-10).reverse();
+    
+    if (recentActivities.length === 0) {
+        container.innerHTML = '<p style="color: #8b949e; text-align: center; padding: 40px 20px;">No completed courses yet</p>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    recentActivities.forEach(activity => {
+        const item = document.createElement('div');
+        item.className = 'activity-item';
+        item.innerHTML = `
+            <span class="activity-icon">${activity.course.icon}</span>
+            <div class="activity-details">
+                <div class="activity-title">${activity.course.title}</div>
+                <div class="activity-date">${activity.lang.toUpperCase()} • Completed</div>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+// Initialize
+function initDetailedStats() {
+    injectDetailedStatsCSS();
+    createRoadmapScrollButton();
+    monitorRoadmapScroll();
+    
+    setTimeout(() => {
+        addStatsButtons();
+    }, 500);
+}
+
 function updateDashboard() {
     let totalStarted = 0;
     let totalCompleted = 0;
@@ -11459,6 +13947,8 @@ function updateDashboard() {
     document.getElementById('totalTime').textContent = `${hours}h ${minutes}m`;
     
     updateCharts();
+
+    initDetailedStats();
     
     // ADD THIS LINE:
     if (window.innerWidth <= 768) {
@@ -11920,7 +14410,7 @@ function resetProgress() {
 }
 
 // Define version constant at top of script (around line 127)
-const APP_VERSION = '4.0';
+const APP_VERSION = '4.3';
 
 // Replace checkForUpdates() function
 function checkForUpdates() {
@@ -13977,7 +16467,63 @@ window.addEventListener('scroll', function() {
         container.classList.remove('show');
     }
     
-    // ✅ HIDE prev/next buttons on desktop (>768px)
+    // Roadmap navigation buttons (NEW) - Check this BEFORE desktop check
+    const roadmapNavContainer = document.getElementById('roadmapNavContainer');
+    const roadmapPrevBtn = document.getElementById('roadmapPrevBtn');
+    const roadmapNextBtn = document.getElementById('roadmapNextBtn');
+    
+    // Check if on roadmap for prev/next buttons
+    const roadmapView = document.getElementById('roadmapView');
+    if (roadmapView && roadmapView.classList.contains('active')) {
+        // On roadmap - show navigation buttons when scrolled
+        if (window.scrollY > 300 && roadmapNavContainer) {
+            roadmapNavContainer.style.display = 'flex';
+            roadmapNavContainer.classList.add('show');
+            console.log('Roadmap nav buttons shown'); // Debug
+        } else if (roadmapNavContainer) {
+            roadmapNavContainer.classList.remove('show');
+        }
+        
+        // Detect current section for prev/next buttons (works on both mobile and desktop)
+        const sections = document.querySelectorAll('.roadmap-language-section');
+        let currentSection = null;
+        
+        sections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                currentSection = section.getAttribute('data-lang');
+            }
+        });
+        
+        if (currentSection) {
+            currentLanguageSection = currentSection;
+            const currentIndex = languageOrder.indexOf(currentSection);
+            
+            // Show/hide prev button (roadmap navigation)
+            if (currentIndex > 0 && roadmapPrevBtn) {
+                roadmapPrevBtn.classList.add('show');
+                roadmapPrevBtn.querySelector('span').textContent = `↑ ${languageOrder[currentIndex - 1].toUpperCase()}`;
+            } else if (roadmapPrevBtn) {
+                roadmapPrevBtn.classList.remove('show');
+            }
+            
+            // Show/hide next button (roadmap navigation)
+            if (currentIndex < languageOrder.length - 1 && roadmapNextBtn) {
+                roadmapNextBtn.classList.add('show');
+                roadmapNextBtn.querySelector('span').textContent = `${languageOrder[currentIndex + 1].toUpperCase()} ↓`;
+            } else if (roadmapNextBtn) {
+                roadmapNextBtn.classList.remove('show');
+            }
+        }
+    } else {
+        // Not on roadmap - hide navigation buttons
+        if (roadmapNavContainer) {
+            roadmapNavContainer.classList.remove('show');
+            roadmapNavContainer.style.display = 'none';
+        }
+    }
+    
+    // ✅ HIDE prev/next buttons on desktop (>768px) - but only for mobile buttons
     const isDesktop = window.innerWidth > 768;
     if (isDesktop) {
         if (prevBtn) prevBtn.classList.remove('show');
@@ -13985,16 +16531,7 @@ window.addEventListener('scroll', function() {
         return; // Exit early on desktop
     }
     
-    // Check if on roadmap for prev/next buttons
-    const roadmapView = document.getElementById('roadmapView');
-    if (!roadmapView || !roadmapView.classList.contains('active')) {
-        // Not on roadmap - hide ONLY nav buttons, keep scroll to top
-        if (prevBtn) prevBtn.classList.remove('show');
-        if (nextBtn) nextBtn.classList.remove('show');
-        return;
-    }
-    
-    // On roadmap - detect current section for prev/next
+    // Mobile-only section detection (for mobile prev/next buttons)
     const sections = document.querySelectorAll('.roadmap-language-section');
     let currentSection = null;
     
@@ -14009,7 +16546,7 @@ window.addEventListener('scroll', function() {
         currentLanguageSection = currentSection;
         const currentIndex = languageOrder.indexOf(currentSection);
         
-        // Show/hide prev button
+        // Show/hide prev button (mobile only)
         if (currentIndex > 0 && prevBtn) {
             prevBtn.classList.add('show');
             prevBtn.querySelector('span').textContent = `↑ ${languageOrder[currentIndex - 1].toUpperCase()}`;
@@ -14017,7 +16554,7 @@ window.addEventListener('scroll', function() {
             prevBtn.classList.remove('show');
         }
         
-        // Show/hide next button
+        // Show/hide next button (mobile only)
         if (currentIndex < languageOrder.length - 1 && nextBtn) {
             nextBtn.classList.add('show');
             nextBtn.querySelector('span').textContent = `${languageOrder[currentIndex + 1].toUpperCase()} ↓`;
