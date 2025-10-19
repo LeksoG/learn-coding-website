@@ -11230,10 +11230,232 @@ function checkAuth() {
     }
 }
 
+function injectMobileBottomSheetCSS() {
+    if (document.getElementById('mobileBottomSheetCSS')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'mobileBottomSheetCSS';
+    style.textContent = `
+        /* Mobile Bottom Sheet Styles */
+        @media (max-width: 768px) {
+            .goals-modal,
+            .completion-stats-modal,
+            #goalsListModal,
+            .retry-modal {  /* ✅ REMOVED #viewGoalsModal from this list */
+                align-items: flex-end !important;
+                padding: 0 !important;
+            }
+            
+            .goals-modal-content,
+            .completion-stats-content,
+            .goals-list-content,
+            .retry-modal-content {  /* ✅ REMOVED #viewGoalsModal > div from this list */
+                max-width: 100% !important;
+                width: 100% !important;
+                max-height: 85vh !important;
+                margin: 0 !important;
+                border-radius: 20px 20px 0 0 !important;
+                transform: translateY(100%) !important;
+                transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            }
+            
+            .goals-modal.active .goals-modal-content,
+            .completion-stats-modal.active .completion-stats-content,
+            #goalsListModal.active .goals-list-content,
+            .retry-modal .retry-modal-content {  /* ✅ REMOVED view goals from this list */
+                transform: translateY(0) !important;
+            }
+            
+            /* Add drag handle */
+            .goals-modal-content::before,
+            .completion-stats-content::before,
+            .goals-list-content::before,
+            .retry-modal-content::before {  /* ✅ REMOVED view goals from this list */
+                content: '';
+                position: absolute;
+                top: 12px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 2px;
+                z-index: 1;
+            }
+            
+            /* Adjust padding to accommodate drag handle */
+            .goals-modal-content,
+            .completion-stats-content,
+            .goals-list-content,
+            .retry-modal-content {  /* ✅ REMOVED view goals from this list */
+                padding-top: 30px !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function enableBottomSheetSwipe() {
+    if (window.innerWidth > 768) return; // Desktop only
+    
+    const modals = [
+        '.goals-modal-content',
+        '.completion-stats-content',
+        '#viewGoalsModal > div',
+        '.goals-list-content',
+        '.retry-modal-content'  // ✅ Add this
+    ];
+    
+    modals.forEach(selector => {
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new MutationObserver(() => {
+                const element = document.querySelector(selector);
+                if (element && !element.dataset.swipeEnabled) {
+                    element.dataset.swipeEnabled = 'true';
+                    addSwipeGesture(element);
+                }
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    });
+}
+
+function addSwipeGesture(element) {
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    
+    element.addEventListener('touchstart', (e) => {
+        // Only allow swipe from top 50px (drag handle area)
+        const rect = element.getBoundingClientRect();
+        const touchY = e.touches[0].clientY - rect.top;
+        
+        if (touchY < 50) {
+            startY = e.touches[0].clientY;
+            isDragging = true;
+        }
+    }, { passive: true });
+    
+    element.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        
+        currentY = e.touches[0].clientY;
+        const diff = currentY - startY;
+        
+        if (diff > 0) {
+            element.style.transform = `translateY(${diff}px)`;
+            element.style.transition = 'none';
+        }
+    }, { passive: true });
+    
+    element.addEventListener('touchend', () => {
+        if (!isDragging) return;
+        
+        const diff = currentY - startY;
+        element.style.transition = 'transform 0.3s ease';
+        
+        if (diff > 100) {
+            // Close modal
+            element.style.transform = 'translateY(100%)';
+            setTimeout(() => {
+                const modal = element.closest('.goals-modal, .completion-stats-modal, #viewGoalsModal, #goalsListModal, .retry-modal');
+                if (modal) {
+                    if (modal.id === 'goalsModal') closeGoalsModal();
+                    else if (modal.id === 'viewGoalsModal') closeViewGoalsModal();
+                    else if (modal.id === 'goalsListModal') closeGoalsList();
+                    else if (modal.classList.contains('retry-modal')) closeRetryModal();
+                    else if (modal.classList.contains('completion-stats-modal')) {
+                        modal.remove();
+                        unlockScroll();
+                    }
+                }
+            }, 300);
+        } else {
+            element.style.transform = 'translateY(0)';
+        }
+        
+        isDragging = false;
+        startY = 0;
+        currentY = 0;
+    });
+}
+
+function injectScrollLockCSS() {
+    if (document.getElementById('scrollLockCSS')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'scrollLockCSS';
+    style.textContent = `
+        /* Prevent background scroll when modal is open */
+        body.modal-open {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        /* Prevent momentum scrolling on iOS */
+        .goals-modal,
+        .completion-stats-modal,
+        #viewGoalsModal,
+        #goalsListModal,
+        .inline-ai-overlay,
+        .update-splash {
+            position: fixed !important;
+            overflow: hidden !important;
+            -webkit-overflow-scrolling: auto !important;
+        }
+        
+        /* Make modal content scrollable with momentum */
+        .goals-modal-content,
+        .completion-stats-content,
+        #viewGoalsModal > div,
+        .goals-list-content,
+        #goalsContentContainer,
+        .stat-detail-content,
+        .wrong-answers-list {
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            overscroll-behavior: contain !important;
+        }
+        
+        /* Prevent pull-to-refresh on mobile */
+        .goals-modal-content,
+        .completion-stats-content,
+        #viewGoalsModal > div,
+        .goals-list-content {
+            touch-action: pan-y !important;
+        }
+        
+        @media (max-width: 768px) {
+            /* Extra protection for mobile */
+            body.modal-open {
+                touch-action: none !important;
+            }
+            
+            .goals-modal,
+            .completion-stats-modal,
+            #viewGoalsModal,
+            #goalsListModal {
+                touch-action: none !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+    injectScrollLockCSS();
     injectSplashScreenCSS();
     injectGoalsCSS(); // ✅ ADD THIS LINE
     checkAuth();
+    injectMobileBottomSheetCSS();
+    enableBottomSheetSwipe();
+
     
     const codeEditor = document.getElementById('codeEditor');
     const detectedLangSpan = document.getElementById('detectedLang');
@@ -11258,6 +11480,35 @@ window.addEventListener('resize', () => {
         updateMobileStatsCarousel();
     }
 });
+
+// Scroll lock utility functions
+let scrollPosition = 0;
+
+function lockScroll() {
+    // Save current scroll position
+    scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Add class to body
+    document.body.classList.add('modal-open');
+    
+    // Set body position to prevent scroll
+    document.body.style.top = `-${scrollPosition}px`;
+    
+    console.log('🔒 Scroll locked at position:', scrollPosition);
+}
+
+function unlockScroll() {
+    // Remove class from body
+    document.body.classList.remove('modal-open');
+    
+    // Remove inline styles
+    document.body.style.top = '';
+    
+    // Restore scroll position
+    window.scrollTo(0, scrollPosition);
+    
+    console.log('🔓 Scroll unlocked, restored to:', scrollPosition);
+}
 
 // Remove old mobile nav functions and add these:
 
@@ -13515,27 +13766,29 @@ function addGoalsButton(chartTabs) {
     };
     
     // View Goals Button (initially hidden)
-    const viewGoalsBtn = document.createElement('button');
-    viewGoalsBtn.id = 'viewGoalsBtn';
-    viewGoalsBtn.className = 'goals-btn';
-    viewGoalsBtn.onclick = openViewGoals;
-    viewGoalsBtn.style.cssText = `
-        display: none;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 20px;
-        background: rgba(100, 255, 218, 0.1);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 2px solid rgba(100, 255, 218, 0.3);
-        border-radius: 50px;
-        color: #64ffda;
-        font-weight: 600;
-        font-size: 0.95em;
-        cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        white-space: nowrap;
-    `;
+const viewGoalsBtn = document.createElement('button');
+viewGoalsBtn.id = 'viewGoalsBtn';
+viewGoalsBtn.onclick = openViewGoals;
+viewGoalsBtn.style.cssText = `
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(100, 255, 218, 0.08));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    border-radius: 50px;
+    color: #64ffda;
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
+    opacity: 0;
+    transform: scale(0.8) translateX(-20px);
+`;
     viewGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">👁️</span><span>View Goals</span>';
     
     viewGoalsBtn.onmouseenter = function() {
@@ -13592,6 +13845,9 @@ function checkAndShowViewGoalsButton() {
 }
 
 function openGoals() {
+    // Lock scroll FIRST
+    lockScroll();
+    
     // Create modal if it doesn't exist
     let modal = document.getElementById('goalsModal');
     if (!modal) {
@@ -13642,29 +13898,29 @@ function initializeGoalsButtons() {
     `;
     
     // View Goals Button (initially hidden)
-    const viewGoalsBtn = document.createElement('button');
-    viewGoalsBtn.id = 'viewGoalsBtn';
-    viewGoalsBtn.onclick = openViewGoals;
-    viewGoalsBtn.style.cssText = `
-        display: none;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(100, 255, 218, 0.08));
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 2px solid rgba(100, 255, 218, 0.3);
-        border-radius: 50px;
-        color: #64ffda;
-        font-weight: 600;
-        font-size: 0.95em;
-        cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        white-space: nowrap;
-        box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
-        opacity: 0;
-        transform: scale(0.8) translateX(-20px);
-    `;
+const viewGoalsBtn = document.createElement('button');
+viewGoalsBtn.id = 'viewGoalsBtn';
+viewGoalsBtn.onclick = openViewGoals;
+viewGoalsBtn.style.cssText = `
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(100, 255, 218, 0.08));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    border-radius: 50px;
+    color: #64ffda;
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
+    opacity: 0;
+    transform: scale(0.8) translateX(-20px);
+`;
     viewGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">👁️</span><span>View Goals</span>';
     
     viewGoalsBtn.onmouseenter = function() {
@@ -13776,22 +14032,21 @@ function createGoalsModal() {
     
     const content = document.createElement('div');
     content.className = 'goals-modal-content';
-    // FIND the modal content styles and UPDATE:
-content.style.cssText = `
-    background: rgba(30, 30, 30, 0.98);
-    backdrop-filter: blur(20px);
-    border: 2px solid rgba(100, 255, 218, 0.3);
-    border-radius: 20px;
-    padding: 0;
-    max-width: 550px;
-    width: 100%;
-    max-height: 90vh;  /* Changed from 85vh to 90vh */
-    overflow: hidden;
-    transform: scale(0.9) translateY(20px);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
-    margin: auto;
-`;
+    content.style.cssText = `
+        background: rgba(30, 30, 30, 0.98);
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(100, 255, 218, 0.3);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 550px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: scale(0.9) translateY(20px);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
+        margin: auto;
+    `;
     
     content.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -13806,8 +14061,8 @@ content.style.cssText = `
     };
     
     content.innerHTML = `
-        <!-- Header (Fixed) -->
-        <div style="padding: 30px 30px 20px 30px; border-bottom: 1px solid rgba(100, 255, 218, 0.15);">
+        <!-- Header (Now part of scrollable content) -->
+        <div style="margin-bottom: 25px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                 <div>
                     <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 1.5em; font-weight: 700;">
@@ -13819,174 +14074,167 @@ content.style.cssText = `
             </div>
         </div>
         
-        <!-- Content Container (Scrollable) -->
-        <div id="goalsContentContainer" style="max-height: calc(90vh - 120px); overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 0 5px;">
-    <div style="padding: 35px;">  <!-- Changed from 30px to 35px -->
-    
         <!-- Step 1: Time Goal -->
-        <div style="margin-bottom: 35px;">  <!-- Changed from 30px to 35px -->
-            <div style="margin-bottom: 18px;">  <!-- Changed from 15px to 18px -->
-                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">⏱️ How much time do you have?</h3>  <!-- Increased from 1.05em to 1.1em -->
+        <div style="margin-bottom: 35px;">
+            <div style="margin-bottom: 18px;">
+                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">⏱️ How much time do you have?</h3>
             </div>
             
-            <div style="display: flex; gap: 15px; align-items: center; padding: 18px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px;">  <!-- Changed padding from 15px to 18px -->
-                <input type="number" id="dailyTimeGoal" min="10" max="300" value="60" step="10" style="flex: 1; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 8px; color: #fff; font-size: 1.4em; font-weight: 600; text-align: center;">  <!-- Changed padding from 12px to 14px -->
-                <span style="color: #8b949e; font-weight: 500; font-size: 1em;">minutes</span>  <!-- Increased from 0.95em to 1em -->
+            <div style="display: flex; gap: 15px; align-items: center; padding: 18px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px;">
+                <input type="number" id="dailyTimeGoal" min="10" max="300" value="60" step="10" style="flex: 1; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 8px; color: #fff; font-size: 1.4em; font-weight: 600; text-align: center;">
+                <span style="color: #8b949e; font-weight: 500; font-size: 1em;">minutes</span>
             </div>
         </div>
 
         <!-- Step 1.5: Task Count -->
-        <div style="margin-bottom: 35px;">  <!-- Changed from 30px to 35px -->
-            <div style="margin-bottom: 18px;">  <!-- Changed from 15px to 18px -->
-                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">📚 How many courses?</h3>  <!-- Increased from 1.05em to 1.1em -->
+        <div style="margin-bottom: 35px;">
+            <div style="margin-bottom: 18px;">
+                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">📚 How many courses?</h3>
             </div>
             
-            <div style="display: flex; gap: 15px; align-items: center; padding: 18px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px;">  <!-- Changed padding from 15px to 18px -->
-                <button onclick="adjustTaskCount(-1)" style="width: 44px; height: 44px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 50%; color: #64ffda; font-size: 1.5em; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">-</button>  <!-- Increased from 40px to 44px -->
-                <input type="number" id="taskCountGoal" min="1" max="10" value="3" style="flex: 1; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 8px; color: #fff; font-size: 1.4em; font-weight: 600; text-align: center;" readonly>  <!-- Changed padding from 12px to 14px -->
-                <button onclick="adjustTaskCount(1)" style="width: 44px; height: 44px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 50%; color: #64ffda; font-size: 1.5em; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">+</button>  <!-- Increased from 40px to 44px -->
-                <span style="color: #8b949e; font-weight: 500; font-size: 1em;">courses</span>  <!-- Increased from 0.95em to 1em -->
+            <div style="display: flex; gap: 15px; align-items: center; padding: 18px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px;">
+                <button onclick="adjustTaskCount(-1)" style="width: 44px; height: 44px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 50%; color: #64ffda; font-size: 1.5em; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">-</button>
+                <input type="number" id="taskCountGoal" min="1" max="10" value="3" style="flex: 1; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 8px; color: #fff; font-size: 1.4em; font-weight: 600; text-align: center;" readonly>
+                <button onclick="adjustTaskCount(1)" style="width: 44px; height: 44px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 50%; color: #64ffda; font-size: 1.5em; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">+</button>
+                <span style="color: #8b949e; font-weight: 500; font-size: 1em;">courses</span>
             </div>
-            <div id="taskCountWarning" style="margin-top: 10px; font-size: 0.85em; color: #ff6b6b; display: none;"></div>  <!-- Increased margin-top from 8px to 10px -->
+            <div id="taskCountWarning" style="margin-top: 10px; font-size: 0.85em; color: #ff6b6b; display: none;"></div>
         </div>
         
         <!-- Step 2: Language Selection -->
-<div id="languageSelectionScreen" style="margin-bottom: 35px; transition: opacity 0.3s ease;">
-    <div style="margin-bottom: 18px;">
-        <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">🎯 Choose a language to add courses</h3>
-    </div>
-    
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-        ${Object.keys(courses).map(lang => {
-            const availableCount = courses[lang].filter((c, idx) => {
-                const isNew = c.isNew;
-                const isCompleted = userProgress[lang][c.id]?.completed;
-                const isLocked = idx > 0 && !userProgress[lang][courses[lang][idx - 1].id]?.completed;
-                return !isNew && !isCompleted && !isLocked;
-            }).length;
+        <div id="languageSelectionScreen" style="margin-bottom: 35px; transition: opacity 0.3s ease;">
+            <div style="margin-bottom: 18px;">
+                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">🎯 Choose a language to add courses</h3>
+            </div>
             
-            if (availableCount === 0) return '';
-            
-            return `
-                <button onclick="showCourseSelection('${lang}')" style="padding: 20px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 10px;" 
-                        onmouseenter="this.style.background='rgba(100, 255, 218, 0.1)'; this.style.borderColor='rgba(100, 255, 218, 0.4)'; this.style.transform='translateY(-2px)'" 
-                        onmouseleave="this.style.background='rgba(100, 255, 218, 0.05)'; this.style.borderColor='rgba(100, 255, 218, 0.2)'; this.style.transform='translateY(0)'">
-                    <span style="font-size: 2.8em;">${langIcons[lang]}</span>
-                    <span style="color: #fff; font-weight: 600; font-size: 1em;">${lang.charAt(0).toUpperCase() + lang.slice(1)}</span>
-                    <span style="color: #64ffda; font-size: 0.9em; font-weight: 500;">${availableCount} available</span>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                ${Object.keys(courses).map(lang => {
+                    const availableCount = courses[lang].filter((c, idx) => {
+                        const isNew = c.isNew;
+                        const isCompleted = userProgress[lang][c.id]?.completed;
+                        const isLocked = idx > 0 && !userProgress[lang][courses[lang][idx - 1].id]?.completed;
+                        return !isNew && !isCompleted && !isLocked;
+                    }).length;
+                    
+                    if (availableCount === 0) return '';
+                    
+                    return `
+                        <button onclick="showCourseSelection('${lang}')" style="padding: 20px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 10px;" 
+                                onmouseenter="this.style.background='rgba(100, 255, 218, 0.1)'; this.style.borderColor='rgba(100, 255, 218, 0.4)'; this.style.transform='translateY(-2px)'" 
+                                onmouseleave="this.style.background='rgba(100, 255, 218, 0.05)'; this.style.borderColor='rgba(100, 255, 218, 0.2)'; this.style.transform='translateY(0)'">
+                            <span style="font-size: 2.8em;">${langIcons[lang]}</span>
+                            <span style="color: #fff; font-weight: 600; font-size: 1em;">${lang.charAt(0).toUpperCase() + lang.slice(1)}</span>
+                            <span style="color: #64ffda; font-size: 0.9em; font-weight: 500;">${availableCount} available</span>
+                        </button>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+
+        <!-- Course Selection Screen (Hidden Initially) -->
+        <div id="courseSelectionScreen" style="display: none; margin-bottom: 35px; opacity: 0; transition: opacity 0.3s ease;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px;">
+                <button onclick="backToLanguageSelection()" style="background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.2); color: #64ffda; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3em; transition: all 0.3s ease;"
+                        onmouseenter="this.style.background='rgba(100, 255, 218, 0.2)'"
+                        onmouseleave="this.style.background='rgba(100, 255, 218, 0.1)'">
+                    ←
                 </button>
-            `;
-        }).join('')}
-    </div>
-</div>
+                <h3 id="courseSelectionTitle" style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">Select Courses</h3>
+            </div>
+            
+            <div id="coursesList" style="display: flex; flex-direction: column; gap: 10px; padding: 18px; background: rgba(100, 255, 218, 0.03); border: 2px solid rgba(100, 255, 218, 0.15); border-radius: 12px; max-height: 320px; overflow-y: auto;">
+                <!-- Courses will be populated here -->
+            </div>
+        </div>
 
-            <!-- Course Selection Screen (Hidden Initially) -->
-<div id="courseSelectionScreen" style="display: none; margin-bottom: 35px; opacity: 0; transition: opacity 0.3s ease;">
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px;">
-        <button onclick="backToLanguageSelection()" style="background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.2); color: #64ffda; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3em; transition: all 0.3s ease;"
-                onmouseenter="this.style.background='rgba(100, 255, 218, 0.2)'"
-                onmouseleave="this.style.background='rgba(100, 255, 218, 0.1)'">
-            ←
-        </button>
-        <h3 id="courseSelectionTitle" style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">Select Courses</h3>
-    </div>
-    
-    <div id="coursesList" style="display: flex; flex-direction: column; gap: 10px; padding: 18px; background: rgba(100, 255, 218, 0.03); border: 2px solid rgba(100, 255, 218, 0.15); border-radius: 12px; max-height: 320px; overflow-y: auto;">
-        <!-- Courses will be populated here -->
-    </div>
-</div>
-
-            <!-- ADD THIS NEW SECTION -->
-<div id="selectedCoursesSummary" style="
-    display: none;
-    margin-top: 20px;
-    padding: 18px;
-    background: rgba(100, 255, 218, 0.08);
-    border: 2px solid rgba(100, 255, 218, 0.25);
-    border-radius: 15px;
-    animation: slideIn 0.3s ease;
-">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-        <span style="color: #64ffda; font-weight: 600; font-size: 0.95em;">
-            ✓ Selected Courses
-        </span>
-        <span id="selectedCoursesCount" style="
-            background: rgba(100, 255, 218, 0.2);
-            color: #64ffda;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 0.9em;
-        ">0</span>
-    </div>
-    <div id="selectedCoursesList" style="
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    "></div>
-</div>
+        <!-- Selected Courses Summary -->
+        <div id="selectedCoursesSummary" style="
+            display: none;
+            margin-bottom: 30px;
+            padding: 18px;
+            background: rgba(100, 255, 218, 0.08);
+            border: 2px solid rgba(100, 255, 218, 0.25);
+            border-radius: 15px;
+            animation: slideIn 0.3s ease;
+        ">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <span style="color: #64ffda; font-weight: 600; font-size: 0.95em;">
+                    ✓ Selected Courses
+                </span>
+                <span id="selectedCoursesCount" style="
+                    background: rgba(100, 255, 218, 0.2);
+                    color: #64ffda;
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    font-weight: 700;
+                    font-size: 0.9em;
+                ">0</span>
+            </div>
+            <div id="selectedCoursesList" style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            "></div>
+        </div>
         
         <!-- Settings -->
-<div style="margin-bottom: 30px;">
-    <div style="margin-bottom: 18px;">
-        <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">⚙️ Additional settings</h3>
-    </div>
-    
-    <!-- Streak -->
-    <div style="padding: 16px; background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.15); border-radius: 10px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 1.5em;">🔥</span>
-                <span style="color: #fff; font-weight: 500; font-size: 1em;">Count towards streak</span>
+        <div style="margin-bottom: 30px;">
+            <div style="margin-bottom: 18px;">
+                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">⚙️ Additional settings</h3>
             </div>
-            <div class="modern-toggle" id="streakToggle" onclick="toggleModernSwitch('dailyStreak')" style="width: 56px; height: 30px; background: #64ffda; border-radius: 30px; position: relative; cursor: pointer; transition: 0.3s; box-shadow: 0 3px 10px rgba(100, 255, 218, 0.3);">
-                <input type="checkbox" id="dailyStreak" checked style="display: none;">
-                <div class="toggle-circle" style="position: absolute; height: 24px; width: 24px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; transform: translateX(26px); box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+            
+            <!-- Streak -->
+            <div style="padding: 16px; background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.15); border-radius: 10px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5em;">🔥</span>
+                        <span style="color: #fff; font-weight: 500; font-size: 1em;">Count towards streak</span>
+                    </div>
+                    <div class="modern-toggle" id="streakToggle" onclick="toggleModernSwitch('dailyStreak')" style="width: 56px; height: 30px; background: #64ffda; border-radius: 30px; position: relative; cursor: pointer; transition: 0.3s; box-shadow: 0 3px 10px rgba(100, 255, 218, 0.3);">
+                        <input type="checkbox" id="dailyStreak" checked style="display: none;">
+                        <div class="toggle-circle" style="position: absolute; height: 24px; width: 24px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; transform: translateX(26px); box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+                    </div>
+                </div>
+                <div id="streakStatusMessage" style="font-size: 0.9em; color: #64ffda; line-height: 1.5;">
+                    Goal courses will add to your learning streak
+                </div>
             </div>
-        </div>
-        <div id="streakStatusMessage" style="font-size: 0.9em; color: #64ffda; line-height: 1.5;">
-            Goal courses will add to your learning streak
-        </div>
-    </div>
-</div>
             
             <!-- Email -->
-            <div style="padding: 16px; background: rgba(102, 126, 234, 0.08); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 10px;">  <!-- Changed padding from 14px to 16px -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">  <!-- Increased margin from 8px to 10px -->
-                    <div style="display: flex; align-items: center; gap: 12px;">  <!-- Increased gap from 10px to 12px -->
-                        <span style="font-size: 1.5em;">📧</span>  <!-- Increased from 1.4em to 1.5em -->
-                        <span style="color: #fff; font-weight: 500; font-size: 1em;">Send me reminders</span>  <!-- Increased from 0.95em to 1em -->
+            <div style="padding: 16px; background: rgba(102, 126, 234, 0.08); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5em;">📧</span>
+                        <span style="color: #fff; font-weight: 500; font-size: 1em;">Send me reminders</span>
                     </div>
                     <div class="modern-toggle" id="emailToggle" onclick="toggleModernSwitch('emailNotifications')" style="width: 56px; height: 30px; background: #667eea; border-radius: 30px; position: relative; cursor: pointer; transition: 0.3s; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);">
                         <input type="checkbox" id="emailNotifications" checked style="display: none;">
                         <div class="toggle-circle" style="position: absolute; height: 24px; width: 24px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; transform: translateX(26px); box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
                     </div>
                 </div>
-                <div id="emailStatusMessage" style="font-size: 0.9em; color: #667eea; line-height: 1.5;">  <!-- Increased from 0.85em to 0.9em -->
+                <div id="emailStatusMessage" style="font-size: 0.9em; color: #667eea; line-height: 1.5;">
                     We'll email you if you're falling behind
                 </div>
             </div>
         </div>
         
         <!-- Save Button -->
-        <button onclick="saveGoalsWithCourses()" style="width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #64ffda 100%); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1.1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);">  <!-- Increased padding from 15px to 16px, font from 1.05em to 1.1em -->
+        <button onclick="saveGoalsWithCourses()" style="width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #64ffda 100%); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1.1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);">
             💾 Save My Goal
         </button>
-    </div>
-</div>
     `;
     
     // Add scrollbar hiding CSS
     const style = document.createElement('style');
     style.textContent = `
-        #goalsContentContainer::-webkit-scrollbar {
+        .goals-modal-content::-webkit-scrollbar {
             width: 6px;
         }
-        #goalsContentContainer::-webkit-scrollbar-track {
+        .goals-modal-content::-webkit-scrollbar-track {
             background: rgba(100, 255, 218, 0.05);
             border-radius: 10px;
         }
-        #goalsContentContainer::-webkit-scrollbar-thumb {
+        .goals-modal-content::-webkit-scrollbar-thumb {
             background: rgba(100, 255, 218, 0.3);
             border-radius: 10px;
         }
@@ -14008,18 +14256,18 @@ content.style.cssText = `
     document.body.appendChild(modal);
     
     // Add event listener for close button after modal is created
-setTimeout(() => {
-    const closeBtn = content.querySelector('button[onclick*="closeGoalsModal"]');
-    if (closeBtn) {
-        // Remove inline onclick and use proper event listener
-        closeBtn.removeAttribute('onclick');
-        closeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeGoalsModal();
-        });
-    }
-}, 100);
+    setTimeout(() => {
+        const closeBtn = content.querySelector('button[onclick*="closeGoalsModal"]');
+        if (closeBtn) {
+            // Remove inline onclick and use proper event listener
+            closeBtn.removeAttribute('onclick');
+            closeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeGoalsModal();
+            });
+        }
+    }, 100);
     
     return modal;
 }
@@ -14490,6 +14738,16 @@ function openViewGoals() {
         return;
     }
     
+    // Remove any existing modal first
+    const existingModal = document.getElementById('viewGoalsModal');
+    if (existingModal) {
+        existingModal.remove();
+        unlockScroll();
+    }
+    
+    // Lock scroll AFTER cleanup
+    lockScroll();
+    
     const modal = document.createElement('div');
     modal.id = 'viewGoalsModal';
     modal.style.cssText = `
@@ -14501,14 +14759,15 @@ function openViewGoals() {
         height: 100%;
         background: rgba(0, 0, 0, 0.85);
         backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         z-index: 10000;
         justify-content: center;
         align-items: center;
         opacity: 0;
         transition: opacity 0.3s ease;
+        padding: 20px;
     `;
     
-    // ✅ FIX: Add click handler to modal backdrop BEFORE adding content
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeViewGoalsModal();
@@ -14519,19 +14778,22 @@ function openViewGoals() {
     content.style.cssText = `
         background: rgba(30, 30, 30, 0.98);
         backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border: 2px solid rgba(100, 255, 218, 0.3);
         border-radius: 20px;
         padding: 0;
         max-width: 550px;
-        width: 90%;
-        max-height: 85vh;
-        overflow-y: auto;
+        width: 100%;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
         transform: scale(0.9);
         transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
+        margin: auto;
+        overflow: hidden;
     `;
     
-    // ✅ FIX: Stop propagation on content clicks
     content.addEventListener('click', function(e) {
         e.stopPropagation();
     });
@@ -14546,22 +14808,24 @@ function openViewGoals() {
     const progress = goals.daily.selectedCourses.length > 0 ? Math.round((completed / goals.daily.selectedCourses.length) * 100) : 0;
     
     content.innerHTML = `
-        <div style="padding: 25px; border-bottom: 2px solid rgba(100, 255, 218, 0.2);">
+        <!-- Fixed Header -->
+        <div style="padding: 30px 30px 20px 30px; border-bottom: 2px solid rgba(100, 255, 218, 0.2); flex-shrink: 0; background: rgba(30, 30, 30, 0.98); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h2 style="color: #fff; margin: 0; font-size: 1.6em; display: flex; align-items: center; gap: 10px;">
                     👁️ Your Goals
                 </h2>
-                <button id="closeViewGoalsBtn" style="background: none; border: none; color: #64ffda; font-size: 2em; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">×</button>
+                <button id="closeViewGoalsBtn" style="background: none; border: none; color: #64ffda; font-size: 2em; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease; line-height: 1;">×</button>
             </div>
         </div>
         
-        <div style="padding: 25px;">
+        <!-- Scrollable Content -->
+        <div style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 25px; background: rgba(30, 30, 30, 0.95);">
             <!-- Progress Overview -->
-            <div style="margin-bottom: 25px; padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(100, 255, 218, 0.15)); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 15px;">
+            <div style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(100, 255, 218, 0.15)); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 15px;">
                 <div style="text-align: center; margin-bottom: 15px;">
                     <div style="font-size: 3em; margin-bottom: 10px;">${progress === 100 ? '🎉' : '📊'}</div>
                     <div style="font-size: 2.5em; font-weight: 700; color: #64ffda; margin-bottom: 5px;">${progress}%</div>
-                    <div style="color: #8b949e; font-weight: 600;">Daily Progress</div>
+                    <div style="color: #8b949e; font-weight: 600; font-size: 1em;">Daily Progress</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); height: 12px; border-radius: 12px; overflow: hidden; margin-bottom: 15px;">
                     <div style="height: 100%; background: linear-gradient(90deg, #667eea, #64ffda); width: ${progress}%; transition: width 0.5s ease;"></div>
@@ -14583,22 +14847,22 @@ function openViewGoals() {
             </div>
             
             <!-- Time Goal -->
-<div style="margin-bottom: 20px; padding: 15px; background: rgba(100, 255, 218, 0.05); border-radius: 12px;">
-    <div style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; margin-bottom: 8px;">
-        <span style="font-size: 1.3em;">⏱️</span>
-        <span>Time Goal</span>
-    </div>
-    <div style="color: #64ffda; font-size: 1.3em; font-weight: 700;">${goals.daily.timeGoal} minutes</div>
-    <div style="color: #8b949e; font-size: 0.85em; margin-top: 5px;">
-        📧 Smart reminder after ${goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7)} minutes
-    </div>
-</div>
+            <div style="margin-bottom: 15px; padding: 15px; background: rgba(100, 255, 218, 0.05); border-radius: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; margin-bottom: 8px;">
+                    <span style="font-size: 1.3em;">⏱️</span>
+                    <span style="font-size: 1em;">Time Goal</span>
+                </div>
+                <div style="color: #64ffda; font-size: 1.3em; font-weight: 700;">${goals.daily.timeGoal} minutes</div>
+                <div style="color: #8b949e; font-size: 0.85em; margin-top: 5px;">
+                    📧 Smart reminder after ${goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7)} minutes
+                </div>
+            </div>
             
             <!-- Selected Courses -->
-            <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 15px;">
                 <div style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; margin-bottom: 12px;">
                     <span style="font-size: 1.3em;">📚</span>
-                    <span>Today's Courses</span>
+                    <span style="font-size: 1em;">Today's Courses</span>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     ${goals.daily.selectedCourses.map(course => {
@@ -14608,7 +14872,7 @@ function openViewGoals() {
                             <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: ${isCompleted ? 'rgba(100, 255, 218, 0.1)' : 'rgba(100, 255, 218, 0.05)'}; border: 2px solid ${isCompleted ? 'rgba(100, 255, 218, 0.3)' : 'rgba(100, 255, 218, 0.15)'}; border-radius: 10px;">
                                 <span style="font-size: 1.5em;">${courseData.icon}</span>
                                 <div style="flex: 1;">
-                                    <div style="color: #fff; font-weight: 600;">${courseData.title}</div>
+                                    <div style="color: #fff; font-weight: 600; font-size: 1em;">${courseData.title}</div>
                                     <div style="color: #8b949e; font-size: 0.85em;">${langIcons[course.lang]} ${course.lang.toUpperCase()}</div>
                                 </div>
                                 <span style="font-size: 1.3em;">${isCompleted ? '✅' : '⏳'}</span>
@@ -14619,25 +14883,26 @@ function openViewGoals() {
             </div>
             
             <!-- Settings Status -->
-<div style="display: flex; gap: 10px; margin-bottom: 25px;">
-    <div style="flex: 1; padding: 12px; background: rgba(100, 255, 218, 0.05); border-radius: 10px; text-align: center;">
-        <div style="font-size: 1.5em; margin-bottom: 5px;">${goals.daily.streak ? '🔥' : '❌'}</div>
-        <div style="color: #8b949e; font-size: 0.85em;">Streak Goal</div>
-    </div>
-</div>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="flex: 1; padding: 12px; background: rgba(100, 255, 218, 0.05); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.5em; margin-bottom: 5px;">${goals.daily.streak ? '🔥' : '❌'}</div>
+                    <div style="color: #8b949e; font-size: 0.85em;">Streak Goal</div>
+                </div>
                 <div style="flex: 1; padding: 12px; background: rgba(102, 126, 234, 0.08); border-radius: 10px; text-align: center;">
                     <div style="font-size: 1.5em; margin-bottom: 5px;">${goals.emailNotifications ? '📧' : '🔕'}</div>
                     <div style="color: #8b949e; font-size: 0.85em;">Email Alerts</div>
                 </div>
             </div>
-            
-            <!-- Action Buttons -->
+        </div>
+        
+        <!-- Fixed Action Buttons at Bottom -->
+        <div style="padding: 20px; border-top: 2px solid rgba(100, 255, 218, 0.2); flex-shrink: 0; background: rgba(30, 30, 30, 0.98);">
             <div style="display: flex; gap: 10px;">
-                <button id="editGoalsBtn" style="flex: 1; padding: 14px; background: rgba(102, 126, 234, 0.15); border: 2px solid rgba(102, 126, 234, 0.3); border-radius: 12px; color: #667eea; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                    ✏️ Edit Goals
+                <button id="editGoalsBtn" style="flex: 1; padding: 14px; background: rgba(102, 126, 234, 0.15); border: 2px solid rgba(102, 126, 234, 0.3); border-radius: 12px; color: #667eea; font-weight: 600; font-size: 1em; cursor: pointer; transition: all 0.3s ease;">
+                    ✏️ Edit
                 </button>
-                <button id="deleteGoalsBtn" style="flex: 1; padding: 14px; background: rgba(255, 107, 107, 0.15); border: 2px solid rgba(255, 107, 107, 0.3); border-radius: 12px; color: #ff6b6b; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                    🗑️ Delete Goals
+                <button id="deleteGoalsBtn" style="flex: 1; padding: 14px; background: rgba(255, 107, 107, 0.15); border: 2px solid rgba(255, 107, 107, 0.3); border-radius: 12px; color: #ff6b6b; font-weight: 600; font-size: 1em; cursor: pointer; transition: all 0.3s ease;">
+                    🗑️ Delete
                 </button>
             </div>
         </div>
@@ -14646,28 +14911,63 @@ function openViewGoals() {
     modal.appendChild(content);
     document.body.appendChild(modal);
     
-    // ✅ FIX: Add event listeners AFTER modal is in DOM
+    // Add event listeners AFTER modal is in DOM
     setTimeout(() => {
         const closeBtn = document.getElementById('closeViewGoalsBtn');
         const editBtn = document.getElementById('editGoalsBtn');
         const deleteBtn = document.getElementById('deleteGoalsBtn');
         
         if (closeBtn) {
-            closeBtn.addEventListener('click', closeViewGoalsModal);
+            closeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeViewGoalsModal();
+            });
+            
+            closeBtn.onmouseenter = function() {
+                this.style.background = 'rgba(100, 255, 218, 0.1)';
+            };
+            closeBtn.onmouseleave = function() {
+                this.style.background = 'none';
+            };
         }
         
         if (editBtn) {
-            editBtn.addEventListener('click', function() {
+            editBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 closeViewGoalsModal();
                 setTimeout(openGoals, 300);
             });
+            
+            editBtn.onmouseenter = function() {
+                this.style.background = 'rgba(102, 126, 234, 0.25)';
+                this.style.transform = 'translateY(-2px)';
+            };
+            editBtn.onmouseleave = function() {
+                this.style.background = 'rgba(102, 126, 234, 0.15)';
+                this.style.transform = 'translateY(0)';
+            };
         }
         
         if (deleteBtn) {
-            deleteBtn.addEventListener('click', confirmDeleteGoals);
+            deleteBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                confirmDeleteGoals();
+            });
+            
+            deleteBtn.onmouseenter = function() {
+                this.style.background = 'rgba(255, 107, 107, 0.25)';
+                this.style.transform = 'translateY(-2px)';
+            };
+            deleteBtn.onmouseleave = function() {
+                this.style.background = 'rgba(255, 107, 107, 0.15)';
+                this.style.transform = 'translateY(0)';
+            };
         }
         
-        // Animate in
+        // Animate in - centered popup style
         modal.style.opacity = '1';
         content.style.transform = 'scale(1)';
     }, 10);
@@ -14685,6 +14985,9 @@ function closeGoalsModal() {
             modal.style.display = 'none';
             modal.classList.remove('active');
             
+            // Unlock scroll AFTER animation
+            unlockScroll();
+            
             // Check and show view button after modal closes
             checkAndShowViewGoalsButton();
         }, 300);
@@ -14701,7 +15004,13 @@ function closeViewGoalsModal() {
         }
         setTimeout(() => {
             modal.remove();
+            
+            // ✅ Always unlock scroll
+            unlockScroll();
         }, 300);
+    } else {
+        // ✅ If modal doesn't exist but scroll is locked, unlock it
+        unlockScroll();
     }
 }
 
@@ -14836,27 +15145,39 @@ function startSmartGoalMonitoring() {
         return;
     }
     
-    console.log(`✅ Smart goal monitoring started`);
+    // ✅ FIX: Ensure goal start time is set
+    if (!localStorage.getItem('goalStartTime_' + currentUser)) {
+        localStorage.setItem('goalStartTime_' + currentUser, Date.now().toString());
+        console.log('⏰ Goal start time initialized');
+    }
     
-    // ✅ FIX: Check progress every minute instead of checking reminder time
+    console.log(`✅ Smart goal monitoring started - Will check every minute`);
+    console.log(`📊 Goal settings:`, goals);
+    
+    // ✅ Check immediately on start
+    setTimeout(() => {
+        console.log('🔍 Running initial check...');
+        checkSmartGoalProgress();
+    }, 5000);
+    
+    // Then check every minute
     goalMonitoringInterval = setInterval(() => {
-        checkSmartGoalProgress();  // Use the actual function that exists
-    }, 60000); // Check every 1 minute
-    
-    // Also check immediately
-    setTimeout(checkSmartGoalProgress, 5000); // Check after 5 seconds
+        checkSmartGoalProgress();
+    }, 60000);
 }
 
 function checkSmartGoalProgress() {
     const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
     
-    if (!goals.emailNotifications) return;
+    if (!goals.emailNotifications) {
+        console.log('❌ Email notifications disabled - skipping check');
+        return;
+    }
     
     const startTime = parseInt(localStorage.getItem('goalStartTime_' + currentUser) || Date.now());
-    const elapsed = Math.floor((Date.now() - startTime) / 60000); // minutes elapsed
+    const elapsed = Math.floor((Date.now() - startTime) / 60000);
     const completed = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser) || '0');
     
-    // ✅ CHANGED: Remove daily date check - use goal ID instead
     const currentGoalId = localStorage.getItem('activeGoalId_' + currentUser);
     const emailSent = localStorage.getItem('goalEmailSent_' + currentUser + '_' + currentGoalId);
     
@@ -14866,22 +15187,32 @@ function checkSmartGoalProgress() {
     
     const reminderThreshold = goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7);
     
-    console.log(`📊 Progress Check: ${completed}/${totalCourses} courses (${progressPercent.toFixed(0)}%), ${elapsed}/${goals.daily.timeGoal} min (threshold: ${reminderThreshold})`);
+    console.log(`📊 Progress Check:
+    - Elapsed: ${elapsed}/${goals.daily.timeGoal} min
+    - Completed: ${completed}/${totalCourses} courses (${progressPercent.toFixed(0)}%)
+    - Threshold: ${reminderThreshold} min
+    - Email sent: ${emailSent ? 'YES' : 'NO'}
+    `);
     
-    // Send email if:
-    // 1. Passed the threshold time (70% of goal)
-    // 2. Completed less than 50% of courses
-    // 3. Haven't sent email for THIS GOAL yet
-    if (elapsed >= reminderThreshold && 
-        progressPercent < 50 && 
-        remainingCourses > 0 && 
-        !emailSent) {
-        
-        console.log('⚠️ Sending smart reminder email...');
+    // ✅ FIX: Check all conditions and log which ones pass/fail
+    const passedThreshold = elapsed >= reminderThreshold;
+    const belowHalfway = progressPercent < 50;
+    const hasRemaining = remainingCourses > 0;
+    const notSent = !emailSent;
+    
+    console.log(`Conditions:
+    - Passed threshold (${elapsed} >= ${reminderThreshold}): ${passedThreshold}
+    - Below 50% (${progressPercent}% < 50%): ${belowHalfway}
+    - Has remaining (${remainingCourses} > 0): ${hasRemaining}
+    - Email not sent: ${notSent}
+    `);
+    
+    if (passedThreshold && belowHalfway && hasRemaining && notSent) {
+        console.log('✅ All conditions met - sending email now!');
         sendSmartGoalEmail(goals, completed, totalCourses, elapsed);
-        
-        // ✅ CHANGED: Mark email as sent for THIS GOAL (not per day)
         localStorage.setItem('goalEmailSent_' + currentUser + '_' + currentGoalId, 'true');
+    } else {
+        console.log('❌ Not sending email - conditions not met');
     }
 }
 
@@ -15153,6 +15484,9 @@ function showGoalsList() {
         return;
     }
     
+    // Lock scroll FIRST
+    lockScroll();
+    
     // ✅ Inject CSS if not already injected
     injectGoalsCSS();
     
@@ -15165,6 +15499,19 @@ function showGoalsList() {
             closeGoalsList();
         }
     });
+
+    function closeGoalsList() {
+    const modal = document.getElementById('goalsListModal');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.remove();
+            
+            // Unlock scroll AFTER removal
+            unlockScroll();
+        }, 300);
+    }
+}
     
     const langIcons = { python: '🐍', javascript: '⚡', html: '🌐', css: '🎨', react: '⚛️' };
     
@@ -17010,7 +17357,6 @@ function injectSplashScreenCSS() {
 
 const APP_VERSION = '4.7';
 
-// Replace checkForUpdates() function
 function checkForUpdates() {
     const lastSeenVersion = localStorage.getItem('lastSeenVersion_' + currentUser);
     const hasSeenThisVersion = lastSeenVersion === APP_VERSION;
@@ -17024,6 +17370,9 @@ function checkForUpdates() {
             document.getElementById('splashTitle').textContent = 'Welcome to DevLearn Pro';
             document.getElementById('updateSplash').classList.add('active');
             document.body.classList.add('splash-open');
+            
+            // Lock scroll when splash opens
+            lockScroll();
         }, 300);
     } 
     // Returning users see update splash only if version changed
@@ -17033,16 +17382,205 @@ function checkForUpdates() {
             document.getElementById('splashTitle').textContent = 'New Version';
             document.getElementById('updateSplash').classList.add('active');
             document.body.classList.add('splash-open');
+            
+            // Lock scroll when splash opens
+            lockScroll();
         }, 1000);
     }
-    // If hasSeenThisVersion is true, do nothing (don't show splash)
 }
 
-// Replace closeUpdateSplash() function  
+function showRetryModal(lang, courseId, courseName) {
+    // Lock scroll
+    lockScroll();
+    
+    const modal = document.createElement('div');
+    modal.className = 'retry-modal';
+    modal.style.cssText = `
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        padding: 20px;
+    `;
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeRetryModal();
+        }
+    });
+    
+    const content = document.createElement('div');
+    content.className = 'retry-modal-content';
+    
+    // ✅ Check if mobile
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+        // Mobile bottom sheet style
+        modal.style.alignItems = 'flex-end';
+        modal.style.padding = '0';
+        
+        content.style.cssText = `
+            background: rgba(30, 30, 30, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(100, 255, 218, 0.3);
+            border-radius: 20px 20px 0 0;
+            padding: 30px 25px 25px 25px;
+            max-width: 100%;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            text-align: center;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 -10px 40px rgba(100, 255, 218, 0.3);
+            position: relative;
+        `;
+    } else {
+        // Desktop center style
+        content.style.cssText = `
+            background: rgba(30, 30, 30, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(100, 255, 218, 0.3);
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
+        `;
+    }
+    
+    content.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    
+    const courseData = courses[lang].find(c => c.id === courseId);
+    
+    // ✅ Add drag handle for mobile
+    const dragHandle = isMobile ? `
+        <div style="
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-bottom: 10px;
+        "></div>
+    ` : '';
+    
+    content.innerHTML = `
+        ${dragHandle}
+        <div style="font-size: 4em; margin-bottom: 20px;">✅</div>
+        <h2 style="color: #fff; margin: 0 0 15px 0; font-size: 1.8em; font-weight: 700;">
+            Course Completed!
+        </h2>
+        <p style="color: #8b949e; margin: 0 0 10px 0; font-size: 1em;">
+            ${courseData.icon} ${courseName}
+        </p>
+        <p style="color: #64ffda; margin: 0 0 30px 0; font-size: 0.95em; font-weight: 600;">
+            You've already finished this course
+        </p>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button onclick="retryLesson('${lang}', '${courseId}', '${courseName}')" style="
+                padding: 14px 30px;
+                background: linear-gradient(135deg, #667eea, #64ffda);
+                border: none;
+                border-radius: 12px;
+                color: #fff;
+                font-weight: 700;
+                font-size: 1em;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(100, 255, 218, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(100, 255, 218, 0.3)'">
+                🔄 Retry Course
+            </button>
+            
+            <button onclick="closeRetryModal()" style="
+                padding: 14px 30px;
+                background: rgba(139, 148, 158, 0.15);
+                border: 2px solid rgba(139, 148, 158, 0.3);
+                border-radius: 12px;
+                color: #8b949e;
+                font-weight: 600;
+                font-size: 1em;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.background='rgba(139, 148, 158, 0.25)'; this.style.borderColor='rgba(139, 148, 158, 0.5)'" onmouseout="this.style.background='rgba(139, 148, 158, 0.15)'; this.style.borderColor='rgba(139, 148, 158, 0.3)'">
+                Cancel
+            </button>
+        </div>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    // ✅ Add swipe gesture for mobile
+    if (isMobile) {
+        addSwipeGesture(content);
+    }
+    
+    // Animate in
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        if (isMobile) {
+            content.style.transform = 'translateY(0)';
+        } else {
+            content.style.transform = 'scale(1)';
+        }
+    }, 10);
+}
+
+function closeRetryModal() {
+    const modal = document.querySelector('.retry-modal');
+    if (modal) {
+        const content = modal.querySelector('.retry-modal-content');
+        const isMobile = window.innerWidth <= 768;
+        
+        modal.style.opacity = '0';
+        
+        if (content) {
+            if (isMobile) {
+                content.style.transform = 'translateY(100%)';
+            } else {
+                content.style.transform = 'scale(0.9)';
+            }
+        }
+        
+        setTimeout(() => {
+            modal.remove();
+            
+            // Unlock scroll
+            unlockScroll();
+        }, 400);
+    }
+}
+
 function closeUpdateSplash() {
-    // Version is already saved in checkForUpdates(), just close
     document.getElementById('updateSplash').classList.remove('active');
     document.body.classList.remove('splash-open');
+    
+    // Unlock scroll
+    unlockScroll();
 }
 
 function showPreviewExplanation() {
@@ -17138,8 +17676,11 @@ async function highlightKeywords(text) {
 let currentInlinePopup = null;
 
 async function showInlineAI(event, keyword) {
-    event.preventDefault(); // Prevent default touch behavior
+    event.preventDefault();
     event.stopPropagation();
+    
+    // Lock scroll when inline AI opens
+    lockScroll();
     
     // Close existing popup if any
     if (currentInlinePopup) {
@@ -17340,6 +17881,9 @@ function closeInlineAI() {
         currentInlinePopup.overlay.remove();
         currentInlinePopup.popup.remove();
         currentInlinePopup = null;
+        
+        // Unlock scroll when inline AI closes
+        unlockScroll();
     }
 }
 
@@ -18330,9 +18874,12 @@ async function showCompletionStats() {
     const wrongAttempts = wrongAnswers.length;
     const accuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
     
+    // Lock scroll FIRST
+    lockScroll();
+    
     const modal = document.createElement('div');
     modal.className = 'completion-stats-modal';
-    modal.id = 'completionStatsModal'; // ✅ ADD ID for screenshot
+    modal.id = 'completionStatsModal';
     modal.innerHTML = `
         <div class="completion-stats-content">
             <div class="stats-header">
@@ -18385,8 +18932,13 @@ async function showCompletionStats() {
 async function closeStatsAndSuggest() {
     // Close the stats modal
     const statsModal = document.querySelector('.completion-stats-modal');
-    if (statsModal) statsModal.remove();
-    
+    if (statsModal) {
+        statsModal.remove();
+        
+        // Unlock scroll
+        unlockScroll();
+    }
+
     // ✅ NEW: Check if goal was just completed
     const goalJustCompleted = localStorage.getItem('goalJustCompleted_' + currentUser);
     if (goalJustCompleted === 'true') {
