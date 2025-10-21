@@ -19141,64 +19141,55 @@ function injectVideoPlayerCSS() {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    max-height: 100vh !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    border: none !important;
     border-radius: 0 !important;
     z-index: 10001 !important;
-    background: rgba(0, 0, 0, 0.98) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+    background: #000 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
 }
 
 .video-container.fullscreen .video-wrapper {
-    position: relative !important;
-    width: 100% !important;
-    height: 0 !important;
-    padding-bottom: 56.25% !important; /* 16:9 aspect ratio */
-    max-width: 100vw !important;
-    max-height: 100vh !important;
-}
-
-/* Alternative: For true fullscreen fill */
-@media (min-aspect-ratio: 16/9) {
-    .video-container.fullscreen .video-wrapper {
-        width: 100% !important;
-        height: 100vh !important;
-        padding-bottom: 0 !important;
-    }
-}
-
-@media (max-aspect-ratio: 16/9) {
-    .video-container.fullscreen .video-wrapper {
-        width: 100% !important;
-        height: auto !important;
-        padding-bottom: 56.25% !important;
-    }
-}
-
-.video-container.fullscreen .video-wrapper iframe {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
+    padding-bottom: 0 !important;
+    background: #000 !important;
+}
+
+.video-container.fullscreen .video-wrapper iframe {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    border: none !important;
 }
 
 .video-container.fullscreen .fullscreen-btn {
-    opacity: 1 !important;
-    bottom: 30px !important;
-    right: 30px !important;
-    width: 54px !important;
-    height: 54px !important;
-    font-size: 1.4em !important;
     position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    bottom: auto !important;
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 1.5em !important;
+    opacity: 1 !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    z-index: 10002 !important;
 }
 
         /* Exit Fullscreen Hint */
