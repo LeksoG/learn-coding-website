@@ -19137,25 +19137,27 @@ function injectVideoPlayerCSS() {
         }
 
         /* Fullscreen Mode */
-        .video-container.fullscreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            max-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            border-radius: 0;
-            z-index: 10001;
-            background: rgba(0, 0, 0, 0.98);
-            backdrop-filter: blur(20px);
-        }
+.video-container.fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    border-radius: 0 !important;
+    z-index: 10001 !important;
+    background: rgba(0, 0, 0, 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+}
 
-        .video-container.fullscreen .video-wrapper {
-            padding-bottom: 0;
-            height: 100%;
-        }
+.video-container.fullscreen .video-wrapper {
+    padding-bottom: 0 !important;
+    height: calc(100% - 40px) !important;
+}
 
         .video-container.fullscreen .fullscreen-btn {
             opacity: 1;
@@ -19269,6 +19271,8 @@ function toggleFullscreen(messageIndex) {
     const container = document.getElementById('videoContainer-' + messageIndex);
     if (!container) return;
     
+    const btn = container.querySelector('.fullscreen-btn');
+    
     if (!isFullscreen) {
         // Enter fullscreen
         container.classList.add('fullscreen');
@@ -19278,21 +19282,34 @@ function toggleFullscreen(messageIndex) {
         // Show hint
         const hint = document.createElement('div');
         hint.className = 'fullscreen-hint';
-        hint.textContent = 'Press ESC or click ⛶ to exit fullscreen';
+        hint.textContent = 'Press ESC or click ✕ to exit fullscreen';
         container.appendChild(hint);
         
         setTimeout(() => hint.remove(), 3000);
         
-        // Change button icon
-        const btn = container.querySelector('.fullscreen-btn');
-        if (btn) btn.textContent = '⛶';
+        // Change button icon to exit icon
+        if (btn) btn.innerHTML = '✕';
         
         // Lock scroll
         lockScroll();
         
     } else {
         // Exit fullscreen
-        exitFullscreen();
+        container.classList.remove('fullscreen');
+        isFullscreen = false;
+        
+        // Change button icon back to fullscreen
+        if (btn) btn.innerHTML = '⛶';
+        
+        // Unlock scroll
+        unlockScroll();
+        
+        // Scroll back to video
+        setTimeout(() => {
+            container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 400);
+        
+        currentVideoIndex = null;
     }
 }
 
@@ -19307,7 +19324,7 @@ function exitFullscreen() {
     
     // Change button icon back
     const btn = container.querySelector('.fullscreen-btn');
-    if (btn) btn.textContent = '⛶';
+    if (btn) btn.innerHTML = '⛶';
     
     // Unlock scroll
     unlockScroll();
@@ -19316,12 +19333,18 @@ function exitFullscreen() {
     setTimeout(() => {
         container.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 400);
+    
+    currentVideoIndex = null;
 }
 
 // ESC key handler for fullscreen
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && isFullscreen) {
-        exitFullscreen();
+    if (e.key === 'Escape' && isFullscreen && currentVideoIndex !== null) {
+        e.preventDefault();
+        const container = document.getElementById('videoContainer-' + currentVideoIndex);
+        if (container) {
+            toggleFullscreen(currentVideoIndex);
+        }
     }
 });
 
