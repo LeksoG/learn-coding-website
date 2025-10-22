@@ -10918,6 +10918,9 @@ function retryLesson(lang, courseId, courseName) {
     openLesson(lang, courseId, courseName);
 }
 
+// Track if this is the initial page load
+let isInitialPageLoad = true;
+
 function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(s => {
         s.classList.remove('active');
@@ -10928,15 +10931,20 @@ function showSection(sectionId) {
     const section = document.getElementById(sectionId);
     section.classList.add('active');
 
-    // Add page load animation
-    setTimeout(() => {
-        section.classList.add('page-load-animate');
-    }, 10);
+    // Only add page load animation on initial page load for 'home' section
+    if (isInitialPageLoad && sectionId === 'home') {
+        setTimeout(() => {
+            section.classList.add('page-load-animate');
+        }, 10);
 
-    // Remove animation class after animation completes
-    setTimeout(() => {
-        section.classList.remove('page-load-animate');
-    }, 1000);
+        // Remove animation class after animation completes
+        setTimeout(() => {
+            section.classList.remove('page-load-animate');
+        }, 1000);
+
+        // Mark that the initial page load animation has been shown
+        isInitialPageLoad = false;
+    }
 
     const activeTab = Array.from(document.querySelectorAll('.nav-tab')).find(
         tab => tab.textContent.toLowerCase().includes(sectionId === 'home' ? 'overview' : sectionId)
@@ -10966,15 +10974,20 @@ function showSectionMobile(sectionId, element) {
     section.classList.add('active');
     element.classList.add('active');
 
-    // Add page load animation
-    setTimeout(() => {
-        section.classList.add('page-load-animate');
-    }, 10);
+    // Only add page load animation on initial page load for 'home' section
+    if (isInitialPageLoad && sectionId === 'home') {
+        setTimeout(() => {
+            section.classList.add('page-load-animate');
+        }, 10);
 
-    // Remove animation class after animation completes
-    setTimeout(() => {
-        section.classList.remove('page-load-animate');
-    }, 1000);
+        // Remove animation class after animation completes
+        setTimeout(() => {
+            section.classList.remove('page-load-animate');
+        }, 1000);
+
+        // Mark that the initial page load animation has been shown
+        isInitialPageLoad = false;
+    }
 
     if (sectionId === 'home') {
         updateDashboard();
@@ -14433,7 +14446,7 @@ function openViewGoals() {
         display: flex;
         flex-direction: column;
         transform: scale(0.9);
-        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
         margin: auto;
         overflow: hidden;
@@ -14445,6 +14458,10 @@ function openViewGoals() {
 
     const langIcons = { python: '🐍', javascript: '⚡', html: '🌐', css: '🎨', react: '⚛️' };
 
+    // Selection state
+    let selectionMode = false;
+    let selectedGoals = new Set();
+
     // Generate rectangle buttons for goals
     function generateGoalButtons() {
         const buttonsHTML = allGoals.map((goal, index) => {
@@ -14452,17 +14469,40 @@ function openViewGoals() {
             const goalDate = new Date(startTime);
             const completed = parseInt(goal.completed || 0);
             const progress = goal.daily.selectedCourses.length > 0 ? Math.round((completed / goal.daily.selectedCourses.length) * 100) : 0;
+            const isSelected = selectedGoals.has(index);
 
             return `
                 <div class="goal-button-card" data-index="${index}" style="
                     padding: 20px;
                     background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(102, 126, 234, 0.1));
-                    border: 2px solid rgba(100, 255, 218, 0.3);
+                    border: 2px solid ${isSelected ? 'rgba(100, 255, 218, 0.8)' : 'rgba(100, 255, 218, 0.3)'};
                     border-radius: 15px;
                     cursor: pointer;
-                    transition: all 0.3s ease;
+                    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
                     margin-bottom: 15px;
+                    position: relative;
+                    ${isSelected ? 'box-shadow: 0 0 20px rgba(100, 255, 218, 0.4);' : ''}
                 ">
+                    ${selectionMode ? `
+                        <div class="goal-checkbox" data-index="${index}" style="
+                            position: absolute;
+                            top: 15px;
+                            right: 15px;
+                            width: 28px;
+                            height: 28px;
+                            border: 2px solid #64ffda;
+                            border-radius: 8px;
+                            background: ${isSelected ? '#64ffda' : 'rgba(0,0,0,0.3)'};
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.3s ease;
+                            z-index: 10;
+                            cursor: pointer;
+                        ">
+                            ${isSelected ? '<span style="color: #000; font-size: 1.2em; font-weight: 700;">✓</span>' : ''}
+                        </div>
+                    ` : ''}
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <div style="font-size: 1.2em; color: #64ffda; font-weight: 700;">Goal #${index + 1}</div>
                         <div style="font-size: 2em;">${progress === 100 ? '🎉' : '📊'}</div>
@@ -14486,12 +14526,62 @@ function openViewGoals() {
 
         return `
             <div style="padding: 30px 30px 20px 30px; border-bottom: 2px solid rgba(100, 255, 218, 0.2); flex-shrink: 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h2 style="color: #fff; margin: 0; font-size: 1.6em; display: flex; align-items: center; gap: 10px;">
                         👁️ Your Goals
                         <span style="font-size: 0.6em; color: #8b949e;">(${allGoals.length} total)</span>
                     </h2>
                     <button id="closeViewGoalsBtn" style="background: none; border: none; color: #64ffda; font-size: 2em; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease;">×</button>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button id="toggleSelectBtn" style="
+                        flex: 1;
+                        min-width: 120px;
+                        padding: 12px 20px;
+                        background: ${selectionMode ? 'rgba(255, 107, 107, 0.15)' : 'rgba(102, 126, 234, 0.15)'};
+                        border: 2px solid ${selectionMode ? 'rgba(255, 107, 107, 0.3)' : 'rgba(102, 126, 234, 0.3)'};
+                        border-radius: 12px;
+                        color: ${selectionMode ? '#ff6b6b' : '#667eea'};
+                        font-weight: 600;
+                        font-size: 0.95em;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    ">
+                        ${selectionMode ? '✖️ Cancel' : '☑️ Select'}
+                    </button>
+                    ${selectionMode ? `
+                        <button id="deleteSelectedBtn" style="
+                            flex: 1;
+                            min-width: 120px;
+                            padding: 12px 20px;
+                            background: rgba(255, 107, 107, 0.15);
+                            border: 2px solid rgba(255, 107, 107, 0.3);
+                            border-radius: 12px;
+                            color: #ff6b6b;
+                            font-weight: 600;
+                            font-size: 0.95em;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            ${selectedGoals.size === 0 ? 'opacity: 0.5; cursor: not-allowed;' : ''}
+                        " ${selectedGoals.size === 0 ? 'disabled' : ''}>
+                            🗑️ Delete (${selectedGoals.size})
+                        </button>
+                    ` : ''}
+                    <button id="deleteAllBtn" style="
+                        flex: 1;
+                        min-width: 120px;
+                        padding: 12px 20px;
+                        background: rgba(255, 107, 107, 0.15);
+                        border: 2px solid rgba(255, 107, 107, 0.3);
+                        border-radius: 12px;
+                        color: #ff6b6b;
+                        font-weight: 600;
+                        font-size: 0.95em;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    ">
+                        🗑️ Delete All
+                    </button>
                 </div>
             </div>
             <div style="flex: 1; overflow-y: auto; padding: 20px;">
@@ -14615,6 +14705,10 @@ function openViewGoals() {
             const goalButtons = document.querySelectorAll('.goal-button-card');
             const editBtns = document.querySelectorAll('.edit-goal-btn');
             const deleteBtns = document.querySelectorAll('.delete-goal-btn');
+            const toggleSelectBtn = document.getElementById('toggleSelectBtn');
+            const deleteAllBtn = document.getElementById('deleteAllBtn');
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            const checkboxes = document.querySelectorAll('.goal-checkbox');
 
             if (closeBtn) {
                 closeBtn.addEventListener('click', (e) => {
@@ -14634,8 +14728,21 @@ function openViewGoals() {
                 backBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    content.innerHTML = generateGoalButtons();
-                    setupEventHandlers(false);
+
+                    // Smooth fade-out transition
+                    content.style.opacity = '0';
+                    content.style.transform = 'scale(0.95)';
+
+                    setTimeout(() => {
+                        content.innerHTML = generateGoalButtons();
+                        setupEventHandlers(false);
+
+                        // Fade back in
+                        setTimeout(() => {
+                            content.style.opacity = '1';
+                            content.style.transform = 'scale(1)';
+                        }, 50);
+                    }, 200);
                 });
                 backBtn.onmouseenter = function() {
                     this.style.background = 'rgba(100, 255, 218, 0.2)';
@@ -14645,23 +14752,201 @@ function openViewGoals() {
                 };
             }
 
+            // Toggle selection mode
+            if (toggleSelectBtn) {
+                toggleSelectBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Smooth fade-out transition
+                    content.style.opacity = '0.7';
+
+                    setTimeout(() => {
+                        selectionMode = !selectionMode;
+                        if (!selectionMode) {
+                            selectedGoals.clear();
+                        }
+                        content.innerHTML = generateGoalButtons();
+                        setupEventHandlers(false);
+
+                        // Fade back in
+                        setTimeout(() => {
+                            content.style.opacity = '1';
+                        }, 50);
+                    }, 150);
+                });
+                toggleSelectBtn.onmouseenter = function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 5px 15px rgba(100, 255, 218, 0.2)';
+                };
+                toggleSelectBtn.onmouseleave = function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                };
+            }
+
+            // Delete all goals
+            if (deleteAllBtn) {
+                deleteAllBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (confirm(`⚠️ WARNING: Are you sure you want to delete ALL ${allGoals.length} goals?\n\nThis action cannot be undone!`)) {
+                        localStorage.removeItem('userGoals_' + currentUser);
+                        localStorage.removeItem('allUserGoals_' + currentUser);
+                        closeViewGoalsModal();
+                        checkAndShowViewGoalsButton();
+                        showNotification('All goals deleted successfully!', 'success');
+                    }
+                });
+                deleteAllBtn.onmouseenter = function() {
+                    this.style.background = 'rgba(255, 107, 107, 0.25)';
+                    this.style.transform = 'translateY(-2px)';
+                };
+                deleteAllBtn.onmouseleave = function() {
+                    this.style.background = 'rgba(255, 107, 107, 0.15)';
+                    this.style.transform = 'translateY(0)';
+                };
+            }
+
+            // Delete selected goals
+            if (deleteSelectedBtn) {
+                deleteSelectedBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (selectedGoals.size === 0) return;
+
+                    if (confirm(`Are you sure you want to delete ${selectedGoals.size} selected goal${selectedGoals.size > 1 ? 's' : ''}?`)) {
+                        // Smooth fade-out transition
+                        content.style.opacity = '0';
+                        content.style.transform = 'scale(0.95)';
+
+                        setTimeout(() => {
+                            const goalsArray = JSON.parse(localStorage.getItem('allUserGoals_' + currentUser) || '[]');
+                            const indicesToDelete = Array.from(selectedGoals).sort((a, b) => b - a);
+                            indicesToDelete.forEach(index => {
+                                goalsArray.splice(index, 1);
+                            });
+
+                            if (goalsArray.length === 0) {
+                                localStorage.removeItem('userGoals_' + currentUser);
+                                localStorage.removeItem('allUserGoals_' + currentUser);
+                                closeViewGoalsModal();
+                                checkAndShowViewGoalsButton();
+                            } else {
+                                localStorage.setItem('allUserGoals_' + currentUser, JSON.stringify(goalsArray));
+                                selectedGoals.clear();
+                                selectionMode = false;
+                                // Refresh the view
+                                const updatedGoals = JSON.parse(localStorage.getItem('allUserGoals_' + currentUser) || '[]');
+                                allGoals.length = 0;
+                                allGoals.push(...updatedGoals);
+                                content.innerHTML = generateGoalButtons();
+                                setupEventHandlers(false);
+
+                                // Fade back in
+                                setTimeout(() => {
+                                    content.style.opacity = '1';
+                                    content.style.transform = 'scale(1)';
+                                }, 50);
+                            }
+
+                            showNotification(`${indicesToDelete.length} goal${indicesToDelete.length > 1 ? 's' : ''} deleted successfully!`, 'success');
+                        }, 200);
+                    }
+                });
+                deleteSelectedBtn.onmouseenter = function() {
+                    if (selectedGoals.size > 0) {
+                        this.style.background = 'rgba(255, 107, 107, 0.25)';
+                        this.style.transform = 'translateY(-2px)';
+                    }
+                };
+                deleteSelectedBtn.onmouseleave = function() {
+                    if (selectedGoals.size > 0) {
+                        this.style.background = 'rgba(255, 107, 107, 0.15)';
+                        this.style.transform = 'translateY(0)';
+                    }
+                };
+            }
+
+            // Handle checkbox clicks
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Quick fade for checkbox toggle
+                    content.style.opacity = '0.8';
+
+                    setTimeout(() => {
+                        const index = parseInt(checkbox.dataset.index);
+                        if (selectedGoals.has(index)) {
+                            selectedGoals.delete(index);
+                        } else {
+                            selectedGoals.add(index);
+                        }
+                        content.innerHTML = generateGoalButtons();
+                        setupEventHandlers(false);
+
+                        // Fade back in
+                        setTimeout(() => {
+                            content.style.opacity = '1';
+                        }, 30);
+                    }, 100);
+                });
+            });
+
             goalButtons.forEach((btn) => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    const index = parseInt(btn.dataset.index);
-                    content.innerHTML = generateGoalDetail(index);
-                    setupEventHandlers(true, index);
+
+                    // If in selection mode, toggle selection
+                    if (selectionMode) {
+                        // Quick fade for selection toggle
+                        content.style.opacity = '0.8';
+
+                        setTimeout(() => {
+                            const index = parseInt(btn.dataset.index);
+                            if (selectedGoals.has(index)) {
+                                selectedGoals.delete(index);
+                            } else {
+                                selectedGoals.add(index);
+                            }
+                            content.innerHTML = generateGoalButtons();
+                            setupEventHandlers(false);
+
+                            // Fade back in
+                            setTimeout(() => {
+                                content.style.opacity = '1';
+                            }, 30);
+                        }, 100);
+                    } else {
+                        // Smooth fade-out transition before showing detail
+                        content.style.opacity = '0';
+                        content.style.transform = 'scale(0.95)';
+
+                        setTimeout(() => {
+                            const index = parseInt(btn.dataset.index);
+                            content.innerHTML = generateGoalDetail(index);
+                            setupEventHandlers(true, index);
+
+                            // Fade back in
+                            setTimeout(() => {
+                                content.style.opacity = '1';
+                                content.style.transform = 'scale(1)';
+                            }, 50);
+                        }, 200);
+                    }
                 });
                 btn.onmouseenter = function() {
-                    this.style.transform = 'translateY(-3px)';
+                    this.style.transform = 'translateY(-3px) scale(1.02)';
                     this.style.boxShadow = '0 10px 30px rgba(100, 255, 218, 0.3)';
                     this.style.borderColor = 'rgba(100, 255, 218, 0.5)';
                 };
                 btn.onmouseleave = function() {
-                    this.style.transform = 'translateY(0)';
-                    this.style.boxShadow = 'none';
-                    this.style.borderColor = 'rgba(100, 255, 218, 0.3)';
+                    this.style.transform = 'translateY(0) scale(1)';
+                    this.style.boxShadow = selectedGoals.has(parseInt(btn.dataset.index)) ? '0 0 20px rgba(100, 255, 218, 0.4)' : 'none';
+                    this.style.borderColor = selectedGoals.has(parseInt(btn.dataset.index)) ? 'rgba(100, 255, 218, 0.8)' : 'rgba(100, 255, 218, 0.3)';
                 };
             });
 
@@ -20709,5 +20994,6 @@ showSection = function(sectionId) {
 </script>
 </body>
 </html>
+
 
 
