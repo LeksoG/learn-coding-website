@@ -7734,13 +7734,13 @@ body.light-mode .mobile-top-search-results .search-result-title {
     bottom: 100px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.3), rgba(0, 212, 255, 0.3));
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(0, 212, 255, 0.2));
     border: 2px solid #64ffda;
     border-radius: 50px;
-    padding: 12px 24px;
+    padding: 10px 20px;
     color: #64ffda;
     font-weight: 700;
-    font-size: 0.95em;
+    font-size: 0.85em;
     cursor: pointer;
     z-index: 9000;
     opacity: 0;
@@ -7749,8 +7749,8 @@ body.light-mode .mobile-top-search-results .search-result-title {
                 0 0 60px rgba(100, 255, 218, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    animation: aiGlow 2s ease-in-out infinite;
-    max-width: 85%;
+    animation: aiGlowPulse 3s ease-in-out infinite;
+    max-width: 80%;
     text-align: center;
 }
 
@@ -7765,14 +7765,27 @@ body.light-mode .mobile-top-search-results .search-result-title {
                 0 0 80px rgba(100, 255, 218, 0.4);
 }
 
-@keyframes aiGlow {
+@keyframes aiGlowPulse {
     0%, 100% {
-        box-shadow: 0 0 30px rgba(100, 255, 218, 0.5),
-                    0 0 60px rgba(100, 255, 218, 0.3);
+        box-shadow: 0 0 20px rgba(100, 255, 218, 0.4),
+                    0 0 40px rgba(100, 255, 218, 0.2),
+                    0 0 60px rgba(0, 212, 255, 0.1);
+        border-color: rgba(100, 255, 218, 0.8);
+        transform: translateX(-50%) translateY(0) scale(1);
     }
-    50% {
-        box-shadow: 0 0 40px rgba(100, 255, 218, 0.7),
-                    0 0 80px rgba(100, 255, 218, 0.5);
+    33% {
+        box-shadow: 0 0 30px rgba(100, 255, 218, 0.6),
+                    0 0 60px rgba(100, 255, 218, 0.4),
+                    0 0 90px rgba(0, 212, 255, 0.2);
+        border-color: rgba(100, 255, 218, 1);
+        transform: translateX(-50%) translateY(0) scale(1.05);
+    }
+    66% {
+        box-shadow: 0 0 25px rgba(100, 255, 218, 0.5),
+                    0 0 50px rgba(100, 255, 218, 0.3),
+                    0 0 75px rgba(0, 212, 255, 0.15);
+        border-color: rgba(100, 255, 218, 0.9);
+        transform: translateX(-50%) translateY(0) scale(1.02);
     }
 }
 
@@ -8651,7 +8664,7 @@ body.lesson-active {
 }
 
 .ai-suggestion-btn {
-    animation: buttonPulse 2s ease-in-out infinite;
+    animation: aiGlowPulse 3s ease-in-out infinite;
 }
 
 @keyframes buttonPulse {
@@ -8671,12 +8684,13 @@ body.lesson-active {
 @media (max-width: 768px) {
     .ai-suggestion-btn {
         bottom: 90px !important; /* Above mobile nav */
-        max-width: 85% !important;
-        padding: 15px 20px !important;
+        max-width: 80% !important;
+        padding: 12px 18px !important;
+        font-size: 0.8em !important;
     }
-    
+
     .ai-suggestion-title {
-        font-size: 1em !important;
+        font-size: 0.9em !important;
     }
     
     .ai-suggestion-desc {
@@ -8713,6 +8727,20 @@ body.lesson-active {
 #goalsButtonContainer {
     will-change: opacity, transform;
     transform-origin: right center;
+}
+
+@media (max-width: 768px) {
+    #goalsButtonContainer {
+        margin-top: 20px !important;
+        justify-content: center !important;
+        flex-wrap: wrap;
+    }
+
+    #viewGoalsBtn, #setGoalsBtn {
+        font-size: 0.85em !important;
+        padding: 10px 18px !important;
+        white-space: nowrap;
+    }
 }
 
 /* Hide scrollbar during page load */
@@ -9238,6 +9266,17 @@ body.loading * {
         <div class="chart-tab" onclick="switchChart('react')">⚛️ React</div>
     </div>
 
+    <!-- Chart Type Toggle -->
+    <div id="chartTypeToggle" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px 0; padding: 10px; background: rgba(100, 255, 218, 0.05); border-radius: 12px; border: 2px solid rgba(100, 255, 218, 0.2);">
+        <button id="barChartBtn" class="chart-type-btn active" onclick="toggleChartType('bar')" style="flex: 1; padding: 12px 20px; background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(100, 255, 218, 0.1)); border: 2px solid rgba(100, 255, 218, 0.4); border-radius: 10px; color: #64ffda; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span style="font-size: 1.2em;">📊</span>
+            <span>Bar Chart</span>
+        </button>
+        <button id="lineChartBtn" class="chart-type-btn" onclick="toggleChartType('line')" style="flex: 1; padding: 12px 20px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #8b949e; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span style="font-size: 1.2em;">📈</span>
+            <span>Line Chart</span>
+        </button>
+    </div>
 
                     <div id="allChart" class="chart-container active">
                         <div class="bar-chart" id="allBarChart"></div>
@@ -11731,7 +11770,7 @@ function completeLesson() {
                 showStreak = true;
             } else if (diffDays > 1) {
                 newStreak = 1;
-                showStreak = false;
+                showStreak = true; // ✅ FIXED: Show animation even when restarting streak
             }
             
             localStorage.setItem('streak_' + currentUser, newStreak.toString());
@@ -13087,8 +13126,8 @@ function createGoalsModal() {
         backdrop-filter: blur(20px);
         border: 2px solid rgba(100, 255, 218, 0.3);
         border-radius: 20px;
-        padding: 30px;
-        max-width: 550px;
+        padding: 35px;
+        max-width: 600px;
         width: 100%;
         max-height: 90vh;
         overflow-y: auto;
@@ -13112,27 +13151,27 @@ function createGoalsModal() {
     
     content.innerHTML = `
         <!-- Header (Now part of scrollable content) -->
-        <div style="margin-bottom: 25px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+        <div style="margin-bottom: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                 <div>
-                    <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 1.5em; font-weight: 700;">
+                    <h2 style="color: #fff; margin: 0 0 10px 0; font-size: 1.6em; font-weight: 700;">
                         🎯 Daily Learning Goal
                     </h2>
-                    <p style="color: #8b949e; margin: 0; font-size: 0.9em;">Set your target for today</p>
+                    <p style="color: #8b949e; margin: 0; font-size: 0.95em;">Set your personalized learning target</p>
                 </div>
                 <button onclick="closeGoalsModal()" style="background: none; border: none; color: #8b949e; font-size: 1.8em; cursor: pointer; padding: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease; line-height: 1;">×</button>
             </div>
         </div>
-        
+
         <!-- Step 1: Reminder Schedule -->
-        <div style="margin-bottom: 35px;">
-            <div style="margin-bottom: 18px;">
-                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">📅 When should we remind you?</h3>
-                <p style="color: #8b949e; margin: 8px 0 0 0; font-size: 0.9em;">Choose a weekday or specific time</p>
+        <div style="margin-bottom: 40px;">
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #fff; margin: 0; font-size: 1.15em; font-weight: 600;">📅 When should we remind you?</h3>
+                <p style="color: #8b949e; margin: 10px 0 0 0; font-size: 0.92em; line-height: 1.5;">Choose a weekday or specific time for your learning session</p>
             </div>
 
             <!-- Weekday Dropdown -->
-            <div style="margin-bottom: 15px;">
+            <div style="margin-bottom: 18px;">
                 <label style="display: block; color: #64ffda; font-size: 0.9em; font-weight: 500; margin-bottom: 8px;">Choose a Weekday</label>
                 <div class="custom-dropdown" id="weekdayDropdown" onclick="toggleCustomDropdown('weekday')">
                     <div class="dropdown-selected">
@@ -13166,8 +13205,11 @@ function createGoalsModal() {
                         <!-- Time options will be generated dynamically -->
                     </div>
                 </div>
-                <div style="margin-top: 8px; font-size: 0.85em; color: #8b949e;">
+                <div id="timeEmailMessage" style="margin-top: 8px; font-size: 0.85em; color: #8b949e;">
                     ⏰ We'll remind you 5-10 minutes early
+                </div>
+                <div id="courseTimeMessage" style="margin-top: 8px; font-size: 0.85em; color: #64ffda; display: none;">
+                    📧 We'll email you based on your course duration and chosen time
                 </div>
                 <div id="timeWarning" style="margin-top: 8px; font-size: 0.85em; color: #ff6b6b; display: none;">
                     ⚠️ Please choose a future time
@@ -13179,9 +13221,10 @@ function createGoalsModal() {
         </div>
 
         <!-- Step 1.5: Task Count -->
-        <div style="margin-bottom: 35px;">
-            <div style="margin-bottom: 18px;">
-                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">📚 How many courses?</h3>
+        <div style="margin-bottom: 40px;">
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #fff; margin: 0; font-size: 1.15em; font-weight: 600;">📚 How many courses?</h3>
+                <p style="color: #8b949e; margin: 10px 0 0 0; font-size: 0.92em;">Select the number of courses you'd like to complete</p>
             </div>
             
             <div style="display: flex; gap: 15px; align-items: center; padding: 18px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px;">
@@ -14266,19 +14309,19 @@ function updateToggleVisualState(id, isChecked) {
 }
 
 function openViewGoals() {
-    const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser));
-    if (!goals) {
+    const allGoals = JSON.parse(localStorage.getItem('allUserGoals_' + currentUser) || '[]');
+    if (allGoals.length === 0) {
         showNotification('No goals set yet!', 'info');
         return;
     }
-    
+
     // Remove any existing modal first
     const existingModal = document.getElementById('viewGoalsModal');
     if (existingModal) {
         existingModal.remove();
         unlockScroll();
     }
-    
+
     // Lock scroll AFTER cleanup
     lockScroll();
     
@@ -14333,112 +14376,142 @@ function openViewGoals() {
     });
     
     const langIcons = { python: '🐍', javascript: '⚡', html: '🌐', css: '🎨', react: '⚛️' };
-    
-    // Calculate progress
-    const startTime = parseInt(localStorage.getItem('goalStartTime_' + currentUser) || Date.now());
-    const elapsed = Math.floor((Date.now() - startTime) / 60000);
-    const completed = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser) || '0');
-    const remaining = goals.daily.selectedCourses.length - completed;
-    const progress = goals.daily.selectedCourses.length > 0 ? Math.round((completed / goals.daily.selectedCourses.length) * 100) : 0;
-    
+
+    // Generate goal cards HTML
+    const goalsCardsHTML = allGoals.map((goal, index) => {
+        const startTime = parseInt(goal.startTime || Date.now());
+        const goalDate = new Date(startTime);
+        const elapsed = Math.floor((Date.now() - startTime) / 60000);
+        const completed = parseInt(goal.completed || 0);
+        const remaining = goal.daily.selectedCourses.length - completed;
+        const progress = goal.daily.selectedCourses.length > 0 ? Math.round((completed / goal.daily.selectedCourses.length) * 100) : 0;
+
+        return `
+            <div class="goal-card-item" style="min-width: 100%; scroll-snap-align: start; padding: 25px;">
+                <!-- Goal Date Label -->
+                <div style="text-align: center; margin-bottom: 20px; padding: 10px; background: rgba(100, 255, 218, 0.1); border-radius: 10px;">
+                    <div style="color: #64ffda; font-weight: 600; font-size: 0.9em;">Goal #${index + 1}</div>
+                    <div style="color: #8b949e; font-size: 0.85em; margin-top: 5px;">Set on ${goalDate.toLocaleDateString()}</div>
+                </div>
+
+                <!-- Progress Overview -->
+                <div style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(100, 255, 218, 0.15)); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 15px;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">${progress === 100 ? '🎉' : '📊'}</div>
+                        <div style="font-size: 2.5em; font-weight: 700; color: #64ffda; margin-bottom: 5px;">${progress}%</div>
+                        <div style="color: #8b949e; font-weight: 600; font-size: 1em;">Daily Progress</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); height: 12px; border-radius: 12px; overflow: hidden; margin-bottom: 15px;">
+                        <div style="height: 100%; background: linear-gradient(90deg, #667eea, #64ffda); width: ${progress}%; transition: width 0.5s ease;"></div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
+                        <div>
+                            <div style="font-size: 1.8em; color: #64ffda; font-weight: 700;">${completed}</div>
+                            <div style="font-size: 0.85em; color: #8b949e;">Completed</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.8em; color: #667eea; font-weight: 700;">${remaining}</div>
+                            <div style="font-size: 0.85em; color: #8b949e;">Remaining</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.8em; color: #ffc107; font-weight: 700;">${elapsed}</div>
+                            <div style="font-size: 0.85em; color: #8b949e;">Minutes</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Goal -->
+                <div style="margin-bottom: 15px; padding: 15px; background: rgba(100, 255, 218, 0.05); border-radius: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; margin-bottom: 8px;">
+                        <span style="font-size: 1.3em;">⏱️</span>
+                        <span style="font-size: 1em;">Time Goal</span>
+                    </div>
+                    <div style="color: #64ffda; font-size: 1.3em; font-weight: 700;">${goal.daily.timeGoal} minutes</div>
+                    <div style="color: #8b949e; font-size: 0.85em; margin-top: 5px;">
+                        📧 Smart reminder after ${goal.daily.emailReminderThreshold || Math.floor(goal.daily.timeGoal * 0.7)} minutes
+                    </div>
+                </div>
+
+                <!-- Selected Courses -->
+                <div style="margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; margin-bottom: 12px;">
+                        <span style="font-size: 1.3em;">📚</span>
+                        <span style="font-size: 1em;">Today's Courses</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        ${goal.daily.selectedCourses.map(course => {
+                            const courseData = courses[course.lang].find(c => c.id === course.courseId);
+                            const isCompleted = userProgress[course.lang][course.courseId]?.completed;
+                            return `
+                                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: ${isCompleted ? 'rgba(100, 255, 218, 0.1)' : 'rgba(100, 255, 218, 0.05)'}; border: 2px solid ${isCompleted ? 'rgba(100, 255, 218, 0.3)' : 'rgba(100, 255, 218, 0.15)'}; border-radius: 10px;">
+                                    <span style="font-size: 1.5em;">${courseData.icon}</span>
+                                    <div style="flex: 1;">
+                                        <div style="color: #fff; font-weight: 600; font-size: 1em;">${courseData.title}</div>
+                                        <div style="color: #8b949e; font-size: 0.85em;">${langIcons[course.lang]} ${course.lang.toUpperCase()}</div>
+                                    </div>
+                                    <span style="font-size: 1.3em;">${isCompleted ? '✅' : '⏳'}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <!-- Settings Status -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div style="flex: 1; padding: 12px; background: rgba(100, 255, 218, 0.05); border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5em; margin-bottom: 5px;">${goal.daily.streak ? '🔥' : '❌'}</div>
+                        <div style="color: #8b949e; font-size: 0.85em;">Streak Goal</div>
+                    </div>
+                    <div style="flex: 1; padding: 12px; background: rgba(102, 126, 234, 0.08); border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5em; margin-bottom: 5px;">${goal.emailNotifications ? '📧' : '🔕'}</div>
+                        <div style="color: #8b949e; font-size: 0.85em;">Email Alerts</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="edit-goal-btn" data-index="${index}" style="flex: 1; padding: 14px; background: rgba(102, 126, 234, 0.15); border: 2px solid rgba(102, 126, 234, 0.3); border-radius: 12px; color: #667eea; font-weight: 600; font-size: 1em; cursor: pointer; transition: all 0.3s ease;">
+                        ✏️ Edit
+                    </button>
+                    <button class="delete-goal-btn" data-index="${index}" style="flex: 1; padding: 14px; background: rgba(255, 107, 107, 0.15); border: 2px solid rgba(255, 107, 107, 0.3); border-radius: 12px; color: #ff6b6b; font-weight: 600; font-size: 1em; cursor: pointer; transition: all 0.3s ease;">
+                        🗑️ Delete
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
     content.innerHTML = `
         <!-- Fixed Header -->
         <div style="padding: 30px 30px 20px 30px; border-bottom: 2px solid rgba(100, 255, 218, 0.2); flex-shrink: 0; background: rgba(30, 30, 30, 0.98); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h2 style="color: #fff; margin: 0; font-size: 1.6em; display: flex; align-items: center; gap: 10px;">
                     👁️ Your Goals
+                    ${allGoals.length > 1 ? `<span style="font-size: 0.6em; color: #8b949e;">(${allGoals.length} total)</span>` : ''}
                 </h2>
                 <button id="closeViewGoalsBtn" style="background: none; border: none; color: #64ffda; font-size: 2em; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease; line-height: 1;">×</button>
             </div>
         </div>
         
-        <!-- Scrollable Content -->
-        <div style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 25px; background: rgba(30, 30, 30, 0.95);">
-            <!-- Progress Overview -->
-            <div style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(100, 255, 218, 0.15)); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 15px;">
-                <div style="text-align: center; margin-bottom: 15px;">
-                    <div style="font-size: 3em; margin-bottom: 10px;">${progress === 100 ? '🎉' : '📊'}</div>
-                    <div style="font-size: 2.5em; font-weight: 700; color: #64ffda; margin-bottom: 5px;">${progress}%</div>
-                    <div style="color: #8b949e; font-weight: 600; font-size: 1em;">Daily Progress</div>
+        <!-- Horizontal Scrollable Goals Container -->
+        <div style="flex: 1; overflow: hidden; background: rgba(30, 30, 30, 0.95);">
+            ${allGoals.length > 1 ? `
+                <div style="text-align: center; padding: 15px 0; background: rgba(100, 255, 218, 0.05);">
+                    <div style="color: #8b949e; font-size: 0.9em;">← Swipe to view all goals →</div>
                 </div>
-                <div style="background: rgba(0,0,0,0.3); height: 12px; border-radius: 12px; overflow: hidden; margin-bottom: 15px;">
-                    <div style="height: 100%; background: linear-gradient(90deg, #667eea, #64ffda); width: ${progress}%; transition: width 0.5s ease;"></div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
-                    <div>
-                        <div style="font-size: 1.8em; color: #64ffda; font-weight: 700;">${completed}</div>
-                        <div style="font-size: 0.85em; color: #8b949e;">Completed</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 1.8em; color: #667eea; font-weight: 700;">${remaining}</div>
-                        <div style="font-size: 0.85em; color: #8b949e;">Remaining</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 1.8em; color: #ffc107; font-weight: 700;">${elapsed}</div>
-                        <div style="font-size: 0.85em; color: #8b949e;">Minutes</div>
-                    </div>
-                </div>
+            ` : ''}
+
+            <div id="goalsCarousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; height: 100%; scrollbar-width: thin; scrollbar-color: rgba(100, 255, 218, 0.3) rgba(30, 30, 30, 0.3);">
+                ${goalsCardsHTML}
             </div>
-            
-            <!-- Time Goal -->
-            <div style="margin-bottom: 15px; padding: 15px; background: rgba(100, 255, 218, 0.05); border-radius: 12px;">
-                <div style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; margin-bottom: 8px;">
-                    <span style="font-size: 1.3em;">⏱️</span>
-                    <span style="font-size: 1em;">Time Goal</span>
+
+            ${allGoals.length > 1 ? `
+                <div style="display: flex; justify-content: center; gap: 8px; padding: 15px; background: rgba(30, 30, 30, 0.98);">
+                    ${allGoals.map((_, index) => `
+                        <div class="goal-dot" data-index="${index}" style="width: 10px; height: 10px; border-radius: 50%; background: ${index === 0 ? '#64ffda' : 'rgba(100, 255, 218, 0.3)'}; transition: all 0.3s ease; cursor: pointer;"></div>
+                    `).join('')}
                 </div>
-                <div style="color: #64ffda; font-size: 1.3em; font-weight: 700;">${goals.daily.timeGoal} minutes</div>
-                <div style="color: #8b949e; font-size: 0.85em; margin-top: 5px;">
-                    📧 Smart reminder after ${goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7)} minutes
-                </div>
-            </div>
-            
-            <!-- Selected Courses -->
-            <div style="margin-bottom: 15px;">
-                <div style="display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; margin-bottom: 12px;">
-                    <span style="font-size: 1.3em;">📚</span>
-                    <span style="font-size: 1em;">Today's Courses</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    ${goals.daily.selectedCourses.map(course => {
-                        const courseData = courses[course.lang].find(c => c.id === course.courseId);
-                        const isCompleted = userProgress[course.lang][course.courseId]?.completed;
-                        return `
-                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: ${isCompleted ? 'rgba(100, 255, 218, 0.1)' : 'rgba(100, 255, 218, 0.05)'}; border: 2px solid ${isCompleted ? 'rgba(100, 255, 218, 0.3)' : 'rgba(100, 255, 218, 0.15)'}; border-radius: 10px;">
-                                <span style="font-size: 1.5em;">${courseData.icon}</span>
-                                <div style="flex: 1;">
-                                    <div style="color: #fff; font-weight: 600; font-size: 1em;">${courseData.title}</div>
-                                    <div style="color: #8b949e; font-size: 0.85em;">${langIcons[course.lang]} ${course.lang.toUpperCase()}</div>
-                                </div>
-                                <span style="font-size: 1.3em;">${isCompleted ? '✅' : '⏳'}</span>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            </div>
-            
-            <!-- Settings Status -->
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <div style="flex: 1; padding: 12px; background: rgba(100, 255, 218, 0.05); border-radius: 10px; text-align: center;">
-                    <div style="font-size: 1.5em; margin-bottom: 5px;">${goals.daily.streak ? '🔥' : '❌'}</div>
-                    <div style="color: #8b949e; font-size: 0.85em;">Streak Goal</div>
-                </div>
-                <div style="flex: 1; padding: 12px; background: rgba(102, 126, 234, 0.08); border-radius: 10px; text-align: center;">
-                    <div style="font-size: 1.5em; margin-bottom: 5px;">${goals.emailNotifications ? '📧' : '🔕'}</div>
-                    <div style="color: #8b949e; font-size: 0.85em;">Email Alerts</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Fixed Action Buttons at Bottom -->
-        <div style="padding: 20px; border-top: 2px solid rgba(100, 255, 218, 0.2); flex-shrink: 0; background: rgba(30, 30, 30, 0.98);">
-            <div style="display: flex; gap: 10px;">
-                <button id="editGoalsBtn" style="flex: 1; padding: 14px; background: rgba(102, 126, 234, 0.15); border: 2px solid rgba(102, 126, 234, 0.3); border-radius: 12px; color: #667eea; font-weight: 600; font-size: 1em; cursor: pointer; transition: all 0.3s ease;">
-                    ✏️ Edit
-                </button>
-                <button id="deleteGoalsBtn" style="flex: 1; padding: 14px; background: rgba(255, 107, 107, 0.15); border: 2px solid rgba(255, 107, 107, 0.3); border-radius: 12px; color: #ff6b6b; font-weight: 600; font-size: 1em; cursor: pointer; transition: all 0.3s ease;">
-                    🗑️ Delete
-                </button>
-            </div>
+            ` : ''}
         </div>
     `;
     
@@ -14448,16 +14521,16 @@ function openViewGoals() {
     // Add event listeners AFTER modal is in DOM
     setTimeout(() => {
         const closeBtn = document.getElementById('closeViewGoalsBtn');
-        const editBtn = document.getElementById('editGoalsBtn');
-        const deleteBtn = document.getElementById('deleteGoalsBtn');
-        
+        const carousel = document.getElementById('goalsCarousel');
+        const dots = document.querySelectorAll('.goal-dot');
+
         if (closeBtn) {
             closeBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 closeViewGoalsModal();
             });
-            
+
             closeBtn.onmouseenter = function() {
                 this.style.background = 'rgba(100, 255, 218, 0.1)';
             };
@@ -14465,46 +14538,97 @@ function openViewGoals() {
                 this.style.background = 'none';
             };
         }
-        
-        if (editBtn) {
-            editBtn.addEventListener('click', function(e) {
+
+        // Handle carousel scroll and dot navigation
+        if (carousel && dots.length > 0) {
+            carousel.addEventListener('scroll', () => {
+                const scrollPosition = carousel.scrollLeft;
+                const cardWidth = carousel.querySelector('.goal-card-item').offsetWidth;
+                const currentIndex = Math.round(scrollPosition / cardWidth);
+
+                dots.forEach((dot, index) => {
+                    dot.style.background = index === currentIndex ? '#64ffda' : 'rgba(100, 255, 218, 0.3)';
+                    dot.style.transform = index === currentIndex ? 'scale(1.3)' : 'scale(1)';
+                });
+            });
+
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    const cardWidth = carousel.querySelector('.goal-card-item').offsetWidth;
+                    carousel.scrollTo({
+                        left: cardWidth * index,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        }
+
+        // Handle edit buttons
+        const editBtns = document.querySelectorAll('.edit-goal-btn');
+        editBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+                const index = parseInt(this.dataset.index);
+                // For now, just open the goals modal
                 closeViewGoalsModal();
                 setTimeout(openGoals, 300);
             });
-            
-            editBtn.onmouseenter = function() {
+
+            btn.onmouseenter = function() {
                 this.style.background = 'rgba(102, 126, 234, 0.25)';
                 this.style.transform = 'translateY(-2px)';
             };
-            editBtn.onmouseleave = function() {
+            btn.onmouseleave = function() {
                 this.style.background = 'rgba(102, 126, 234, 0.15)';
                 this.style.transform = 'translateY(0)';
             };
-        }
-        
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', function(e) {
+        });
+
+        // Handle delete buttons
+        const deleteBtns = document.querySelectorAll('.delete-goal-btn');
+        deleteBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                confirmDeleteGoals();
+                const index = parseInt(this.dataset.index);
+                confirmDeleteGoal(index);
             });
-            
-            deleteBtn.onmouseenter = function() {
+
+            btn.onmouseenter = function() {
                 this.style.background = 'rgba(255, 107, 107, 0.25)';
                 this.style.transform = 'translateY(-2px)';
             };
-            deleteBtn.onmouseleave = function() {
+            btn.onmouseleave = function() {
                 this.style.background = 'rgba(255, 107, 107, 0.15)';
                 this.style.transform = 'translateY(0)';
             };
-        }
-        
+        });
+
         // Animate in - centered popup style
         modal.style.opacity = '1';
         content.style.transform = 'scale(1)';
     }, 10);
+}
+
+function confirmDeleteGoal(index) {
+    const allGoals = JSON.parse(localStorage.getItem('allUserGoals_' + currentUser) || '[]');
+    if (index >= 0 && index < allGoals.length) {
+        if (confirm(`Are you sure you want to delete Goal #${index + 1}?`)) {
+            allGoals.splice(index, 1);
+            localStorage.setItem('allUserGoals_' + currentUser, JSON.stringify(allGoals));
+
+            // If no goals left, clean up
+            if (allGoals.length === 0) {
+                localStorage.removeItem('userGoals_' + currentUser);
+                localStorage.removeItem('allUserGoals_' + currentUser);
+            }
+
+            closeViewGoalsModal();
+            checkAndShowViewGoalsButton();
+            showNotification('Goal deleted successfully!', 'success');
+        }
+    }
 }
 
 function closeGoalsModal() {
@@ -15758,26 +15882,25 @@ function updateCharts() {
         allChart.parentElement.classList.add('active');
     }
 
-    allChart.innerHTML = `
-        <div class="chart-y-labels">
-            <span>100%</span>
-            <span>80%</span>
-            <span>60%</span>
-            <span>40%</span>
-            <span>20%</span>
-            <span>0%</span>
-        </div>
-    `;
-    
-    Object.keys(userProgress).forEach(lang => {
-        const avgProgress = calculateAvgProgress(lang);
-        const bar = createBarItem(lang.toUpperCase(), avgProgress);
-        allChart.appendChild(bar);
-    });
-    
-    Object.keys(userProgress).forEach(lang => {
-        const chart = document.getElementById(lang + 'BarChart');
-        chart.innerHTML = `
+    if (currentChartType === 'line') {
+        // Render line chart for all languages
+        const allData = Object.keys(userProgress).map(lang => ({
+            label: lang.toUpperCase(),
+            value: calculateAvgProgress(lang)
+        }));
+        renderLineChart('allBarChart', allData);
+
+        // Render line charts for each language
+        Object.keys(userProgress).forEach(lang => {
+            const chartData = courses[lang].map(course => ({
+                label: course.title.length > 10 ? course.title.substring(0, 10) + '...' : course.title,
+                value: userProgress[lang][course.id]?.progress || 0
+            }));
+            renderLineChart(lang + 'BarChart', chartData);
+        });
+    } else {
+        // Render bar chart for all languages
+        allChart.innerHTML = `
             <div class="chart-y-labels">
                 <span>100%</span>
                 <span>80%</span>
@@ -15787,13 +15910,34 @@ function updateCharts() {
                 <span>0%</span>
             </div>
         `;
-        
-        courses[lang].forEach(course => {
-            const progress = userProgress[lang][course.id]?.progress || 0;
-            const bar = createBarItem(course.title, progress);
-            chart.appendChild(bar);
+
+        Object.keys(userProgress).forEach(lang => {
+            const avgProgress = calculateAvgProgress(lang);
+            const bar = createBarItem(lang.toUpperCase(), avgProgress);
+            allChart.appendChild(bar);
         });
-    });
+
+        // Render bar charts for each language
+        Object.keys(userProgress).forEach(lang => {
+            const chart = document.getElementById(lang + 'BarChart');
+            chart.innerHTML = `
+                <div class="chart-y-labels">
+                    <span>100%</span>
+                    <span>80%</span>
+                    <span>60%</span>
+                    <span>40%</span>
+                    <span>20%</span>
+                    <span>0%</span>
+                </div>
+            `;
+
+            courses[lang].forEach(course => {
+                const progress = userProgress[lang][course.id]?.progress || 0;
+                const bar = createBarItem(course.title, progress);
+                chart.appendChild(bar);
+            });
+        });
+    }
 }
 
 function createMobileStatsCarousel() {
@@ -15945,11 +16089,13 @@ function calculateAvgProgress(language) {
 function createBarItem(label, progress) {
     const div = document.createElement('div');
     div.className = 'bar-item';
-    
+    div.style.cursor = 'pointer';
+    div.style.transition = 'all 0.3s ease';
+
     const heightPercent = Math.min(progress, 100);
-    
+
     div.innerHTML = `
-        <div class="bar" style="height: 0%; position: relative;" data-target="${heightPercent}">
+        <div class="bar" style="height: 0%; position: relative; transition: all 0.3s ease;" data-target="${heightPercent}">
             <div class="bar-gradient" style="
                 position: absolute;
                 top: 0;
@@ -16030,8 +16176,165 @@ function createBarItem(label, progress) {
             valueEl.textContent = current + '%';
         }, 25);
     }, 100);
-    
+
+    // Add click handler for interactive bar selection
+    div.addEventListener('click', function() {
+        const parentChart = this.closest('.bar-chart');
+        const allBars = parentChart.querySelectorAll('.bar-item');
+
+        const isCurrentlySelected = this.classList.contains('selected');
+
+        allBars.forEach(item => {
+            const bar = item.querySelector('.bar');
+            const barGradient = item.querySelector('.bar-gradient');
+
+            if (isCurrentlySelected) {
+                // Deselect all - restore full color
+                item.classList.remove('selected');
+                item.style.opacity = '1';
+                item.style.transform = 'scale(1)';
+                barGradient.style.opacity = '1';
+                barGradient.style.filter = 'none';
+            } else if (item === this) {
+                // Select this one
+                item.classList.add('selected');
+                item.style.opacity = '1';
+                item.style.transform = 'scale(1.05)';
+                barGradient.style.opacity = '1';
+                barGradient.style.filter = 'brightness(1.2)';
+            } else {
+                // Desaturate others
+                item.classList.remove('selected');
+                item.style.opacity = '0.3';
+                item.style.transform = 'scale(0.95)';
+                barGradient.style.opacity = '0.3';
+                barGradient.style.filter = 'grayscale(50%)';
+            }
+        });
+    });
+
     return div;
+}
+
+let currentChartType = 'bar';
+
+function toggleChartType(type) {
+    currentChartType = type;
+
+    const barBtn = document.getElementById('barChartBtn');
+    const lineBtn = document.getElementById('lineChartBtn');
+
+    if (type === 'bar') {
+        barBtn.style.background = 'linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(100, 255, 218, 0.1))';
+        barBtn.style.borderColor = 'rgba(100, 255, 218, 0.4)';
+        barBtn.style.color = '#64ffda';
+        lineBtn.style.background = 'rgba(100, 255, 218, 0.05)';
+        lineBtn.style.borderColor = 'rgba(100, 255, 218, 0.2)';
+        lineBtn.style.color = '#8b949e';
+    } else {
+        lineBtn.style.background = 'linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(100, 255, 218, 0.1))';
+        lineBtn.style.borderColor = 'rgba(100, 255, 218, 0.4)';
+        lineBtn.style.color = '#64ffda';
+        barBtn.style.background = 'rgba(100, 255, 218, 0.05)';
+        barBtn.style.borderColor = 'rgba(100, 255, 218, 0.2)';
+        barBtn.style.color = '#8b949e';
+    }
+
+    // Re-render current chart with new type
+    updateCharts();
+}
+
+function renderLineChart(chartId, data) {
+    const chart = document.getElementById(chartId);
+    chart.innerHTML = '';
+
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%';
+    canvas.style.height = '350px';
+    chart.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    canvas.width = chart.offsetWidth;
+    canvas.height = 350;
+
+    const padding = 60;
+    const chartWidth = canvas.width - padding * 2;
+    const chartHeight = canvas.height - padding * 2;
+
+    // Draw grid
+    ctx.strokeStyle = 'rgba(100, 255, 218, 0.1)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+        const y = padding + (chartHeight / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(canvas.width - padding, y);
+        ctx.stroke();
+
+        // Y-axis labels
+        ctx.fillStyle = '#8b949e';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${100 - i * 20}%`, padding - 10, y + 4);
+    }
+
+    // Draw line
+    if (data.length > 0) {
+        const stepX = chartWidth / (data.length - 1 || 1);
+
+        ctx.strokeStyle = '#64ffda';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+
+        data.forEach((point, index) => {
+            const x = padding + stepX * index;
+            const y = padding + chartHeight - (point.value / 100) * chartHeight;
+
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+
+        ctx.stroke();
+
+        // Draw gradient fill
+        const gradient = ctx.createLinearGradient(0, padding, 0, canvas.height - padding);
+        gradient.addColorStop(0, 'rgba(100, 255, 218, 0.3)');
+        gradient.addColorStop(1, 'rgba(100, 255, 218, 0.05)');
+
+        ctx.lineTo(canvas.width - padding, canvas.height - padding);
+        ctx.lineTo(padding, canvas.height - padding);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        // Draw points
+        data.forEach((point, index) => {
+            const x = padding + stepX * index;
+            const y = padding + chartHeight - (point.value / 100) * chartHeight;
+
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#64ffda';
+            ctx.fill();
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Label
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(point.label, x, canvas.height - padding + 20);
+
+            // Value
+            ctx.fillStyle = '#64ffda';
+            ctx.font = 'bold 12px Arial';
+            ctx.fillText(`${point.value}%`, x, y - 15);
+        });
+    }
 }
 
 function runCode() {
