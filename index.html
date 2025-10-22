@@ -13124,16 +13124,58 @@ function createGoalsModal() {
             </div>
         </div>
         
-        <!-- Step 1: Time Goal -->
+        <!-- Step 1: Reminder Schedule -->
         <div style="margin-bottom: 35px;">
             <div style="margin-bottom: 18px;">
-                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">⏱️ How much time do you have?</h3>
+                <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">📅 When should we remind you?</h3>
+                <p style="color: #8b949e; margin: 8px 0 0 0; font-size: 0.9em;">Choose a weekday or specific time</p>
             </div>
-            
-            <div style="display: flex; gap: 15px; align-items: center; padding: 18px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px;">
-                <input type="number" id="dailyTimeGoal" min="10" max="300" value="60" step="10" style="flex: 1; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 8px; color: #fff; font-size: 1.4em; font-weight: 600; text-align: center;">
-                <span style="color: #8b949e; font-weight: 500; font-size: 1em;">minutes</span>
+
+            <!-- Weekday Dropdown -->
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; color: #64ffda; font-size: 0.9em; font-weight: 500; margin-bottom: 8px;">Choose a Weekday</label>
+                <div class="custom-dropdown" id="weekdayDropdown" onclick="toggleCustomDropdown('weekday')">
+                    <div class="dropdown-selected">
+                        <span id="selectedWeekday">Select a day...</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="dropdown-options" id="weekdayOptions">
+                        <div class="dropdown-option" onclick="selectWeekday(event, 'monday', 'Monday')">📅 Monday</div>
+                        <div class="dropdown-option" onclick="selectWeekday(event, 'tuesday', 'Tuesday')">📅 Tuesday</div>
+                        <div class="dropdown-option" onclick="selectWeekday(event, 'wednesday', 'Wednesday')">📅 Wednesday</div>
+                        <div class="dropdown-option" onclick="selectWeekday(event, 'thursday', 'Thursday')">📅 Thursday</div>
+                        <div class="dropdown-option" onclick="selectWeekday(event, 'friday', 'Friday')">📅 Friday</div>
+                        <div class="dropdown-option" onclick="selectWeekday(event, 'saturday', 'Saturday')">📅 Saturday</div>
+                        <div class="dropdown-option" onclick="selectWeekday(event, 'sunday', 'Sunday')">📅 Sunday</div>
+                    </div>
+                </div>
+                <div style="margin-top: 8px; font-size: 0.85em; color: #8b949e;">
+                    💡 We'll remind you 1 day before via email
+                </div>
             </div>
+
+            <!-- Time Dropdown -->
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; color: #667eea; font-size: 0.9em; font-weight: 500; margin-bottom: 8px;">Or Choose a Specific Time</label>
+                <div class="custom-dropdown" id="timeDropdown" onclick="toggleCustomDropdown('time')">
+                    <div class="dropdown-selected">
+                        <span id="selectedTime">Select a time...</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="dropdown-options" id="timeOptions">
+                        <!-- Time options will be generated dynamically -->
+                    </div>
+                </div>
+                <div style="margin-top: 8px; font-size: 0.85em; color: #8b949e;">
+                    ⏰ We'll remind you 5-10 minutes early
+                </div>
+                <div id="timeWarning" style="margin-top: 8px; font-size: 0.85em; color: #ff6b6b; display: none;">
+                    ⚠️ Please choose a future time
+                </div>
+            </div>
+
+            <!-- Hidden time goal for backward compatibility -->
+            <input type="hidden" id="dailyTimeGoal" value="60">
         </div>
 
         <!-- Step 1.5: Task Count -->
@@ -13299,6 +13341,126 @@ function createGoalsModal() {
             background: rgba(100, 255, 218, 0.3);
             border-radius: 10px;
         }
+
+        /* Custom Dropdown Styles */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .dropdown-selected {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background: rgba(100, 255, 218, 0.05);
+            border: 2px solid rgba(100, 255, 218, 0.2);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .custom-dropdown:hover .dropdown-selected {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: rgba(100, 255, 218, 0.4);
+        }
+
+        .custom-dropdown.active .dropdown-selected {
+            border-color: rgba(100, 255, 218, 0.5);
+            background: rgba(100, 255, 218, 0.15);
+        }
+
+        .dropdown-arrow {
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+            color: #64ffda;
+        }
+
+        .custom-dropdown.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: rgba(30, 30, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(100, 255, 218, 0.3);
+            border-radius: 12px;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .custom-dropdown.active .dropdown-options {
+            max-height: 300px;
+            opacity: 1;
+            overflow-y: auto;
+        }
+
+        .dropdown-options::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dropdown-options::-webkit-scrollbar-track {
+            background: rgba(100, 255, 218, 0.05);
+            border-radius: 10px;
+        }
+
+        .dropdown-options::-webkit-scrollbar-thumb {
+            background: rgba(100, 255, 218, 0.3);
+            border-radius: 10px;
+        }
+
+        .dropdown-option {
+            padding: 12px 18px;
+            color: #fff;
+            font-size: 0.95em;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option:hover {
+            background: rgba(100, 255, 218, 0.15);
+            color: #64ffda;
+            padding-left: 24px;
+        }
+
+        .dropdown-option.selected {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+            font-weight: 600;
+        }
+
+        body.light-mode .dropdown-selected {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: rgba(100, 255, 218, 0.3);
+            color: #000;
+        }
+
+        body.light-mode .dropdown-options {
+            background: rgba(255, 255, 255, 0.98);
+            border-color: rgba(100, 255, 218, 0.4);
+        }
+
+        body.light-mode .dropdown-option {
+            color: #000;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.15);
+        }
     `;
     document.head.appendChild(style);
     
@@ -13326,10 +13488,10 @@ function adjustTaskCount(delta) {
     const input = document.getElementById('taskCountGoal');
     const warning = document.getElementById('taskCountWarning');
     let newValue = parseInt(input.value) + delta;
-    
+
     // Get max available courses
     const maxCourses = tempSelectedCourses.length || 10;
-    
+
     if (newValue < 1) newValue = 1;
     if (newValue > maxCourses) {
         newValue = maxCourses;
@@ -13341,9 +13503,142 @@ function adjustTaskCount(delta) {
     } else {
         warning.style.display = 'none';
     }
-    
+
     input.value = newValue;
 }
+
+// Store selected reminder data
+let selectedWeekdayValue = null;
+let selectedTimeValue = null;
+
+// Dropdown handling functions
+function toggleCustomDropdown(type) {
+    event.stopPropagation();
+    const dropdown = type === 'weekday' ? document.getElementById('weekdayDropdown') : document.getElementById('timeDropdown');
+    const otherDropdown = type === 'weekday' ? document.getElementById('timeDropdown') : document.getElementById('weekdayDropdown');
+
+    // Close other dropdown
+    if (otherDropdown) {
+        otherDropdown.classList.remove('active');
+    }
+
+    // Toggle current dropdown
+    dropdown.classList.toggle('active');
+
+    // Generate time options if opening time dropdown for first time
+    if (type === 'time' && !document.getElementById('timeOptions').hasChildNodes.length) {
+        generateTimeOptions();
+    }
+}
+
+function selectWeekday(event, value, display) {
+    event.stopPropagation();
+
+    // Clear time selection
+    selectedTimeValue = null;
+    document.getElementById('selectedTime').textContent = 'Select a time...';
+    document.getElementById('timeWarning').style.display = 'none';
+
+    // Remove all previous selections
+    document.querySelectorAll('#weekdayOptions .dropdown-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+
+    // Mark as selected
+    event.target.classList.add('selected');
+    selectedWeekdayValue = value;
+    document.getElementById('selectedWeekday').textContent = display;
+    document.getElementById('weekdayDropdown').classList.remove('active');
+
+    console.log('Selected weekday:', value);
+}
+
+function generateTimeOptions() {
+    const timeOptions = document.getElementById('timeOptions');
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    let optionsHTML = '';
+
+    // Generate time slots from current time onwards
+    for (let hour = currentHour; hour < 24; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+            // Skip past times for current hour
+            if (hour === currentHour && minute <= currentMinute) {
+                continue;
+            }
+
+            const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+            const displayTime = formatTime12Hour(hour, minute);
+
+            optionsHTML += `<div class="dropdown-option" onclick="selectTime(event, '${timeStr}', '${displayTime}')">⏰ ${displayTime}</div>`;
+        }
+    }
+
+    if (optionsHTML === '') {
+        optionsHTML = '<div class="dropdown-option" style="color: #ff6b6b; cursor: default;">No future times available today</div>';
+    }
+
+    timeOptions.innerHTML = optionsHTML;
+}
+
+function formatTime12Hour(hour, minute) {
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
+}
+
+function selectTime(event, value, display) {
+    event.stopPropagation();
+
+    // Clear weekday selection
+    selectedWeekdayValue = null;
+    document.getElementById('selectedWeekday').textContent = 'Select a day...';
+    document.querySelectorAll('#weekdayOptions .dropdown-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+
+    // Validate time is in future
+    const now = new Date();
+    const [hours, minutes] = value.split(':').map(Number);
+    const selectedTime = new Date();
+    selectedTime.setHours(hours, minutes, 0, 0);
+
+    if (selectedTime <= now) {
+        document.getElementById('timeWarning').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('timeWarning').style.display = 'none';
+
+    // Remove all previous selections
+    document.querySelectorAll('#timeOptions .dropdown-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+
+    // Mark as selected
+    event.target.classList.add('selected');
+    selectedTimeValue = value;
+    document.getElementById('selectedTime').textContent = display;
+    document.getElementById('timeDropdown').classList.remove('active');
+
+    console.log('Selected time:', value);
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    const weekdayDropdown = document.getElementById('weekdayDropdown');
+    const timeDropdown = document.getElementById('timeDropdown');
+
+    if (weekdayDropdown && !weekdayDropdown.contains(e.target)) {
+        weekdayDropdown.classList.remove('active');
+    }
+
+    if (timeDropdown && !timeDropdown.contains(e.target)) {
+        timeDropdown.classList.remove('active');
+    }
+});
 
 // Store selected courses temporarily
 let tempSelectedCourses = [];
@@ -13663,14 +13958,20 @@ function saveGoalsWithCourses() {
         showNotification('⚠️ Please select at least one course!', 'warning');
         return;
     }
-    
+
+    // Validate reminder selection
+    if (!selectedWeekdayValue && !selectedTimeValue) {
+        showNotification('⚠️ Please select either a weekday or a time for reminders!', 'warning');
+        return;
+    }
+
     const timeGoal = parseInt(document.getElementById('dailyTimeGoal').value) || 60;
     const estimatedTimePerCourse = 15;
     const totalEstimatedTime = tempSelectedCourses.length * estimatedTimePerCourse;
     const emailReminderThreshold = Math.floor(timeGoal * 0.7);
-    
+
     const goalId = 'goal_' + Date.now();
-    
+
     const newGoal = {
         id: goalId,
         createdAt: new Date().toISOString(),
@@ -13681,44 +13982,227 @@ function saveGoalsWithCourses() {
             streak: document.getElementById('dailyStreak').checked,
             emailReminderThreshold: emailReminderThreshold
         },
-        emailNotifications: true,
+        reminder: {
+            type: selectedWeekdayValue ? 'weekday' : 'time',
+            weekday: selectedWeekdayValue,
+            time: selectedTimeValue
+        },
+        emailNotifications: document.getElementById('emailNotifications').checked,
         startDate: new Date().toISOString(),
         startTime: Date.now(),
         completed: 0,
         total: tempSelectedCourses.length
     };
-    
+
     const allGoals = JSON.parse(localStorage.getItem('allUserGoals_' + currentUser) || '[]');
     allGoals.push(newGoal);
     localStorage.setItem('allUserGoals_' + currentUser, JSON.stringify(allGoals));
-    
+
     localStorage.setItem('userGoals_' + currentUser, JSON.stringify(newGoal));
     localStorage.setItem('activeGoalId_' + currentUser, goalId);
-    
-    // ✅ RESET timer and email flag for NEW goal
+
+    // Reset timer and email flag for NEW goal
     localStorage.setItem('goalStartTime_' + currentUser, Date.now().toString());
     localStorage.setItem('coursesCompletedToday_' + currentUser, '0');
-    
-    // ✅ CLEAR any previous email sent flag
+
+    // Clear any previous email sent flag
     const oldGoalId = localStorage.getItem('activeGoalId_' + currentUser);
     if (oldGoalId) {
         localStorage.removeItem('goalEmailSent_' + currentUser + '_' + oldGoalId);
     }
-    
-    showNotification(`✅ Goal saved! Reminder in ${emailReminderThreshold} minutes`, 'success');
-    
+
+    // Schedule reminder
+    if (selectedWeekdayValue) {
+        scheduleWeekdayReminder(selectedWeekdayValue, newGoal);
+        showNotification(`✅ Goal saved! We'll remind you 1 day before ${selectedWeekdayValue}`, 'success');
+    } else if (selectedTimeValue) {
+        scheduleTimeReminder(selectedTimeValue, newGoal);
+        const [hours, minutes] = selectedTimeValue.split(':');
+        const displayTime = formatTime12Hour(parseInt(hours), parseInt(minutes));
+        showNotification(`✅ Goal saved! We'll remind you 5-10 min before ${displayTime}`, 'success');
+    }
+
+    // Reset selections
     tempSelectedCourses = [];
+    selectedWeekdayValue = null;
+    selectedTimeValue = null;
     closeGoalsModal();
-    
+
     setTimeout(() => {
         const statsSection = document.getElementById('stats');
         if (statsSection && statsSection.classList.contains('active')) {
             initializeGoalsButtons();
         }
     }, 400);
-    
-    // ✅ Always start monitoring
+
+    // Always start monitoring
     startSmartGoalMonitoring();
+}
+
+// Reminder scheduling functions
+function scheduleWeekdayReminder(weekday, goal) {
+    const weekdayMap = {
+        'monday': 1, 'tuesday': 2, 'wednesday': 3,
+        'thursday': 4, 'friday': 5, 'saturday': 6, 'sunday': 0
+    };
+
+    const targetDay = weekdayMap[weekday.toLowerCase()];
+    const today = new Date();
+    const currentDay = today.getDay();
+
+    // Calculate days until target weekday
+    let daysUntilTarget = targetDay - currentDay;
+    if (daysUntilTarget <= 0) {
+        daysUntilTarget += 7; // Next week
+    }
+
+    // Calculate reminder date (1 day before target)
+    const reminderDate = new Date(today);
+    reminderDate.setDate(today.getDate() + daysUntilTarget - 1);
+    reminderDate.setHours(9, 0, 0, 0); // Set reminder for 9 AM
+
+    console.log(`Weekday reminder scheduled for ${reminderDate.toLocaleString()}`);
+
+    // Store reminder info
+    const reminderData = {
+        type: 'weekday',
+        targetDate: reminderDate.toISOString(),
+        weekday: weekday,
+        goalId: goal.id
+    };
+
+    localStorage.setItem('activeReminder_' + currentUser, JSON.stringify(reminderData));
+
+    // Set up interval to check for reminder
+    const checkInterval = setInterval(() => {
+        const now = new Date();
+        const stored = localStorage.getItem('activeReminder_' + currentUser);
+
+        if (!stored) {
+            clearInterval(checkInterval);
+            return;
+        }
+
+        const reminder = JSON.parse(stored);
+        const targetTime = new Date(reminder.targetDate);
+
+        // Check if it's time to send reminder
+        if (now >= targetTime && now < new Date(targetTime.getTime() + 3600000)) { // Within 1 hour window
+            sendWeekdayReminder(reminder, goal);
+            clearInterval(checkInterval);
+        }
+    }, 60000); // Check every minute
+}
+
+function scheduleTimeReminder(time, goal) {
+    const [hours, minutes] = time.split(':').map(Number);
+    const targetTime = new Date();
+    targetTime.setHours(hours, minutes, 0, 0);
+
+    // Calculate reminder time (5-10 minutes before)
+    const randomMinutes = Math.floor(Math.random() * 6) + 5; // Random 5-10 minutes
+    const reminderTime = new Date(targetTime.getTime() - randomMinutes * 60000);
+
+    console.log(`Time reminder scheduled for ${reminderTime.toLocaleString()} (${randomMinutes} min before target)`);
+
+    // Store reminder info
+    const reminderData = {
+        type: 'time',
+        targetTime: reminderTime.toISOString(),
+        originalTime: time,
+        minutesBefore: randomMinutes,
+        goalId: goal.id
+    };
+
+    localStorage.setItem('activeReminder_' + currentUser, JSON.stringify(reminderData));
+
+    // Set up interval to check for reminder
+    const checkInterval = setInterval(() => {
+        const now = new Date();
+        const stored = localStorage.getItem('activeReminder_' + currentUser);
+
+        if (!stored) {
+            clearInterval(checkInterval);
+            return;
+        }
+
+        const reminder = JSON.parse(stored);
+        const targetTime = new Date(reminder.targetTime);
+
+        // Check if it's time to send reminder
+        if (now >= targetTime && now < new Date(targetTime.getTime() + 60000)) { // Within 1 minute window
+            sendTimeReminder(reminder, goal);
+            clearInterval(checkInterval);
+        }
+    }, 30000); // Check every 30 seconds
+}
+
+function sendWeekdayReminder(reminder, goal) {
+    // Browser notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Learning Reminder 📚', {
+            body: `Don't forget! Tomorrow is ${reminder.weekday}. Time to work on your learning goals!`,
+            icon: '/favicon.ico'
+        });
+    }
+
+    // In-app notification
+    showNotification(`🎯 Reminder: Tomorrow is ${reminder.weekday}! Don't forget your learning goal.`, 'info');
+
+    // Send email if enabled
+    const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
+    if (goals.emailNotifications) {
+        sendGoalReminderEmail(goal, 'weekday', reminder.weekday);
+    }
+
+    // Clear reminder
+    localStorage.removeItem('activeReminder_' + currentUser);
+}
+
+function sendTimeReminder(reminder, goal) {
+    const [hours, minutes] = reminder.originalTime.split(':').map(Number);
+    const displayTime = formatTime12Hour(hours, minutes);
+
+    // Browser notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Learning Reminder 📚', {
+            body: `Your learning session starts at ${displayTime} (in ${reminder.minutesBefore} minutes)!`,
+            icon: '/favicon.ico'
+        });
+    }
+
+    // In-app notification
+    showNotification(`⏰ Reminder: Your learning session starts at ${displayTime} (in ${reminder.minutesBefore} minutes)!`, 'info');
+
+    // Clear reminder
+    localStorage.removeItem('activeReminder_' + currentUser);
+}
+
+function sendGoalReminderEmail(goal, type, value) {
+    // Get user email from localStorage
+    const userEmail = localStorage.getItem('userEmail_' + currentUser);
+    if (!userEmail) {
+        console.warn('No email found for user');
+        return;
+    }
+
+    const courseList = goal.daily.selectedCourses.map(c => c.title).join(', ');
+    const message = type === 'weekday'
+        ? `Don't forget! Tomorrow is ${value}. You have ${goal.total} courses to complete: ${courseList}`
+        : `Your learning session is coming up! You have ${goal.total} courses to complete: ${courseList}`;
+
+    // Send email using emailjs
+    if (typeof emailjs !== 'undefined') {
+        emailjs.send(EMAIL_CONFIG.serviceId, EMAIL_CONFIG.templateId, {
+            to_email: userEmail,
+            to_name: currentUser,
+            subject: 'Learning Goal Reminder',
+            message: message
+        }).then(
+            () => console.log('Reminder email sent successfully'),
+            (error) => console.error('Failed to send reminder email:', error)
+        );
+    }
 }
 
 function loadSavedGoals() {
@@ -19182,12 +19666,16 @@ function injectVideoPlayerCSS() {
             align-items: center;
             justify-content: center;
             z-index: 1;
+            padding: 0;
         }
 
         .video-fullscreen-content iframe {
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 56.25vw; /* 16:9 aspect ratio (9/16 * 100) */
+            max-height: 100vh;
+            max-width: 177.78vh; /* 16:9 aspect ratio (16/9 * 100) */
             border: none;
+            object-fit: contain;
         }
 
         .video-fullscreen-close {
@@ -19394,6 +19882,92 @@ document.addEventListener('wheel', function(e) {
         e.preventDefault();
     }
 }, { passive: false });
+
+// Mobile landscape orientation detection for auto-fullscreen
+let lastActiveVideoIndex = null;
+
+// Track when a video container becomes active
+function trackActiveVideo() {
+    const activeContainers = document.querySelectorAll('.video-container.active');
+    if (activeContainers.length > 0) {
+        const lastContainer = activeContainers[activeContainers.length - 1];
+        const videoId = lastContainer.id;
+        if (videoId) {
+            const match = videoId.match(/videoContainer-(\d+)/);
+            if (match) {
+                lastActiveVideoIndex = parseInt(match[1]);
+            }
+        }
+    }
+}
+
+// Monitor for active video containers
+const videoObserver = new MutationObserver(() => {
+    trackActiveVideo();
+});
+
+// Start observing when DOM is ready
+if (document.body) {
+    videoObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class']
+    });
+}
+
+// Detect orientation change on mobile devices
+window.addEventListener('orientationchange', function() {
+    // Check if device is mobile (screen width < 768px)
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile && lastActiveVideoIndex !== null) {
+        // Check if orientation is landscape
+        const isLandscape = window.orientation === 90 || window.orientation === -90 ||
+                          (window.screen && window.screen.orientation &&
+                           window.screen.orientation.type.includes('landscape'));
+
+        if (isLandscape && !isFullscreen) {
+            // Auto-enter fullscreen when rotated to landscape
+            console.log('Landscape detected - auto-entering fullscreen');
+            setTimeout(() => {
+                toggleFullscreen(lastActiveVideoIndex);
+            }, 300); // Small delay to allow orientation change to complete
+        } else if (!isLandscape && isFullscreen) {
+            // Auto-exit fullscreen when rotated back to portrait
+            console.log('Portrait detected - auto-exiting fullscreen');
+            closeVideoFullscreen();
+        }
+    }
+});
+
+// Also listen to screen orientation API (modern browsers)
+if (window.screen && window.screen.orientation) {
+    window.screen.orientation.addEventListener('change', function() {
+        const isMobile = window.innerWidth < 768;
+
+        if (isMobile && lastActiveVideoIndex !== null) {
+            const isLandscape = window.screen.orientation.type.includes('landscape');
+
+            if (isLandscape && !isFullscreen) {
+                console.log('Landscape detected (Screen API) - auto-entering fullscreen');
+                setTimeout(() => {
+                    toggleFullscreen(lastActiveVideoIndex);
+                }, 300);
+            } else if (!isLandscape && isFullscreen) {
+                console.log('Portrait detected (Screen API) - auto-exiting fullscreen');
+                closeVideoFullscreen();
+            }
+        }
+    });
+}
+
+// Track video container when it becomes active
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.video-btn-watch')) {
+        setTimeout(trackActiveVideo, 500);
+    }
+});
 </script>
 </body>
 </html>
