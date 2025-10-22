@@ -675,6 +675,41 @@ body.light-mode .mobile-search-container {
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes iPhoneUnlock {
+            0% {
+                opacity: 0;
+                transform: scale(0.95) translateY(30px);
+                filter: blur(8px);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.01) translateY(-5px);
+                filter: blur(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .page-load-animate {
+            animation: iPhoneUnlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .page-load-animate > * {
+            animation: iPhoneUnlock 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .page-load-animate > *:nth-child(1) { animation-delay: 0.05s; }
+        .page-load-animate > *:nth-child(2) { animation-delay: 0.1s; }
+        .page-load-animate > *:nth-child(3) { animation-delay: 0.15s; }
+        .page-load-animate > *:nth-child(4) { animation-delay: 0.2s; }
+        .page-load-animate > *:nth-child(5) { animation-delay: 0.25s; }
+        .page-load-animate > *:nth-child(6) { animation-delay: 0.3s; }
+        .page-load-animate > *:nth-child(7) { animation-delay: 0.35s; }
+        .page-load-animate > *:nth-child(8) { animation-delay: 0.4s; }
+
         .dashboard {
             max-width: 1600px;
             margin: 0 auto;
@@ -2479,10 +2514,11 @@ body.light-mode .chart-y-labels span {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 0;
     position: relative;
     height: 280px; /* Fixed height for consistent calculation */
     justify-content: flex-end;
+    padding-bottom: 0;
 }
 
 .bar {
@@ -3397,10 +3433,11 @@ body.light-mode .chart-y-labels span {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 0;
     position: relative;
     height: 240px;
     justify-content: flex-end;
+    padding-bottom: 0;
 }
 
 .bar {
@@ -9266,18 +9303,6 @@ body.loading * {
         <div class="chart-tab" onclick="switchChart('react')">⚛️ React</div>
     </div>
 
-    <!-- Chart Type Toggle -->
-    <div id="chartTypeToggle" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px 0; padding: 10px; background: rgba(100, 255, 218, 0.05); border-radius: 12px; border: 2px solid rgba(100, 255, 218, 0.2);">
-        <button id="barChartBtn" class="chart-type-btn active" onclick="toggleChartType('bar')" style="flex: 1; padding: 12px 20px; background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(100, 255, 218, 0.1)); border: 2px solid rgba(100, 255, 218, 0.4); border-radius: 10px; color: #64ffda; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <span style="font-size: 1.2em;">📊</span>
-            <span>Bar Chart</span>
-        </button>
-        <button id="lineChartBtn" class="chart-type-btn" onclick="toggleChartType('line')" style="flex: 1; padding: 12px 20px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 10px; color: #8b949e; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <span style="font-size: 1.2em;">📈</span>
-            <span>Line Chart</span>
-        </button>
-    </div>
-
                     <div id="allChart" class="chart-container active">
                         <div class="bar-chart" id="allBarChart"></div>
                     </div>
@@ -9474,12 +9499,6 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                     <h3>📧 Email Notifications</h3>
                     <p>Get updates about your progress</p>
                     <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                </div>
-                
-                <div class="setting-card">
-                    <h3>🎯 Daily Goals</h3>
-                    <p>Set learning time targets</p>
-                    <div class="toggle-switch" onclick="toggleSetting(this)"></div>
                 </div>
             </div>
         </div>
@@ -10861,19 +10880,34 @@ function retryLesson(lang, courseId, courseName) {
 }
 
 function showSection(sectionId) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => {
+        s.classList.remove('active');
+        s.classList.remove('page-load-animate');
+    });
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById(sectionId).classList.add('active');
-    
+
+    const section = document.getElementById(sectionId);
+    section.classList.add('active');
+
+    // Add page load animation
+    setTimeout(() => {
+        section.classList.add('page-load-animate');
+    }, 10);
+
+    // Remove animation class after animation completes
+    setTimeout(() => {
+        section.classList.remove('page-load-animate');
+    }, 1000);
+
     const activeTab = Array.from(document.querySelectorAll('.nav-tab')).find(
         tab => tab.textContent.toLowerCase().includes(sectionId === 'home' ? 'overview' : sectionId)
     );
     if (activeTab) activeTab.classList.add('active');
-    
+
     if (sectionId === 'home') {
         updateDashboard();
     }
-    
+
     // ADD THIS CODE HERE
     if (sectionId === 'stats') {
         setTimeout(() => {
@@ -10883,11 +10917,26 @@ function showSection(sectionId) {
 }
 
 function showSectionMobile(sectionId, element) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => {
+        s.classList.remove('active');
+        s.classList.remove('page-load-animate');
+    });
     document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-    document.getElementById(sectionId).classList.add('active');
+
+    const section = document.getElementById(sectionId);
+    section.classList.add('active');
     element.classList.add('active');
-    
+
+    // Add page load animation
+    setTimeout(() => {
+        section.classList.add('page-load-animate');
+    }, 10);
+
+    // Remove animation class after animation completes
+    setTimeout(() => {
+        section.classList.remove('page-load-animate');
+    }, 1000);
+
     if (sectionId === 'home') {
         updateDashboard();
     }
@@ -12743,21 +12792,17 @@ function addStatsButtons() {
     
     buttonsContainer.innerHTML = `
     <div style="display: flex; flex: 1; gap: 12px; flex-wrap: wrap; padding: 20px; transition: all 0.4s ease;">
-        <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('language')">
-            <span class="stat-btn-icon">📚</span>
-            <span>Language Progress</span>
-        </button>
         <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('time')">
             <span class="stat-btn-icon">⏱️</span>
             <span>Time Breakdown</span>
         </button>
-        <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('performance')">
-            <span class="stat-btn-icon">🎯</span>
-            <span>Performance</span>
-        </button>
         <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('activity')">
             <span class="stat-btn-icon">📅</span>
             <span>Recent Activity</span>
+        </button>
+        <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('performance')">
+            <span class="stat-btn-icon">🎯</span>
+            <span>Performance</span>
         </button>
     </div>
     `;
@@ -13220,22 +13265,6 @@ function createGoalsModal() {
             <input type="hidden" id="dailyTimeGoal" value="60">
         </div>
 
-        <!-- Step 1.5: Task Count -->
-        <div style="margin-bottom: 40px;">
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: #fff; margin: 0; font-size: 1.15em; font-weight: 600;">📚 How many courses?</h3>
-                <p style="color: #8b949e; margin: 10px 0 0 0; font-size: 0.92em;">Select the number of courses you'd like to complete</p>
-            </div>
-            
-            <div style="display: flex; gap: 15px; align-items: center; padding: 18px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px;">
-                <button onclick="adjustTaskCount(-1)" style="width: 44px; height: 44px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 50%; color: #64ffda; font-size: 1.5em; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">-</button>
-                <input type="number" id="taskCountGoal" min="1" max="10" value="3" style="flex: 1; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 8px; color: #fff; font-size: 1.4em; font-weight: 600; text-align: center;" readonly>
-                <button onclick="adjustTaskCount(1)" style="width: 44px; height: 44px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 50%; color: #64ffda; font-size: 1.5em; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">+</button>
-                <span style="color: #8b949e; font-weight: 500; font-size: 1em;">courses</span>
-            </div>
-            <div id="taskCountWarning" style="margin-top: 10px; font-size: 0.85em; color: #ff6b6b; display: none;"></div>
-        </div>
-        
         <!-- Step 2: Language Selection -->
         <div id="languageSelectionScreen" style="margin-bottom: 35px; transition: opacity 0.3s ease;">
             <div style="margin-bottom: 18px;">
@@ -14387,7 +14416,7 @@ function openViewGoals() {
         const progress = goal.daily.selectedCourses.length > 0 ? Math.round((completed / goal.daily.selectedCourses.length) * 100) : 0;
 
         return `
-            <div class="goal-card-item" style="min-width: 100%; scroll-snap-align: start; padding: 25px;">
+            <div class="goal-card-item" style="min-width: 100%; scroll-snap-align: start; padding: 25px; overflow-y: auto; max-height: 100%;">
                 <!-- Goal Date Label -->
                 <div style="text-align: center; margin-bottom: 20px; padding: 10px; background: rgba(100, 255, 218, 0.1); border-radius: 10px;">
                     <div style="color: #64ffda; font-weight: 600; font-size: 0.9em;">Goal #${index + 1}</div>
@@ -14501,9 +14530,27 @@ function openViewGoals() {
                 </div>
             ` : ''}
 
-            <div id="goalsCarousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; height: 100%; scrollbar-width: thin; scrollbar-color: rgba(100, 255, 218, 0.3) rgba(30, 30, 30, 0.3);">
+            <div id="goalsCarousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; height: 100%; scrollbar-width: thin; scrollbar-color: rgba(100, 255, 218, 0.3) rgba(30, 30, 30, 0.3);" class="goals-carousel-container">
                 ${goalsCardsHTML}
             </div>
+            <style>
+                @media (min-width: 1024px) {
+                    .goals-carousel-container {
+                        display: grid !important;
+                        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)) !important;
+                        gap: 20px !important;
+                        overflow-x: visible !important;
+                        overflow-y: auto !important;
+                        padding: 20px !important;
+                        scroll-snap-type: none !important;
+                    }
+                    .goal-card-item {
+                        min-width: auto !important;
+                        width: 100% !important;
+                        scroll-snap-align: none !important;
+                    }
+                }
+            </style>
 
             ${allGoals.length > 1 ? `
                 <div style="display: flex; justify-content: center; gap: 8px; padding: 15px; background: rgba(30, 30, 30, 0.98);">
@@ -15399,16 +15446,7 @@ function createDetailViews() {
         <button class="stats-back-btn" id="statsBackBtn" onclick="hideStatDetails()">
             <span>← Back to Charts</span>
         </button>
-        
-        <!-- Language Detail -->
-        <div id="languageDetail" class="stat-detail-view">
-            <div class="stat-detail-header">
-                <div class="stat-detail-icon">📚</div>
-                <div class="stat-detail-title">Language Progress</div>
-            </div>
-            <div id="languageDetailContent" class="stat-detail-content"></div>
-        </div>
-        
+
         <!-- Time Detail -->
         <div id="timeDetail" class="stat-detail-view">
             <div class="stat-detail-header">
@@ -15417,16 +15455,7 @@ function createDetailViews() {
             </div>
             <div id="timeDetailContent" class="stat-detail-content"></div>
         </div>
-        
-        <!-- Performance Detail -->
-        <div id="performanceDetail" class="stat-detail-view">
-            <div class="stat-detail-header">
-                <div class="stat-detail-icon">🎯</div>
-                <div class="stat-detail-title">Your Performance</div>
-            </div>
-            <div id="performanceDetailContent" class="stat-detail-content"></div>
-        </div>
-        
+
         <!-- Activity Detail -->
         <div id="activityDetail" class="stat-detail-view">
             <div class="stat-detail-header">
@@ -15434,6 +15463,15 @@ function createDetailViews() {
                 <div class="stat-detail-title">Recent Activity</div>
             </div>
             <div id="activityDetailContent" class="stat-detail-content"></div>
+        </div>
+
+        <!-- Performance Detail -->
+        <div id="performanceDetail" class="stat-detail-view">
+            <div class="stat-detail-header">
+                <div class="stat-detail-icon">🎯</div>
+                <div class="stat-detail-title">Your Performance</div>
+            </div>
+            <div id="performanceDetailContent" class="stat-detail-content"></div>
         </div>
     `;
     
@@ -15456,9 +15494,7 @@ function showStatDetail(type) {
     if (backBtn) backBtn.classList.add('show');
     
     // Update content first
-    if (type === 'language') {
-        updateLanguageDetail();
-    } else if (type === 'time') {
+    if (type === 'time') {
         updateTimeDetail();
     } else if (type === 'performance') {
         updatePerformanceDetail();
@@ -16177,40 +16213,156 @@ function createBarItem(label, progress) {
         }, 25);
     }, 100);
 
-    // Add click handler for interactive bar selection
+    // Store data for detail view
+    div.dataset.label = label;
+    div.dataset.progress = progress;
+
+    // Add click handler for bar detail view
     div.addEventListener('click', function() {
         const parentChart = this.closest('.bar-chart');
+        const chartContainer = parentChart.parentElement;
         const allBars = parentChart.querySelectorAll('.bar-item');
 
-        const isCurrentlySelected = this.classList.contains('selected');
+        // Check if already in detail view
+        const isDetailView = chartContainer.querySelector('.bar-detail-view');
 
+        if (isDetailView) return; // Prevent multiple clicks
+
+        // Hide other bars with animation
         allBars.forEach(item => {
-            const bar = item.querySelector('.bar');
-            const barGradient = item.querySelector('.bar-gradient');
-
-            if (isCurrentlySelected) {
-                // Deselect all - restore full color
-                item.classList.remove('selected');
-                item.style.opacity = '1';
-                item.style.transform = 'scale(1)';
-                barGradient.style.opacity = '1';
-                barGradient.style.filter = 'none';
-            } else if (item === this) {
-                // Select this one
-                item.classList.add('selected');
-                item.style.opacity = '1';
-                item.style.transform = 'scale(1.05)';
-                barGradient.style.opacity = '1';
-                barGradient.style.filter = 'brightness(1.2)';
-            } else {
-                // Desaturate others
-                item.classList.remove('selected');
-                item.style.opacity = '0.3';
-                item.style.transform = 'scale(0.95)';
-                barGradient.style.opacity = '0.3';
-                barGradient.style.filter = 'grayscale(50%)';
+            if (item !== this) {
+                item.style.opacity = '0';
+                item.style.transform = 'scale(0.8)';
+                item.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    item.style.display = 'none';
+                }, 300);
             }
         });
+
+        // Slide selected bar to the left
+        setTimeout(() => {
+            this.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            this.style.transform = 'translateX(-40%)';
+        }, 300);
+
+        // Create detail view container
+        setTimeout(() => {
+            const detailView = document.createElement('div');
+            detailView.className = 'bar-detail-view';
+            detailView.style.cssText = `
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%) translateX(20px);
+                width: 45%;
+                padding: 30px;
+                background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(102, 126, 234, 0.1));
+                border: 2px solid rgba(100, 255, 218, 0.3);
+                border-radius: 15px;
+                opacity: 0;
+                transition: all 0.5s ease;
+            `;
+
+            detailView.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 2.5em; margin-bottom: 15px;">📊</div>
+                    <div style="color: #fff; font-size: 1.5em; font-weight: 700; margin-bottom: 10px;">${label}</div>
+                    <div style="color: #64ffda; font-size: 3em; font-weight: 900; margin: 20px 0;">${Math.round(progress)}%</div>
+                    <div style="color: #8b949e; font-size: 1.1em; margin-bottom: 20px;">Completed</div>
+                    <div style="background: rgba(0,0,0,0.3); height: 12px; border-radius: 12px; overflow: hidden; margin: 20px 0;">
+                        <div style="height: 100%; background: linear-gradient(90deg, #667eea, #64ffda); width: ${progress}%; transition: width 1s ease;"></div>
+                    </div>
+                </div>
+            `;
+
+            chartContainer.style.position = 'relative';
+            chartContainer.appendChild(detailView);
+
+            // Animate detail view in
+            setTimeout(() => {
+                detailView.style.opacity = '1';
+                detailView.style.transform = 'translateY(-50%) translateX(0)';
+            }, 50);
+        }, 600);
+
+        // Add back button
+        setTimeout(() => {
+            let backBtn = chartContainer.querySelector('.bar-back-btn');
+            if (!backBtn) {
+                backBtn = document.createElement('button');
+                backBtn.className = 'bar-back-btn';
+                backBtn.innerHTML = '← Back';
+                backBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    padding: 12px 30px;
+                    background: rgba(100, 255, 218, 0.1);
+                    border: 2px solid rgba(100, 255, 218, 0.3);
+                    border-radius: 50px;
+                    color: #64ffda;
+                    font-weight: 600;
+                    font-size: 1em;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    opacity: 0;
+                    z-index: 10;
+                `;
+
+                backBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+
+                    // Remove detail view
+                    const detailView = chartContainer.querySelector('.bar-detail-view');
+                    if (detailView) {
+                        detailView.style.opacity = '0';
+                        detailView.style.transform = 'translateY(-50%) translateX(20px)';
+                        setTimeout(() => detailView.remove(), 300);
+                    }
+
+                    // Reset selected bar
+                    allBars.forEach(item => {
+                        if (item === div) {
+                            item.style.transform = 'translateX(0)';
+                        }
+                    });
+
+                    // Show all bars again
+                    setTimeout(() => {
+                        allBars.forEach(item => {
+                            item.style.display = 'flex';
+                            setTimeout(() => {
+                                item.style.opacity = '1';
+                                item.style.transform = 'scale(1)';
+                                item.style.pointerEvents = 'auto';
+                            }, 50);
+                        });
+                    }, 300);
+
+                    // Hide back button
+                    this.style.opacity = '0';
+                    setTimeout(() => this.remove(), 300);
+                });
+
+                backBtn.addEventListener('mouseenter', function() {
+                    this.style.background = 'rgba(100, 255, 218, 0.2)';
+                    this.style.transform = 'translateX(-50%) translateY(-2px)';
+                });
+
+                backBtn.addEventListener('mouseleave', function() {
+                    this.style.background = 'rgba(100, 255, 218, 0.1)';
+                    this.style.transform = 'translateX(-50%) translateY(0)';
+                });
+
+                chartContainer.appendChild(backBtn);
+
+                setTimeout(() => {
+                    backBtn.style.opacity = '1';
+                }, 50);
+            }
+        }, 600);
     });
 
     return div;
