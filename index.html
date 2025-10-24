@@ -38,9 +38,7 @@
 
         body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-    background: linear-gradient(135deg, #000000 0%, #001a0f 25%, #003320 50%, #001a0f 75%, #000000 100%);
-    background-size: 400% 400%;
-    animation: gradientBackground 15s ease infinite;
+    background: #000000;
     color: #e0e0e0;
     min-height: 100vh;
     overflow-x: hidden;
@@ -49,16 +47,8 @@
     position: relative;
 }
 
-@keyframes gradientBackground {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
 body.light-mode {
-    background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 50%, #f5f5f5 100%);
-    background-size: 200% 200%;
-    animation: gradientBackground 15s ease infinite;
+    background: #f5f5f5;
     color: #1a1a1a;
 }
 
@@ -13375,10 +13365,37 @@ function switchLanguage(lang) {
 }
 
 function switchChart(type) {
+    // Force hide all charts first
+    document.querySelectorAll('.chart-container').forEach(c => {
+        c.classList.remove('active');
+        c.style.display = 'none';
+    });
+
+    // Remove active from all tabs
     document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.chart-container').forEach(c => c.classList.remove('active'));
-    event.target.classList.add('active');
-    document.getElementById(type + 'Chart').classList.add('active');
+
+    // Add active to clicked tab (if triggered by tab click)
+    if (event && event.target && event.target.classList.contains('chart-tab')) {
+        event.target.classList.add('active');
+    } else {
+        // If triggered by filter, activate the corresponding tab
+        const tabs = document.querySelectorAll('.chart-tab');
+        tabs.forEach(tab => {
+            const tabText = tab.textContent.toLowerCase();
+            if (tabText.includes(type) || (type === 'all' && tabText.includes('all'))) {
+                tab.classList.add('active');
+            }
+        });
+    }
+
+    // Show the selected chart
+    const chartToShow = document.getElementById(type + 'Chart');
+    if (chartToShow) {
+        chartToShow.classList.add('active');
+        chartToShow.style.display = 'block';
+    }
+
+    // Update charts
     updateCharts();
 }
 
@@ -14050,7 +14067,7 @@ function checkFillAnswer(exerciseIndex, correctAnswer) {
     const userAnswer = blank.value.trim();
     const feedbackDiv = document.getElementById('feedback-' + exerciseIndex);
     const submitBtn = wrapper.closest('.exercise-box').querySelector('.submit-button');
-    
+
     if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
         wrapper.classList.remove('incorrect');
         wrapper.classList.add('correct');
@@ -14064,6 +14081,15 @@ function checkFillAnswer(exerciseIndex, correctAnswer) {
         updateLessonProgress();
         checkCompletion();
     } else {
+        // Track wrong answer
+        if (!isRetryMode) {
+            const content = currentLesson.isAI
+                ? aiCourseContent
+                : lessonContent[currentLesson.language][currentLesson.courseId];
+            const exercise = content.exercises[exerciseIndex];
+            trackWrongAnswer(exercise.question, userAnswer, correctAnswer);
+        }
+
         wrapper.classList.remove('correct');
         wrapper.classList.add('incorrect');
         feedbackDiv.innerHTML = '<div class="feedback incorrect">❌ Wrong! Answer: ' + correctAnswer + '</div>';
@@ -14201,26 +14227,49 @@ function checkCompletion() {
 }
 
 function completeLesson() {
-
-    trackCourseCompletion();
-
-    // ADD THIS BLOCK AT THE START
-    if (studyStartTime && !isRetryMode && !currentLesson.isAI) {
-        const sessionTime = Math.floor((Date.now() - studyStartTime) / 1000);
-        userProgress[currentLesson.language][currentLesson.courseId].time += sessionTime;
-        totalStudyTime += sessionTime;
-        
-        // Save immediately
-        localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
-        localStorage.setItem('studyTime_' + currentUser, totalStudyTime.toString());
-    }
-
     if (!isRetryMode) {
+        // Handle AI course completion
+        if (currentLesson.isAI) {
+            const aiCompletions = JSON.parse(localStorage.getItem('aiCompletions_' + currentUser) || '[]');
+            aiCompletions.push({
+                title: currentAICourse.title,
+                completedAt: new Date().toISOString(),
+                accuracy: Math.round(((aiCourseContent.exercises.length - wrongAnswers.length) / aiCourseContent.exercises.length) * 100)
+            });
+            localStorage.setItem('aiCompletions_' + currentUser, JSON.stringify(aiCompletions));
+            showAICompletionStats();
+            return;
+        }
+
+        trackCourseCompletion();
+
+        // Track study time
+        if (studyStartTime) {
+            const sessionTime = Math.floor((Date.now() - studyStartTime) / 1000);
+            userProgress[currentLesson.language][currentLesson.courseId].time += sessionTime;
+            totalStudyTime += sessionTime;
+
+            localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
+            localStorage.setItem('studyTime_' + currentUser, totalStudyTime.toString());
+        }
+
+        // Normal course completion
         userProgress[currentLesson.language][currentLesson.courseId].completed = true;
         userProgress[currentLesson.language][currentLesson.courseId].progress = 100;
-        
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
-        
+
+        // Calculate and store accuracy
+        const totalQuestions = lessonContent[currentLesson.language][currentLesson.courseId].exercises.length;
+        const wrongAttempts = wrongAnswers.length;
+        const finalAccuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
+
+        localStorage.setItem('lastLessonAccuracy', finalAccuracy.toString());
+        localStorage.setItem('lastLessonName', currentLesson.courseName);
+        localStorage.setItem('lastLessonLanguage', currentLesson.language);
+
+        // Show completion stats
+        showCompletionStats();
+
         const today = new Date().toDateString();
         const lastActivity = localStorage.getItem('lastActivity_' + currentUser);
         const currentStreak = parseInt(localStorage.getItem('streak_' + currentUser) || '0');
@@ -22074,45 +22123,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// ============================================
-// CHART SWITCHING (Update existing function)
-// ============================================
-
-function switchChart(type) {
-    // ✅ ADD: Force hide all charts first
-    document.querySelectorAll('.chart-container').forEach(c => {
-        c.classList.remove('active');
-        c.style.display = 'none'; // Force hide
-    });
-    
-    // Remove active from all tabs
-    document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
-    
-    // Add active to clicked tab (if triggered by tab click)
-    if (event && event.target && event.target.classList.contains('chart-tab')) {
-        event.target.classList.add('active');
-    } else {
-        // If triggered by filter, activate the corresponding tab
-        const tabs = document.querySelectorAll('.chart-tab');
-        tabs.forEach(tab => {
-            const tabText = tab.textContent.toLowerCase();
-            if (tabText.includes(type) || (type === 'all' && tabText.includes('all'))) {
-                tab.classList.add('active');
-            }
-        });
-    }
-    
-    // Show the selected chart
-    const chartToShow = document.getElementById(type + 'Chart');
-    if (chartToShow) {
-        chartToShow.classList.add('active');
-        chartToShow.style.display = 'block'; // ✅ Force show
-    }
-    
-    // Update charts
-    updateCharts();
-}
-
 // ROADMAP FUNCTIONALITY
 // ============================================
 
@@ -22449,93 +22459,6 @@ function trackWrongAnswer(question, userAnswer, correctAnswer) {
         userAnswer,
         correctAnswer
     });
-}
-
-// Update checkMCQAnswer and checkFillAnswer to track wrong answers
-function checkMCQAnswer(exerciseIndex) {
-    const content = lessonContent[currentLesson.language][currentLesson.courseId];
-    const exercise = content.exercises[exerciseIndex];
-    const selected = selectedMCQ[exerciseIndex];
-    const feedbackDiv = document.getElementById('feedback-' + exerciseIndex);
-    const optionsContainer = document.querySelector(`.mcq-options[data-exercise="${exerciseIndex}"]`);
-    const options = optionsContainer.querySelectorAll('.mcq-option');
-    const submitBtn = optionsContainer.closest('.exercise-box').querySelector('.submit-button');
-    
-    if (selected === undefined) {
-        feedbackDiv.innerHTML = '<div class="feedback incorrect">Select an answer!</div>';
-        return;
-    }
-    
-    if (selected === exercise.correct) {
-        options[selected].classList.add('correct');
-        options.forEach(opt => {
-            opt.style.pointerEvents = 'none';
-            opt.style.cursor = 'not-allowed';
-            opt.style.opacity = '0.7';
-        });
-        submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.5';
-        submitBtn.style.cursor = 'not-allowed';
-        feedbackDiv.innerHTML = '<div class="feedback correct">✅ Correct!</div>';
-        correctAnswers++;
-        updateLessonProgress();
-        checkCompletion();
-    } else {
-        // Track wrong answer
-        if (!isRetryMode) {
-            trackWrongAnswer(
-                exercise.question,
-                exercise.options[selected],
-                exercise.options[exercise.correct]
-            );
-        }
-        
-        options[selected].classList.add('incorrect');
-        options[exercise.correct].classList.add('correct');
-        feedbackDiv.innerHTML = '<div class="feedback incorrect">❌ Try again!</div>';
-        setTimeout(() => {
-            options[selected].classList.remove('incorrect', 'selected');
-            options[exercise.correct].classList.remove('correct');
-            selectedMCQ[exerciseIndex] = undefined;
-        }, 1500);
-    }
-}
-
-function checkFillAnswer(exerciseIndex, correctAnswer) {
-    const blank = document.querySelector(`.code-blank[data-index="${exerciseIndex}"]`);
-    const wrapper = blank.parentElement;
-    const userAnswer = blank.value.trim();
-    const feedbackDiv = document.getElementById('feedback-' + exerciseIndex);
-    const submitBtn = wrapper.closest('.exercise-box').querySelector('.submit-button');
-    
-    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-        wrapper.classList.remove('incorrect');
-        wrapper.classList.add('correct');
-        blank.disabled = true;
-        blank.style.cursor = 'not-allowed';
-        submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.5';
-        submitBtn.style.cursor = 'not-allowed';
-        feedbackDiv.innerHTML = '<div class="feedback correct">✅ Correct!</div>';
-        correctAnswers++;
-        updateLessonProgress();
-        checkCompletion();
-    } else {
-        // Track wrong answer
-        if (!isRetryMode) {
-            const content = lessonContent[currentLesson.language][currentLesson.courseId];
-            const exercise = content.exercises[exerciseIndex];
-            trackWrongAnswer(exercise.question, userAnswer, correctAnswer);
-        }
-        
-        wrapper.classList.remove('correct');
-        wrapper.classList.add('incorrect');
-        feedbackDiv.innerHTML = '<div class="feedback incorrect">❌ Wrong! Answer: ' + correctAnswer + '</div>';
-        setTimeout(() => {
-            wrapper.classList.remove('incorrect');
-            blank.value = '';
-        }, 500);
-    }
 }
 
 async function showCompletionStats() {
@@ -23351,43 +23274,6 @@ function displayAIQuestions(questions) {
 function finishLessonCompletely() {
     wrongAnswers = [];
     closeLesson();
-}
-
-function completeLesson() {
-    if (!isRetryMode) {
-        // Handle AI course completion
-        if (currentLesson.isAI) {
-            const aiCompletions = JSON.parse(localStorage.getItem('aiCompletions_' + currentUser) || '[]');
-            aiCompletions.push({
-                title: currentAICourse.title,
-                completedAt: new Date().toISOString(),
-                accuracy: Math.round(((aiCourseContent.exercises.length - wrongAnswers.length) / aiCourseContent.exercises.length) * 100)
-            });
-            localStorage.setItem('aiCompletions_' + currentUser, JSON.stringify(aiCompletions));
-            showAICompletionStats();
-            return;
-        }
-        
-        // Normal course completion
-        userProgress[currentLesson.language][currentLesson.courseId].completed = true;
-        userProgress[currentLesson.language][currentLesson.courseId].progress = 100;
-        localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
-        
-        // ✅ CALCULATE AND STORE ACCURACY BEFORE SHOWING STATS
-        const totalQuestions = lessonContent[currentLesson.language][currentLesson.courseId].exercises.length;
-        const wrongAttempts = wrongAnswers.length;
-        const finalAccuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
-        
-        // Store for later use
-        localStorage.setItem('lastLessonAccuracy', finalAccuracy.toString());
-        localStorage.setItem('lastLessonName', currentLesson.courseName);
-        localStorage.setItem('lastLessonLanguage', currentLesson.language);
-        
-        showCompletionStats();
-        
-    } else {
-        closeLesson();
-    }
 }
 
 function showAICompletionStats() {
@@ -24624,4 +24510,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
