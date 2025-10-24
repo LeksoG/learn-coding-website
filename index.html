@@ -10256,6 +10256,88 @@ body.loading * {
     display: none;
 }
 
+/* Landing Page Navigation */
+.landing-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10001;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+}
+
+.landing-nav-logo {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #64ffda;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.landing-nav-logo-icon {
+    font-size: 1.2em;
+}
+
+.landing-nav-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.landing-nav-btn {
+    padding: 12px 30px;
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+.landing-nav-btn-login {
+    background: transparent;
+    color: #64ffda;
+    border: 2px solid #64ffda;
+}
+
+.landing-nav-btn-login:hover {
+    background: rgba(100, 255, 218, 0.1);
+    transform: translateY(-2px);
+}
+
+.landing-nav-btn-signup {
+    background: linear-gradient(135deg, #667eea, #64ffda);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+}
+
+.landing-nav-btn-signup:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 255, 218, 0.5);
+}
+
+@media (max-width: 768px) {
+    .landing-nav {
+        padding: 15px 20px;
+    }
+
+    .landing-nav-logo {
+        font-size: 1.4em;
+    }
+
+    .landing-nav-btn {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+}
+
 .landing-hero {
     position: relative;
     min-height: 100vh;
@@ -10600,6 +10682,18 @@ body.loading * {
 <body>
     <!-- LANDING PAGE -->
     <div class="landing-page" id="landingPage">
+        <!-- Navigation -->
+        <nav class="landing-nav">
+            <div class="landing-nav-logo">
+                <span class="landing-nav-logo-icon">⚡</span>
+                <span>DevLearn Pro</span>
+            </div>
+            <div class="landing-nav-buttons">
+                <button class="landing-nav-btn landing-nav-btn-login" onclick="showAuthScreen('login')">Log In</button>
+                <button class="landing-nav-btn landing-nav-btn-signup" onclick="showAuthScreen('signup')">Sign Up</button>
+            </div>
+        </nav>
+
         <!-- Hero Section -->
         <div class="landing-hero">
             <!-- Double Helix Animation -->
@@ -10620,7 +10714,7 @@ body.loading * {
                     Interactive lessons, real-time practice, and intelligent assistance.
                 </p>
                 <div class="landing-cta-group">
-                    <button class="landing-cta landing-cta-primary" onclick="showAuthScreen()">Get Started</button>
+                    <button class="landing-cta landing-cta-primary" onclick="showAuthScreen('signup')">Get Started</button>
                     <button class="landing-cta landing-cta-secondary" onclick="scrollToFeatures()">Learn More</button>
                 </div>
             </div>
@@ -11180,7 +11274,6 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                             </div>
                             <div class="ai-messages" id="aiMessages">
                                 <div class="ai-message assistant">
-                                    <div class="message-avatar">✨</div>
                                     <div class="message-content">
                                         <p>Hi! I'm your AI coding assistant. I can help you:</p>
                                         <ul>
@@ -11377,15 +11470,6 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
 
         // Initialize Landing Page
         function initLandingPage() {
-            // Check if user is already logged in
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                // User is logged in, hide landing page and auth screen
-                document.getElementById('landingPage').style.display = 'none';
-                document.getElementById('authScreen').style.display = 'none';
-                return;
-            }
-
             // Create helix nodes
             createHelixNodes();
 
@@ -11473,9 +11557,11 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
         }
 
         // Show auth screen (hide landing page)
-        function showAuthScreen() {
+        function showAuthScreen(tab = 'login') {
             document.getElementById('landingPage').classList.add('hidden');
             document.getElementById('authScreen').style.display = 'flex';
+            // Switch to the appropriate tab
+            switchAuthTab(tab);
         }
 
         // Scroll to features section
@@ -12066,8 +12152,16 @@ function showAuthMessage(elementId, message, type) {
 }
 
 function initializeApp() {
+    // Hide auth screen and landing page
     document.getElementById('authScreen').style.display = 'none';
-    
+    document.getElementById('landingPage').style.display = 'none';
+
+    // Show the app container
+    const container = document.querySelector('.container');
+    if (container) {
+        container.style.display = 'block';
+    }
+
     const savedProgress = localStorage.getItem('progress_' + currentUser);
     if (savedProgress) {
         const loadedProgress = JSON.parse(savedProgress);
@@ -12128,12 +12222,32 @@ function closeLogoutModal() {
 }
 
 function confirmLogout() {
+    // Remove user from localStorage
     localStorage.removeItem('currentUser');
+    currentUser = null;
+
+    // Close modal
     closeLogoutModal();
-    // Show landing page instead of reloading
-    showLandingPage();
-    // Hide the main container
-    document.querySelector('.container').style.display = 'none';
+
+    // Hide the main app container
+    const container = document.querySelector('.container');
+    if (container) {
+        container.style.display = 'none';
+    }
+
+    // Hide auth screen
+    document.getElementById('authScreen').style.display = 'none';
+
+    // Show and reinitialize landing page
+    const landingPage = document.getElementById('landingPage');
+    landingPage.classList.remove('hidden');
+    landingPage.style.display = 'block';
+
+    // Reinitialize landing page animations
+    initLandingPage();
+
+    // Scroll to top
+    window.scrollTo(0, 0);
 }
 
 function checkStreakStatus() {
@@ -12176,9 +12290,15 @@ function checkAuth() {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
         currentUser = savedUser;
+        // Hide landing page and show app
+        document.getElementById('landingPage').style.display = 'none';
+        document.getElementById('authScreen').style.display = 'none';
         initializeApp();
     } else {
-        document.getElementById('authScreen').style.display = 'flex';
+        // Show landing page instead of auth screen
+        document.getElementById('landingPage').style.display = 'block';
+        document.getElementById('authScreen').style.display = 'none';
+        initLandingPage();
     }
 }
 
@@ -13381,7 +13501,6 @@ async function displayNextLearnMessage() {
         const unlockMsg = document.createElement('div');
         unlockMsg.className = 'message';
         unlockMsg.innerHTML = `
-            <div class="message-avatar">🤖</div>
             <div class="message-bubble">
                 ✅ Great job, ${firstName}! Learning complete! Switch to <strong>Questions</strong> tab to test yourself!
             </div>
@@ -13394,7 +13513,6 @@ async function displayNextLearnMessage() {
     const typingDiv = document.createElement('div');
     typingDiv.className = 'message';
     typingDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
         <div class="message-bubble">
             <div class="typing-indicator">
                 <div class="typing-dot"></div>
@@ -13441,7 +13559,6 @@ messageDiv.style.transform = 'translateY(10px)';
 // Check if this is a video message
 if (msg.video) {
     messageDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
         <div class="message-bubble">
             ${highlightedContent}
             <div class="video-message-buttons">
@@ -13464,7 +13581,6 @@ if (msg.video) {
     `;
 } else {
     messageDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
         <div class="message-bubble">${highlightedContent}</div>
     `;
 }
@@ -13499,7 +13615,6 @@ if (msg.video) {
             unlockMsg.style.opacity = '0';
             unlockMsg.style.transform = 'translateY(10px)';
             unlockMsg.innerHTML = `
-                <div class="message-avatar">🤖</div>
                 <div class="message-bubble">
                     ✅ Excellent work, ${firstName}! Switch to <strong>Questions</strong> tab to test yourself!
                 </div>
@@ -13555,7 +13670,6 @@ function displayQuestions() {
     const welcomeDiv = document.createElement('div');
     welcomeDiv.className = 'message';
     welcomeDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
         <div class="message-bubble">🎯 Test your knowledge!</div>
     `;
     questionMessages.appendChild(welcomeDiv);
@@ -13575,7 +13689,6 @@ function displayQuestions() {
             ).join('');
             
             exerciseDiv.innerHTML = `
-                <div class="message-avatar">🤖</div>
                 <div class="message-bubble">
                     <div class="exercise-box">
                         <div class="exercise-title">❓ ${exercise.question}</div>
@@ -13595,7 +13708,6 @@ function displayQuestions() {
                 const options = generateFillOptions(exercise.answer, exercise.code);
                 
                 exerciseDiv.innerHTML = `
-                    <div class="message-avatar">🤖</div>
                     <div class="message-bubble">
                         <div class="exercise-box">
                             <div class="exercise-title">✏️ ${exercise.question}</div>
@@ -13615,7 +13727,6 @@ function displayQuestions() {
                     `<span class="code-blank-wrapper"><input type="text" class="code-blank" data-index="${index}" placeholder="____"></span>`);
                 
                 exerciseDiv.innerHTML = `
-                    <div class="message-avatar">🤖</div>
                     <div class="message-bubble">
                         <div class="exercise-box">
                             <div class="exercise-title">✏️ ${exercise.question}</div>
@@ -13841,7 +13952,6 @@ function checkCompletion() {
         const completeMsg = document.createElement('div');
         completeMsg.className = 'message';
         completeMsg.innerHTML = `
-            <div class="message-avatar">🤖</div>
             <div class="message-bubble">
                 🎉 Excellent work! You've mastered this lesson!
                 <button class="next-button" onclick="completeLesson()">Finish Lesson</button>
@@ -19693,13 +19803,10 @@ function addAIMessage(content, role) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `ai-message ${role}`;
 
-    const avatar = role === 'assistant' ? '✨' : '👤';
-
     // Format content with code blocks
     const formattedContent = formatAIContent(content);
 
     messageDiv.innerHTML = `
-        <div class="message-avatar">${avatar}</div>
         <div class="message-content">${formattedContent}</div>
     `;
 
@@ -19755,7 +19862,6 @@ function addTypingIndicator() {
     typingDiv.id = typingId;
     typingDiv.className = 'ai-message assistant';
     typingDiv.innerHTML = `
-        <div class="message-avatar">✨</div>
         <div class="message-content">
             <p style="color: #8b949e;"><em>Thinking...</em></p>
         </div>
@@ -22730,7 +22836,6 @@ async function displayNextAIMessage() {
         const unlockMsg = document.createElement('div');
         unlockMsg.className = 'message';
         unlockMsg.innerHTML = `
-            <div class="message-avatar">🤖</div>
             <div class="message-bubble">
                 ✅ Great! Switch to <strong>Questions</strong> tab to test yourself!
             </div>
@@ -22743,7 +22848,6 @@ async function displayNextAIMessage() {
     const typingDiv = document.createElement('div');
     typingDiv.className = 'message';
     typingDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
         <div class="message-bubble">
             <div class="typing-indicator">
                 <div class="typing-dot"></div>
@@ -22762,7 +22866,6 @@ async function displayNextAIMessage() {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message';
         messageDiv.innerHTML = `
-            <div class="message-avatar">🤖</div>
             <div class="message-bubble">${msg.bot}</div>
         `;
         learnMessages.appendChild(messageDiv);
@@ -22786,7 +22889,6 @@ async function displayNextAIMessage() {
                 const unlockMsg = document.createElement('div');
                 unlockMsg.className = 'message';
                 unlockMsg.innerHTML = `
-                    <div class="message-avatar">🤖</div>
                     <div class="message-bubble">
                         ✅ Excellent! Switch to <strong>Questions</strong> tab to test yourself!
                     </div>
@@ -22803,7 +22905,6 @@ function displayAIMessage(text) {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'message';
     msgDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
         <div class="message-bubble">${text}</div>
     `;
     learnMessages.appendChild(msgDiv);
@@ -22817,7 +22918,6 @@ function displayAIQuestions(questions) {
     const welcomeDiv = document.createElement('div');
     welcomeDiv.className = 'message';
     welcomeDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
         <div class="message-bubble">🎯 Test your AI-generated knowledge!</div>
     `;
     questionMessages.appendChild(welcomeDiv);
@@ -22831,7 +22931,6 @@ function displayAIQuestions(questions) {
         ).join('');
         
         exerciseDiv.innerHTML = `
-            <div class="message-avatar">🤖</div>
             <div class="message-bubble">
                 <div class="exercise-box">
                     <div class="exercise-title">❓ ${q.question}</div>
@@ -23829,4 +23928,5 @@ showSection = function(sectionId) {
 </script>
 </body>
 </html>
+
 
