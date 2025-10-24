@@ -3268,6 +3268,11 @@ body.light-mode .code-example code {
                 height: 100vh !important;
                 border-radius: 0 !important;
                 z-index: 10000 !important;
+                background: rgba(30, 30, 30, 0.98) !important; /* Nearly opaque for better readability on mobile */
+            }
+
+            body.light-mode .ai-sidebar {
+                background: rgba(255, 255, 255, 0.98) !important; /* Nearly opaque for light mode on mobile */
             }
 
             .ai-sidebar.active {
@@ -6534,7 +6539,13 @@ body.light-mode .notification-toast {
         min-width: 100%;
         padding: 0 10px;
     }
-    
+
+    /* Ensure stat cards in carousel are always visible */
+    .mobile-stats-carousel .stat-card {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
     .stats-carousel-dots {
         display: flex;
         justify-content: center;
@@ -23195,3 +23206,6 @@ showSection = function(sectionId) {
 </script>
 </body>
 </html>
+
+
+
