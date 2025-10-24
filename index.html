@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DevLearn - Master Programming</title>
     <style>
+        :root {
+            /* Default theme colors (Green) */
+            --theme-primary: #64ffda;
+            --theme-primary-rgb: 100, 255, 218;
+            --theme-secondary: rgba(100, 255, 218, 0.1);
+            --theme-border: rgba(100, 255, 218, 0.3);
+            --theme-shadow: rgba(100, 255, 218, 0.2);
+        }
+
+        [data-theme="blue"] {
+            --theme-primary: #667eea;
+            --theme-primary-rgb: 102, 126, 234;
+            --theme-secondary: rgba(102, 126, 234, 0.1);
+            --theme-border: rgba(102, 126, 234, 0.3);
+            --theme-shadow: rgba(102, 126, 234, 0.2);
+        }
+
+        [data-theme="pink"] {
+            --theme-primary: #ff6b9d;
+            --theme-primary-rgb: 255, 107, 157;
+            --theme-secondary: rgba(255, 107, 157, 0.1);
+            --theme-border: rgba(255, 107, 157, 0.3);
+            --theme-shadow: rgba(255, 107, 157, 0.2);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -275,14 +300,14 @@ body.light-mode .auth-screen {
         }
 
         .nav-tab:hover {
-            color: #64ffda;
-            background: rgba(100, 255, 218, 0.05);
+            color: var(--theme-primary);
+            background: var(--theme-secondary);
         }
 
         .nav-tab.active {
-            background: rgba(100, 255, 218, 0.15);
-            color: #64ffda;
-            box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
+            background: var(--theme-border);
+            color: var(--theme-primary);
+            box-shadow: 0 0 20px var(--theme-shadow);
         }
 
         /* TAB ICONS SCALE ANIMATION */
@@ -1436,9 +1461,9 @@ body.light-mode .motivational-message {
 
         .practice-header h1 {
             font-size: 3em;
-            color: #64ffda;
+            color: var(--theme-primary);
             margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(100, 255, 218, 0.3);
+            text-shadow: 0 0 30px var(--theme-shadow);
         }
 
         body.light-mode .practice-header h1 {
@@ -2656,9 +2681,9 @@ body.light-mode .motivational-message {
 
         .settings-header h1 {
             font-size: 3em;
-            color: #64ffda;
+            color: var(--theme-primary);
             margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(100, 255, 218, 0.3);
+            text-shadow: 0 0 30px var(--theme-shadow);
         }
 
         body.light-mode .settings-header h1 {
@@ -2667,7 +2692,7 @@ body.light-mode .motivational-message {
 
         .settings-section {
             background: rgba(30, 30, 30, 0.6);
-            border: 1px solid rgba(100, 255, 218, 0.1);
+            border: 1px solid var(--theme-secondary);
             padding: 35px;
             border-radius: 20px;
             margin-bottom: 25px;
@@ -2679,7 +2704,7 @@ body.light-mode .motivational-message {
         }
 
         .settings-section h2 {
-            color: #64ffda;
+            color: var(--theme-primary);
             margin-bottom: 25px;
             font-size: 1.5em;
         }
@@ -2718,16 +2743,16 @@ body.light-mode .motivational-message {
             position: relative;
             width: 60px;
             height: 30px;
-            background: rgba(100, 255, 218, 0.1);
-            border: 1px solid rgba(100, 255, 218, 0.3);
+            background: var(--theme-secondary);
+            border: 1px solid var(--theme-border);
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .toggle-switch.active {
-            background: rgba(100, 255, 218, 0.3);
-            border-color: #64ffda;
+            background: var(--theme-border);
+            border-color: var(--theme-primary);
         }
 
         .toggle-switch::after {
@@ -2737,14 +2762,101 @@ body.light-mode .motivational-message {
             left: 3px;
             width: 22px;
             height: 22px;
-            background: #64ffda;
+            background: var(--theme-primary);
             border-radius: 50%;
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 2px 8px rgba(100, 255, 218, 0.4);
+            box-shadow: 0 2px 8px var(--theme-shadow);
         }
 
         .toggle-switch.active::after {
             left: 33px;
+        }
+
+        /* Theme Selector Styles */
+        .theme-selector {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .theme-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 20px;
+            background: rgba(30, 30, 30, 0.4);
+            border: 2px solid rgba(100, 255, 218, 0.2);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            min-width: 120px;
+        }
+
+        body.light-mode .theme-option {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        .theme-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(100, 255, 218, 0.3);
+        }
+
+        .theme-option.active {
+            border-color: var(--theme-primary);
+            box-shadow: 0 0 20px var(--theme-shadow);
+        }
+
+        .theme-color {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .theme-option:hover .theme-color {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .theme-option span:not(.theme-check) {
+            color: #e0e0e0;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        body.light-mode .theme-option span:not(.theme-check) {
+            color: #1a1a1a;
+        }
+
+        .theme-check {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--theme-primary);
+            color: #0a0a0a;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .theme-option.active .theme-check {
+            display: flex;
+            animation: checkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes checkPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
         .lesson-view {
@@ -10241,6 +10353,9 @@ body.loading * {
     </style>
 </head>
 <body>
+    <!-- ANIMATED NETWORK BACKGROUND -->
+    <canvas id="networkCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
+
     <!-- AUTH SCREEN -->
     <div class="auth-screen" id="authScreen">
         <div class="auth-container">
@@ -10782,6 +10897,44 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                     <h3>📧 Email Notifications</h3>
                     <p>Get updates about your progress</p>
                     <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>🤖 AI Tools</h2>
+            <div class="settings-grid">
+                <div class="setting-card">
+                    <h3>✨ AI Assistant</h3>
+                    <p>Show AI assistant in code playground</p>
+                    <div class="toggle-switch active" id="aiAssistantToggle" onclick="toggleAIAssistant()"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>🎨 Theme Customization</h2>
+            <div class="settings-grid">
+                <div class="setting-card" style="grid-column: 1 / -1;">
+                    <h3>🌈 Node Theme Color</h3>
+                    <p>Customize the network nodes and accent colors</p>
+                    <div class="theme-selector">
+                        <div class="theme-option" data-theme="green" onclick="changeTheme('green')">
+                            <div class="theme-color" style="background: linear-gradient(135deg, #64ffda, #00bfa5);"></div>
+                            <span>Green</span>
+                            <span class="theme-check">✓</span>
+                        </div>
+                        <div class="theme-option" data-theme="blue" onclick="changeTheme('blue')">
+                            <div class="theme-color" style="background: linear-gradient(135deg, #667eea, #4158d0);"></div>
+                            <span>Blue</span>
+                            <span class="theme-check">✓</span>
+                        </div>
+                        <div class="theme-option" data-theme="pink" onclick="changeTheme('pink')">
+                            <div class="theme-color" style="background: linear-gradient(135deg, #ff6b9d, #ff2e63);"></div>
+                            <span>Pink</span>
+                            <span class="theme-check">✓</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -23245,6 +23398,215 @@ showSection = function(sectionId) {
         }, 100);
     }
 };
+
+// ==================== NETWORK ANIMATION ====================
+
+class NetworkAnimation {
+    constructor() {
+        this.canvas = document.getElementById('networkCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.nodes = [];
+        this.nodeCount = 80;
+        this.mouse = { x: null, y: null, radius: 150 };
+        this.theme = localStorage.getItem('nodeTheme') || 'green';
+
+        this.resize();
+        this.initNodes();
+        this.animate();
+
+        window.addEventListener('resize', () => this.resize());
+        window.addEventListener('mousemove', (e) => {
+            this.mouse.x = e.x;
+            this.mouse.y = e.y;
+        });
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+
+    initNodes() {
+        this.nodes = [];
+        for (let i = 0; i < this.nodeCount; i++) {
+            this.nodes.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                radius: Math.random() * 2 + 1
+            });
+        }
+    }
+
+    getThemeColor() {
+        const themes = {
+            green: { r: 100, g: 255, b: 218 },
+            blue: { r: 102, g: 126, b: 234 },
+            pink: { r: 255, g: 107, b: 157 }
+        };
+        return themes[this.theme] || themes.green;
+    }
+
+    animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const color = this.getThemeColor();
+
+        // Update and draw nodes
+        this.nodes.forEach((node, i) => {
+            // Move nodes
+            node.x += node.vx;
+            node.y += node.vy;
+
+            // Bounce off walls
+            if (node.x < 0 || node.x > this.canvas.width) node.vx *= -1;
+            if (node.y < 0 || node.y > this.canvas.height) node.vy *= -1;
+
+            // Mouse interaction
+            if (this.mouse.x && this.mouse.y) {
+                const dx = this.mouse.x - node.x;
+                const dy = this.mouse.y - node.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < this.mouse.radius) {
+                    const force = (this.mouse.radius - distance) / this.mouse.radius;
+                    node.vx -= (dx / distance) * force * 0.2;
+                    node.vy -= (dy / distance) * force * 0.2;
+                }
+            }
+
+            // Limit velocity
+            const speed = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
+            if (speed > 2) {
+                node.vx = (node.vx / speed) * 2;
+                node.vy = (node.vy / speed) * 2;
+            }
+
+            // Draw node
+            this.ctx.beginPath();
+            this.ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+            this.ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`;
+            this.ctx.fill();
+
+            // Draw connections
+            for (let j = i + 1; j < this.nodes.length; j++) {
+                const dx = this.nodes[j].x - node.x;
+                const dy = this.nodes[j].y - node.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 120) {
+                    const opacity = (1 - distance / 120) * 0.5;
+                    this.ctx.beginPath();
+                    this.ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
+                    this.ctx.lineWidth = 0.5;
+                    this.ctx.moveTo(node.x, node.y);
+                    this.ctx.lineTo(this.nodes[j].x, this.nodes[j].y);
+                    this.ctx.stroke();
+                }
+            }
+        });
+
+        requestAnimationFrame(() => this.animate());
+    }
+
+    changeTheme(newTheme) {
+        this.theme = newTheme;
+    }
+}
+
+let networkAnimation;
+
+// ==================== THEME MANAGEMENT ====================
+
+function changeTheme(theme) {
+    // Update visual selection
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.remove('active');
+    });
+    document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+
+    // Apply theme to document
+    document.documentElement.setAttribute('data-theme', theme);
+
+    // Update network animation
+    if (networkAnimation) {
+        networkAnimation.changeTheme(theme);
+    }
+
+    // Update UI elements with theme colors
+    updateThemeColors(theme);
+
+    // Save to localStorage
+    localStorage.setItem('nodeTheme', theme);
+
+    // Show notification
+    showNotification(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}!`, 'success');
+}
+
+function updateThemeColors(theme) {
+    // This function applies theme colors to dynamic elements
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+
+    // Force reflow to apply CSS variables
+    document.body.offsetHeight;
+}
+
+// ==================== AI ASSISTANT TOGGLE ====================
+
+function toggleAIAssistant() {
+    const toggle = document.getElementById('aiAssistantToggle');
+    toggle.classList.toggle('active');
+
+    const isEnabled = toggle.classList.contains('active');
+    localStorage.setItem('aiAssistantEnabled', isEnabled);
+
+    // Update AI button visibility
+    updateAIButtonVisibility(isEnabled);
+
+    showNotification(
+        isEnabled ? 'AI Assistant enabled!' : 'AI Assistant disabled!',
+        'success'
+    );
+}
+
+function updateAIButtonVisibility(isEnabled) {
+    const aiButton = document.querySelector('.ai-toggle-btn');
+    if (aiButton) {
+        aiButton.style.display = isEnabled ? 'flex' : 'none';
+    }
+}
+
+// ==================== INITIALIZATION ====================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize network animation
+    networkAnimation = new NetworkAnimation();
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('nodeTheme') || 'green';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.remove('active');
+    });
+    const savedThemeOption = document.querySelector(`[data-theme="${savedTheme}"]`);
+    if (savedThemeOption) {
+        savedThemeOption.classList.add('active');
+    }
+
+    // Load AI assistant setting
+    const aiEnabled = localStorage.getItem('aiAssistantEnabled') !== 'false';
+    const aiToggle = document.getElementById('aiAssistantToggle');
+    if (aiToggle) {
+        if (aiEnabled) {
+            aiToggle.classList.add('active');
+        } else {
+            aiToggle.classList.remove('active');
+        }
+    }
+    updateAIButtonVisibility(aiEnabled);
+});
 </script>
 </body>
 </html>
