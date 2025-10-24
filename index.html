@@ -3267,7 +3267,7 @@ body.light-mode .code-example code {
                 width: 100% !important;
                 height: 100vh !important;
                 border-radius: 0 !important;
-                z-index: 10000 !important;
+                z-index: 100000 !important; /* Higher than nav and hamburger */
                 background: rgba(30, 30, 30, 0.98) !important; /* Nearly opaque for better readability on mobile */
             }
 
@@ -18491,9 +18491,16 @@ async function runPython() {
   const loading = document.getElementById("loading");
 
   try {
+    // Send initial loading message
+    window.parent.postMessage({ type: 'log', message: 'Loading Python environment...' }, '*');
+
     pyodide = await loadPyodide();
+
+    // Hide loading, show output
     loading.style.display = "none";
     outputDiv.style.display = "block";
+
+    window.parent.postMessage({ type: 'log', message: 'Python loaded successfully' }, '*');
 
     await pyodide.runPythonAsync(\`
 import sys
@@ -18555,7 +18562,39 @@ def input(prompt=""):
     const userCodeBase64 = "${encodedCode}";
     const decodedCode = decodeURIComponent(escape(atob(userCodeBase64)));
 
-    await pyodide.runPythonAsync(decodedCode);
+    window.parent.postMessage({ type: 'log', message: 'Executing code...' }, '*');
+
+    // Execute code with automatic expression printing (like interactive Python)
+    try {
+      const result = await pyodide.runPythonAsync(\`
+import ast
+import sys
+
+user_code = """${decodedCode.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')}"""
+
+# Parse and execute code
+tree = ast.parse(user_code, mode='exec')
+
+# Check if last statement is an expression
+if tree.body and isinstance(tree.body[-1], ast.Expr):
+    # Split into statements and last expression
+    if len(tree.body) > 1:
+        exec_tree = ast.Module(body=tree.body[:-1], type_ignores=[])
+        exec(compile(exec_tree, '<string>', 'exec'), globals())
+
+    # Evaluate and print last expression if not None
+    last_expr = tree.body[-1]
+    result = eval(compile(ast.Expression(body=last_expr.value), '<string>', 'eval'), globals())
+    if result is not None:
+        print(result)
+else:
+    # Execute normally if last line is not an expression
+    exec(compile(tree, '<string>', 'exec'), globals())
+\`);
+    } catch (e) {
+      // If the smart execution fails, fall back to regular execution
+      await pyodide.runPythonAsync(decodedCode);
+    }
 
     const output = pyodide.runPython("sys.stdout.getvalue()");
     if (output) {
@@ -18567,15 +18606,18 @@ def input(prompt=""):
           outputContent.appendChild(lineDiv);
         }
       });
+      window.parent.postMessage({ type: 'log', message: 'Code executed successfully' }, '*');
     } else if (!outputContent.querySelector(".input-container") && !outputContent.querySelector(".output-line")) {
-      outputContent.innerHTML = "<div class='output-line'>Program executed successfully (no output)</div>";
+      const successMsg = "Program executed successfully (no output)";
+      outputContent.innerHTML = "<div class='output-line'>" + successMsg + "</div>";
+      window.parent.postMessage({ type: 'log', message: successMsg }, '*');
     }
 
   } catch (error) {
     loading.style.display = "none";
+    outputDiv.style.display = "block";
     const errorMsg = error.message || error.toString();
     window.parent.postMessage({ type: 'error', message: errorMsg }, '*');
-    outputDiv.style.display = "block";
     outputContent.innerHTML += "<div class='error'>Error: " + errorMsg + "</div>";
   }
 }
