@@ -71,11 +71,13 @@ html.light-mode {
     height: 100%;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.5;
+    opacity: 0.7;
+    filter: blur(0.5px) brightness(1.1);
 }
 
 body.light-mode #networkCanvas {
-    opacity: 0.25;
+    opacity: 0.3;
+    filter: blur(0.3px) brightness(0.9);
 }
 
 /* AUTH SCREEN STYLES - FIXED */
@@ -2821,7 +2823,7 @@ body.light-mode .motivational-message {
             margin: 0 auto;
             padding: 20px;
             margin-top: 0; /* Show settings at top without scrolling */
-            padding-top: 100px; /* Add padding to prevent overlap with nav */
+            padding-top: 20px; /* Minimal padding - settings start at top */
         }
 
         .settings-header {
@@ -23842,7 +23844,7 @@ class NetworkAnimation {
         this.canvas = document.getElementById('networkCanvas');
         this.ctx = this.canvas.getContext('2d');
         this.nodes = [];
-        this.nodeCount = 80;
+        this.nodeCount = 100;
         this.mouse = { x: null, y: null, radius: 150 };
         this.theme = localStorage.getItem('nodeTheme') || 'green';
 
@@ -23870,7 +23872,7 @@ class NetworkAnimation {
                 y: Math.random() * this.canvas.height,
                 vx: (Math.random() - 0.5) * 0.5,
                 vy: (Math.random() - 0.5) * 0.5,
-                radius: Math.random() * 2 + 1
+                radius: Math.random() * 2.5 + 1.5
             });
         }
     }
@@ -23919,26 +23921,39 @@ class NetworkAnimation {
                 node.vy = (node.vy / speed) * 2;
             }
 
-            // Draw node
+            // Draw node with glow effect
+            this.ctx.shadowBlur = 15;
+            this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`;
             this.ctx.beginPath();
             this.ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-            this.ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`;
+            this.ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.9)`;
             this.ctx.fill();
 
-            // Draw connections
+            // Add inner glow
+            this.ctx.shadowBlur = 8;
+            this.ctx.beginPath();
+            this.ctx.arc(node.x, node.y, node.radius * 0.6, 0, Math.PI * 2);
+            this.ctx.fillStyle = `rgba(255, 255, 255, 0.6)`;
+            this.ctx.fill();
+            this.ctx.shadowBlur = 0;
+
+            // Draw connections with glow
             for (let j = i + 1; j < this.nodes.length; j++) {
                 const dx = this.nodes[j].x - node.x;
                 const dy = this.nodes[j].y - node.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
-                if (distance < 120) {
-                    const opacity = (1 - distance / 120) * 0.5;
+                if (distance < 150) {
+                    const opacity = (1 - distance / 150) * 0.6;
+                    this.ctx.shadowBlur = 3;
+                    this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
                     this.ctx.beginPath();
                     this.ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
-                    this.ctx.lineWidth = 0.5;
+                    this.ctx.lineWidth = 1;
                     this.ctx.moveTo(node.x, node.y);
                     this.ctx.lineTo(this.nodes[j].x, this.nodes[j].y);
                     this.ctx.stroke();
+                    this.ctx.shadowBlur = 0;
                 }
             }
         });
@@ -24046,10 +24061,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
