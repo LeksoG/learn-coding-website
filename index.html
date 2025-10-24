@@ -1898,6 +1898,9 @@ body.light-mode .motivational-message {
             border: 1px solid rgba(100, 255, 218, 0.1);
             color: #e0e0e0;
             line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
 
         body.light-mode .message-content {
@@ -1948,6 +1951,9 @@ body.light-mode .motivational-message {
             overflow-x: auto;
             margin: 10px 0;
             position: relative;
+            max-width: 100%;
+            word-wrap: break-word;
+            white-space: pre-wrap;
         }
 
         body.light-mode .message-content pre {
@@ -2016,11 +2022,11 @@ body.light-mode .motivational-message {
         }
 
         .suggestion-btn {
-            background: rgba(100, 255, 218, 0.1);
-            border: 1px solid rgba(100, 255, 218, 0.3);
+            background: transparent;
+            border: 2px solid rgba(100, 255, 218, 0.5);
             color: #64ffda;
-            padding: 12px 24px; /* Increased padding for more oval shape */
-            border-radius: 50px; /* Full pill/oval shape */
+            padding: 12px 24px;
+            border-radius: 50px;
             cursor: pointer;
             font-size: 0.85em;
             font-weight: 600;
@@ -2028,27 +2034,27 @@ body.light-mode .motivational-message {
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 2px 8px rgba(100, 255, 218, 0.1);
+            box-shadow: none;
         }
 
         .suggestion-btn:hover {
             background: rgba(100, 255, 218, 0.2);
             border-color: #64ffda;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
+            box-shadow: none;
         }
 
         body.light-mode .suggestion-btn {
             color: #0a7a5e;
-            border-color: rgba(10, 122, 94, 0.3);
-            background: rgba(10, 122, 94, 0.1);
-            box-shadow: 0 2px 8px rgba(10, 122, 94, 0.1);
+            border-color: rgba(10, 122, 94, 0.5);
+            background: transparent;
+            box-shadow: none;
         }
 
         body.light-mode .suggestion-btn:hover {
             background: rgba(10, 122, 94, 0.2);
             border-color: #0a7a5e;
-            box-shadow: 0 4px 12px rgba(10, 122, 94, 0.2);
+            box-shadow: none;
         }
 
         /* Agent Mode Toggle */
@@ -2421,17 +2427,17 @@ body.light-mode .motivational-message {
         }
 
         .ai-suggestions .suggestion-btn {
-            background: rgba(100, 255, 218, 0.1);
-            border: 1px solid rgba(100, 255, 218, 0.3);
+            background: transparent;
+            border: 2px solid rgba(100, 255, 218, 0.5);
             color: #64ffda;
-            padding: 12px 24px; /* Increased padding for more oval shape */
-            border-radius: 50px; /* Full pill/oval shape */
+            padding: 12px 24px;
+            border-radius: 50px;
             cursor: pointer;
             font-size: 0.9em;
             font-weight: 500;
             transition: all 0.3s ease;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(100, 255, 218, 0.1);
+            box-shadow: none;
         }
 
         .ai-suggestions .suggestion-btn:hover {
@@ -2442,16 +2448,16 @@ body.light-mode .motivational-message {
         }
 
         body.light-mode .ai-suggestions .suggestion-btn {
-            background: rgba(10, 122, 94, 0.1);
-            border-color: rgba(10, 122, 94, 0.3);
+            background: transparent;
+            border-color: rgba(10, 122, 94, 0.5);
             color: #0a7a5e;
-            box-shadow: 0 2px 8px rgba(10, 122, 94, 0.1);
+            box-shadow: none;
         }
 
         body.light-mode .ai-suggestions .suggestion-btn:hover {
             background: rgba(10, 122, 94, 0.2);
             border-color: #0a7a5e;
-            box-shadow: 0 4px 12px rgba(10, 122, 94, 0.2);
+            box-shadow: none;
         }
 
         /* Neural Network Animation */
@@ -3243,8 +3249,29 @@ body.light-mode .code-example code {
                 min-height: 400px;
             }
 
+            .preview-panel {
+                min-height: 400px;
+            }
+
             .console-panel {
                 height: 150px;
+            }
+
+            /* Make AI sidebar full screen on mobile */
+            .ai-sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100% !important;
+                height: 100vh !important;
+                border-radius: 0 !important;
+                z-index: 10000 !important;
+            }
+
+            .ai-sidebar.active {
+                display: flex !important;
             }
 
             .ai-toggle-btn {
@@ -11762,6 +11789,92 @@ function injectScrollLockCSS() {
     document.head.appendChild(style);
 }
 
+// Update AI suggestions dynamically based on detected language
+function updateAISuggestions(language) {
+    const suggestionsContainer = document.querySelector('.ai-suggestions');
+    if (!suggestionsContainer) return;
+
+    const languageEmojis = {
+        'Python': '🐍',
+        'JavaScript': '⚡',
+        'HTML': '🌐',
+        'CSS': '🎨',
+        'React': '⚛️',
+        'None': '💡',
+        'Unknown': '💡'
+    };
+
+    const emoji = languageEmojis[language] || '💡';
+
+    // Language-specific suggestions
+    let suggestions = '';
+
+    if (language === 'Python') {
+        suggestions = `
+            <button class="suggestion-btn" onclick="sendAISuggestion('explain')">
+                🐍 Explain this Python code
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('debug')">
+                🐛 Debug Python errors
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
+                ⚡ Optimize Python code
+            </button>
+        `;
+    } else if (language === 'JavaScript') {
+        suggestions = `
+            <button class="suggestion-btn" onclick="sendAISuggestion('explain')">
+                ⚡ Explain this JavaScript
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('debug')">
+                🐛 Debug JS errors
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
+                💪 Improve JS code
+            </button>
+        `;
+    } else if (language === 'HTML') {
+        suggestions = `
+            <button class="suggestion-btn" onclick="sendAISuggestion('explain')">
+                🌐 Explain this HTML
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('debug')">
+                🔍 Check HTML structure
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
+                ✨ Enhance HTML markup
+            </button>
+        `;
+    } else if (language === 'CSS') {
+        suggestions = `
+            <button class="suggestion-btn" onclick="sendAISuggestion('explain')">
+                🎨 Explain these styles
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('debug')">
+                🔍 Fix CSS issues
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
+                💅 Beautify CSS
+            </button>
+        `;
+    } else {
+        // Default suggestions
+        suggestions = `
+            <button class="suggestion-btn" onclick="sendAISuggestion('explain')">
+                💡 What does this code do?
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('debug')">
+                🐛 Debug my code
+            </button>
+            <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
+                ⚡ Improve my code
+            </button>
+        `;
+    }
+
+    suggestionsContainer.innerHTML = suggestions;
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     injectScrollLockCSS();
     injectSplashScreenCSS();
@@ -11795,6 +11908,9 @@ window.addEventListener('DOMContentLoaded', () => {
             } else {
                 detectedLangSpan.style.color = '#64ffda';
             }
+
+            // Update AI suggestions dynamically based on language
+            updateAISuggestions(language);
         });
     }
 });
@@ -12196,18 +12312,24 @@ function showSection(sectionId) {
                     statsGrid.style.display = 'none'; // Hide desktop grid on mobile
                 }
 
-                // Recreate carousel if it doesn't exist
-                if (!document.querySelector('.mobile-stats-carousel')) {
-                    createMobileStatsCarousel();
-                } else {
-                    updateMobileStatsCarousel();
+                // Always remove and recreate carousel to fix disappearing issue
+                const existingCarousel = document.querySelector('.mobile-stats-carousel');
+                if (existingCarousel) {
+                    existingCarousel.remove();
                 }
+
+                createMobileStatsCarousel();
             }, 100);
         } else {
             // On desktop, ensure the grid is visible
             const statsGrid = document.querySelector('.stats-grid');
             if (statsGrid) {
                 statsGrid.style.display = 'grid';
+            }
+            // Remove carousel if it exists on desktop
+            const existingCarousel = document.querySelector('.mobile-stats-carousel');
+            if (existingCarousel) {
+                existingCarousel.remove();
             }
         }
     }
@@ -12264,6 +12386,24 @@ function showSectionMobile(sectionId, element) {
                 card.style.opacity = '1';
                 card.style.transform = 'translateY(0) scale(1)';
             });
+        }
+
+        // Fix for mobile: Ensure carousel is properly updated
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                const statsGrid = document.querySelector('.stats-grid');
+                if (statsGrid) {
+                    statsGrid.style.display = 'none';
+                }
+
+                // Always remove and recreate carousel
+                const existingCarousel = document.querySelector('.mobile-stats-carousel');
+                if (existingCarousel) {
+                    existingCarousel.remove();
+                }
+
+                createMobileStatsCarousel();
+            }, 100);
         }
     }
 }
@@ -17659,16 +17799,13 @@ function updateCharts() {
 function createMobileStatsCarousel() {
     const isMobile = window.innerWidth <= 768;
     if (!isMobile) return;
-    
+
     const dashboard = document.querySelector('.dashboard');
     if (!dashboard) return;
-    
-    // Check if carousel already exists
-    if (document.querySelector('.mobile-stats-carousel')) return;
-    
+
     const statsGrid = document.querySelector('.stats-grid');
     if (!statsGrid) return;
-    
+
     // Create carousel
     const carousel = document.createElement('div');
     carousel.className = 'mobile-stats-carousel';
@@ -17676,10 +17813,10 @@ function createMobileStatsCarousel() {
         <div class="stats-carousel-track" id="statsCarouselTrack"></div>
         <div class="stats-carousel-dots" id="statsCarouselDots"></div>
     `;
-    
+
     // Insert carousel before stats-grid
     statsGrid.parentNode.insertBefore(carousel, statsGrid);
-    
+
     updateMobileStatsCarousel();
 }
 
@@ -18322,33 +18459,93 @@ body { font-family: Arial; padding: 20px; background: #fff; }
 .output-title { font-weight: bold; color: #495057; border-bottom: 2px solid #dee2e6; padding-bottom: 8px; margin-bottom: 10px; }
 .output-line { margin: 5px 0; color: #0066cc; }
 .error { color: #dc3545; font-weight: bold; background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 10px; margin: 10px 0; }
+.input-container { margin: 10px 0; display: flex; gap: 10px; }
+.input-prompt { color: #495057; font-weight: bold; }
+.input-field { flex: 1; padding: 8px 12px; border: 2px solid #667eea; border-radius: 5px; font-family: monospace; font-size: 14px; }
+.input-submit { padding: 8px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.input-submit:hover { background: #5568d3; }
 </style>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"><\/script>
 </head><body>
 <div class="loading" id="loading"><div class="loading-spinner"></div><div>Loading Python...</div></div>
 <div id="output" class="output" style="display:none;"><div class="output-title">🐍 Python Output</div><div id="output-content"></div></div>
 <script>
+let pyodide;
+let inputQueue = [];
+let inputResolvers = [];
+
 async function runPython() {
   const outputDiv = document.getElementById("output");
   const outputContent = document.getElementById("output-content");
   const loading = document.getElementById("loading");
-  
+
   try {
-    const pyodide = await loadPyodide();
+    pyodide = await loadPyodide();
     loading.style.display = "none";
     outputDiv.style.display = "block";
-    
+
     await pyodide.runPythonAsync(\`
 import sys
 from io import StringIO
 sys.stdout = StringIO()
 \`);
-    
+
+    // Create custom input function
+    pyodide.globals.set("js_input", (prompt) => {
+      return new Promise((resolve) => {
+        const inputContainer = document.createElement("div");
+        inputContainer.className = "input-container";
+
+        const promptSpan = document.createElement("span");
+        promptSpan.className = "input-prompt";
+        promptSpan.textContent = prompt || "Input: ";
+
+        const inputField = document.createElement("input");
+        inputField.className = "input-field";
+        inputField.type = "text";
+        inputField.placeholder = "Enter value here...";
+
+        const submitBtn = document.createElement("button");
+        submitBtn.className = "input-submit";
+        submitBtn.textContent = "Submit";
+
+        const handleSubmit = () => {
+          const value = inputField.value;
+          inputContainer.remove();
+
+          const outputLine = document.createElement("div");
+          outputLine.className = "output-line";
+          outputLine.textContent = "▶ " + prompt + value;
+          outputContent.appendChild(outputLine);
+
+          resolve(value);
+        };
+
+        submitBtn.onclick = handleSubmit;
+        inputField.onkeypress = (e) => {
+          if (e.key === "Enter") handleSubmit();
+        };
+
+        inputContainer.appendChild(promptSpan);
+        inputContainer.appendChild(inputField);
+        inputContainer.appendChild(submitBtn);
+        outputContent.appendChild(inputContainer);
+
+        inputField.focus();
+      });
+    });
+
+    await pyodide.runPythonAsync(\`
+def input(prompt=""):
+    from js import js_input
+    return js_input(prompt)
+\`);
+
     const userCodeBase64 = "${encodedCode}";
     const decodedCode = decodeURIComponent(escape(atob(userCodeBase64)));
-    
+
     await pyodide.runPythonAsync(decodedCode);
-    
+
     const output = pyodide.runPython("sys.stdout.getvalue()");
     if (output) {
       output.split("\\n").forEach(line => {
@@ -18359,16 +18556,16 @@ sys.stdout = StringIO()
           outputContent.appendChild(lineDiv);
         }
       });
-    } else {
+    } else if (!outputContent.querySelector(".input-container") && !outputContent.querySelector(".output-line")) {
       outputContent.innerHTML = "<div class='output-line'>Program executed successfully (no output)</div>";
     }
-    
+
   } catch (error) {
     loading.style.display = "none";
     const errorMsg = error.message || error.toString();
     window.parent.postMessage({ type: 'error', message: errorMsg }, '*');
     outputDiv.style.display = "block";
-    outputContent.innerHTML = "<div class='output-line'>Execution completed. Check console for errors.</div>";
+    outputContent.innerHTML += "<div class='error'>Error: " + errorMsg + "</div>";
   }
 }
 runPython();
@@ -18640,6 +18837,7 @@ function toggleAgentMode() {
 
 async function applyCodeWithAnimation(newCode, description) {
     const editor = document.getElementById('codeEditor');
+    const aiSidebar = document.getElementById('aiSidebar');
     const currentCode = editor.value;
 
     // Show "Thinking..." animation in editor
@@ -18650,6 +18848,14 @@ async function applyCodeWithAnimation(newCode, description) {
 
     // Wait a bit to simulate thinking
     await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Smoothly minimize the AI sidebar on mobile while code is being typed
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile && aiSidebar.classList.contains('active')) {
+        aiSidebar.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        aiSidebar.style.opacity = '0.3';
+        aiSidebar.style.transform = 'scale(0.95)';
+    }
 
     // Clear editor
     editor.value = '';
@@ -18664,9 +18870,22 @@ async function applyCodeWithAnimation(newCode, description) {
         await new Promise(resolve => setTimeout(resolve, delay));
     }
 
+    // Restore AI sidebar after code typing is done
+    if (isMobile && aiSidebar.classList.contains('active')) {
+        aiSidebar.style.opacity = '1';
+        aiSidebar.style.transform = 'scale(1)';
+        // Remove inline styles after transition
+        setTimeout(() => {
+            aiSidebar.style.transition = '';
+            aiSidebar.style.opacity = '';
+            aiSidebar.style.transform = '';
+        }, 300);
+    }
+
     // Update language detection
     const language = detectLanguage(newCode);
     document.getElementById('detectedLang').textContent = language;
+    updateAISuggestions(language);
 
     // Show completion message
     addAIMessage(`✅ Code updated successfully! I've ${description}.`, 'assistant');
@@ -18939,7 +19158,7 @@ async function callMistralAI(userMessage, codeContext) {
             messages: [
                 {
                     role: 'system',
-                    content: 'You are a helpful coding assistant. Provide clear, concise, and accurate responses about code. Format code snippets using markdown code blocks with ```language```.'
+                    content: 'You are a helpful coding assistant. Provide clear, concise, and accurate responses about code. When writing HTML code, always use proper indentation and structure with 2-space indentation. Format all code snippets using markdown code blocks with ```language```. For HTML, include proper doctype, head, body tags and well-structured markup with semantic elements. Make code readable and well-formatted.'
                 },
                 {
                     role: 'user',
