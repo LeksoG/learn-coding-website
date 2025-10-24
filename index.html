@@ -1445,26 +1445,533 @@ body.light-mode .motivational-message {
             color: #0a7a5e;
         }
 
-        .practice-workspace {
+        /* New Playground Container */
+        .playground-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: 0;
             height: calc(100vh - 250px);
+            position: relative;
         }
 
-        .code-panel, .output-panel {
+        .playground-container.with-panel {
+            grid-template-columns: 1fr 600px;
+            gap: 20px;
+        }
+
+        .editor-main {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 0;
+        }
+
+        .code-panel {
             background: rgba(30, 30, 30, 0.6);
             border: 1px solid rgba(100, 255, 218, 0.1);
             border-radius: 20px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            flex: 1;
+            min-height: 0;
         }
 
-        body.light-mode .code-panel,
-        body.light-mode .output-panel {
+        body.light-mode .code-panel {
             background: rgba(255, 255, 255, 0.8);
             border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        /* Console Panel */
+        .console-panel {
+            background: rgba(30, 30, 30, 0.6);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 200px;
+        }
+
+        body.light-mode .console-panel {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        .console-header {
+            background: rgba(20, 20, 20, 0.8);
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        body.light-mode .console-header {
+            background: rgba(240, 240, 240, 0.9);
+        }
+
+        .console-title {
+            color: #64ffda;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95em;
+        }
+
+        body.light-mode .console-title {
+            color: #0a7a5e;
+        }
+
+        .console-clear-btn {
+            background: transparent;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            color: #64ffda;
+            padding: 5px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .console-clear-btn:hover {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: #64ffda;
+        }
+
+        .console-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #e0e0e0;
+        }
+
+        body.light-mode .console-content {
+            color: #2c3e50;
+        }
+
+        .console-message {
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 3px solid;
+            animation: slideInConsole 0.3s ease;
+        }
+
+        @keyframes slideInConsole {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .console-message.log {
+            background: rgba(100, 255, 218, 0.1);
+            border-left-color: #64ffda;
+            color: #64ffda;
+        }
+
+        .console-message.error {
+            background: rgba(255, 100, 100, 0.1);
+            border-left-color: #ff6464;
+            color: #ff6464;
+        }
+
+        .console-message.warn {
+            background: rgba(255, 193, 7, 0.1);
+            border-left-color: #ffc107;
+            color: #ffc107;
+        }
+
+        .console-message.info {
+            background: rgba(100, 150, 255, 0.1);
+            border-left-color: #6496ff;
+            color: #6496ff;
+        }
+
+        /* Right Panel (Preview/AI) */
+        .right-panel {
+            background: rgba(30, 30, 30, 0.6);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .right-panel.active {
+            display: flex;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        body.light-mode .right-panel {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        .right-panel-tabs {
+            background: rgba(20, 20, 20, 0.8);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        body.light-mode .right-panel-tabs {
+            background: rgba(240, 240, 240, 0.9);
+        }
+
+        .panel-tab {
+            background: transparent;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            color: #8b949e;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-tab:hover {
+            background: rgba(100, 255, 218, 0.05);
+            border-color: rgba(100, 255, 218, 0.4);
+            color: #64ffda;
+        }
+
+        .panel-tab.active {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: #64ffda;
+            color: #64ffda;
+        }
+
+        body.light-mode .panel-tab.active {
+            color: #0a7a5e;
+            border-color: #0a7a5e;
+            background: rgba(10, 122, 94, 0.1);
+        }
+
+        .panel-close-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            color: #ff6464;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            line-height: 1;
+            transition: all 0.3s ease;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panel-close-btn:hover {
+            background: rgba(255, 100, 100, 0.1);
+            border-color: #ff6464;
+            transform: rotate(90deg);
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* AI Panel Styles */
+        .ai-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .ai-message {
+            display: flex;
+            gap: 15px;
+            animation: fadeInMessage 0.4s ease;
+        }
+
+        @keyframes fadeInMessage {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .ai-message.user .message-avatar {
+            background: linear-gradient(135deg, #64ffda 0%, #0a7a5e 100%);
+        }
+
+        .message-content {
+            flex: 1;
+            background: rgba(40, 40, 40, 0.6);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        body.light-mode .message-content {
+            background: rgba(245, 245, 245, 0.8);
+            color: #2c3e50;
+        }
+
+        .ai-message.user .message-content {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: #64ffda;
+        }
+
+        .message-content p {
+            margin: 0 0 10px 0;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .message-content li {
+            margin: 5px 0;
+        }
+
+        .message-content code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #64ffda;
+        }
+
+        body.light-mode .message-content code {
+            background: rgba(0, 0, 0, 0.1);
+            color: #0a7a5e;
+        }
+
+        .message-content pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        body.light-mode .message-content pre {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .suggestion-btn {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            color: #64ffda;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestion-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: #64ffda;
+            transform: translateY(-2px);
+        }
+
+        body.light-mode .suggestion-btn {
+            color: #0a7a5e;
+            border-color: rgba(10, 122, 94, 0.3);
+            background: rgba(10, 122, 94, 0.1);
+        }
+
+        body.light-mode .suggestion-btn:hover {
+            background: rgba(10, 122, 94, 0.2);
+            border-color: #0a7a5e;
+        }
+
+        /* AI Input Container */
+        .ai-input-container {
+            padding: 20px;
+            border-top: 1px solid rgba(100, 255, 218, 0.1);
+            background: rgba(20, 20, 20, 0.6);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        body.light-mode .ai-input-container {
+            background: rgba(240, 240, 240, 0.9);
+        }
+
+        #aiInput {
+            flex: 1;
+            background: rgba(40, 40, 40, 0.8);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 0.95em;
+            resize: none;
+            max-height: 120px;
+            transition: all 0.3s ease;
+        }
+
+        #aiInput:focus {
+            outline: none;
+            border-color: #64ffda;
+            background: rgba(40, 40, 40, 1);
+        }
+
+        body.light-mode #aiInput {
+            background: rgba(255, 255, 255, 0.9);
+            color: #2c3e50;
+            border-color: rgba(10, 122, 94, 0.3);
+        }
+
+        body.light-mode #aiInput:focus {
+            border-color: #0a7a5e;
+        }
+
+        .ai-send-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ai-send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* AI Toggle Button */
+        .ai-toggle-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Code Highlight Animation */
+        @keyframes codeHighlight {
+            0%, 100% {
+                background: transparent;
+            }
+            50% {
+                background: rgba(100, 255, 218, 0.3);
+            }
+        }
+
+        .code-highlight {
+            animation: codeHighlight 1.5s ease-in-out;
+            border-radius: 4px;
+            padding: 2px;
         }
 
         .panel-header {
@@ -2144,13 +2651,49 @@ body.light-mode .code-example code {
                 gap: 15px;
             }
 
-            .practice-workspace {
-                grid-template-columns: 1fr;
+            .playground-container {
+                grid-template-columns: 1fr !important;
                 height: auto;
             }
 
-            .code-panel, .output-panel {
+            .playground-container.with-panel {
+                grid-template-columns: 1fr !important;
+            }
+
+            .right-panel {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                z-index: 1000;
+                border-radius: 0;
+            }
+
+            .editor-main {
+                gap: 10px;
+            }
+
+            .code-panel {
                 min-height: 400px;
+            }
+
+            .console-panel {
+                height: 150px;
+            }
+
+            .ai-toggle-btn {
+                padding: 8px 12px;
+                font-size: 0.8em;
+            }
+
+            .right-panel-tabs {
+                padding: 10px 15px;
+            }
+
+            .panel-tab {
+                padding: 8px 15px;
+                font-size: 0.85em;
             }
 
             .bar-chart {
@@ -9479,42 +10022,106 @@ body.loading * {
             <div class="practice-container">
                 <div class="practice-header">
                     <h1>⚡ Code Playground</h1>
-                    <p style="color: #8b949e; margin-top: 10px;">Write code and see it run in real-time</p>
+                    <p style="color: #8b949e; margin-top: 10px;">Write code and see it run in real-time with AI assistance</p>
                 </div>
 
-                <div class="practice-workspace">
-                    <div class="code-panel">
-                        <div class="panel-header">
-    <div class="panel-title">
-        <span>💻</span> Code Editor
-    </div>
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <div id="languageDetector" style="color: #64ffda; font-weight: 600; font-size: 0.9em;">
-            Programming Language: <span id="detectedLang">None</span>
-        </div>
-        <button class="run-button" onclick="runCode()">
-            <span>▶</span> Run Code
-        </button>
-    </div>
-</div>
-                        <div class="code-editor-area">
-                            <textarea id="codeEditor" placeholder="// Write your code here...
+                <div class="playground-container">
+                    <!-- Main Editor Area -->
+                    <div class="editor-main">
+                        <div class="code-panel">
+                            <div class="panel-header">
+                                <div class="panel-title">
+                                    <span>💻</span> Code Editor
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <div id="languageDetector" style="color: #64ffda; font-weight: 600; font-size: 0.9em;">
+                                        Language: <span id="detectedLang">None</span>
+                                    </div>
+                                    <button class="ai-toggle-btn" onclick="toggleAISidebar()" title="AI Assistant">
+                                        <span>✨</span> AI Assistant
+                                    </button>
+                                    <button class="run-button" onclick="runCode()">
+                                        <span>▶</span> Run Code
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="code-editor-area">
+                                <textarea id="codeEditor" placeholder="// Write your code here...
 console.log('Hello, World!');
 
 // HTML Example:
 document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Console at bottom -->
+                        <div class="console-panel">
+                            <div class="console-header">
+                                <div class="console-title">
+                                    <span>🖥️</span> Console
+                                </div>
+                                <button class="console-clear-btn" onclick="clearConsole()">Clear</button>
+                            </div>
+                            <div class="console-content" id="consoleContent">
+                                <div class="console-message info">Console ready. Run your code to see output.</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="output-panel">
-                        <div class="panel-header">
-                            <div class="panel-title">
-                                <span>📺</span> Output
+                    <!-- Right Panel with Tabs (Preview/AI) -->
+                    <div class="right-panel" id="rightPanel">
+                        <div class="right-panel-tabs">
+                            <button class="panel-tab active" onclick="switchRightPanel('preview')">
+                                <span>📺</span> Preview
+                            </button>
+                            <button class="panel-tab" onclick="switchRightPanel('ai')">
+                                <span>✨</span> AI Assistant
+                            </button>
+                            <button class="panel-close-btn" onclick="closeRightPanel()">×</button>
+                        </div>
+
+                        <!-- Preview Panel -->
+                        <div class="tab-content active" id="previewPanel">
+                            <div class="preview-content">
+                                <iframe id="outputFrame" class="output-frame"></iframe>
                             </div>
                         </div>
-                        <div class="output-content">
-                            <iframe id="outputFrame" class="output-frame"></iframe>
-                            <div id="consoleOutput" class="console-output" style="display: none;"></div>
+
+                        <!-- AI Panel -->
+                        <div class="tab-content" id="aiPanel">
+                            <div class="ai-content">
+                                <div class="ai-messages" id="aiMessages">
+                                    <div class="ai-message assistant">
+                                        <div class="message-avatar">✨</div>
+                                        <div class="message-content">
+                                            <p>Hi! I'm your AI coding assistant. I can help you:</p>
+                                            <ul>
+                                                <li>Explain what your code does</li>
+                                                <li>Debug errors and suggest fixes</li>
+                                                <li>Improve your code</li>
+                                                <li>Answer coding questions</li>
+                                            </ul>
+                                            <div class="ai-suggestions">
+                                                <button class="suggestion-btn" onclick="sendAISuggestion('explain')">
+                                                    💡 What does this code do?
+                                                </button>
+                                                <button class="suggestion-btn" onclick="sendAISuggestion('debug')">
+                                                    🐛 Debug my code
+                                                </button>
+                                                <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
+                                                    ⚡ Improve my code
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ai-input-container">
+                                    <textarea id="aiInput" placeholder="Ask me anything about your code..." rows="1"></textarea>
+                                    <button class="ai-send-btn" onclick="sendAIMessage()">
+                                        <span>➤</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -10585,15 +11192,25 @@ window.addEventListener('DOMContentLoaded', () => {
     injectMobileBottomSheetCSS();
     enableBottomSheetSwipe();
 
-    
+    // Initialize the home section and stat cards on page load
+    setTimeout(() => {
+        updateDashboard();
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('animate-in');
+            }, index * 150);
+        });
+    }, 100);
+
     const codeEditor = document.getElementById('codeEditor');
     const detectedLangSpan = document.getElementById('detectedLang');
-    
+
     if (codeEditor && detectedLangSpan) {
         codeEditor.addEventListener('input', () => {
             const language = detectLanguage(codeEditor.value);
             detectedLangSpan.textContent = language;
-            
+
             if (language === 'None' || language === 'Unknown') {
                 detectedLangSpan.style.color = '#8b949e';
             } else {
@@ -16953,15 +17570,28 @@ function runCode() {
     const code = document.getElementById('codeEditor').value;
     const language = detectLanguage(code);
     const outputFrame = document.getElementById('outputFrame');
-    
+
+    // Clear console and log run start
+    clearConsole();
+    logToConsole(`Running ${language} code...`, 'info');
+
+    // Open right panel and switch to preview
+    const rightPanel = document.getElementById('rightPanel');
+    const container = document.querySelector('.playground-container');
+    rightPanel.classList.add('active');
+    container.classList.add('with-panel');
+    switchRightPanel('preview');
+
     if (!code.trim()) {
         outputFrame.srcdoc = '<div style="padding: 20px; color: #999; text-align: center;">Write some code and click Run to see results</div>';
+        logToConsole('No code to run', 'warn');
         return;
     }
     
     if (language === 'Python') {
     const encodedCode = btoa(unescape(encodeURIComponent(code)));
-    
+    logToConsole('Initializing Python environment...', 'info');
+
     outputFrame.srcdoc = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <style>
@@ -17029,9 +17659,10 @@ runPython();
 
     if (language === 'HTML') {
         outputFrame.srcdoc = code;
+        logToConsole('HTML rendered successfully', 'log');
         return;
     }
-    
+
     if (language === 'CSS') {
         outputFrame.srcdoc = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
@@ -17041,6 +17672,7 @@ runPython();
 <p>Your CSS styles are loaded. Add some HTML to see the effects!</p>
 <div class="box">Sample Box</div>
 </body></html>`;
+        logToConsole('CSS loaded successfully', 'log');
         return;
     }
     
@@ -17089,13 +17721,16 @@ window.onerror = function(msg, url, line) {
 };
 try {
   ${escapedCode}
+  window.parent.postMessage({type: 'log', data: 'Code executed successfully'}, '*');
 } catch(e) {
   console.error(e.message);
+  window.parent.postMessage({type: 'error', data: e.message}, '*');
 }
 <\/script>
 </body></html>`;
-    
+
     outputFrame.srcdoc = jsHTML;
+    logToConsole('JavaScript code loaded', 'log');
 }
 
 function detectLanguage(code) {
@@ -17154,9 +17789,296 @@ function detectLanguage(code) {
 }
 window.addEventListener('message', (e) => {
     if (e.data.type === 'log' || e.data.type === 'error') {
-        const consoleOutput = document.getElementById('consoleOutput');
-        consoleOutput.style.display = 'block';
-        consoleOutput.textContent += (e.data.type === 'error' ? '❌ ' : '✓ ') + e.data.data + '\n';
+        logToConsole(e.data.data, e.data.type);
+    }
+});
+
+// ==================== NEW PLAYGROUND FUNCTIONS ====================
+
+// Console Management
+function logToConsole(message, type = 'log') {
+    const consoleContent = document.getElementById('consoleContent');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `console-message ${type}`;
+
+    const timestamp = new Date().toLocaleTimeString();
+    messageDiv.innerHTML = `<span style="color: #8b949e; margin-right: 10px;">[${timestamp}]</span>${message}`;
+
+    consoleContent.appendChild(messageDiv);
+    consoleContent.scrollTop = consoleContent.scrollHeight;
+}
+
+function clearConsole() {
+    const consoleContent = document.getElementById('consoleContent');
+    consoleContent.innerHTML = '<div class="console-message info">Console cleared.</div>';
+}
+
+// Right Panel Management
+function toggleAISidebar() {
+    const rightPanel = document.getElementById('rightPanel');
+    const container = document.querySelector('.playground-container');
+
+    if (rightPanel.classList.contains('active')) {
+        closeRightPanel();
+    } else {
+        rightPanel.classList.add('active');
+        container.classList.add('with-panel');
+
+        // Switch to AI tab
+        switchRightPanel('ai');
+    }
+}
+
+function closeRightPanel() {
+    const rightPanel = document.getElementById('rightPanel');
+    const container = document.querySelector('.playground-container');
+
+    rightPanel.classList.remove('active');
+    container.classList.remove('with-panel');
+}
+
+function switchRightPanel(panelType) {
+    // Update tabs
+    const tabs = document.querySelectorAll('.panel-tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    // Update content
+    const contents = document.querySelectorAll('.tab-content');
+    contents.forEach(content => content.classList.remove('active'));
+
+    if (panelType === 'preview') {
+        tabs[0].classList.add('active');
+        document.getElementById('previewPanel').classList.add('active');
+    } else if (panelType === 'ai') {
+        tabs[1].classList.add('active');
+        document.getElementById('aiPanel').classList.add('active');
+    }
+}
+
+// AI Assistant Functions
+async function sendAIMessage() {
+    const input = document.getElementById('aiInput');
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    // Add user message
+    addAIMessage(message, 'user');
+    input.value = '';
+
+    // Show typing indicator
+    const typingId = addTypingIndicator();
+
+    // Get code context
+    const code = document.getElementById('codeEditor').value;
+
+    try {
+        const response = await callMistralAI(message, code);
+        removeTypingIndicator(typingId);
+        addAIMessage(response, 'assistant');
+    } catch (error) {
+        removeTypingIndicator(typingId);
+        addAIMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+        logToConsole('AI Error: ' + error.message, 'error');
+    }
+}
+
+async function sendAISuggestion(type) {
+    const code = document.getElementById('codeEditor').value;
+
+    if (!code.trim()) {
+        addAIMessage('Please write some code first!', 'assistant');
+        return;
+    }
+
+    let question = '';
+    let displayText = '';
+
+    switch(type) {
+        case 'explain':
+            displayText = '💡 What does this code do?';
+            question = 'Please explain what this code does in simple terms:\n\n' + code;
+            break;
+        case 'debug':
+            displayText = '🐛 Debug my code';
+            question = 'Please analyze this code for any bugs or errors and suggest fixes:\n\n' + code;
+            break;
+        case 'improve':
+            displayText = '⚡ Improve my code';
+            question = 'Please suggest improvements for this code:\n\n' + code;
+            break;
+    }
+
+    // Highlight code with animation
+    highlightCode();
+
+    // Animate suggestion text into input
+    await animateTextToInput(displayText);
+
+    // Add user message
+    addAIMessage(displayText, 'user');
+
+    // Show typing indicator
+    const typingId = addTypingIndicator();
+
+    try {
+        const response = await callMistralAI(question, code);
+        removeTypingIndicator(typingId);
+        addAIMessage(response, 'assistant');
+    } catch (error) {
+        removeTypingIndicator(typingId);
+        addAIMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+        logToConsole('AI Error: ' + error.message, 'error');
+    }
+}
+
+function highlightCode() {
+    const editor = document.getElementById('codeEditor');
+    editor.classList.add('code-highlight');
+
+    setTimeout(() => {
+        editor.classList.remove('code-highlight');
+    }, 1500);
+}
+
+async function animateTextToInput(text) {
+    const input = document.getElementById('aiInput');
+    input.value = '';
+
+    // Smooth typing animation
+    for (let i = 0; i < text.length; i++) {
+        input.value += text[i];
+        await new Promise(resolve => setTimeout(resolve, 30));
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+    input.value = '';
+}
+
+function addAIMessage(content, role) {
+    const messagesContainer = document.getElementById('aiMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `ai-message ${role}`;
+
+    const avatar = role === 'assistant' ? '✨' : '👤';
+
+    // Format content with code blocks
+    const formattedContent = formatAIContent(content);
+
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">${formattedContent}</div>
+    `;
+
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function formatAIContent(content) {
+    // Convert markdown-style code blocks to HTML
+    content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    content = content.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Convert line breaks to paragraphs
+    const paragraphs = content.split('\n\n');
+    return paragraphs.map(p => p.trim() ? `<p>${p.replace(/\n/g, '<br>')}</p>` : '').join('');
+}
+
+function addTypingIndicator() {
+    const messagesContainer = document.getElementById('aiMessages');
+    const typingDiv = document.createElement('div');
+    const typingId = 'typing-' + Date.now();
+    typingDiv.id = typingId;
+    typingDiv.className = 'ai-message assistant';
+    typingDiv.innerHTML = `
+        <div class="message-avatar">✨</div>
+        <div class="message-content">
+            <p style="color: #8b949e;"><em>Thinking...</em></p>
+        </div>
+    `;
+
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    return typingId;
+}
+
+function removeTypingIndicator(typingId) {
+    const typingDiv = document.getElementById(typingId);
+    if (typingDiv) typingDiv.remove();
+}
+
+// Mistral AI Integration
+async function callMistralAI(userMessage, codeContext) {
+    // Get Mistral API key from environment/config
+    const apiKey = getMistralAPIKey();
+
+    if (!apiKey) {
+        return 'API key not configured. Please add your Mistral AI API key to continue.';
+    }
+
+    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+            model: 'mistral-small-latest',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a helpful coding assistant. Provide clear, concise, and accurate responses about code. Format code snippets using markdown code blocks with ```language```.'
+                },
+                {
+                    role: 'user',
+                    content: userMessage
+                }
+            ],
+            temperature: 0.7,
+            max_tokens: 1000
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error('AI service error: ' + response.statusText);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+}
+
+function getMistralAPIKey() {
+    // Check localStorage first
+    let apiKey = localStorage.getItem('mistral_api_key');
+
+    // If not found, prompt user
+    if (!apiKey) {
+        apiKey = prompt('Please enter your Mistral AI API key:');
+        if (apiKey) {
+            localStorage.setItem('mistral_api_key', apiKey);
+        }
+    }
+
+    return apiKey;
+}
+
+// Handle Enter key in AI input
+document.addEventListener('DOMContentLoaded', () => {
+    const aiInput = document.getElementById('aiInput');
+    if (aiInput) {
+        aiInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendAIMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        aiInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
     }
 });
 
