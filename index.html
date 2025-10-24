@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DevLearn - Master Programming</title>
     <style>
+        :root {
+            /* Default theme colors (Green) */
+            --theme-primary: #64ffda;
+            --theme-primary-rgb: 100, 255, 218;
+            --theme-secondary: rgba(100, 255, 218, 0.1);
+            --theme-border: rgba(100, 255, 218, 0.3);
+            --theme-shadow: rgba(100, 255, 218, 0.2);
+        }
+
+        [data-theme="blue"] {
+            --theme-primary: #667eea;
+            --theme-primary-rgb: 102, 126, 234;
+            --theme-secondary: rgba(102, 126, 234, 0.1);
+            --theme-border: rgba(102, 126, 234, 0.3);
+            --theme-shadow: rgba(102, 126, 234, 0.2);
+        }
+
+        [data-theme="pink"] {
+            --theme-primary: #ff6b9d;
+            --theme-primary-rgb: 255, 107, 157;
+            --theme-secondary: rgba(255, 107, 157, 0.1);
+            --theme-border: rgba(255, 107, 157, 0.3);
+            --theme-shadow: rgba(255, 107, 157, 0.2);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -275,14 +300,14 @@ body.light-mode .auth-screen {
         }
 
         .nav-tab:hover {
-            color: #64ffda;
-            background: rgba(100, 255, 218, 0.05);
+            color: var(--theme-primary);
+            background: var(--theme-secondary);
         }
 
         .nav-tab.active {
-            background: rgba(100, 255, 218, 0.15);
-            color: #64ffda;
-            box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
+            background: var(--theme-border);
+            color: var(--theme-primary);
+            box-shadow: 0 0 20px var(--theme-shadow);
         }
 
         /* TAB ICONS SCALE ANIMATION */
@@ -474,26 +499,6 @@ body.light-mode .search-input-container {
         .search-result-desc {
             color: #8b949e;
             font-size: 0.85em;
-        }
-
-        .search-group-header {
-            padding: 12px 20px;
-            font-weight: 700;
-            font-size: 0.9em;
-            color: #64ffda;
-            background: rgba(100, 255, 218, 0.05);
-            border-bottom: 1px solid rgba(100, 255, 218, 0.2);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        body.light-mode .search-group-header {
-            color: #0a7a5e;
-        }
-
-        .search-result-item.selected {
-            background: rgba(100, 255, 218, 0.2);
-            border-left: 3px solid #64ffda;
         }
 
         /* MOBILE NAV - ALWAYS FIXED AT BOTTOM */
@@ -887,15 +892,6 @@ body.light-mode .mobile-search-container {
 
         .chart-container.active {
             display: block;
-        }
-
-        /* Fix mobile bar chart visibility bug */
-        @media (max-width: 768px) {
-            .chart-container.active .bar-chart {
-                display: flex !important;
-                opacity: 1;
-                visibility: visible;
-            }
         }
 
         /* IMPROVED BAR CHART ALIGNMENT */
@@ -1465,9 +1461,9 @@ body.light-mode .motivational-message {
 
         .practice-header h1 {
             font-size: 3em;
-            color: #64ffda;
+            color: var(--theme-primary);
             margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(100, 255, 218, 0.3);
+            text-shadow: 0 0 30px var(--theme-shadow);
         }
 
         body.light-mode .practice-header h1 {
@@ -2685,9 +2681,9 @@ body.light-mode .motivational-message {
 
         .settings-header h1 {
             font-size: 3em;
-            color: #64ffda;
+            color: var(--theme-primary);
             margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(100, 255, 218, 0.3);
+            text-shadow: 0 0 30px var(--theme-shadow);
         }
 
         body.light-mode .settings-header h1 {
@@ -2696,7 +2692,7 @@ body.light-mode .motivational-message {
 
         .settings-section {
             background: rgba(30, 30, 30, 0.6);
-            border: 1px solid rgba(100, 255, 218, 0.1);
+            border: 1px solid var(--theme-secondary);
             padding: 35px;
             border-radius: 20px;
             margin-bottom: 25px;
@@ -2708,7 +2704,7 @@ body.light-mode .motivational-message {
         }
 
         .settings-section h2 {
-            color: #64ffda;
+            color: var(--theme-primary);
             margin-bottom: 25px;
             font-size: 1.5em;
         }
@@ -2747,16 +2743,16 @@ body.light-mode .motivational-message {
             position: relative;
             width: 60px;
             height: 30px;
-            background: rgba(100, 255, 218, 0.1);
-            border: 1px solid rgba(100, 255, 218, 0.3);
+            background: var(--theme-secondary);
+            border: 1px solid var(--theme-border);
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .toggle-switch.active {
-            background: rgba(100, 255, 218, 0.3);
-            border-color: #64ffda;
+            background: var(--theme-border);
+            border-color: var(--theme-primary);
         }
 
         .toggle-switch::after {
@@ -2766,14 +2762,101 @@ body.light-mode .motivational-message {
             left: 3px;
             width: 22px;
             height: 22px;
-            background: #64ffda;
+            background: var(--theme-primary);
             border-radius: 50%;
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 2px 8px rgba(100, 255, 218, 0.4);
+            box-shadow: 0 2px 8px var(--theme-shadow);
         }
 
         .toggle-switch.active::after {
             left: 33px;
+        }
+
+        /* Theme Selector Styles */
+        .theme-selector {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .theme-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 20px;
+            background: rgba(30, 30, 30, 0.4);
+            border: 2px solid rgba(100, 255, 218, 0.2);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            min-width: 120px;
+        }
+
+        body.light-mode .theme-option {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        .theme-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(100, 255, 218, 0.3);
+        }
+
+        .theme-option.active {
+            border-color: var(--theme-primary);
+            box-shadow: 0 0 20px var(--theme-shadow);
+        }
+
+        .theme-color {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .theme-option:hover .theme-color {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .theme-option span:not(.theme-check) {
+            color: #e0e0e0;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        body.light-mode .theme-option span:not(.theme-check) {
+            color: #1a1a1a;
+        }
+
+        .theme-check {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--theme-primary);
+            color: #0a0a0a;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .theme-option.active .theme-check {
+            display: flex;
+            animation: checkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes checkPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
         .lesson-view {
@@ -3296,7 +3379,7 @@ body.light-mode .code-example code {
                 width: 100% !important;
                 height: 100vh !important;
                 border-radius: 0 !important;
-                z-index: 10000 !important;
+                z-index: 100000 !important; /* Higher than nav and hamburger */
                 background: rgba(30, 30, 30, 0.98) !important; /* Nearly opaque for better readability on mobile */
             }
 
@@ -10267,52 +10350,14 @@ body.loading * {
         height: auto !important;
     }
 }
-
-/* LANDING PAGE STYLES */
-
-/* Button Borders Feature */
-body.show-button-borders button {
-    border: 2px solid #00ff00 !important;
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3) !important;
-}
-
-/* Global Background Animation - Connected Nodes */
-.animated-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-    overflow: hidden;
-}
-
-.bg-node {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: #64ffda;
-    border-radius: 50%;
-    opacity: 0.4;
-    box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
-}
-
-.bg-connection {
-    position: absolute;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #64ffda, transparent);
-    opacity: 0.2;
-    transform-origin: 0 0;
-}
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="animated-background" id="animatedBackground"></div>
+    <!-- ANIMATED NETWORK BACKGROUND -->
+    <canvas id="networkCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
 
     <!-- AUTH SCREEN -->
-    <div class="auth-screen" id="authScreen" style="display: none;">
+    <div class="auth-screen" id="authScreen">
         <div class="auth-container">
             <div class="auth-logo">
                 <div class="auth-logo-icon">⚡</div>
@@ -10425,20 +10470,6 @@ body.show-button-borders button {
             <div class="modal-buttons">
                 <button class="modal-button retry" onclick="retryLesson()">🔄 Retry</button>
                 <button class="modal-button continue" onclick="closeModal()">✓ Continue</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="continueRestartModal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-icon">📖</div>
-                <div class="modal-title">Continue Learning?</div>
-                <div class="modal-text">You left this course midway. Would you like to continue from where you left off or restart from the beginning?</div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-button continue" onclick="continueCourse()">▶ Continue</button>
-                <button class="modal-button retry" onclick="restartCourse()">🔄 Restart</button>
             </div>
         </div>
     </div>
@@ -10774,7 +10805,7 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                     <div class="ai-sidebar" id="aiSidebar">
                         <div class="ai-sidebar-header">
                             <div class="ai-sidebar-title">
-                                AI Assistant
+                                <span class="ai-icon-animated">✨</span> AI Assistant
                             </div>
                             <button class="ai-close-btn" onclick="closeAISidebar()">×</button>
                         </div>
@@ -10790,6 +10821,7 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                             </div>
                             <div class="ai-messages" id="aiMessages">
                                 <div class="ai-message assistant">
+                                    <div class="message-avatar">✨</div>
                                     <div class="message-content">
                                         <p>Hi! I'm your AI coding assistant. I can help you:</p>
                                         <ul>
@@ -10854,13 +10886,13 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                     <p>Toggle between dark and light themes</p>
                     <div class="toggle-switch active" id="themeToggle" onclick="toggleTheme()"></div>
                 </div>
-
+                
                 <div class="setting-card">
                     <h3>⏩ Auto-advance</h3>
                     <p>Move to next lesson automatically</p>
                     <div class="toggle-switch" onclick="toggleSetting(this)"></div>
                 </div>
-
+                
                 <div class="setting-card">
                     <h3>📧 Email Notifications</h3>
                     <p>Get updates about your progress</p>
@@ -10870,18 +10902,39 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
         </div>
 
         <div class="settings-section">
-            <h2>🤖 AI Assistant</h2>
+            <h2>🤖 AI Tools</h2>
             <div class="settings-grid">
                 <div class="setting-card">
-                    <h3>✨ Show AI in Code Playground</h3>
-                    <p>Display AI assistant button in code playground</p>
-                    <div class="toggle-switch active" id="showAIToggle" onclick="toggleAISetting()"></div>
+                    <h3>✨ AI Assistant</h3>
+                    <p>Show AI assistant in code playground</p>
+                    <div class="toggle-switch active" id="aiAssistantToggle" onclick="toggleAIAssistant()"></div>
                 </div>
+            </div>
+        </div>
 
-                <div class="setting-card">
-                    <h3>🔲 Show Button Borders</h3>
-                    <p>Display green borders around buttons</p>
-                    <div class="toggle-switch" id="showBordersToggle" onclick="toggleBordersSetting()"></div>
+        <div class="settings-section">
+            <h2>🎨 Theme Customization</h2>
+            <div class="settings-grid">
+                <div class="setting-card" style="grid-column: 1 / -1;">
+                    <h3>🌈 Node Theme Color</h3>
+                    <p>Customize the network nodes and accent colors</p>
+                    <div class="theme-selector">
+                        <div class="theme-option" data-theme="green" onclick="changeTheme('green')">
+                            <div class="theme-color" style="background: linear-gradient(135deg, #64ffda, #00bfa5);"></div>
+                            <span>Green</span>
+                            <span class="theme-check">✓</span>
+                        </div>
+                        <div class="theme-option" data-theme="blue" onclick="changeTheme('blue')">
+                            <div class="theme-color" style="background: linear-gradient(135deg, #667eea, #4158d0);"></div>
+                            <span>Blue</span>
+                            <span class="theme-check">✓</span>
+                        </div>
+                        <div class="theme-option" data-theme="pink" onclick="changeTheme('pink')">
+                            <div class="theme-color" style="background: linear-gradient(135deg, #ff6b9d, #ff2e63);"></div>
+                            <span>Pink</span>
+                            <span class="theme-check">✓</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -10920,49 +10973,28 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
     <div class="splash-content">
         <div class="splash-icon">🚀</div>
         <h2 id="splashTitle" class="splash-title">Welcome to DevLearn Pro</h2>
-        <div class="splash-version">Version 5.0.0</div>
-
+        <div class="splash-version">Version 4.7.1</div>
+        
         <div class="splash-features">
             <div class="splash-feature">
-                <span class="feature-icon">🎨</span>
+                <span class="feature-icon">🐞</span>
                 <div>
-                    <strong>Beautiful Animated Background</strong>
-                    <p>New connected nodes animation creates a stunning visual experience throughout the app.</p>
+                    <strong>Bug Fixes</strong>
+                    <p>Resolved multiple performance and display issues for smoother app experience.</p>
                 </div>
             </div>
             <div class="splash-feature">
-                <span class="feature-icon">🤖</span>
+                <span class="feature-icon">📱</span>
                 <div>
-                    <strong>AI Assistant Settings</strong>
-                    <p>New AI section in settings to control AI visibility and button borders for better accessibility.</p>
+                    <strong>Mobile Optimizations</strong>
+                    <p>Improved responsiveness and layout for all screen sizes.</p>
                 </div>
             </div>
             <div class="splash-feature">
-                <span class="feature-icon">🔍</span>
+                <span class="feature-icon">📧</span>
                 <div>
-                    <strong>Upgraded Search</strong>
-                    <p>Search now groups results by language with keyboard navigation (↑↓ + Enter).</p>
-                </div>
-            </div>
-            <div class="splash-feature">
-                <span class="feature-icon">▶️</span>
-                <div>
-                    <strong>Continue Learning</strong>
-                    <p>Resume courses from where you left off with new Continue/Restart option.</p>
-                </div>
-            </div>
-            <div class="splash-feature">
-                <span class="feature-icon">📊</span>
-                <div>
-                    <strong>Mobile Chart Fix</strong>
-                    <p>Fixed mobile bar chart visibility issue for better stats viewing experience.</p>
-                </div>
-            </div>
-            <div class="splash-feature">
-                <span class="feature-icon">✨</span>
-                <div>
-                    <strong>Overall UX Improvements</strong>
-                    <p>Enhanced user interface with smoother interactions and better visual feedback.</p>
+                    <strong>Email Reminder Fix</strong>
+                    <p>Fixed an issue where goal reminder emails were not being sent properly.</p>
                 </div>
             </div>
         </div>
@@ -11020,115 +11052,15 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
 
     <script>
 
-        // LANDING PAGE FUNCTIONALITY
-
-        // Initialize Landing Page
-        // Animated Background with Connected Nodes
-        function initAnimatedBackground() {
-            const bgContainer = document.getElementById('animatedBackground');
-            if (!bgContainer) return;
-
-            const nodeCount = 40;
-            const nodes = [];
-
-            // Create nodes
-            for (let i = 0; i < nodeCount; i++) {
-                const node = document.createElement('div');
-                node.className = 'bg-node';
-
-                const x = Math.random() * window.innerWidth;
-                const y = Math.random() * window.innerHeight;
-
-                node.style.left = x + 'px';
-                node.style.top = y + 'px';
-
-                bgContainer.appendChild(node);
-
-                nodes.push({
-                    element: node,
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5
-                });
-            }
-
-            // Create connections
-            function updateConnections() {
-                // Remove old connections
-                document.querySelectorAll('.bg-connection').forEach(conn => conn.remove());
-
-                // Find nearby nodes and connect them
-                for (let i = 0; i < nodes.length; i++) {
-                    for (let j = i + 1; j < nodes.length; j++) {
-                        const dx = nodes[j].x - nodes[i].x;
-                        const dy = nodes[j].y - nodes[i].y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-
-                        if (distance < 150) {
-                            const connection = document.createElement('div');
-                            connection.className = 'bg-connection';
-                            connection.style.width = distance + 'px';
-                            connection.style.left = nodes[i].x + 'px';
-                            connection.style.top = nodes[i].y + 'px';
-                            connection.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
-                            connection.style.opacity = (1 - distance / 150) * 0.3;
-                            bgContainer.appendChild(connection);
-                        }
-                    }
-                }
-            }
-
-            // Animate nodes
-            function animate() {
-                nodes.forEach(node => {
-                    node.x += node.vx;
-                    node.y += node.vy;
-
-                    // Bounce off edges
-                    if (node.x < 0 || node.x > window.innerWidth) node.vx *= -1;
-                    if (node.y < 0 || node.y > window.innerHeight) node.vy *= -1;
-
-                    node.element.style.left = node.x + 'px';
-                    node.element.style.top = node.y + 'px';
-                });
-
-                updateConnections();
-                requestAnimationFrame(animate);
-            }
-
-            animate();
-
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                nodes.forEach(node => {
-                    if (node.x > window.innerWidth) node.x = window.innerWidth;
-                    if (node.y > window.innerHeight) node.y = window.innerHeight;
-                });
-            });
-        }
-
-        // Show auth screen
-        function showAuthScreen(tab = 'login') {
-            document.getElementById('authScreen').style.display = 'flex';
-            switchAuthTab(tab);
-        }
-
-        // Show landing page (for logout) - now just shows auth screen
-        function showLandingPage() {
-            document.getElementById('authScreen').style.display = 'flex';
-        }
-
-        // Initialize on load
-        (function() {
-            document.body.classList.add('loading');
-            window.addEventListener('load', function() {
-                setTimeout(function() {
-                    document.body.classList.remove('loading');
-                    initAnimatedBackground();
-                }, 100);
-            });
-        })();
+        // Add at the very top of your script, before everything else
+(function() {
+    document.body.classList.add('loading');
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            document.body.classList.remove('loading');
+        }, 100);
+    });
+})();
 
         // Mistral AI Configuration
 function getAIConfig() {
@@ -11691,16 +11623,8 @@ function showAuthMessage(elementId, message, type) {
 }
 
 function initializeApp() {
-    // Hide auth screen and landing page
     document.getElementById('authScreen').style.display = 'none';
-    document.getElementById('landingPage').style.display = 'none';
-
-    // Show the app container
-    const container = document.querySelector('.container');
-    if (container) {
-        container.style.display = 'block';
-    }
-
+    
     const savedProgress = localStorage.getItem('progress_' + currentUser);
     if (savedProgress) {
         const loadedProgress = JSON.parse(savedProgress);
@@ -11761,32 +11685,8 @@ function closeLogoutModal() {
 }
 
 function confirmLogout() {
-    // Remove user from localStorage
     localStorage.removeItem('currentUser');
-    currentUser = null;
-
-    // Close modal
-    closeLogoutModal();
-
-    // Hide the main app container
-    const container = document.querySelector('.container');
-    if (container) {
-        container.style.display = 'none';
-    }
-
-    // Hide auth screen
-    document.getElementById('authScreen').style.display = 'none';
-
-    // Show and reinitialize landing page
-    const landingPage = document.getElementById('landingPage');
-    landingPage.classList.remove('hidden');
-    landingPage.style.display = 'block';
-
-    // Reinitialize landing page animations
-    initLandingPage();
-
-    // Scroll to top
-    window.scrollTo(0, 0);
+    location.reload();
 }
 
 function checkStreakStatus() {
@@ -11829,12 +11729,8 @@ function checkAuth() {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
         currentUser = savedUser;
-        // Hide auth screen and show app
-        document.getElementById('authScreen').style.display = 'none';
         initializeApp();
-        loadAISettings(); // Load AI settings after app initialization
     } else {
-        // Show auth screen
         document.getElementById('authScreen').style.display = 'flex';
     }
 }
@@ -12364,36 +12260,26 @@ function closeMobileSearch() {
     document.getElementById('mobileSearchResults').innerHTML = '';
 }
 
-let selectedSearchIndex = -1;
-let searchMatches = [];
-
 function handleSearch() {
     const query = document.getElementById('searchInput').value.toLowerCase();
     const results = document.getElementById('searchResults');
-
+    
     if (!query) {
         results.classList.remove('active');
-        searchMatches = [];
-        selectedSearchIndex = -1;
         return;
     }
-
-    // Group matches by language
-    const groupedMatches = {};
+    
+    const matches = [];
     Object.keys(courses).forEach(lang => {
         courses[lang].forEach((course, index) => {
-            if (course.title.toLowerCase().includes(query) ||
+            if (course.title.toLowerCase().includes(query) || 
                 course.desc.toLowerCase().includes(query) ||
                 lang.includes(query)) {
-
+                
                 const isLocked = index > 0 && !userProgress[lang]['course' + index]?.completed;
                 const isCompleted = userProgress[lang][course.id]?.completed;
-
-                if (!groupedMatches[lang]) {
-                    groupedMatches[lang] = [];
-                }
-
-                groupedMatches[lang].push({
+                
+                matches.push({
                     lang,
                     course,
                     langName: lang.charAt(0).toUpperCase() + lang.slice(1),
@@ -12404,98 +12290,36 @@ function handleSearch() {
             }
         });
     });
-
-    // Flatten for keyboard navigation
-    searchMatches = [];
-    Object.keys(groupedMatches).forEach(lang => {
-        searchMatches.push(...groupedMatches[lang]);
-    });
-
-    if (Object.keys(groupedMatches).length > 0) {
-        let html = '';
-
-        // Render grouped results
-        Object.keys(groupedMatches).forEach(lang => {
-            const langName = lang.charAt(0).toUpperCase() + lang.slice(1);
-            const langIcons = { python: '🐍', javascript: '⚡', html: '🌐', css: '🎨', react: '⚛️' };
-            const langIcon = langIcons[lang] || '💻';
-
-            html += `<div class="search-group-header">${langIcon} ${langName}</div>`;
-
-            groupedMatches[lang].forEach((m, idx) => {
-                let statusBadge = '';
-                let clickable = !m.isLocked;
-
-                if (m.isCompleted) {
-                    statusBadge = '<span style="color: #00ff00; margin-left: 8px;">✓ Completed</span>';
-                } else if (m.isLocked) {
-                    statusBadge = '<span style="color: #ff6b6b; margin-left: 8px;">🔒 Locked</span>';
-                } else {
-                    statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
-                }
-
-                const globalIdx = searchMatches.indexOf(m);
-                const onClick = clickable
-                    ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}')"`
-                    : `style="opacity: 0.5; cursor: not-allowed;"`;
-
-                html += `
-                    <div class="search-result-item" data-index="${globalIdx}" ${onClick}>
-                        <div class="search-result-title">${m.course.icon} ${m.course.title}${statusBadge}</div>
-                        <div class="search-result-desc">${m.course.desc}</div>
-                    </div>
-                `;
-            });
-        });
-
-        results.innerHTML = html;
+    
+    if (matches.length > 0) {
+        results.innerHTML = matches.map(m => {
+            let statusBadge = '';
+            let clickable = !m.isLocked;
+            
+            if (m.isCompleted) {
+                statusBadge = '<span style="color: #00ff00; margin-left: 8px;">✓ Completed</span>';
+            } else if (m.isLocked) {
+                statusBadge = '<span style="color: #ff6b6b; margin-left: 8px;">🔒 Locked</span>';
+            } else {
+                statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
+            }
+            
+            const onClick = clickable 
+                ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}')"` 
+                : `style="opacity: 0.5; cursor: not-allowed;"`;
+            
+            return `
+                <div class="search-result-item" ${onClick}>
+                    <div class="search-result-title">${m.course.icon} ${m.course.title}${statusBadge}</div>
+                    <div class="search-result-desc">${m.langName} • ${m.course.desc}</div>
+                </div>
+            `;
+        }).join('');
         results.classList.add('active');
-        selectedSearchIndex = -1;
     } else {
         results.innerHTML = '<div class="search-result-item">No courses found</div>';
         results.classList.add('active');
-        searchMatches = [];
-        selectedSearchIndex = -1;
     }
-}
-
-// Handle keyboard navigation in search
-document.addEventListener('keydown', (e) => {
-    const searchInput = document.getElementById('searchInput');
-    const results = document.getElementById('searchResults');
-
-    if (document.activeElement !== searchInput || !results.classList.contains('active')) return;
-    if (searchMatches.length === 0) return;
-
-    if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        selectedSearchIndex = Math.min(selectedSearchIndex + 1, searchMatches.length - 1);
-        updateSearchSelection();
-    } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        selectedSearchIndex = Math.max(selectedSearchIndex - 1, -1);
-        updateSearchSelection();
-    } else if (e.key === 'Enter' && selectedSearchIndex >= 0) {
-        e.preventDefault();
-        const match = searchMatches[selectedSearchIndex];
-        if (!match.isLocked) {
-            openCourseFromSearch(match.lang, match.course.id, match.course.title);
-        }
-    } else if (e.key === 'Escape') {
-        toggleSearch();
-    }
-});
-
-function updateSearchSelection() {
-    document.querySelectorAll('.search-result-item').forEach((item, idx) => {
-        const itemIndex = parseInt(item.getAttribute('data-index'));
-        if (itemIndex === selectedSearchIndex) {
-            item.classList.add('selected');
-            item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        } else {
-            item.classList.remove('selected');
-        }
-    });
 }
 
 function handleMobileSearch() {
@@ -12978,96 +12802,31 @@ function switchComingSoonTab(lang) {
     });
 }
 
-function openLesson(language, courseId, courseName, shouldContinue = false) {
+function openLesson(language, courseId, courseName) {
     currentLesson = { language, courseId, courseName };
     learnCompleted = false;
+    learnMessageIndex = 0;
     correctAnswers = 0;
     selectedMCQ = {};
-
-    // Check if there's saved progress for this lesson
-    const savedProgress = getLessonProgress(language, courseId);
-
-    if (savedProgress && savedProgress.messageIndex > 0 && !shouldContinue && savedProgress.messageIndex !== 'ask') {
-        // Show continue/restart modal
-        showContinueRestartModal(language, courseId, courseName, savedProgress);
-        return;
-    }
-
-    // Continue from saved progress or start fresh
-    if (shouldContinue && savedProgress) {
-        learnMessageIndex = savedProgress.messageIndex;
-    } else {
-        learnMessageIndex = 0;
-    }
-
+    
     studyStartTime = Date.now();
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(updateTimer, 1000);
 
+    // ADD THIS:
     document.body.classList.add('lesson-active');
-
+    
     document.getElementById('lessonTitle').textContent = courseName;
     document.getElementById('lessonView').classList.add('active');
     document.getElementById('learnMessages').innerHTML = '';
     document.getElementById('questionMessages').innerHTML = '';
-
+    
     document.getElementById('questionsTabBtn').disabled = true;
     document.getElementById('questionsTabBtn').innerHTML = 'Questions 🔒';
-
+    
     switchPanel('learn');
     updateLessonProgress();
     displayNextLearnMessage();
-}
-
-// Save lesson progress
-function saveLessonProgress(language, courseId, messageIndex) {
-    const key = `lessonProgress_${currentUser}_${language}_${courseId}`;
-    localStorage.setItem(key, JSON.stringify({ messageIndex, timestamp: Date.now() }));
-}
-
-// Get lesson progress
-function getLessonProgress(language, courseId) {
-    const key = `lessonProgress_${currentUser}_${language}_${courseId}`;
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : null;
-}
-
-// Clear lesson progress
-function clearLessonProgress(language, courseId) {
-    const key = `lessonProgress_${currentUser}_${language}_${courseId}`;
-    localStorage.removeItem(key);
-}
-
-// Show continue/restart modal
-function showContinueRestartModal(language, courseId, courseName, savedProgress) {
-    const modal = document.getElementById('continueRestartModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        modal.dataset.language = language;
-        modal.dataset.courseId = courseId;
-        modal.dataset.courseName = courseName;
-    }
-}
-
-// Continue from saved progress
-function continueCourse() {
-    const modal = document.getElementById('continueRestartModal');
-    const language = modal.dataset.language;
-    const courseId = modal.dataset.courseId;
-    const courseName = modal.dataset.courseName;
-    modal.style.display = 'none';
-    openLesson(language, courseId, courseName, true);
-}
-
-// Restart course from beginning
-function restartCourse() {
-    const modal = document.getElementById('continueRestartModal');
-    const language = modal.dataset.language;
-    const courseId = modal.dataset.courseId;
-    const courseName = modal.dataset.courseName;
-    clearLessonProgress(language, courseId);
-    modal.style.display = 'none';
-    openLesson(language, courseId, courseName, false);
 }
 
 function closeLesson() {
@@ -13175,6 +12934,7 @@ async function displayNextLearnMessage() {
         const unlockMsg = document.createElement('div');
         unlockMsg.className = 'message';
         unlockMsg.innerHTML = `
+            <div class="message-avatar">🤖</div>
             <div class="message-bubble">
                 ✅ Great job, ${firstName}! Learning complete! Switch to <strong>Questions</strong> tab to test yourself!
             </div>
@@ -13187,6 +12947,7 @@ async function displayNextLearnMessage() {
     const typingDiv = document.createElement('div');
     typingDiv.className = 'message';
     typingDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
         <div class="message-bubble">
             <div class="typing-indicator">
                 <div class="typing-dot"></div>
@@ -13233,6 +12994,7 @@ messageDiv.style.transform = 'translateY(10px)';
 // Check if this is a video message
 if (msg.video) {
     messageDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
         <div class="message-bubble">
             ${highlightedContent}
             <div class="video-message-buttons">
@@ -13255,6 +13017,7 @@ if (msg.video) {
     `;
 } else {
     messageDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
         <div class="message-bubble">${highlightedContent}</div>
     `;
 }
@@ -13270,11 +13033,6 @@ if (msg.video) {
 
         learnMessageIndex++;
         updateLessonProgress();
-
-        // Save progress for continue/restart feature
-        if (currentLesson && !currentLesson.isAI) {
-            saveLessonProgress(currentLesson.language, currentLesson.courseId, learnMessageIndex);
-        }
 
         if (learnMessageIndex < content.learn.length) {
             setTimeout(displayNextLearnMessage, 600);
@@ -13294,6 +13052,7 @@ if (msg.video) {
             unlockMsg.style.opacity = '0';
             unlockMsg.style.transform = 'translateY(10px)';
             unlockMsg.innerHTML = `
+                <div class="message-avatar">🤖</div>
                 <div class="message-bubble">
                     ✅ Excellent work, ${firstName}! Switch to <strong>Questions</strong> tab to test yourself!
                 </div>
@@ -13349,6 +13108,7 @@ function displayQuestions() {
     const welcomeDiv = document.createElement('div');
     welcomeDiv.className = 'message';
     welcomeDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
         <div class="message-bubble">🎯 Test your knowledge!</div>
     `;
     questionMessages.appendChild(welcomeDiv);
@@ -13368,6 +13128,7 @@ function displayQuestions() {
             ).join('');
             
             exerciseDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
                 <div class="message-bubble">
                     <div class="exercise-box">
                         <div class="exercise-title">❓ ${exercise.question}</div>
@@ -13387,6 +13148,7 @@ function displayQuestions() {
                 const options = generateFillOptions(exercise.answer, exercise.code);
                 
                 exerciseDiv.innerHTML = `
+                    <div class="message-avatar">🤖</div>
                     <div class="message-bubble">
                         <div class="exercise-box">
                             <div class="exercise-title">✏️ ${exercise.question}</div>
@@ -13406,6 +13168,7 @@ function displayQuestions() {
                     `<span class="code-blank-wrapper"><input type="text" class="code-blank" data-index="${index}" placeholder="____"></span>`);
                 
                 exerciseDiv.innerHTML = `
+                    <div class="message-avatar">🤖</div>
                     <div class="message-bubble">
                         <div class="exercise-box">
                             <div class="exercise-title">✏️ ${exercise.question}</div>
@@ -13631,6 +13394,7 @@ function checkCompletion() {
         const completeMsg = document.createElement('div');
         completeMsg.className = 'message';
         completeMsg.innerHTML = `
+            <div class="message-avatar">🤖</div>
             <div class="message-bubble">
                 🎉 Excellent work! You've mastered this lesson!
                 <button class="next-button" onclick="completeLesson()">Finish Lesson</button>
@@ -13659,10 +13423,7 @@ function completeLesson() {
     if (!isRetryMode) {
         userProgress[currentLesson.language][currentLesson.courseId].completed = true;
         userProgress[currentLesson.language][currentLesson.courseId].progress = 100;
-
-        // Clear saved progress since course is completed
-        clearLessonProgress(currentLesson.language, currentLesson.courseId);
-
+        
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
         
         const today = new Date().toDateString();
@@ -18883,9 +18644,16 @@ async function runPython() {
   const loading = document.getElementById("loading");
 
   try {
+    // Send initial loading message
+    window.parent.postMessage({ type: 'log', message: 'Loading Python environment...' }, '*');
+
     pyodide = await loadPyodide();
+
+    // Hide loading, show output
     loading.style.display = "none";
     outputDiv.style.display = "block";
+
+    window.parent.postMessage({ type: 'log', message: 'Python loaded successfully' }, '*');
 
     await pyodide.runPythonAsync(\`
 import sys
@@ -18938,39 +18706,48 @@ sys.stdout = StringIO()
       });
     });
 
-    // Create a synchronous-compatible input function using Pyodide's features
-    pyodide.globals.set('js_input_func', window.js_input);
-
     await pyodide.runPythonAsync(\`
-from pyodide.ffi import to_js, JsProxy
-import asyncio
-
-# Store the original js_input function
-_js_input = js_input_func
-
-# Create an async wrapper
-async def _async_input(prompt=""):
-    return await _js_input(prompt)
-
-# Create a synchronous-looking input that works with await
 def input(prompt=""):
-    # This returns a coroutine that can be awaited
-    return _async_input(prompt)
-
-# Override built-in input
-import builtins
-builtins.input = input
+    from js import js_input
+    return js_input(prompt)
 \`);
 
     const userCodeBase64 = "${encodedCode}";
-    let decodedCode = decodeURIComponent(escape(atob(userCodeBase64)));
+    const decodedCode = decodeURIComponent(escape(atob(userCodeBase64)));
 
-    // Transform input() calls to await input()
-    decodedCode = decodedCode.replace(/([^a-zA-Z_])input\\(/g, '$1await input(');
-    // Handle input() at the start of a line
-    decodedCode = decodedCode.replace(/^input\\(/gm, 'await input(');
+    window.parent.postMessage({ type: 'log', message: 'Executing code...' }, '*');
 
-    await pyodide.runPythonAsync(decodedCode);
+    // Execute code with automatic expression printing (like interactive Python)
+    try {
+      const result = await pyodide.runPythonAsync(\`
+import ast
+import sys
+
+user_code = """${decodedCode.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')}"""
+
+# Parse and execute code
+tree = ast.parse(user_code, mode='exec')
+
+# Check if last statement is an expression
+if tree.body and isinstance(tree.body[-1], ast.Expr):
+    # Split into statements and last expression
+    if len(tree.body) > 1:
+        exec_tree = ast.Module(body=tree.body[:-1], type_ignores=[])
+        exec(compile(exec_tree, '<string>', 'exec'), globals())
+
+    # Evaluate and print last expression if not None
+    last_expr = tree.body[-1]
+    result = eval(compile(ast.Expression(body=last_expr.value), '<string>', 'eval'), globals())
+    if result is not None:
+        print(result)
+else:
+    # Execute normally if last line is not an expression
+    exec(compile(tree, '<string>', 'exec'), globals())
+\`);
+    } catch (e) {
+      // If the smart execution fails, fall back to regular execution
+      await pyodide.runPythonAsync(decodedCode);
+    }
 
     const output = pyodide.runPython("sys.stdout.getvalue()");
     if (output) {
@@ -18982,15 +18759,18 @@ builtins.input = input
           outputContent.appendChild(lineDiv);
         }
       });
+      window.parent.postMessage({ type: 'log', message: 'Code executed successfully' }, '*');
     } else if (!outputContent.querySelector(".input-container") && !outputContent.querySelector(".output-line")) {
-      outputContent.innerHTML = "<div class='output-line'>Program executed successfully (no output)</div>";
+      const successMsg = "Program executed successfully (no output)";
+      outputContent.innerHTML = "<div class='output-line'>" + successMsg + "</div>";
+      window.parent.postMessage({ type: 'log', message: successMsg }, '*');
     }
 
   } catch (error) {
     loading.style.display = "none";
+    outputDiv.style.display = "block";
     const errorMsg = error.message || error.toString();
     window.parent.postMessage({ type: 'error', message: errorMsg }, '*');
-    outputDiv.style.display = "block";
     outputContent.innerHTML += "<div class='error'>Error: " + errorMsg + "</div>";
   }
 }
@@ -19144,7 +18924,7 @@ function logToConsole(message, type = 'log') {
             <span style="color: #8b949e; margin-right: 10px;">[${timestamp}]</span>
             <span class="error-message-text" id="${errorId}">${message}</span>
             <button class="ask-ai-error-btn" onclick="askAIForErrorFix('${errorId}')">
-                Ask AI for Fix
+                <span class="ai-icon">✨</span> Ask AI for Fix
             </button>
         `;
     } else {
@@ -19485,10 +19265,13 @@ function addAIMessage(content, role) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `ai-message ${role}`;
 
+    const avatar = role === 'assistant' ? '✨' : '👤';
+
     // Format content with code blocks
     const formattedContent = formatAIContent(content);
 
     messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
         <div class="message-content">${formattedContent}</div>
     `;
 
@@ -19544,6 +19327,7 @@ function addTypingIndicator() {
     typingDiv.id = typingId;
     typingDiv.className = 'ai-message assistant';
     typingDiv.innerHTML = `
+        <div class="message-avatar">✨</div>
         <div class="message-content">
             <p style="color: #8b949e;"><em>Thinking...</em></p>
         </div>
@@ -19670,55 +19454,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function toggleSetting(element) {
     element.classList.toggle('active');
-}
-
-// AI Settings Functions
-function toggleAISetting() {
-    const toggle = document.getElementById('showAIToggle');
-    toggle.classList.toggle('active');
-    const isActive = toggle.classList.contains('active');
-
-    // Store setting
-    localStorage.setItem('showAIInPlayground_' + currentUser, isActive);
-
-    // Show/hide AI button in playground
-    const aiButton = document.querySelector('.ai-toggle-btn');
-    if (aiButton) {
-        aiButton.style.display = isActive ? 'flex' : 'none';
-    }
-}
-
-function toggleBordersSetting() {
-    const toggle = document.getElementById('showBordersToggle');
-    toggle.classList.toggle('active');
-    const isActive = toggle.classList.contains('active');
-
-    // Store setting
-    localStorage.setItem('showButtonBorders_' + currentUser, isActive);
-
-    // Apply or remove borders
-    document.body.classList.toggle('show-button-borders', isActive);
-}
-
-// Load AI settings on startup
-function loadAISettings() {
-    const showAI = localStorage.getItem('showAIInPlayground_' + currentUser);
-    const showBorders = localStorage.getItem('showButtonBorders_' + currentUser);
-
-    // Show AI setting (default: true)
-    if (showAI === 'false') {
-        const toggle = document.getElementById('showAIToggle');
-        if (toggle) toggle.classList.remove('active');
-        const aiButton = document.querySelector('.ai-toggle-btn');
-        if (aiButton) aiButton.style.display = 'none';
-    }
-
-    // Show borders setting (default: false)
-    if (showBorders === 'true') {
-        const toggle = document.getElementById('showBordersToggle');
-        if (toggle) toggle.classList.add('active');
-        document.body.classList.add('show-button-borders');
-    }
 }
 
 function resetProgress() {
@@ -20361,7 +20096,7 @@ function injectSplashScreenCSS() {
     document.head.appendChild(style);
 }
 
-const APP_VERSION = '5.0.0';
+const APP_VERSION = '4.7.1';
 
 function checkForUpdates() {
     const lastSeenVersion = localStorage.getItem('lastSeenVersion_' + currentUser);
@@ -22567,6 +22302,7 @@ async function displayNextAIMessage() {
         const unlockMsg = document.createElement('div');
         unlockMsg.className = 'message';
         unlockMsg.innerHTML = `
+            <div class="message-avatar">🤖</div>
             <div class="message-bubble">
                 ✅ Great! Switch to <strong>Questions</strong> tab to test yourself!
             </div>
@@ -22579,6 +22315,7 @@ async function displayNextAIMessage() {
     const typingDiv = document.createElement('div');
     typingDiv.className = 'message';
     typingDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
         <div class="message-bubble">
             <div class="typing-indicator">
                 <div class="typing-dot"></div>
@@ -22597,6 +22334,7 @@ async function displayNextAIMessage() {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message';
         messageDiv.innerHTML = `
+            <div class="message-avatar">🤖</div>
             <div class="message-bubble">${msg.bot}</div>
         `;
         learnMessages.appendChild(messageDiv);
@@ -22620,6 +22358,7 @@ async function displayNextAIMessage() {
                 const unlockMsg = document.createElement('div');
                 unlockMsg.className = 'message';
                 unlockMsg.innerHTML = `
+                    <div class="message-avatar">🤖</div>
                     <div class="message-bubble">
                         ✅ Excellent! Switch to <strong>Questions</strong> tab to test yourself!
                     </div>
@@ -22636,6 +22375,7 @@ function displayAIMessage(text) {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'message';
     msgDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
         <div class="message-bubble">${text}</div>
     `;
     learnMessages.appendChild(msgDiv);
@@ -22649,6 +22389,7 @@ function displayAIQuestions(questions) {
     const welcomeDiv = document.createElement('div');
     welcomeDiv.className = 'message';
     welcomeDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
         <div class="message-bubble">🎯 Test your AI-generated knowledge!</div>
     `;
     questionMessages.appendChild(welcomeDiv);
@@ -22662,6 +22403,7 @@ function displayAIQuestions(questions) {
         ).join('');
         
         exerciseDiv.innerHTML = `
+            <div class="message-avatar">🤖</div>
             <div class="message-bubble">
                 <div class="exercise-box">
                     <div class="exercise-title">❓ ${q.question}</div>
@@ -23656,7 +23398,215 @@ showSection = function(sectionId) {
         }, 100);
     }
 };
+
+// ==================== NETWORK ANIMATION ====================
+
+class NetworkAnimation {
+    constructor() {
+        this.canvas = document.getElementById('networkCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.nodes = [];
+        this.nodeCount = 80;
+        this.mouse = { x: null, y: null, radius: 150 };
+        this.theme = localStorage.getItem('nodeTheme') || 'green';
+
+        this.resize();
+        this.initNodes();
+        this.animate();
+
+        window.addEventListener('resize', () => this.resize());
+        window.addEventListener('mousemove', (e) => {
+            this.mouse.x = e.x;
+            this.mouse.y = e.y;
+        });
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+
+    initNodes() {
+        this.nodes = [];
+        for (let i = 0; i < this.nodeCount; i++) {
+            this.nodes.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                radius: Math.random() * 2 + 1
+            });
+        }
+    }
+
+    getThemeColor() {
+        const themes = {
+            green: { r: 100, g: 255, b: 218 },
+            blue: { r: 102, g: 126, b: 234 },
+            pink: { r: 255, g: 107, b: 157 }
+        };
+        return themes[this.theme] || themes.green;
+    }
+
+    animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const color = this.getThemeColor();
+
+        // Update and draw nodes
+        this.nodes.forEach((node, i) => {
+            // Move nodes
+            node.x += node.vx;
+            node.y += node.vy;
+
+            // Bounce off walls
+            if (node.x < 0 || node.x > this.canvas.width) node.vx *= -1;
+            if (node.y < 0 || node.y > this.canvas.height) node.vy *= -1;
+
+            // Mouse interaction
+            if (this.mouse.x && this.mouse.y) {
+                const dx = this.mouse.x - node.x;
+                const dy = this.mouse.y - node.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < this.mouse.radius) {
+                    const force = (this.mouse.radius - distance) / this.mouse.radius;
+                    node.vx -= (dx / distance) * force * 0.2;
+                    node.vy -= (dy / distance) * force * 0.2;
+                }
+            }
+
+            // Limit velocity
+            const speed = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
+            if (speed > 2) {
+                node.vx = (node.vx / speed) * 2;
+                node.vy = (node.vy / speed) * 2;
+            }
+
+            // Draw node
+            this.ctx.beginPath();
+            this.ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+            this.ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`;
+            this.ctx.fill();
+
+            // Draw connections
+            for (let j = i + 1; j < this.nodes.length; j++) {
+                const dx = this.nodes[j].x - node.x;
+                const dy = this.nodes[j].y - node.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 120) {
+                    const opacity = (1 - distance / 120) * 0.5;
+                    this.ctx.beginPath();
+                    this.ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
+                    this.ctx.lineWidth = 0.5;
+                    this.ctx.moveTo(node.x, node.y);
+                    this.ctx.lineTo(this.nodes[j].x, this.nodes[j].y);
+                    this.ctx.stroke();
+                }
+            }
+        });
+
+        requestAnimationFrame(() => this.animate());
+    }
+
+    changeTheme(newTheme) {
+        this.theme = newTheme;
+    }
+}
+
+let networkAnimation;
+
+// ==================== THEME MANAGEMENT ====================
+
+function changeTheme(theme) {
+    // Update visual selection
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.remove('active');
+    });
+    document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+
+    // Apply theme to document
+    document.documentElement.setAttribute('data-theme', theme);
+
+    // Update network animation
+    if (networkAnimation) {
+        networkAnimation.changeTheme(theme);
+    }
+
+    // Update UI elements with theme colors
+    updateThemeColors(theme);
+
+    // Save to localStorage
+    localStorage.setItem('nodeTheme', theme);
+
+    // Show notification
+    showNotification(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}!`, 'success');
+}
+
+function updateThemeColors(theme) {
+    // This function applies theme colors to dynamic elements
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+
+    // Force reflow to apply CSS variables
+    document.body.offsetHeight;
+}
+
+// ==================== AI ASSISTANT TOGGLE ====================
+
+function toggleAIAssistant() {
+    const toggle = document.getElementById('aiAssistantToggle');
+    toggle.classList.toggle('active');
+
+    const isEnabled = toggle.classList.contains('active');
+    localStorage.setItem('aiAssistantEnabled', isEnabled);
+
+    // Update AI button visibility
+    updateAIButtonVisibility(isEnabled);
+
+    showNotification(
+        isEnabled ? 'AI Assistant enabled!' : 'AI Assistant disabled!',
+        'success'
+    );
+}
+
+function updateAIButtonVisibility(isEnabled) {
+    const aiButton = document.querySelector('.ai-toggle-btn');
+    if (aiButton) {
+        aiButton.style.display = isEnabled ? 'flex' : 'none';
+    }
+}
+
+// ==================== INITIALIZATION ====================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize network animation
+    networkAnimation = new NetworkAnimation();
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('nodeTheme') || 'green';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.remove('active');
+    });
+    const savedThemeOption = document.querySelector(`[data-theme="${savedTheme}"]`);
+    if (savedThemeOption) {
+        savedThemeOption.classList.add('active');
+    }
+
+    // Load AI assistant setting
+    const aiEnabled = localStorage.getItem('aiAssistantEnabled') !== 'false';
+    const aiToggle = document.getElementById('aiAssistantToggle');
+    if (aiToggle) {
+        if (aiEnabled) {
+            aiToggle.classList.add('active');
+        } else {
+            aiToggle.classList.remove('active');
+        }
+    }
+    updateAIButtonVisibility(aiEnabled);
+});
 </script>
 </body>
 </html>
-
