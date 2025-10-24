@@ -38,23 +38,33 @@
 
         body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-    background: transparent;
+    background: linear-gradient(135deg, #000000 0%, #001a0f 25%, #003320 50%, #001a0f 75%, #000000 100%);
+    background-size: 400% 400%;
+    animation: gradientBackground 15s ease infinite;
     color: #e0e0e0;
     min-height: 100vh;
     overflow-x: hidden;
-    transition: background 0.3s ease, color 0.3s ease;
+    transition: color 0.3s ease;
     padding-bottom: 80px;
     position: relative;
 }
 
+@keyframes gradientBackground {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 body.light-mode {
-    background: transparent;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 50%, #f5f5f5 100%);
+    background-size: 200% 200%;
+    animation: gradientBackground 15s ease infinite;
     color: #1a1a1a;
 }
 
 /* FIX: Ensure html element also has proper background */
 html {
-    background: #0a0a0a;
+    background: #000000;
     overflow-x: hidden;
 }
 
@@ -62,22 +72,9 @@ html.light-mode {
     background: #f5f5f5;
 }
 
-/* Animated Network Background */
+/* Network Canvas - Hidden but kept for compatibility */
 #networkCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.7;
-    filter: blur(0.5px) brightness(1.1);
-}
-
-body.light-mode #networkCanvas {
-    opacity: 0.3;
-    filter: blur(0.3px) brightness(0.9);
+    display: none;
 }
 
 /* AUTH SCREEN STYLES - FIXED */
@@ -810,7 +807,7 @@ body.light-mode .mobile-search-container {
 
         .section {
             display: none;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.25s ease-out;
             position: relative;
             z-index: 1;
         }
@@ -820,20 +817,15 @@ body.light-mode .mobile-search-container {
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes iPhoneUnlock {
             0% {
                 opacity: 0;
-                transform: scale(0.95) translateY(30px);
-                filter: blur(8px);
-            }
-            60% {
-                opacity: 1;
-                transform: scale(1.01) translateY(-5px);
-                filter: blur(0);
+                transform: scale(0.98) translateY(15px);
+                filter: blur(4px);
             }
             100% {
                 opacity: 1;
@@ -843,21 +835,21 @@ body.light-mode .mobile-search-container {
         }
 
         .page-load-animate {
-            animation: iPhoneUnlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            animation: iPhoneUnlock 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         .page-load-animate > * {
-            animation: iPhoneUnlock 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            animation: iPhoneUnlock 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
-        .page-load-animate > *:nth-child(1) { animation-delay: 0.05s; }
-        .page-load-animate > *:nth-child(2) { animation-delay: 0.1s; }
-        .page-load-animate > *:nth-child(3) { animation-delay: 0.15s; }
-        .page-load-animate > *:nth-child(4) { animation-delay: 0.2s; }
-        .page-load-animate > *:nth-child(5) { animation-delay: 0.25s; }
-        .page-load-animate > *:nth-child(6) { animation-delay: 0.3s; }
-        .page-load-animate > *:nth-child(7) { animation-delay: 0.35s; }
-        .page-load-animate > *:nth-child(8) { animation-delay: 0.4s; }
+        .page-load-animate > *:nth-child(1) { animation-delay: 0.02s; }
+        .page-load-animate > *:nth-child(2) { animation-delay: 0.04s; }
+        .page-load-animate > *:nth-child(3) { animation-delay: 0.06s; }
+        .page-load-animate > *:nth-child(4) { animation-delay: 0.08s; }
+        .page-load-animate > *:nth-child(5) { animation-delay: 0.1s; }
+        .page-load-animate > *:nth-child(6) { animation-delay: 0.12s; }
+        .page-load-animate > *:nth-child(7) { animation-delay: 0.14s; }
+        .page-load-animate > *:nth-child(8) { animation-delay: 0.16s; }
 
         .dashboard {
             max-width: 1600px;
@@ -906,16 +898,13 @@ body.light-mode .mobile-search-container {
         }
 
         .stat-card.animate-in {
-            animation: waveIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            animation: waveIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
         @keyframes waveIn {
             0% {
                 opacity: 0;
-                transform: translateY(30px) scale(0.9);
-            }
-            50% {
-                transform: translateY(-10px) scale(1.05);
+                transform: translateY(20px) scale(0.95);
             }
             100% {
                 opacity: 1;
@@ -10495,16 +10484,368 @@ body.loading * {
         height: 0 !important;
         overflow: hidden !important;
     }
-    
+
     .chart-container.active {
         display: block !important;
         visibility: visible !important;
         height: auto !important;
     }
 }
+
+/* ==================== WELCOME ANIMATION ==================== */
+.welcome-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    overflow: hidden;
+}
+
+.welcome-animation.fade-out {
+    animation: welcomeFadeOut 0.8s ease-out forwards;
+}
+
+@keyframes welcomeFadeOut {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+.binary-rain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.binary-column {
+    position: absolute;
+    top: -100%;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #00ff41;
+    opacity: 0.6;
+    animation: binaryFall linear infinite;
+    white-space: nowrap;
+}
+
+@keyframes binaryFall {
+    to {
+        transform: translateY(100vh);
+        opacity: 0;
+    }
+}
+
+.lego-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lego-piece {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #00ff41, #00cc33);
+    border-radius: 8px;
+    opacity: 0;
+    animation: legoFloat 2s ease-out forwards;
+    box-shadow: 0 4px 20px rgba(0, 255, 65, 0.4);
+}
+
+@keyframes legoFloat {
+    0% {
+        opacity: 0;
+        transform: translateY(100vh) rotate(0deg) scale(0.5);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) rotate(360deg) scale(1);
+    }
+}
+
+.lego-piece::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    height: 15%;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.welcome-text {
+    position: relative;
+    z-index: 10001;
+    font-size: 80px;
+    font-weight: 700;
+    color: #00ff41;
+    text-shadow: 0 0 30px rgba(0, 255, 65, 0.8), 0 0 60px rgba(0, 255, 65, 0.5);
+    opacity: 0;
+    animation: welcomeTextAppear 1s ease-out 2s forwards;
+    letter-spacing: 8px;
+}
+
+@keyframes welcomeTextAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotateY(90deg);
+        filter: blur(20px);
+    }
+    50% {
+        transform: scale(1.1) rotateY(0deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotateY(0deg);
+        filter: blur(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .welcome-text {
+        font-size: 48px;
+        letter-spacing: 4px;
+    }
+    .lego-piece {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* ==================== ERROR POPUP MODAL ==================== */
+.error-popup-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.2s ease-out;
+    backdrop-filter: blur(5px);
+}
+
+.error-popup-modal.active {
+    display: flex;
+}
+
+.error-popup-content {
+    background: rgba(30, 30, 30, 0.95);
+    border: 2px solid rgba(255, 100, 100, 0.5);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(255, 100, 100, 0.3);
+    animation: modalSlide 0.3s ease-out;
+    position: relative;
+}
+
+body.light-mode .error-popup-content {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(200, 50, 50, 0.5);
+}
+
+@keyframes modalSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.error-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 100, 100, 0.3);
+}
+
+.error-popup-title {
+    font-size: 1.5em;
+    color: #ff6464;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.error-popup-close {
+    background: rgba(255, 100, 100, 0.2);
+    border: 1px solid rgba(255, 100, 100, 0.4);
+    color: #ff6464;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-popup-close:hover {
+    background: rgba(255, 100, 100, 0.3);
+    transform: rotate(90deg);
+}
+
+.error-popup-body {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 100, 100, 0.2);
+    border-radius: 10px;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    color: #ffaaaa;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+body.light-mode .error-popup-body {
+    background: rgba(255, 240, 240, 0.8);
+    color: #cc0000;
+}
+
+.error-popup-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.error-popup-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    background: rgba(100, 255, 218, 0.1);
+    color: #64ffda;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+}
+
+.error-popup-btn:hover {
+    background: rgba(100, 255, 218, 0.2);
+    border-color: #64ffda;
+    transform: translateY(-2px);
+}
+
+.error-button-compact {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: rgba(255, 100, 100, 0.15);
+    border: 1px solid rgba(255, 100, 100, 0.4);
+    border-radius: 6px;
+    color: #ff6464;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 10px;
+}
+
+.error-button-compact:hover {
+    background: rgba(255, 100, 100, 0.25);
+    transform: translateX(3px);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .error-popup-content {
+        width: 95%;
+        padding: 20px;
+        max-height: 80vh;
+    }
+
+    .error-popup-title {
+        font-size: 1.2em;
+    }
+
+    .error-popup-body {
+        font-size: 0.9em;
+        padding: 15px;
+    }
+}
+
+/* ==================== SETTINGS POSITIONING FIX ==================== */
+.settings-container {
+    padding-top: 20px !important;
+}
+
+.settings-header {
+    position: sticky;
+    top: 80px;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    padding: 20px;
+    margin: -20px -20px 20px -20px;
+    border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+}
+
+body.light-mode .settings-header {
+    background: rgba(245, 245, 245, 0.95);
+}
+
     </style>
 </head>
 <body>
+    <!-- WELCOME ANIMATION -->
+    <div class="welcome-animation" id="welcomeAnimation">
+        <div class="binary-rain" id="binaryRain"></div>
+        <div class="lego-container" id="legoContainer"></div>
+        <div class="welcome-text">Dev/earn</div>
+    </div>
+
+    <!-- ERROR POPUP MODAL -->
+    <div class="error-popup-modal" id="errorPopupModal">
+        <div class="error-popup-content">
+            <div class="error-popup-header">
+                <div class="error-popup-title">
+                    <span>⚠️</span> Error Details
+                </div>
+                <button class="error-popup-close" onclick="closeErrorPopup()">×</button>
+            </div>
+            <div class="error-popup-body" id="errorPopupBody"></div>
+            <div class="error-popup-actions">
+                <button class="error-popup-btn" onclick="closeErrorPopup()">Close</button>
+                <button class="error-popup-btn" onclick="askAIForErrorFromPopup()">✨ Ask AI to Fix</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ANIMATED NETWORK BACKGROUND -->
     <canvas id="networkCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
 
@@ -10998,6 +11339,22 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                                 <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
                                     ⚡ Improve my code
                                 </button>
+                                <button class="suggestion-btn" onclick="showLanguageConverter()">
+                                    🔄 Convert to another language
+                                </button>
+                            </div>
+                            <div class="language-converter" id="languageConverter" style="display: none; margin-top: 15px; padding: 15px; background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 10px;">
+                                <div style="font-weight: 600; margin-bottom: 10px; color: #64ffda;">🔄 Convert to:</div>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('python')">Python</button>
+                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('javascript')">JavaScript</button>
+                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('java')">Java</button>
+                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('cpp')">C++</button>
+                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('csharp')">C#</button>
+                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('go')">Go</button>
+                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('rust')">Rust</button>
+                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('php')">PHP</button>
+                                </div>
                             </div>
                             <div class="ai-input-container">
                                 <textarea id="aiInput" placeholder="Ask me anything about your code..." rows="1"></textarea>
@@ -19348,6 +19705,8 @@ window.addEventListener('message', (e) => {
 // ==================== NEW PLAYGROUND FUNCTIONS ====================
 
 // Console Management
+let lastErrorMessage = '';
+
 function logToConsole(message, type = 'log') {
     const consoleContent = document.getElementById('consoleContent');
     const messageDiv = document.createElement('div');
@@ -19355,14 +19714,19 @@ function logToConsole(message, type = 'log') {
 
     const timestamp = new Date().toLocaleTimeString();
 
-    // Add "Ask AI for error fix" button for error messages
+    // Add compact error button for error messages
     if (type === 'error') {
         const errorId = 'error-' + Math.random().toString(36).substr(2, 9);
+        lastErrorMessage = message;
+
+        // Truncate long error messages
+        const shortMessage = message.length > 80 ? message.substring(0, 80) + '...' : message;
+
         messageDiv.innerHTML = `
             <span style="color: #8b949e; margin-right: 10px;">[${timestamp}]</span>
-            <span class="error-message-text" id="${errorId}">${message}</span>
-            <button class="ask-ai-error-btn" onclick="askAIForErrorFix('${errorId}')">
-                <span class="ai-icon">✨</span> Ask AI for Fix
+            <span class="error-message-text" id="${errorId}">${shortMessage}</span>
+            <button class="error-button-compact" onclick="showErrorPopup('${errorId}', \`${message.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">
+                ⚠️ Error
             </button>
         `;
     } else {
@@ -19423,6 +19787,129 @@ async function askAIForErrorFix(errorId) {
 function clearConsole() {
     const consoleContent = document.getElementById('consoleContent');
     consoleContent.innerHTML = '<div class="console-message info">Console cleared.</div>';
+}
+
+// Error Popup Functions
+function showErrorPopup(errorId, errorMessage) {
+    const modal = document.getElementById('errorPopupModal');
+    const body = document.getElementById('errorPopupBody');
+
+    body.textContent = errorMessage;
+    lastErrorMessage = errorMessage;
+    modal.classList.add('active');
+}
+
+function closeErrorPopup() {
+    const modal = document.getElementById('errorPopupModal');
+    modal.classList.remove('active');
+}
+
+async function askAIForErrorFromPopup() {
+    closeErrorPopup();
+
+    const code = document.getElementById('codeEditor').value;
+
+    // Open AI sidebar if not already open
+    const aiSidebar = document.getElementById('aiSidebar');
+    if (!aiSidebar.classList.contains('active')) {
+        toggleAISidebar();
+    }
+
+    // Add user message
+    addAIMessage(`🐛 Fix this error: ${lastErrorMessage}`, 'user');
+
+    // Show typing indicator
+    const typingId = addTypingIndicator();
+
+    try {
+        if (isAgentMode && code.trim()) {
+            // Agent Mode: Fix the error and apply code
+            const response = await callMistralAI(
+                `Please fix this error in the code: "${lastErrorMessage}"\n\nCurrent code:\n${code}\n\nProvide ONLY the complete corrected code without any explanation.`,
+                code,
+                true
+            );
+            removeTypingIndicator(typingId);
+
+            let newCode = response.replace(/```[\w]*\n?/g, '').trim();
+            await applyCodeWithAnimation(newCode, 'fixed the error');
+        } else {
+            // Normal Mode: Explain the error and suggest fix
+            const response = await callMistralAI(
+                `Please help fix this error: "${lastErrorMessage}"\n\nCode:\n${code}\n\nExplain what's wrong and provide the corrected code.`,
+                code,
+                false
+            );
+            removeTypingIndicator(typingId);
+            addAIMessage(response, 'assistant');
+        }
+    } catch (error) {
+        removeTypingIndicator(typingId);
+        addAIMessage('Sorry, I encountered an error analyzing your code. Please try again.', 'assistant');
+    }
+}
+
+// Language Conversion Functions
+function showLanguageConverter() {
+    const converter = document.getElementById('languageConverter');
+    converter.style.display = converter.style.display === 'none' ? 'block' : 'none';
+}
+
+async function convertLanguage(targetLang) {
+    const code = document.getElementById('codeEditor').value;
+
+    if (!code.trim()) {
+        addAIMessage('Please write some code first!', 'assistant');
+        return;
+    }
+
+    const currentLang = detectLanguage(code);
+    const langNames = {
+        python: 'Python',
+        javascript: 'JavaScript',
+        java: 'Java',
+        cpp: 'C++',
+        csharp: 'C#',
+        go: 'Go',
+        rust: 'Rust',
+        php: 'PHP'
+    };
+
+    const targetLangName = langNames[targetLang] || targetLang;
+    const currentLangName = langNames[currentLang] || currentLang;
+
+    // Hide converter
+    document.getElementById('languageConverter').style.display = 'none';
+
+    // Show message
+    addAIMessage(`🔄 Converting ${currentLangName} code to ${targetLangName}...`, 'user');
+
+    // Show typing indicator
+    const typingId = addTypingIndicator();
+
+    try {
+        const prompt = `Convert this ${currentLangName} code to ${targetLangName}. Provide ONLY the converted code without any explanation. Maintain the same functionality and logic.\n\nCode to convert:\n${code}`;
+
+        if (isAgentMode) {
+            // Agent Mode: Convert and apply directly
+            const response = await callMistralAI(prompt, code, true);
+            removeTypingIndicator(typingId);
+
+            let newCode = response.replace(/```[\w]*\n?/g, '').trim();
+            await applyCodeWithAnimation(newCode, `converted to ${targetLangName}`);
+
+            // Update language detection
+            document.getElementById('detectedLang').textContent = targetLangName;
+        } else {
+            // Normal Mode: Show converted code
+            const response = await callMistralAI(prompt, code, false);
+            removeTypingIndicator(typingId);
+            addAIMessage(`Here's your code converted to ${targetLangName}:\n\n${response}`, 'assistant');
+        }
+    } catch (error) {
+        removeTypingIndicator(typingId);
+        addAIMessage('Sorry, I encountered an error converting your code. Please try again.', 'assistant');
+    }
 }
 
 // Right Panel Management
@@ -19504,13 +19991,16 @@ async function applyCodeWithAnimation(newCode, description) {
     // Clear editor
     editor.value = '';
 
-    // Type out new code with animation
+    // Type out new code with animation (faster on mobile)
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const baseDelay = isMobileDevice ? 3 : 8;
+
     for (let i = 0; i < newCode.length; i++) {
         editor.value += newCode[i];
         editor.scrollTop = editor.scrollHeight;
 
         // Variable speed typing for more natural feel
-        const delay = newCode[i] === '\n' ? 20 : (Math.random() * 15 + 10);
+        const delay = newCode[i] === '\n' ? 5 : (Math.random() * baseDelay + 2);
         await new Promise(resolve => setTimeout(resolve, delay));
     }
 
@@ -19548,7 +20038,7 @@ async function showThinkingAnimation() {
 
     editor.parentElement.appendChild(overlay);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     overlay.remove();
 }
@@ -24031,8 +24521,81 @@ function updateAIButtonVisibility(isEnabled) {
 
 // ==================== INITIALIZATION ====================
 
+// ==================== WELCOME ANIMATION INIT ====================
+function initWelcomeAnimation() {
+    const welcomeDiv = document.getElementById('welcomeAnimation');
+    const binaryRain = document.getElementById('binaryRain');
+    const legoContainer = document.getElementById('legoContainer');
+
+    // Create binary rain columns
+    const numColumns = Math.floor(window.innerWidth / 30);
+    for (let i = 0; i < numColumns; i++) {
+        const column = document.createElement('div');
+        column.className = 'binary-column';
+        column.style.left = (i * 30) + 'px';
+        column.style.animationDuration = (2 + Math.random() * 2) + 's';
+        column.style.animationDelay = (Math.random() * 2) + 's';
+
+        // Generate random binary string
+        let binaryText = '';
+        for (let j = 0; j < 30; j++) {
+            binaryText += Math.random() > 0.5 ? '1' : '0';
+            binaryText += j % 5 === 4 ? '<br>' : ' ';
+        }
+        column.innerHTML = binaryText;
+        binaryRain.appendChild(column);
+    }
+
+    // Create lego pieces
+    const numLegos = 15;
+    const positions = [
+        { left: '20%', top: '30%', delay: 0.1 },
+        { left: '40%', top: '40%', delay: 0.3 },
+        { left: '60%', top: '35%', delay: 0.5 },
+        { left: '80%', top: '30%', delay: 0.7 },
+        { left: '30%', top: '60%', delay: 0.9 },
+        { left: '50%', top: '55%', delay: 1.1 },
+        { left: '70%', top: '60%', delay: 1.3 },
+        { left: '25%', top: '20%', delay: 0.2 },
+        { left: '45%', top: '70%', delay: 0.4 },
+        { left: '65%', top: '25%', delay: 0.6 },
+        { left: '85%', top: '65%', delay: 0.8 },
+        { left: '15%', top: '50%', delay: 1.0 },
+        { left: '55%', top: '15%', delay: 1.2 },
+        { left: '75%', top: '50%', delay: 1.4 },
+        { left: '35%', top: '75%', delay: 1.6 }
+    ];
+
+    positions.forEach((pos, i) => {
+        const lego = document.createElement('div');
+        lego.className = 'lego-piece';
+        lego.style.left = pos.left;
+        lego.style.top = pos.top;
+        lego.style.animationDelay = pos.delay + 's';
+        legoContainer.appendChild(lego);
+    });
+
+    // Hide welcome animation after 3.5 seconds
+    setTimeout(() => {
+        welcomeDiv.classList.add('fade-out');
+        setTimeout(() => {
+            welcomeDiv.remove();
+        }, 800);
+    }, 3500);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize network animation
+    // Show welcome animation on first load
+    if (!sessionStorage.getItem('welcomeShown')) {
+        initWelcomeAnimation();
+        sessionStorage.setItem('welcomeShown', 'true');
+    } else {
+        // Hide welcome animation immediately if already shown
+        const welcomeDiv = document.getElementById('welcomeAnimation');
+        if (welcomeDiv) welcomeDiv.remove();
+    }
+
+    // Initialize network animation (now hidden)
     networkAnimation = new NetworkAnimation();
 
     // Load saved theme
