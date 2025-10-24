@@ -36,6 +36,22 @@
             box-sizing: border-box;
         }
 
+        /* Performance optimizations */
+        button, a, .nav-tab, .card, .setting-card, .lesson-card,
+        .stat-card, .course-card, .roadmap-node, .theme-option {
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Standardize hover transitions for snappy feel */
+        button:hover, a:hover, .nav-tab:hover, .card:hover,
+        .lesson-card:hover, .course-card:hover {
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                        background 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
     background: #000000;
@@ -793,6 +809,11 @@ body.light-mode .mobile-search-container {
             min-height: 100vh;
             position: relative;
             z-index: 1;
+        }
+
+        /* Settings section shows at top */
+        #settings.section.active {
+            margin-top: -80px;
         }
 
         .section {
@@ -1826,50 +1847,6 @@ body.light-mode .motivational-message {
             color: #6496ff;
         }
 
-        /* Ask AI for error fix button */
-        .ask-ai-error-btn {
-            background: rgba(100, 255, 218, 0.15);
-            border: 1px solid rgba(100, 255, 218, 0.4);
-            color: #64ffda;
-            padding: 4px 10px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.75em;
-            font-weight: 600;
-            opacity: 0;
-            transition: all 0.3s ease;
-            margin-left: auto;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .console-message.error:hover .ask-ai-error-btn {
-            opacity: 1;
-        }
-
-        .ask-ai-error-btn:hover {
-            background: rgba(100, 255, 218, 0.25);
-            border-color: #64ffda;
-            transform: scale(1.05);
-        }
-
-        .ask-ai-error-btn .ai-icon {
-            font-size: 1.1em;
-        }
-
-        body.light-mode .ask-ai-error-btn {
-            background: rgba(10, 122, 94, 0.15);
-            border-color: rgba(10, 122, 94, 0.4);
-            color: #0a7a5e;
-        }
-
-        body.light-mode .ask-ai-error-btn:hover {
-            background: rgba(10, 122, 94, 0.25);
-            border-color: #0a7a5e;
-        }
-
         .error-message-text {
             flex: 1;
         }
@@ -2801,13 +2778,12 @@ body.light-mode .motivational-message {
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            margin-top: 0; /* Show settings at top without scrolling */
-            padding-top: 20px; /* Minimal padding - settings start at top */
+            padding-top: 0;
         }
 
         .settings-header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
         }
 
         .settings-header h1 {
@@ -10789,26 +10765,6 @@ body.light-mode .error-popup-body {
     }
 }
 
-/* ==================== SETTINGS POSITIONING FIX ==================== */
-.settings-container {
-    padding-top: 20px !important;
-}
-
-.settings-header {
-    position: sticky;
-    top: 80px;
-    background: rgba(10, 10, 10, 0.95);
-    backdrop-filter: blur(10px);
-    z-index: 10;
-    padding: 20px;
-    margin: -20px -20px 20px -20px;
-    border-bottom: 1px solid rgba(100, 255, 218, 0.1);
-}
-
-body.light-mode .settings-header {
-    background: rgba(245, 245, 245, 0.95);
-}
-
     </style>
 </head>
 <body>
@@ -10831,7 +10787,6 @@ body.light-mode .settings-header {
             <div class="error-popup-body" id="errorPopupBody"></div>
             <div class="error-popup-actions">
                 <button class="error-popup-btn" onclick="closeErrorPopup()">Close</button>
-                <button class="error-popup-btn" onclick="askAIForErrorFromPopup()">✨ Ask AI to Fix</button>
             </div>
         </div>
     </div>
@@ -19786,53 +19741,6 @@ function logToConsole(message, type = 'log') {
     consoleContent.scrollTop = consoleContent.scrollHeight;
 }
 
-async function askAIForErrorFix(errorId) {
-    const errorElement = document.getElementById(errorId);
-    if (!errorElement) return;
-
-    const errorMessage = errorElement.textContent;
-    const code = document.getElementById('codeEditor').value;
-
-    // Open AI sidebar if not already open
-    const aiSidebar = document.getElementById('aiSidebar');
-    if (!aiSidebar.classList.contains('active')) {
-        toggleAISidebar();
-    }
-
-    // Add user message
-    addAIMessage(`🐛 Fix this error: ${errorMessage}`, 'user');
-
-    // Show typing indicator
-    const typingId = addTypingIndicator();
-
-    try {
-        if (isAgentMode && code.trim()) {
-            // Agent Mode: Fix the error and apply code
-            const response = await callMistralAI(
-                `Please fix this error in the code: "${errorMessage}"\n\nCurrent code:\n${code}\n\nProvide ONLY the complete corrected code without any explanation.`,
-                code,
-                true
-            );
-            removeTypingIndicator(typingId);
-
-            let newCode = response.replace(/```[\w]*\n?/g, '').trim();
-            await applyCodeWithAnimation(newCode, 'fixed the error');
-        } else {
-            // Normal Mode: Explain the error and suggest fix
-            const response = await callMistralAI(
-                `Please help fix this error: "${errorMessage}"\n\nCode:\n${code}\n\nExplain what's wrong and provide the corrected code.`,
-                code,
-                false
-            );
-            removeTypingIndicator(typingId);
-            addAIMessage(response, 'assistant');
-        }
-    } catch (error) {
-        removeTypingIndicator(typingId);
-        addAIMessage('Sorry, I encountered an error analyzing your code. Please try again.', 'assistant');
-    }
-}
-
 function clearConsole() {
     const consoleContent = document.getElementById('consoleContent');
     consoleContent.innerHTML = '<div class="console-message info">Console cleared.</div>';
@@ -19851,51 +19759,6 @@ function showErrorPopup(errorId, errorMessage) {
 function closeErrorPopup() {
     const modal = document.getElementById('errorPopupModal');
     modal.classList.remove('active');
-}
-
-async function askAIForErrorFromPopup() {
-    closeErrorPopup();
-
-    const code = document.getElementById('codeEditor').value;
-
-    // Open AI sidebar if not already open
-    const aiSidebar = document.getElementById('aiSidebar');
-    if (!aiSidebar.classList.contains('active')) {
-        toggleAISidebar();
-    }
-
-    // Add user message
-    addAIMessage(`🐛 Fix this error: ${lastErrorMessage}`, 'user');
-
-    // Show typing indicator
-    const typingId = addTypingIndicator();
-
-    try {
-        if (isAgentMode && code.trim()) {
-            // Agent Mode: Fix the error and apply code
-            const response = await callMistralAI(
-                `Please fix this error in the code: "${lastErrorMessage}"\n\nCurrent code:\n${code}\n\nProvide ONLY the complete corrected code without any explanation.`,
-                code,
-                true
-            );
-            removeTypingIndicator(typingId);
-
-            let newCode = response.replace(/```[\w]*\n?/g, '').trim();
-            await applyCodeWithAnimation(newCode, 'fixed the error');
-        } else {
-            // Normal Mode: Explain the error and suggest fix
-            const response = await callMistralAI(
-                `Please help fix this error: "${lastErrorMessage}"\n\nCode:\n${code}\n\nExplain what's wrong and provide the corrected code.`,
-                code,
-                false
-            );
-            removeTypingIndicator(typingId);
-            addAIMessage(response, 'assistant');
-        }
-    } catch (error) {
-        removeTypingIndicator(typingId);
-        addAIMessage('Sorry, I encountered an error analyzing your code. Please try again.', 'assistant');
-    }
 }
 
 // Language Conversion Functions
@@ -21940,137 +21803,6 @@ function enhanceCodeExamples() {
         }
     });
 }
-
-// ============================================
-// KEYWORD TOOLTIP PORTAL SYSTEM
-// ============================================
-
-let activeTooltip = null;
-let tooltipTimeout = null;
-
-// Create and show tooltip
-function showKeywordTooltip(element) {
-    // Clear any pending hide
-    if (tooltipTimeout) {
-        clearTimeout(tooltipTimeout);
-        tooltipTimeout = null;
-    }
-    
-    // Remove existing tooltip
-    if (activeTooltip) {
-        hideKeywordTooltip();
-    }
-    
-    const rect = element.getBoundingClientRect();
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    
-    // Create tooltip
-    const tooltip = document.createElement('div');
-    tooltip.className = 'keyword-tooltip-portal';
-    tooltip.innerHTML = '💡 Ask AI';
-    
-    // Position ABOVE the keyword with spacing
-    const tooltipTop = rect.top + scrollY - 60; // 60px above
-    const tooltipLeft = rect.left + scrollX + (rect.width / 2);
-    
-    tooltip.style.top = tooltipTop + 'px';
-    tooltip.style.left = tooltipLeft + 'px';
-    tooltip.style.transform = 'translateX(-50%) translateY(10px) scale(0.9)';
-    tooltip.style.opacity = '0';
-    
-    // Create arrow
-    const arrow = document.createElement('div');
-    arrow.className = 'keyword-tooltip-arrow';
-    
-    const arrowTop = rect.top + scrollY - 12; // Just above keyword
-    const arrowLeft = rect.left + scrollX + (rect.width / 2);
-    
-    arrow.style.top = arrowTop + 'px';
-    arrow.style.left = arrowLeft + 'px';
-    arrow.style.transform = 'translateX(-50%) scale(0)';
-    arrow.style.opacity = '0';
-    
-    // Add to body
-    document.body.appendChild(tooltip);
-    document.body.appendChild(arrow);
-    
-    // Animate in
-    requestAnimationFrame(() => {
-        tooltip.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        tooltip.style.transform = 'translateX(-50%) translateY(0) scale(1)';
-        tooltip.style.opacity = '1';
-        
-        arrow.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        arrow.style.transform = 'translateX(-50%) scale(1)';
-        arrow.style.opacity = '1';
-    });
-    
-    activeTooltip = { tooltip, arrow, element };
-}
-
-// Hide tooltip
-function hideKeywordTooltip() {
-    if (!activeTooltip) return;
-    
-    const { tooltip, arrow } = activeTooltip;
-    
-    // Animate out
-    tooltip.style.transform = 'translateX(-50%) translateY(10px) scale(0.9)';
-    tooltip.style.opacity = '0';
-    arrow.style.transform = 'translateX(-50%) scale(0)';
-    arrow.style.opacity = '0';
-    
-    // Remove after animation
-    setTimeout(() => {
-        if (tooltip && tooltip.parentNode) tooltip.remove();
-        if (arrow && arrow.parentNode) arrow.remove();
-    }, 300);
-    
-    activeTooltip = null;
-}
-
-// Event listeners for desktop
-document.addEventListener('mouseover', function(e) {
-    if (e.target.classList.contains('keyword-highlight')) {
-        // Only show on desktop
-        if (window.innerWidth > 768) {
-            showKeywordTooltip(e.target);
-        }
-    }
-});
-
-document.addEventListener('mouseout', function(e) {
-    if (e.target.classList.contains('keyword-highlight')) {
-        // Delay hiding slightly to prevent flicker
-        tooltipTimeout = setTimeout(() => {
-            hideKeywordTooltip();
-        }, 100);
-    }
-});
-
-// Update position on scroll
-let scrollTimeout;
-window.addEventListener('scroll', function() {
-    if (activeTooltip) {
-        // Hide tooltip on scroll
-        hideKeywordTooltip();
-    }
-}, true);
-
-// Update position on resize
-window.addEventListener('resize', function() {
-    if (activeTooltip) {
-        hideKeywordTooltip();
-    }
-});
-
-// Clean up on page unload
-window.addEventListener('beforeunload', function() {
-    if (activeTooltip) {
-        hideKeywordTooltip();
-    }
-});
 
 // ============================================
 // LANGUAGE FILTER FUNCTIONS
