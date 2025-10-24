@@ -1456,6 +1456,7 @@ body.light-mode .motivational-message {
 
         .playground-container.with-ai {
             grid-template-columns: 1fr 450px;
+            gap: 0; /* Remove gap to attach AI sidebar to right */
         }
 
         .editor-main {
@@ -1630,6 +1631,10 @@ body.light-mode .motivational-message {
             border-radius: 6px;
             border-left: 3px solid;
             animation: slideInConsole 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         @keyframes slideInConsole {
@@ -1665,6 +1670,54 @@ body.light-mode .motivational-message {
             background: rgba(100, 150, 255, 0.1);
             border-left-color: #6496ff;
             color: #6496ff;
+        }
+
+        /* Ask AI for error fix button */
+        .ask-ai-error-btn {
+            background: rgba(100, 255, 218, 0.15);
+            border: 1px solid rgba(100, 255, 218, 0.4);
+            color: #64ffda;
+            padding: 4px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.75em;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s ease;
+            margin-left: auto;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .console-message.error:hover .ask-ai-error-btn {
+            opacity: 1;
+        }
+
+        .ask-ai-error-btn:hover {
+            background: rgba(100, 255, 218, 0.25);
+            border-color: #64ffda;
+            transform: scale(1.05);
+        }
+
+        .ask-ai-error-btn .ai-icon {
+            font-size: 1.1em;
+        }
+
+        body.light-mode .ask-ai-error-btn {
+            background: rgba(10, 122, 94, 0.15);
+            border-color: rgba(10, 122, 94, 0.4);
+            color: #0a7a5e;
+        }
+
+        body.light-mode .ask-ai-error-btn:hover {
+            background: rgba(10, 122, 94, 0.25);
+            border-color: #0a7a5e;
+        }
+
+        .error-message-text {
+            flex: 1;
         }
 
         /* Right Panel (Preview/AI) */
@@ -1894,10 +1947,65 @@ body.light-mode .motivational-message {
             border-radius: 8px;
             overflow-x: auto;
             margin: 10px 0;
+            position: relative;
         }
 
         body.light-mode .message-content pre {
             background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* Code block wrapper with copy button */
+        .code-block-wrapper {
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .code-copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(100, 255, 218, 0.2);
+            border: 1px solid rgba(100, 255, 218, 0.4);
+            color: #64ffda;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75em;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .code-block-wrapper:hover .code-copy-btn {
+            opacity: 1;
+        }
+
+        .code-copy-btn:hover {
+            background: rgba(100, 255, 218, 0.3);
+            transform: scale(1.05);
+        }
+
+        .code-copy-btn.copied {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.5);
+            color: #4caf50;
+        }
+
+        body.light-mode .code-copy-btn {
+            background: rgba(10, 122, 94, 0.2);
+            border-color: rgba(10, 122, 94, 0.4);
+            color: #0a7a5e;
+        }
+
+        body.light-mode .code-copy-btn:hover {
+            background: rgba(10, 122, 94, 0.3);
+        }
+
+        body.light-mode .code-copy-btn.copied {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.4);
+            color: #2e7d32;
         }
 
         .ai-suggestions {
@@ -1911,8 +2019,8 @@ body.light-mode .motivational-message {
             background: rgba(100, 255, 218, 0.1);
             border: 1px solid rgba(100, 255, 218, 0.3);
             color: #64ffda;
-            padding: 10px 15px;
-            border-radius: 10px;
+            padding: 12px 24px; /* Increased padding for more oval shape */
+            border-radius: 50px; /* Full pill/oval shape */
             cursor: pointer;
             font-size: 0.85em;
             font-weight: 600;
@@ -1920,23 +2028,120 @@ body.light-mode .motivational-message {
             display: flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 2px 8px rgba(100, 255, 218, 0.1);
         }
 
         .suggestion-btn:hover {
             background: rgba(100, 255, 218, 0.2);
             border-color: #64ffda;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
         }
 
         body.light-mode .suggestion-btn {
             color: #0a7a5e;
             border-color: rgba(10, 122, 94, 0.3);
             background: rgba(10, 122, 94, 0.1);
+            box-shadow: 0 2px 8px rgba(10, 122, 94, 0.1);
         }
 
         body.light-mode .suggestion-btn:hover {
             background: rgba(10, 122, 94, 0.2);
             border-color: #0a7a5e;
+            box-shadow: 0 4px 12px rgba(10, 122, 94, 0.2);
+        }
+
+        /* Agent Mode Toggle */
+        .ai-mode-toggle {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            background: rgba(20, 20, 20, 0.6);
+            z-index: 1;
+            position: relative;
+        }
+
+        body.light-mode .ai-mode-toggle {
+            background: rgba(240, 240, 240, 0.9);
+            border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        .agent-mode-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .agent-mode-label input[type="checkbox"] {
+            width: 44px;
+            height: 24px;
+            appearance: none;
+            background: rgba(100, 100, 100, 0.3);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .agent-mode-label input[type="checkbox"]:before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            background: #666;
+            transition: all 0.3s ease;
+        }
+
+        .agent-mode-label input[type="checkbox"]:checked {
+            background: rgba(100, 255, 218, 0.3);
+            border-color: #64ffda;
+        }
+
+        .agent-mode-label input[type="checkbox"]:checked:before {
+            left: 22px;
+            background: #64ffda;
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+
+        .agent-mode-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .agent-mode-icon {
+            font-size: 1.1em;
+        }
+
+        .agent-mode-text {
+            color: #e0e0e0;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .agent-mode-desc {
+            color: #8b949e;
+            font-size: 0.75em;
+            font-weight: 400;
+        }
+
+        body.light-mode .agent-mode-text {
+            color: #1a1a1a;
+        }
+
+        body.light-mode .agent-mode-label input[type="checkbox"]:checked {
+            background: rgba(10, 122, 94, 0.3);
+            border-color: #0a7a5e;
+        }
+
+        body.light-mode .agent-mode-label input[type="checkbox"]:checked:before {
+            background: #0a7a5e;
+            box-shadow: 0 0 10px rgba(10, 122, 94, 0.5);
         }
 
         /* AI Input Container */
@@ -2067,10 +2272,15 @@ body.light-mode .motivational-message {
             display: none;
             background: rgba(30, 30, 30, 0.6);
             border: 1px solid rgba(100, 255, 218, 0.1);
-            border-radius: 20px;
+            border-radius: 20px 0 0 20px; /* Round left corners only */
             overflow: hidden;
             flex-direction: column;
-            position: relative;
+            position: fixed; /* Make it fixed to viewport */
+            right: 0;
+            top: 0;
+            height: 100vh; /* Full viewport height */
+            width: 450px;
+            z-index: 1000;
             animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -2210,34 +2420,38 @@ body.light-mode .motivational-message {
             background: rgba(240, 240, 240, 0.6);
         }
 
-        .suggestion-btn {
+        .ai-suggestions .suggestion-btn {
             background: rgba(100, 255, 218, 0.1);
             border: 1px solid rgba(100, 255, 218, 0.3);
             color: #64ffda;
-            padding: 10px 15px;
-            border-radius: 10px;
+            padding: 12px 24px; /* Increased padding for more oval shape */
+            border-radius: 50px; /* Full pill/oval shape */
             cursor: pointer;
             font-size: 0.9em;
             font-weight: 500;
             transition: all 0.3s ease;
-            text-align: left;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(100, 255, 218, 0.1);
         }
 
-        .suggestion-btn:hover {
+        .ai-suggestions .suggestion-btn:hover {
             background: rgba(100, 255, 218, 0.2);
             border-color: #64ffda;
-            transform: translateX(5px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
         }
 
-        body.light-mode .suggestion-btn {
+        body.light-mode .ai-suggestions .suggestion-btn {
             background: rgba(10, 122, 94, 0.1);
             border-color: rgba(10, 122, 94, 0.3);
             color: #0a7a5e;
+            box-shadow: 0 2px 8px rgba(10, 122, 94, 0.1);
         }
 
-        body.light-mode .suggestion-btn:hover {
+        body.light-mode .ai-suggestions .suggestion-btn:hover {
             background: rgba(10, 122, 94, 0.2);
             border-color: #0a7a5e;
+            box-shadow: 0 4px 12px rgba(10, 122, 94, 0.2);
         }
 
         /* Neural Network Animation */
@@ -2314,6 +2528,7 @@ body.light-mode .motivational-message {
             flex: 1;
             padding: 0;
             overflow: hidden;
+            position: relative;
         }
 
         .code-editor-area textarea {
@@ -2333,6 +2548,64 @@ body.light-mode .motivational-message {
         body.light-mode .code-editor-area textarea {
             background: #fff;
             color: #1a1a1a;
+        }
+
+        /* Thinking Overlay Animation */
+        .thinking-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 10, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+        }
+
+        body.light-mode .thinking-overlay {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .thinking-content {
+            text-align: center;
+            color: #64ffda;
+        }
+
+        body.light-mode .thinking-content {
+            color: #0a7a5e;
+        }
+
+        .thinking-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(100, 255, 218, 0.2);
+            border-top-color: #64ffda;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            animation: spin 1s linear infinite;
+        }
+
+        body.light-mode .thinking-spinner {
+            border-color: rgba(10, 122, 94, 0.2);
+            border-top-color: #0a7a5e;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .thinking-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .output-content {
@@ -10384,6 +10657,15 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                             <button class="ai-close-btn" onclick="closeAISidebar()">×</button>
                         </div>
                         <div class="ai-content">
+                            <div class="ai-mode-toggle">
+                                <label class="agent-mode-label">
+                                    <input type="checkbox" id="agentModeToggle" onchange="toggleAgentMode()">
+                                    <span class="agent-mode-text">
+                                        <span class="agent-mode-icon">🤖</span> Agent Mode
+                                        <span class="agent-mode-desc">AI will modify your code directly</span>
+                                    </span>
+                                </label>
+                            </div>
                             <div class="ai-messages" id="aiMessages">
                                 <div class="ai-message assistant">
                                     <div class="message-avatar">✨</div>
@@ -10395,6 +10677,9 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                                             <li>Improve your code</li>
                                             <li>Answer coding questions</li>
                                         </ul>
+                                        <p style="margin-top: 10px; font-size: 0.9em; color: #8b949e;">
+                                            💡 <strong>Tip:</strong> Enable Agent Mode to let me write code directly in your editor!
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -17990,25 +18275,31 @@ function switchCenterTab(tab) {
         if (codeEditor && codeEditor.value.trim()) {
             // Small delay to ensure the preview panel is visible
             setTimeout(() => {
-                runCode();
+                runCode(true); // Pass true to indicate auto-run
             }, 100);
         }
     }
 }
 
-function runCode() {
+function runCode(isAutoRun = false) {
     const code = document.getElementById('codeEditor').value;
     const language = detectLanguage(code);
     const outputFrame = document.getElementById('outputFrame');
-
-    // Clear console and log run start
-    clearConsole();
-    logToConsole(`Running ${language} code...`, 'info');
-
-    // Show console panel and switch to preview tab
     const consolePanel = document.getElementById('consolePanel');
+
+    // Only clear console if not auto-running (prevents flashing when switching tabs)
+    if (!isAutoRun) {
+        clearConsole();
+        logToConsole(`Running ${language} code...`, 'info');
+    }
+
+    // Show console panel
     consolePanel.style.display = 'flex';
-    switchCenterTab('preview');
+
+    // Only switch to preview tab if not already there (prevents recursive calls)
+    if (!isAutoRun) {
+        switchCenterTab('preview');
+    }
 
     if (!code.trim()) {
         outputFrame.srcdoc = '<div style="padding: 20px; color: #999; text-align: center;">Write some code and click Run to see results</div>';
@@ -18222,10 +18513,70 @@ function logToConsole(message, type = 'log') {
     messageDiv.className = `console-message ${type}`;
 
     const timestamp = new Date().toLocaleTimeString();
-    messageDiv.innerHTML = `<span style="color: #8b949e; margin-right: 10px;">[${timestamp}]</span>${message}`;
+
+    // Add "Ask AI for error fix" button for error messages
+    if (type === 'error') {
+        const errorId = 'error-' + Math.random().toString(36).substr(2, 9);
+        messageDiv.innerHTML = `
+            <span style="color: #8b949e; margin-right: 10px;">[${timestamp}]</span>
+            <span class="error-message-text" id="${errorId}">${message}</span>
+            <button class="ask-ai-error-btn" onclick="askAIForErrorFix('${errorId}')">
+                <span class="ai-icon">✨</span> Ask AI for Fix
+            </button>
+        `;
+    } else {
+        messageDiv.innerHTML = `<span style="color: #8b949e; margin-right: 10px;">[${timestamp}]</span>${message}`;
+    }
 
     consoleContent.appendChild(messageDiv);
     consoleContent.scrollTop = consoleContent.scrollHeight;
+}
+
+async function askAIForErrorFix(errorId) {
+    const errorElement = document.getElementById(errorId);
+    if (!errorElement) return;
+
+    const errorMessage = errorElement.textContent;
+    const code = document.getElementById('codeEditor').value;
+
+    // Open AI sidebar if not already open
+    const aiSidebar = document.getElementById('aiSidebar');
+    if (!aiSidebar.classList.contains('active')) {
+        toggleAISidebar();
+    }
+
+    // Add user message
+    addAIMessage(`🐛 Fix this error: ${errorMessage}`, 'user');
+
+    // Show typing indicator
+    const typingId = addTypingIndicator();
+
+    try {
+        if (isAgentMode && code.trim()) {
+            // Agent Mode: Fix the error and apply code
+            const response = await callMistralAI(
+                `Please fix this error in the code: "${errorMessage}"\n\nCurrent code:\n${code}\n\nProvide ONLY the complete corrected code without any explanation.`,
+                code,
+                true
+            );
+            removeTypingIndicator(typingId);
+
+            let newCode = response.replace(/```[\w]*\n?/g, '').trim();
+            await applyCodeWithAnimation(newCode, 'fixed the error');
+        } else {
+            // Normal Mode: Explain the error and suggest fix
+            const response = await callMistralAI(
+                `Please help fix this error: "${errorMessage}"\n\nCode:\n${code}\n\nExplain what's wrong and provide the corrected code.`,
+                code,
+                false
+            );
+            removeTypingIndicator(typingId);
+            addAIMessage(response, 'assistant');
+        }
+    } catch (error) {
+        removeTypingIndicator(typingId);
+        addAIMessage('Sorry, I encountered an error analyzing your code. Please try again.', 'assistant');
+    }
 }
 
 function clearConsole() {
@@ -18273,6 +18624,72 @@ function closeAISidebar() {
     container.classList.remove('with-ai');
 }
 
+// Agent Mode Functions
+let isAgentMode = false;
+
+function toggleAgentMode() {
+    const toggle = document.getElementById('agentModeToggle');
+    isAgentMode = toggle.checked;
+
+    if (isAgentMode) {
+        addAIMessage('🤖 Agent Mode Activated! I can now modify your code directly. Just ask me to fix, improve, or write code for you!', 'assistant');
+    } else {
+        addAIMessage('✨ Agent Mode Deactivated. I\'m back to suggestion mode.', 'assistant');
+    }
+}
+
+async function applyCodeWithAnimation(newCode, description) {
+    const editor = document.getElementById('codeEditor');
+    const currentCode = editor.value;
+
+    // Show "Thinking..." animation in editor
+    await showThinkingAnimation();
+
+    // Show "Trying to implement..." message
+    const implementMsg = addAIMessage(`🔧 Trying to implement: ${description}...`, 'assistant');
+
+    // Wait a bit to simulate thinking
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Clear editor
+    editor.value = '';
+
+    // Type out new code with animation
+    for (let i = 0; i < newCode.length; i++) {
+        editor.value += newCode[i];
+        editor.scrollTop = editor.scrollHeight;
+
+        // Variable speed typing for more natural feel
+        const delay = newCode[i] === '\n' ? 20 : (Math.random() * 15 + 10);
+        await new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    // Update language detection
+    const language = detectLanguage(newCode);
+    document.getElementById('detectedLang').textContent = language;
+
+    // Show completion message
+    addAIMessage(`✅ Code updated successfully! I've ${description}.`, 'assistant');
+}
+
+async function showThinkingAnimation() {
+    const editor = document.getElementById('codeEditor');
+    const overlay = document.createElement('div');
+    overlay.className = 'thinking-overlay';
+    overlay.innerHTML = `
+        <div class="thinking-content">
+            <div class="thinking-spinner"></div>
+            <div class="thinking-text">🧠 Analyzing your code...</div>
+        </div>
+    `;
+
+    editor.parentElement.appendChild(overlay);
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    overlay.remove();
+}
+
 // AI Assistant Functions
 async function sendAIMessage() {
     const input = document.getElementById('aiInput');
@@ -18291,9 +18708,28 @@ async function sendAIMessage() {
     const code = document.getElementById('codeEditor').value;
 
     try {
-        const response = await callMistralAI(message, code);
-        removeTypingIndicator(typingId);
-        addAIMessage(response, 'assistant');
+        if (isAgentMode && code.trim()) {
+            // Agent Mode: AI modifies code directly
+            const response = await callMistralAI(
+                `${message}\n\nCurrent code:\n${code}\n\nPlease provide ONLY the complete corrected/improved code without any explanation. Start your response with the code directly.`,
+                code,
+                true
+            );
+            removeTypingIndicator(typingId);
+
+            // Extract code from response
+            let newCode = response;
+            // Remove code block markers if present
+            newCode = newCode.replace(/```[\w]*\n?/g, '').trim();
+
+            // Apply code with animation
+            await applyCodeWithAnimation(newCode, message);
+        } else {
+            // Normal Mode: AI provides suggestions
+            const response = await callMistralAI(message, code, false);
+            removeTypingIndicator(typingId);
+            addAIMessage(response, 'assistant');
+        }
     } catch (error) {
         removeTypingIndicator(typingId);
         addAIMessage('Sorry, I encountered an error. Please try again.', 'assistant');
@@ -18309,21 +18745,33 @@ async function sendAISuggestion(type) {
         return;
     }
 
+    const language = detectLanguage(code);
     let question = '';
     let displayText = '';
+    let description = '';
 
     switch(type) {
         case 'explain':
             displayText = '💡 What does this code do?';
-            question = 'Please explain what this code does in simple terms:\n\n' + code;
+            question = `Please explain what this ${language} code does in simple terms. Provide a clear, beginner-friendly explanation:\n\n${code}`;
             break;
         case 'debug':
             displayText = '🐛 Debug my code';
-            question = 'Please analyze this code for any bugs or errors and suggest fixes:\n\n' + code;
+            description = 'fixed bugs and errors';
+            if (isAgentMode) {
+                question = `Please fix all bugs and errors in this ${language} code. Provide ONLY the complete corrected code without any explanation:\n\n${code}`;
+            } else {
+                question = `Please analyze this ${language} code for any bugs, errors, or potential issues. Provide specific fixes with code examples:\n\n${code}`;
+            }
             break;
         case 'improve':
             displayText = '⚡ Improve my code';
-            question = 'Please suggest improvements for this code:\n\n' + code;
+            description = 'improved the code with best practices';
+            if (isAgentMode) {
+                question = `Please improve this ${language} code with best practices, better performance, and readability. Provide ONLY the complete improved code without any explanation:\n\n${code}`;
+            } else {
+                question = `Please suggest improvements for this ${language} code. Focus on best practices, performance, and readability. Provide specific code examples:\n\n${code}`;
+            }
             break;
     }
 
@@ -18340,9 +18788,23 @@ async function sendAISuggestion(type) {
     const typingId = addTypingIndicator();
 
     try {
-        const response = await callMistralAI(question, code);
-        removeTypingIndicator(typingId);
-        addAIMessage(response, 'assistant');
+        if (isAgentMode && type !== 'explain') {
+            // Agent Mode: Apply code changes directly
+            const response = await callMistralAI(question, code, true);
+            removeTypingIndicator(typingId);
+
+            // Extract code from response
+            let newCode = response;
+            newCode = newCode.replace(/```[\w]*\n?/g, '').trim();
+
+            // Apply code with animation
+            await applyCodeWithAnimation(newCode, description);
+        } else {
+            // Normal Mode: Provide suggestions
+            const response = await callMistralAI(question, code, false);
+            removeTypingIndicator(typingId);
+            addAIMessage(response, 'assistant');
+        }
     } catch (error) {
         removeTypingIndicator(typingId);
         addAIMessage('Sorry, I encountered an error. Please try again.', 'assistant');
@@ -18393,13 +18855,44 @@ function addAIMessage(content, role) {
 }
 
 function formatAIContent(content) {
-    // Convert markdown-style code blocks to HTML
-    content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    // Convert markdown-style code blocks to HTML with copy button
+    content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
+        const codeId = 'code-' + Math.random().toString(36).substr(2, 9);
+        return `<div class="code-block-wrapper">
+            <button class="code-copy-btn" onclick="copyCodeToClipboard('${codeId}', this)">📋 Copy</button>
+            <pre><code id="${codeId}">${code.trim()}</code></pre>
+        </div>`;
+    });
+
     content = content.replace(/`([^`]+)`/g, '<code>$1</code>');
 
     // Convert line breaks to paragraphs
     const paragraphs = content.split('\n\n');
     return paragraphs.map(p => p.trim() ? `<p>${p.replace(/\n/g, '<br>')}</p>` : '').join('');
+}
+
+// Function to copy code to clipboard
+function copyCodeToClipboard(codeId, button) {
+    const codeElement = document.getElementById(codeId);
+    if (!codeElement) return;
+
+    const code = codeElement.textContent;
+
+    navigator.clipboard.writeText(code).then(() => {
+        button.textContent = '✓ Copied!';
+        button.classList.add('copied');
+
+        setTimeout(() => {
+            button.textContent = '📋 Copy';
+            button.classList.remove('copied');
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy code:', err);
+        button.textContent = '✗ Failed';
+        setTimeout(() => {
+            button.textContent = '📋 Copy';
+        }, 2000);
+    });
 }
 
 function addTypingIndicator() {
@@ -22483,3 +22976,4 @@ showSection = function(sectionId) {
 </script>
 </body>
 </html>
+
