@@ -1449,14 +1449,13 @@ body.light-mode .motivational-message {
         .playground-container {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 0;
+            gap: 20px;
             height: calc(100vh - 250px);
             position: relative;
         }
 
-        .playground-container.with-panel {
-            grid-template-columns: 1fr 600px;
-            gap: 20px;
+        .playground-container.with-ai {
+            grid-template-columns: 1fr 450px;
         }
 
         .editor-main {
@@ -1464,6 +1463,78 @@ body.light-mode .motivational-message {
             flex-direction: column;
             gap: 15px;
             min-width: 0;
+        }
+
+        .playground-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+            padding: 15px 20px;
+            background: rgba(30, 30, 30, 0.6);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        body.light-mode .playground-controls {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        .center-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 0 5px;
+            justify-content: center;
+        }
+
+        .center-tab {
+            flex: 1;
+            max-width: 200px;
+            padding: 12px 24px;
+            background: rgba(30, 30, 30, 0.4);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 12px;
+            color: #8b949e;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .center-tab:hover {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: rgba(100, 255, 218, 0.3);
+            color: #64ffda;
+        }
+
+        .center-tab.active {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: #64ffda;
+            color: #64ffda;
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+        }
+
+        body.light-mode .center-tab {
+            background: rgba(255, 255, 255, 0.6);
+            border-color: rgba(10, 122, 94, 0.2);
+            color: #495057;
+        }
+
+        body.light-mode .center-tab:hover {
+            background: rgba(10, 122, 94, 0.1);
+            border-color: rgba(10, 122, 94, 0.4);
+            color: #0a7a5e;
+        }
+
+        body.light-mode .center-tab.active {
+            background: rgba(10, 122, 94, 0.2);
+            border-color: #0a7a5e;
+            color: #0a7a5e;
         }
 
         .code-panel {
@@ -1972,6 +2043,203 @@ body.light-mode .motivational-message {
             animation: codeHighlight 1.5s ease-in-out;
             border-radius: 4px;
             padding: 2px;
+        }
+
+        /* New Preview Panel Styles */
+        .preview-panel {
+            background: rgba(30, 30, 30, 0.6);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.light-mode .preview-panel {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        /* New AI Sidebar Styles with Gradient and Neural Nodes */
+        .ai-sidebar {
+            display: none;
+            background: rgba(30, 30, 30, 0.6);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            flex-direction: column;
+            position: relative;
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ai-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg,
+                rgba(102, 126, 234, 0.2) 0%,
+                rgba(118, 75, 162, 0.2) 25%,
+                rgba(100, 255, 218, 0.1) 50%,
+                rgba(102, 126, 234, 0.2) 75%,
+                rgba(118, 75, 162, 0.2) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .ai-sidebar.active {
+            display: flex;
+        }
+
+        body.light-mode .ai-sidebar {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        .ai-sidebar-header {
+            background: rgba(20, 20, 20, 0.9);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1;
+            position: relative;
+        }
+
+        body.light-mode .ai-sidebar-header {
+            background: rgba(240, 240, 240, 0.95);
+        }
+
+        .ai-sidebar-title {
+            color: #64ffda;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+        }
+
+        body.light-mode .ai-sidebar-title {
+            color: #0a7a5e;
+        }
+
+        .ai-icon-animated {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .ai-close-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            color: #ff6464;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            line-height: 1;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-close-btn:hover {
+            background: rgba(255, 100, 100, 0.1);
+            border-color: #ff6464;
+            transform: rotate(90deg);
+        }
+
+        .ai-sidebar .ai-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-suggestions {
+            padding: 15px;
+            border-top: 1px solid rgba(100, 255, 218, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(20, 20, 20, 0.4);
+            z-index: 1;
+            position: relative;
+        }
+
+        body.light-mode .ai-suggestions {
+            background: rgba(240, 240, 240, 0.6);
+        }
+
+        .suggestion-btn {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            color: #64ffda;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .suggestion-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: #64ffda;
+            transform: translateX(5px);
+        }
+
+        body.light-mode .suggestion-btn {
+            background: rgba(10, 122, 94, 0.1);
+            border-color: rgba(10, 122, 94, 0.3);
+            color: #0a7a5e;
+        }
+
+        body.light-mode .suggestion-btn:hover {
+            background: rgba(10, 122, 94, 0.2);
+            border-color: #0a7a5e;
+        }
+
+        /* Neural Network Animation */
+        .neural-nodes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .neural-node {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(100, 255, 218, 0.6);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-20px) translateX(10px); }
         }
 
         .panel-header {
@@ -10026,25 +10294,33 @@ body.loading * {
                 </div>
 
                 <div class="playground-container">
-                    <!-- Main Editor Area -->
+                    <!-- Main Center Area with Tabs -->
                     <div class="editor-main">
-                        <div class="code-panel">
-                            <div class="panel-header">
-                                <div class="panel-title">
-                                    <span>💻</span> Code Editor
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <div id="languageDetector" style="color: #64ffda; font-weight: 600; font-size: 0.9em;">
-                                        Language: <span id="detectedLang">None</span>
-                                    </div>
-                                    <button class="ai-toggle-btn" onclick="toggleAISidebar()" title="AI Assistant">
-                                        <span>✨</span> AI Assistant
-                                    </button>
-                                    <button class="run-button" onclick="runCode()">
-                                        <span>▶</span> Run Code
-                                    </button>
-                                </div>
+                        <!-- Top Control Bar -->
+                        <div class="playground-controls">
+                            <div id="languageDetector" style="color: #64ffda; font-weight: 600; font-size: 0.9em;">
+                                Language: <span id="detectedLang">None</span>
                             </div>
+                            <button class="ai-toggle-btn" onclick="toggleAISidebar()" title="AI Assistant">
+                                <span>✨</span> AI Assistant
+                            </button>
+                            <button class="run-button" onclick="runCode()">
+                                <span>▶</span> Run Code
+                            </button>
+                        </div>
+
+                        <!-- Center Tabs for Code/Preview -->
+                        <div class="center-tabs">
+                            <button class="center-tab active" onclick="switchCenterTab('code')">
+                                <span>💻</span> Code
+                            </button>
+                            <button class="center-tab" onclick="switchCenterTab('preview')">
+                                <span>📺</span> Preview
+                            </button>
+                        </div>
+
+                        <!-- Code Panel -->
+                        <div class="code-panel" id="codePanel">
                             <div class="code-editor-area">
                                 <textarea id="codeEditor" placeholder="// Write your code here...
 console.log('Hello, World!');
@@ -10054,8 +10330,15 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                             </div>
                         </div>
 
-                        <!-- Console at bottom -->
-                        <div class="console-panel">
+                        <!-- Preview Panel -->
+                        <div class="preview-panel" id="previewPanel" style="display: none;">
+                            <div class="preview-content">
+                                <iframe id="outputFrame" class="output-frame"></iframe>
+                            </div>
+                        </div>
+
+                        <!-- Console at bottom (hidden initially) -->
+                        <div class="console-panel" id="consolePanel" style="display: none;">
                             <div class="console-header">
                                 <div class="console-title">
                                     <span>🖥️</span> Console
@@ -10068,55 +10351,42 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                         </div>
                     </div>
 
-                    <!-- Right Panel with Tabs (Preview/AI) -->
-                    <div class="right-panel" id="rightPanel">
-                        <div class="right-panel-tabs">
-                            <button class="panel-tab active" onclick="switchRightPanel('preview')">
-                                <span>📺</span> Preview
-                            </button>
-                            <button class="panel-tab" onclick="switchRightPanel('ai')">
-                                <span>✨</span> AI Assistant
-                            </button>
-                            <button class="panel-close-btn" onclick="closeRightPanel()">×</button>
-                        </div>
-
-                        <!-- Preview Panel -->
-                        <div class="tab-content active" id="previewPanel">
-                            <div class="preview-content">
-                                <iframe id="outputFrame" class="output-frame"></iframe>
+                    <!-- Right AI Sidebar -->
+                    <div class="ai-sidebar" id="aiSidebar">
+                        <div class="ai-sidebar-header">
+                            <div class="ai-sidebar-title">
+                                <span class="ai-icon-animated">✨</span> AI Assistant
                             </div>
+                            <button class="ai-close-btn" onclick="closeAISidebar()">×</button>
                         </div>
-
-                        <!-- AI Panel -->
-                        <div class="tab-content" id="aiPanel">
-                            <div class="ai-content">
-                                <div class="ai-messages" id="aiMessages">
-                                    <div class="ai-message assistant">
-                                        <div class="message-avatar">✨</div>
-                                        <div class="message-content">
-                                            <p>Hi! I'm your AI coding assistant. I can help you:</p>
-                                            <ul>
-                                                <li>Explain what your code does</li>
-                                                <li>Debug errors and suggest fixes</li>
-                                                <li>Improve your code</li>
-                                                <li>Answer coding questions</li>
-                                            </ul>
-                                            <div class="ai-suggestions">
-                                                <button class="suggestion-btn" onclick="sendAISuggestion('explain')">
-                                                    💡 What does this code do?
-                                                </button>
-                                                <button class="suggestion-btn" onclick="sendAISuggestion('debug')">
-                                                    🐛 Debug my code
-                                                </button>
-                                                <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
-                                                    ⚡ Improve my code
-                                                </button>
-                                            </div>
-                                        </div>
+                        <div class="ai-content">
+                            <div class="ai-messages" id="aiMessages">
+                                <div class="ai-message assistant">
+                                    <div class="message-avatar">✨</div>
+                                    <div class="message-content">
+                                        <p>Hi! I'm your AI coding assistant. I can help you:</p>
+                                        <ul>
+                                            <li>Explain what your code does</li>
+                                            <li>Debug errors and suggest fixes</li>
+                                            <li>Improve your code</li>
+                                            <li>Answer coding questions</li>
+                                        </ul>
                                     </div>
                                 </div>
-                                <div class="ai-input-container">
-                                    <textarea id="aiInput" placeholder="Ask me anything about your code..." rows="1"></textarea>
+                            </div>
+                            <div class="ai-suggestions">
+                                <button class="suggestion-btn" onclick="sendAISuggestion('explain')">
+                                    💡 What does this code do?
+                                </button>
+                                <button class="suggestion-btn" onclick="sendAISuggestion('debug')">
+                                    🐛 Debug my code
+                                </button>
+                                <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
+                                    ⚡ Improve my code
+                                </button>
+                            </div>
+                            <div class="ai-input-container">
+                                <textarea id="aiInput" placeholder="Ask me anything about your code..." rows="1"></textarea>
                                     <button class="ai-send-btn" onclick="sendAIMessage()">
                                         <span>➤</span>
                                     </button>
@@ -11605,7 +11875,31 @@ function showSection(sectionId) {
             statCards.forEach(card => {
                 card.style.opacity = '1';
                 card.style.transform = 'translateY(0) scale(1)';
+                card.style.display = 'flex'; // Ensure cards are visible
             });
+        }
+
+        // Fix for mobile: Ensure carousel is properly updated
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                const statsGrid = document.querySelector('.stats-grid');
+                if (statsGrid) {
+                    statsGrid.style.display = 'none'; // Hide desktop grid on mobile
+                }
+
+                // Recreate carousel if it doesn't exist
+                if (!document.querySelector('.mobile-stats-carousel')) {
+                    createMobileStatsCarousel();
+                } else {
+                    updateMobileStatsCarousel();
+                }
+            }, 100);
+        } else {
+            // On desktop, ensure the grid is visible
+            const statsGrid = document.querySelector('.stats-grid');
+            if (statsGrid) {
+                statsGrid.style.display = 'grid';
+            }
         }
     }
 
@@ -17299,13 +17593,97 @@ function createBarItem(label, progress) {
         const parentChart = this.closest('.bar-chart');
         const chartContainer = parentChart.parentElement;
         const allBars = parentChart.querySelectorAll('.bar-item');
+        const isMobile = window.innerWidth <= 768;
 
         // Check if already in detail view
-        const isDetailView = chartContainer.querySelector('.bar-detail-view');
+        const isDetailView = chartContainer.querySelector('.bar-detail-view') || document.getElementById('barDetailModal');
 
         if (isDetailView) return; // Prevent multiple clicks
 
-        // Hide other bars with animation
+        // Mobile: Show modal popup
+        if (isMobile) {
+            const modal = document.createElement('div');
+            modal.id = 'barDetailModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.85);
+                backdrop-filter: blur(10px);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                width: 90%;
+                max-width: 400px;
+                padding: 40px 30px;
+                background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(40, 40, 40, 0.95));
+                border: 2px solid rgba(100, 255, 218, 0.3);
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                transform: scale(0.9);
+                transition: transform 0.3s ease;
+            `;
+
+            modalContent.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 20px;">📊</div>
+                    <div style="color: #fff; font-size: 1.5em; font-weight: 700; margin-bottom: 15px;">${label}</div>
+                    <div style="color: #64ffda; font-size: 3.5em; font-weight: 900; margin: 25px 0; text-shadow: 0 0 20px rgba(100, 255, 218, 0.5);">${Math.round(progress)}%</div>
+                    <div style="color: #8b949e; font-size: 1.1em; margin-bottom: 25px;">Completed</div>
+                    <div style="background: rgba(0,0,0,0.4); height: 14px; border-radius: 14px; overflow: hidden; margin: 25px 0;">
+                        <div style="height: 100%; background: linear-gradient(90deg, #667eea, #64ffda); width: ${progress}%; transition: width 1s ease;"></div>
+                    </div>
+                    <button class="modal-close-btn" style="
+                        margin-top: 30px;
+                        padding: 14px 40px;
+                        background: rgba(100, 255, 218, 0.1);
+                        border: 2px solid rgba(100, 255, 218, 0.3);
+                        border-radius: 50px;
+                        color: #64ffda;
+                        font-weight: 600;
+                        font-size: 1em;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        width: 100%;
+                    ">Close</button>
+                </div>
+            `;
+
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+
+            // Animate in
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                modalContent.style.transform = 'scale(1)';
+            }, 10);
+
+            // Close modal on click
+            const closeBtn = modalContent.querySelector('.modal-close-btn');
+            const closeModal = () => {
+                modal.style.opacity = '0';
+                modalContent.style.transform = 'scale(0.9)';
+                setTimeout(() => modal.remove(), 300);
+            };
+
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            return;
+        }
+
+        // Desktop: Hide other bars with animation
         allBars.forEach(item => {
             if (item !== this) {
                 item.style.opacity = '0';
@@ -17317,10 +17695,10 @@ function createBarItem(label, progress) {
             }
         });
 
-        // Slide selected bar to the left
+        // Desktop: Slide selected bar to the left (adjusted for better fit)
         setTimeout(() => {
             this.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            this.style.transform = 'translateX(-40%)';
+            this.style.transform = 'translateX(-30%)'; // Changed from -40% to -30% for better container fit
         }, 300);
 
         // Create detail view container
@@ -17566,6 +17944,25 @@ function renderLineChart(chartId, data) {
     }
 }
 
+// Switch between Code and Preview tabs in center
+function switchCenterTab(tab) {
+    const tabs = document.querySelectorAll('.center-tab');
+    const codePanel = document.getElementById('codePanel');
+    const previewPanel = document.getElementById('previewPanel');
+
+    tabs.forEach(t => t.classList.remove('active'));
+
+    if (tab === 'code') {
+        tabs[0].classList.add('active');
+        codePanel.style.display = 'flex';
+        previewPanel.style.display = 'none';
+    } else if (tab === 'preview') {
+        tabs[1].classList.add('active');
+        codePanel.style.display = 'none';
+        previewPanel.style.display = 'flex';
+    }
+}
+
 function runCode() {
     const code = document.getElementById('codeEditor').value;
     const language = detectLanguage(code);
@@ -17575,12 +17972,10 @@ function runCode() {
     clearConsole();
     logToConsole(`Running ${language} code...`, 'info');
 
-    // Open right panel and switch to preview
-    const rightPanel = document.getElementById('rightPanel');
-    const container = document.querySelector('.playground-container');
-    rightPanel.classList.add('active');
-    container.classList.add('with-panel');
-    switchRightPanel('preview');
+    // Show console panel and switch to preview tab
+    const consolePanel = document.getElementById('consolePanel');
+    consolePanel.style.display = 'flex';
+    switchCenterTab('preview');
 
     if (!code.trim()) {
         outputFrame.srcdoc = '<div style="padding: 20px; color: #999; text-align: center;">Write some code and click Run to see results</div>';
@@ -17646,9 +18041,10 @@ sys.stdout = StringIO()
     
   } catch (error) {
     loading.style.display = "none";
-    outputDiv.style.display = "block";
     const errorMsg = error.message || error.toString();
-    outputContent.innerHTML = "<div class='error'>✗ Error: " + errorMsg + "</div>";
+    window.parent.postMessage({ type: 'error', message: errorMsg }, '*');
+    outputDiv.style.display = "block";
+    outputContent.innerHTML = "<div class='output-line'>Execution completed. Check console for errors.</div>";
   }
 }
 runPython();
@@ -17695,36 +18091,27 @@ body { font-family: Arial; padding: 20px; background: #fff; color: #333; line-he
   <div id="console-content"></div>
 </div>
 <script>
-const consoleDiv = document.getElementById("console");
-const consoleContent = document.getElementById("console-content");
 const originalLog = console.log;
 console.log = function(...args) {
-  consoleDiv.style.display = "block";
-  const logDiv = document.createElement("div");
-  logDiv.className = "console-log";
-  logDiv.textContent = "▶ " + args.map(arg => typeof arg === "object" ? JSON.stringify(arg, null, 2) : String(arg)).join(" ");
-  consoleContent.appendChild(logDiv);
+  const logMsg = args.map(arg => typeof arg === "object" ? JSON.stringify(arg, null, 2) : String(arg)).join(" ");
+  window.parent.postMessage({type: 'log', message: logMsg}, '*');
   originalLog.apply(console, args);
 };
 const originalError = console.error;
 console.error = function(...args) {
-  consoleDiv.style.display = "block";
-  const errorDiv = document.createElement("div");
-  errorDiv.className = "console-error";
-  errorDiv.textContent = "✗ " + args.join(" ");
-  consoleContent.appendChild(errorDiv);
+  const errorMsg = args.join(" ");
+  window.parent.postMessage({type: 'error', message: errorMsg}, '*');
   originalError.apply(console, args);
 };
 window.onerror = function(msg, url, line) {
-  console.error("Error: " + msg + (line ? " (Line " + line + ")" : ""));
+  window.parent.postMessage({type: 'error', message: "Error: " + msg + (line ? " (Line " + line + ")" : "")}, '*');
   return true;
 };
 try {
   ${escapedCode}
-  window.parent.postMessage({type: 'log', data: 'Code executed successfully'}, '*');
+  window.parent.postMessage({type: 'log', message: 'Code executed successfully'}, '*');
 } catch(e) {
-  console.error(e.message);
-  window.parent.postMessage({type: 'error', data: e.message}, '*');
+  window.parent.postMessage({type: 'error', message: e.message}, '*');
 }
 <\/script>
 </body></html>`;
@@ -17815,44 +18202,42 @@ function clearConsole() {
 
 // Right Panel Management
 function toggleAISidebar() {
-    const rightPanel = document.getElementById('rightPanel');
+    const aiSidebar = document.getElementById('aiSidebar');
     const container = document.querySelector('.playground-container');
 
-    if (rightPanel.classList.contains('active')) {
-        closeRightPanel();
+    if (aiSidebar.classList.contains('active')) {
+        closeAISidebar();
     } else {
-        rightPanel.classList.add('active');
-        container.classList.add('with-panel');
+        aiSidebar.classList.add('active');
+        container.classList.add('with-ai');
 
-        // Switch to AI tab
-        switchRightPanel('ai');
+        // Add neural nodes animation
+        if (!aiSidebar.querySelector('.neural-nodes')) {
+            const neuralNodes = document.createElement('div');
+            neuralNodes.className = 'neural-nodes';
+
+            // Create 12 neural nodes
+            for (let i = 0; i < 12; i++) {
+                const node = document.createElement('div');
+                node.className = 'neural-node';
+                node.style.left = Math.random() * 100 + '%';
+                node.style.top = Math.random() * 100 + '%';
+                node.style.animationDelay = Math.random() * 4 + 's';
+                node.style.animationDuration = (6 + Math.random() * 4) + 's';
+                neuralNodes.appendChild(node);
+            }
+
+            aiSidebar.appendChild(neuralNodes);
+        }
     }
 }
 
-function closeRightPanel() {
-    const rightPanel = document.getElementById('rightPanel');
+function closeAISidebar() {
+    const aiSidebar = document.getElementById('aiSidebar');
     const container = document.querySelector('.playground-container');
 
-    rightPanel.classList.remove('active');
-    container.classList.remove('with-panel');
-}
-
-function switchRightPanel(panelType) {
-    // Update tabs
-    const tabs = document.querySelectorAll('.panel-tab');
-    tabs.forEach(tab => tab.classList.remove('active'));
-
-    // Update content
-    const contents = document.querySelectorAll('.tab-content');
-    contents.forEach(content => content.classList.remove('active'));
-
-    if (panelType === 'preview') {
-        tabs[0].classList.add('active');
-        document.getElementById('previewPanel').classList.add('active');
-    } else if (panelType === 'ai') {
-        tabs[1].classList.add('active');
-        document.getElementById('aiPanel').classList.add('active');
-    }
+    aiSidebar.classList.remove('active');
+    container.classList.remove('with-ai');
 }
 
 // AI Assistant Functions
@@ -18048,12 +18433,26 @@ async function callMistralAI(userMessage, codeContext) {
     return data.choices[0].message.content;
 }
 
-function getMistralAPIKey() {
-    // Check localStorage first
+async function getMistralAPIKey() {
+    // Try to fetch API key from server environment variable
+    try {
+        const response = await fetch('/api/ai-config');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.apiKey) {
+                return data.apiKey;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to fetch API key from server:', error);
+    }
+
+    // Fallback to localStorage if server fetch fails
     let apiKey = localStorage.getItem('mistral_api_key');
 
-    // If not found, prompt user
+    // Only prompt as last resort (shouldn't happen with env variable)
     if (!apiKey) {
+        console.warn('API key not found in environment or localStorage');
         apiKey = prompt('Please enter your Mistral AI API key:');
         if (apiKey) {
             localStorage.setItem('mistral_api_key', apiKey);
@@ -18080,6 +18479,17 @@ document.addEventListener('DOMContentLoaded', () => {
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
     }
+
+    // Listen for messages from iframe (errors and logs)
+    window.addEventListener('message', (event) => {
+        if (event.data && event.data.type) {
+            if (event.data.type === 'error') {
+                logToConsole(event.data.message, 'error');
+            } else if (event.data.type === 'log') {
+                logToConsole(event.data.message, 'log');
+            }
+        }
+    });
 });
 
 function toggleSetting(element) {
