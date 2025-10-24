@@ -2054,6 +2054,7 @@ body.light-mode .motivational-message {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
         }
 
         body.light-mode .preview-panel {
@@ -2100,11 +2101,34 @@ body.light-mode .motivational-message {
 
         .ai-sidebar.active {
             display: flex;
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.3),
+                        0 0 60px rgba(100, 255, 218, 0.15),
+                        0 0 90px rgba(100, 255, 218, 0.1);
+            animation: aiGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes aiGlow {
+            0% {
+                box-shadow: 0 0 30px rgba(100, 255, 218, 0.3),
+                            0 0 60px rgba(100, 255, 218, 0.15),
+                            0 0 90px rgba(100, 255, 218, 0.1);
+            }
+            100% {
+                box-shadow: 0 0 40px rgba(100, 255, 218, 0.4),
+                            0 0 70px rgba(100, 255, 218, 0.2),
+                            0 0 100px rgba(100, 255, 218, 0.15);
+            }
         }
 
         body.light-mode .ai-sidebar {
             background: rgba(255, 255, 255, 0.85);
             border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        body.light-mode .ai-sidebar.active {
+            box-shadow: 0 0 30px rgba(10, 122, 94, 0.25),
+                        0 0 60px rgba(10, 122, 94, 0.12),
+                        0 0 90px rgba(10, 122, 94, 0.08);
         }
 
         .ai-sidebar-header {
@@ -17960,6 +17984,15 @@ function switchCenterTab(tab) {
         tabs[1].classList.add('active');
         codePanel.style.display = 'none';
         previewPanel.style.display = 'flex';
+
+        // Auto-run code when switching to preview
+        const codeEditor = document.getElementById('codeEditor');
+        if (codeEditor && codeEditor.value.trim()) {
+            // Small delay to ensure the preview panel is visible
+            setTimeout(() => {
+                runCode();
+            }, 100);
+        }
     }
 }
 
@@ -18439,8 +18472,9 @@ async function getMistralAPIKey() {
         const response = await fetch('/api/ai-config');
         if (response.ok) {
             const data = await response.json();
-            if (data.apiKey) {
-                return data.apiKey;
+            if (data.MISTRAL_API_KEY) {
+                console.log('✅ API key loaded from environment variables');
+                return data.MISTRAL_API_KEY;
             }
         }
     } catch (error) {
