@@ -18502,7 +18502,7 @@ sys.stdout = StringIO()
 \`);
 
     // Create custom input function
-    pyodide.globals.set("js_input", (prompt) => {
+    window.js_input = (prompt) => {
       return new Promise((resolve) => {
         const inputContainer = document.createElement("div");
         inputContainer.className = "input-container";
