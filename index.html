@@ -38,18 +38,17 @@
 
         body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-    background: #0a0a0a;
+    background: transparent;
     color: #e0e0e0;
     min-height: 100vh;
     overflow-x: hidden;
     transition: background 0.3s ease, color 0.3s ease;
     padding-bottom: 80px;
-    /* FIX: Prevent background from showing */
     position: relative;
 }
 
 body.light-mode {
-    background: #f5f5f5;
+    background: transparent;
     color: #1a1a1a;
 }
 
@@ -70,13 +69,13 @@ html.light-mode {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: 0;
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
 body.light-mode #networkCanvas {
-    opacity: 0.3;
+    opacity: 0.25;
 }
 
 /* AUTH SCREEN STYLES - FIXED */
@@ -475,11 +474,13 @@ body.light-mode .search-input-container {
             border: 2px solid rgba(100, 255, 218, 0.3);
             border-radius: 20px;
             backdrop-filter: blur(20px);
-            max-height: 500px;
-            overflow-y: auto;
-            display: none;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             z-index: 10001;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s ease-out;
         }
 
         body.light-mode .search-results {
@@ -488,8 +489,10 @@ body.light-mode .search-input-container {
         }
 
         .search-results.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
+            max-height: 500px;
+            opacity: 1;
+            transform: translateY(0);
+            overflow-y: auto;
         }
 
         .search-language-group {
@@ -517,23 +520,29 @@ body.light-mode .search-input-container {
         }
 
         .search-ai-section {
-            padding: 15px 20px;
-            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(75, 0, 130, 0.2));
-            border-bottom: 2px solid rgba(138, 43, 226, 0.4);
+            padding: 18px 28px;
+            margin: 15px;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.25), rgba(75, 0, 130, 0.25));
+            border: 2px solid rgba(138, 43, 226, 0.4);
+            border-radius: 50px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
         }
 
         .search-ai-section:hover {
-            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(75, 0, 130, 0.3));
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.35), rgba(75, 0, 130, 0.35));
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.3);
         }
 
         .search-ai-section.selected {
-            background: linear-gradient(135deg, rgba(138, 43, 226, 0.4), rgba(75, 0, 130, 0.4));
-            box-shadow: inset 0 0 20px rgba(138, 43, 226, 0.3);
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.45), rgba(75, 0, 130, 0.45));
+            box-shadow: 0 6px 25px rgba(138, 43, 226, 0.4), inset 0 0 20px rgba(138, 43, 226, 0.3);
+            transform: scale(1.02);
         }
 
         .search-ai-icon {
@@ -557,19 +566,37 @@ body.light-mode .search-input-container {
         }
 
         .search-result-item {
-            padding: 15px 20px;
+            padding: 16px 24px;
+            margin: 10px 15px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(100, 255, 218, 0.2);
+            border-radius: 30px;
+            opacity: 0;
+            transform: translateX(-10px);
+            animation: slideInSearch 0.3s ease forwards;
+            background: rgba(100, 255, 218, 0.05);
+        }
+
+        @keyframes slideInSearch {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .search-result-item:hover {
-            background: rgba(100, 255, 218, 0.1);
+            background: rgba(100, 255, 218, 0.15);
+            transform: translateX(5px) scale(1.01);
+            border-color: rgba(100, 255, 218, 0.4);
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.2);
         }
 
         .search-result-item.selected {
-            background: rgba(100, 255, 218, 0.2);
-            border-left: 3px solid #64ffda;
+            background: rgba(100, 255, 218, 0.25);
+            border: 2px solid #64ffda;
+            box-shadow: 0 4px 20px rgba(100, 255, 218, 0.3);
+            transform: scale(1.02);
         }
 
         body.light-mode .search-result-item.selected {
@@ -775,11 +802,15 @@ body.light-mode .mobile-search-container {
         .main-content {
             padding-top: 100px;
             min-height: 100vh;
+            position: relative;
+            z-index: 1;
         }
 
         .section {
             display: none;
             animation: fadeIn 0.5s ease-out;
+            position: relative;
+            z-index: 1;
         }
 
         .section.active {
@@ -2789,8 +2820,8 @@ body.light-mode .motivational-message {
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            margin-top: -150px; /* Pull up significantly to remove blank space */
-            padding-top: 80px; /* Add padding to prevent overlap with nav */
+            margin-top: 0; /* Show settings at top without scrolling */
+            padding-top: 100px; /* Add padding to prevent overlap with nav */
         }
 
         .settings-header {
@@ -12437,18 +12468,24 @@ function handleSearch() {
     searchItems = [];
     let itemIndex = 0;
 
-    // Add AI search option at the top
-    html += `
-        <div class="search-ai-section" data-index="${itemIndex}" onclick="handleAISearch('${query.replace(/'/g, "\\'")}')">
-            <div class="search-ai-icon">🤖</div>
-            <div class="search-ai-text">
-                <div class="search-ai-title">AI Search: "${query}"</div>
-                <div class="search-ai-desc">Use AI to find courses based on your description</div>
+    // Detect if query is natural language (long sentence with multiple words)
+    const wordCount = query.trim().split(/\s+/).length;
+    const hasNaturalLanguage = wordCount >= 5 || (query.length > 25 && wordCount >= 3);
+
+    // Only show AI search for natural language queries
+    if (hasNaturalLanguage) {
+        html += `
+            <div class="search-ai-section" data-index="${itemIndex}" onclick="handleAISearch('${query.replace(/'/g, "\\'")}')">
+                <div class="search-ai-icon">🤖</div>
+                <div class="search-ai-text">
+                    <div class="search-ai-title">AI Natural Language Search</div>
+                    <div class="search-ai-desc">"${query.length > 50 ? query.substring(0, 50) + '...' : query}"</div>
+                </div>
             </div>
-        </div>
-    `;
-    searchItems.push({ type: 'ai', query });
-    itemIndex++;
+        `;
+        searchItems.push({ type: 'ai', query });
+        itemIndex++;
+    }
 
     // Add grouped language results
     const languages = Object.keys(matchesByLang);
@@ -24009,6 +24046,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
