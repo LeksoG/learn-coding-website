@@ -476,6 +476,26 @@ body.light-mode .search-input-container {
             font-size: 0.85em;
         }
 
+        .search-group-header {
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 0.9em;
+            color: #64ffda;
+            background: rgba(100, 255, 218, 0.05);
+            border-bottom: 1px solid rgba(100, 255, 218, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        body.light-mode .search-group-header {
+            color: #0a7a5e;
+        }
+
+        .search-result-item.selected {
+            background: rgba(100, 255, 218, 0.2);
+            border-left: 3px solid #64ffda;
+        }
+
         /* MOBILE NAV - ALWAYS FIXED AT BOTTOM */
 .mobile-nav {
     display: none;
@@ -867,6 +887,15 @@ body.light-mode .mobile-search-container {
 
         .chart-container.active {
             display: block;
+        }
+
+        /* Fix mobile bar chart visibility bug */
+        @media (max-width: 768px) {
+            .chart-container.active .bar-chart {
+                display: flex !important;
+                opacity: 1;
+                visibility: visible;
+            }
         }
 
         /* IMPROVED BAR CHART ALIGNMENT */
@@ -10240,574 +10269,47 @@ body.loading * {
 }
 
 /* LANDING PAGE STYLES */
-.landing-page {
+
+/* Button Borders Feature */
+body.show-button-borders button {
+    border: 2px solid #00ff00 !important;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3) !important;
+}
+
+/* Global Background Animation - Connected Nodes */
+.animated-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
-    background: #0a0a0a;
-    z-index: 10000;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.landing-page.hidden {
-    display: none;
-}
-
-/* Landing Page Navigation */
-.landing-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 20px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 10001;
-    background: rgba(10, 10, 10, 0.8);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(100, 255, 218, 0.1);
-}
-
-.landing-nav-logo {
-    font-size: 1.8em;
-    font-weight: 700;
-    color: #64ffda;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.landing-nav-logo-icon {
-    font-size: 1.2em;
-}
-
-.landing-nav-buttons {
-    display: flex;
-    gap: 15px;
-}
-
-.landing-nav-btn {
-    padding: 12px 30px;
-    font-size: 1em;
-    font-weight: 600;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-}
-
-.landing-nav-btn-login {
-    background: transparent;
-    color: #64ffda;
-    border: 2px solid #64ffda;
-}
-
-.landing-nav-btn-login:hover {
-    background: rgba(100, 255, 218, 0.1);
-    transform: translateY(-2px);
-}
-
-.landing-nav-btn-signup {
-    background: linear-gradient(135deg, #667eea, #64ffda);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
-}
-
-.landing-nav-btn-signup:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(100, 255, 218, 0.5);
-}
-
-@media (max-width: 768px) {
-    .landing-nav {
-        padding: 15px 20px;
-    }
-
-    .landing-nav-logo {
-        font-size: 1.4em;
-    }
-
-    .landing-nav-btn {
-        padding: 10px 20px;
-        font-size: 0.9em;
-    }
-}
-
-.landing-hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
-}
-
-/* Double Helix Animation */
-.helix-container {
-    position: absolute;
-    width: 100%;
     height: 100%;
-    overflow: hidden;
-}
-
-.helix {
-    position: absolute;
-    width: 200%;
-    height: 100%;
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%);
-}
-
-.helix-strand {
-    position: absolute;
-    width: 100%;
-    height: 4px;
-}
-
-.helix-strand-1 {
-    top: 40%;
-    background: linear-gradient(90deg, transparent, #64ffda, transparent);
-    animation: helix-flow-1 20s linear infinite;
-}
-
-.helix-strand-2 {
-    top: 60%;
-    background: linear-gradient(90deg, transparent, #667eea, transparent);
-    animation: helix-flow-2 20s linear infinite;
-}
-
-@keyframes helix-flow-1 {
-    0% { transform: translateX(-50%) scaleY(1); }
-    25% { transform: translateX(-25%) scaleY(1.5); }
-    50% { transform: translateX(0%) scaleY(1); }
-    75% { transform: translateX(25%) scaleY(0.5); }
-    100% { transform: translateX(50%) scaleY(1); }
-}
-
-@keyframes helix-flow-2 {
-    0% { transform: translateX(-50%) scaleY(1); }
-    25% { transform: translateX(-25%) scaleY(0.5); }
-    50% { transform: translateX(0%) scaleY(1); }
-    75% { transform: translateX(25%) scaleY(1.5); }
-    100% { transform: translateX(50%) scaleY(1); }
-}
-
-.helix-nodes {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
-
-.helix-node {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #64ffda;
-    box-shadow: 0 0 20px #64ffda, 0 0 40px #64ffda;
-    animation: node-pulse 2s ease-in-out infinite;
-}
-
-@keyframes node-pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.5); opacity: 0.7; }
-}
-
-/* Landing Hero Content */
-.landing-hero-content {
-    position: relative;
-    z-index: 10;
-    text-align: center;
-    padding: 40px;
-    max-width: 900px;
-}
-
-.landing-logo {
-    font-size: 5em;
-    margin-bottom: 20px;
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-}
-
-.landing-title {
-    font-size: 4em;
-    font-weight: 700;
-    background: linear-gradient(135deg, #64ffda, #667eea, #64ffda);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 20px;
-    animation: gradient-shift 3s ease infinite;
-}
-
-@keyframes gradient-shift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-}
-
-.landing-subtitle {
-    font-size: 1.5em;
-    color: #8b949e;
-    margin-bottom: 40px;
-    line-height: 1.6;
-}
-
-.landing-cta-group {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.landing-cta {
-    padding: 18px 45px;
-    font-size: 1.2em;
-    font-weight: 700;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    position: relative;
-    overflow: hidden;
-}
-
-.landing-cta-primary {
-    background: linear-gradient(135deg, #667eea, #64ffda);
-    color: #fff;
-    box-shadow: 0 4px 20px rgba(100, 255, 218, 0.4);
-}
-
-.landing-cta-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.6);
-}
-
-.landing-cta-secondary {
-    background: transparent;
-    color: #64ffda;
-    border: 2px solid #64ffda;
-}
-
-.landing-cta-secondary:hover {
-    background: rgba(100, 255, 218, 0.1);
-    transform: translateY(-3px);
-}
-
-/* Features Section */
-.landing-features {
-    position: relative;
-    padding: 100px 40px;
-    background: #0a0a0a;
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 40px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.feature-card {
-    background: rgba(30, 30, 30, 0.8);
-    border: 1px solid rgba(100, 255, 218, 0.2);
-    border-radius: 20px;
-    padding: 40px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.feature-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.05), rgba(102, 126, 234, 0.05));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.feature-card:hover::before {
-    opacity: 1;
-}
-
-.feature-card:hover {
-    transform: translateY(-10px);
-    border-color: rgba(100, 255, 218, 0.5);
-    box-shadow: 0 10px 40px rgba(100, 255, 218, 0.2);
-}
-
-.feature-icon {
-    font-size: 3em;
-    margin-bottom: 20px;
-    display: block;
-}
-
-.feature-title {
-    font-size: 1.8em;
-    color: #64ffda;
-    margin-bottom: 15px;
-    font-weight: 600;
-}
-
-.feature-description {
-    color: #8b949e;
-    line-height: 1.6;
-    font-size: 1.1em;
-}
-
-/* Code Display Animation */
-.code-display {
-    background: rgba(20, 20, 20, 0.9);
-    border: 1px solid #64ffda;
-    border-radius: 12px;
-    padding: 20px;
-    margin-top: 20px;
-    font-family: 'JetBrains Mono', monospace;
-    overflow: hidden;
-}
-
-.code-line {
-    color: #e0e0e0;
-    margin: 5px 0;
-    opacity: 0;
-    animation: code-appear 0.5s ease forwards;
-}
-
-.code-line:nth-child(1) { animation-delay: 0s; }
-.code-line:nth-child(2) { animation-delay: 0.1s; }
-.code-line:nth-child(3) { animation-delay: 0.2s; }
-.code-line:nth-child(4) { animation-delay: 0.3s; }
-
-@keyframes code-appear {
-    to { opacity: 1; }
-}
-
-.code-keyword { color: #667eea; }
-.code-string { color: #64ffda; }
-.code-function { color: #f77f00; }
-
-/* Computer Nodes Background */
-.nodes-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+    z-index: -1;
     pointer-events: none;
+    overflow: hidden;
 }
 
-.node {
+.bg-node {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     background: #64ffda;
     border-radius: 50%;
-    opacity: 0.3;
-    animation: node-float 20s linear infinite;
+    opacity: 0.4;
+    box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
 }
 
-@keyframes node-float {
-    0% { transform: translate(0, 0); }
-    50% { transform: translate(100px, -100px); }
-    100% { transform: translate(0, 0); }
-}
-
-.node-connection {
+.bg-connection {
     position: absolute;
     height: 1px;
     background: linear-gradient(90deg, transparent, #64ffda, transparent);
     opacity: 0.2;
-    animation: connection-pulse 3s ease-in-out infinite;
-}
-
-@keyframes connection-pulse {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 0.5; }
-}
-
-/* Scroll Effects */
-.scroll-fade-in {
-    opacity: 0;
-    transform: translateY(50px);
-    transition: all 0.8s ease;
-}
-
-.scroll-fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .landing-title {
-        font-size: 2.5em;
-    }
-
-    .landing-subtitle {
-        font-size: 1.2em;
-    }
-
-    .landing-logo {
-        font-size: 3em;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .landing-cta {
-        padding: 15px 35px;
-        font-size: 1em;
-    }
+    transform-origin: 0 0;
 }
     </style>
 </head>
 <body>
-    <!-- LANDING PAGE -->
-    <div class="landing-page" id="landingPage">
-        <!-- Navigation -->
-        <nav class="landing-nav">
-            <div class="landing-nav-logo">
-                <span class="landing-nav-logo-icon">⚡</span>
-                <span>DevLearn Pro</span>
-            </div>
-            <div class="landing-nav-buttons">
-                <button class="landing-nav-btn landing-nav-btn-login" onclick="showAuthScreen('login')">Log In</button>
-                <button class="landing-nav-btn landing-nav-btn-signup" onclick="showAuthScreen('signup')">Sign Up</button>
-            </div>
-        </nav>
-
-        <!-- Hero Section -->
-        <div class="landing-hero">
-            <!-- Double Helix Animation -->
-            <div class="helix-container">
-                <div class="helix">
-                    <div class="helix-strand helix-strand-1"></div>
-                    <div class="helix-strand helix-strand-2"></div>
-                    <div class="helix-nodes" id="helixNodes"></div>
-                </div>
-            </div>
-
-            <!-- Hero Content -->
-            <div class="landing-hero-content">
-                <div class="landing-logo">⚡</div>
-                <h1 class="landing-title">DevLearn Pro</h1>
-                <p class="landing-subtitle">
-                    Master programming with AI-powered learning.<br>
-                    Interactive lessons, real-time practice, and intelligent assistance.
-                </p>
-                <div class="landing-cta-group">
-                    <button class="landing-cta landing-cta-primary" onclick="showAuthScreen('signup')">Get Started</button>
-                    <button class="landing-cta landing-cta-secondary" onclick="scrollToFeatures()">Learn More</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Features Section -->
-        <div class="landing-features" id="featuresSection">
-            <!-- Computer Nodes Background -->
-            <div class="nodes-background" id="nodesBackground"></div>
-
-            <div class="features-grid">
-                <div class="feature-card scroll-fade-in">
-                    <span class="feature-icon">🤖</span>
-                    <h3 class="feature-title">AI Assistant</h3>
-                    <p class="feature-description">
-                        Get instant help with your code. Our AI understands context and provides personalized guidance for your learning journey.
-                    </p>
-                    <div class="code-display">
-                        <div class="code-line"><span class="code-keyword">def</span> <span class="code-function">learn_python</span>():</div>
-                        <div class="code-line">    ai_help = <span class="code-string">"Always available"</span></div>
-                        <div class="code-line">    <span class="code-keyword">return</span> ai_help</div>
-                    </div>
-                </div>
-
-                <div class="feature-card scroll-fade-in">
-                    <span class="feature-icon">💻</span>
-                    <h3 class="feature-title">Interactive Practice</h3>
-                    <p class="feature-description">
-                        Write and execute code directly in your browser. No setup required. Practice Python and see results instantly.
-                    </p>
-                    <div class="code-display">
-                        <div class="code-line"><span class="code-keyword">for</span> concept <span class="code-keyword">in</span> lessons:</div>
-                        <div class="code-line">    <span class="code-function">practice</span>(concept)</div>
-                        <div class="code-line">    <span class="code-function">master</span>(concept)</div>
-                    </div>
-                </div>
-
-                <div class="feature-card scroll-fade-in">
-                    <span class="feature-icon">📊</span>
-                    <h3 class="feature-title">Track Progress</h3>
-                    <p class="feature-description">
-                        Monitor your learning journey with detailed analytics. Set goals, earn achievements, and see your skills grow.
-                    </p>
-                    <div class="code-display">
-                        <div class="code-line">progress = {</div>
-                        <div class="code-line">    <span class="code-string">"lessons"</span>: <span class="code-function">completed</span>,</div>
-                        <div class="code-line">    <span class="code-string">"skill"</span>: <span class="code-string">"improving"</span></div>
-                        <div class="code-line">}</div>
-                    </div>
-                </div>
-
-                <div class="feature-card scroll-fade-in">
-                    <span class="feature-icon">🎯</span>
-                    <h3 class="feature-title">Personalized Learning</h3>
-                    <p class="feature-description">
-                        Adaptive curriculum that adjusts to your pace. Focus on what matters most to you and skip what you already know.
-                    </p>
-                    <div class="code-display">
-                        <div class="code-line"><span class="code-keyword">if</span> ready_to_advance:</div>
-                        <div class="code-line">    <span class="code-function">unlock_next_level</span>()</div>
-                        <div class="code-line"><span class="code-keyword">else</span>:</div>
-                        <div class="code-line">    <span class="code-function">practice_more</span>()</div>
-                    </div>
-                </div>
-
-                <div class="feature-card scroll-fade-in">
-                    <span class="feature-icon">⚡</span>
-                    <h3 class="feature-title">Lightning Fast</h3>
-                    <p class="feature-description">
-                        Built for speed. Everything runs smoothly in your browser with modern web technologies and optimized performance.
-                    </p>
-                    <div class="code-display">
-                        <div class="code-line">speed = <span class="code-string">"blazing_fast"</span></div>
-                        <div class="code-line">performance = <span class="code-string">"optimized"</span></div>
-                        <div class="code-line"><span class="code-function">print</span>(<span class="code-string">"Ready to code!"</span>)</div>
-                    </div>
-                </div>
-
-                <div class="feature-card scroll-fade-in">
-                    <span class="feature-icon">🌐</span>
-                    <h3 class="feature-title">Learn Anywhere</h3>
-                    <p class="feature-description">
-                        Access your lessons from any device. Fully responsive design ensures great experience on desktop, tablet, or mobile.
-                    </p>
-                    <div class="code-display">
-                        <div class="code-line">devices = [<span class="code-string">"desktop"</span>, <span class="code-string">"tablet"</span>, <span class="code-string">"mobile"</span>]</div>
-                        <div class="code-line"><span class="code-keyword">for</span> device <span class="code-keyword">in</span> devices:</div>
-                        <div class="code-line">    <span class="code-function">learn</span>(anywhere=<span class="code-keyword">True</span>)</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Animated Background -->
+    <div class="animated-background" id="animatedBackground"></div>
 
     <!-- AUTH SCREEN -->
     <div class="auth-screen" id="authScreen" style="display: none;">
@@ -10923,6 +10425,20 @@ body.loading * {
             <div class="modal-buttons">
                 <button class="modal-button retry" onclick="retryLesson()">🔄 Retry</button>
                 <button class="modal-button continue" onclick="closeModal()">✓ Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="continueRestartModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">📖</div>
+                <div class="modal-title">Continue Learning?</div>
+                <div class="modal-text">You left this course midway. Would you like to continue from where you left off or restart from the beginning?</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button continue" onclick="continueCourse()">▶ Continue</button>
+                <button class="modal-button retry" onclick="restartCourse()">🔄 Restart</button>
             </div>
         </div>
     </div>
@@ -11338,17 +10854,34 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
                     <p>Toggle between dark and light themes</p>
                     <div class="toggle-switch active" id="themeToggle" onclick="toggleTheme()"></div>
                 </div>
-                
+
                 <div class="setting-card">
                     <h3>⏩ Auto-advance</h3>
                     <p>Move to next lesson automatically</p>
                     <div class="toggle-switch" onclick="toggleSetting(this)"></div>
                 </div>
-                
+
                 <div class="setting-card">
                     <h3>📧 Email Notifications</h3>
                     <p>Get updates about your progress</p>
                     <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>🤖 AI Assistant</h2>
+            <div class="settings-grid">
+                <div class="setting-card">
+                    <h3>✨ Show AI in Code Playground</h3>
+                    <p>Display AI assistant button in code playground</p>
+                    <div class="toggle-switch active" id="showAIToggle" onclick="toggleAISetting()"></div>
+                </div>
+
+                <div class="setting-card">
+                    <h3>🔲 Show Button Borders</h3>
+                    <p>Display green borders around buttons</p>
+                    <div class="toggle-switch" id="showBordersToggle" onclick="toggleBordersSetting()"></div>
                 </div>
             </div>
         </div>
@@ -11387,28 +10920,49 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
     <div class="splash-content">
         <div class="splash-icon">🚀</div>
         <h2 id="splashTitle" class="splash-title">Welcome to DevLearn Pro</h2>
-        <div class="splash-version">Version 4.7.1</div>
-        
+        <div class="splash-version">Version 5.0.0</div>
+
         <div class="splash-features">
             <div class="splash-feature">
-                <span class="feature-icon">🐞</span>
+                <span class="feature-icon">🎨</span>
                 <div>
-                    <strong>Bug Fixes</strong>
-                    <p>Resolved multiple performance and display issues for smoother app experience.</p>
+                    <strong>Beautiful Animated Background</strong>
+                    <p>New connected nodes animation creates a stunning visual experience throughout the app.</p>
                 </div>
             </div>
             <div class="splash-feature">
-                <span class="feature-icon">📱</span>
+                <span class="feature-icon">🤖</span>
                 <div>
-                    <strong>Mobile Optimizations</strong>
-                    <p>Improved responsiveness and layout for all screen sizes.</p>
+                    <strong>AI Assistant Settings</strong>
+                    <p>New AI section in settings to control AI visibility and button borders for better accessibility.</p>
                 </div>
             </div>
             <div class="splash-feature">
-                <span class="feature-icon">📧</span>
+                <span class="feature-icon">🔍</span>
                 <div>
-                    <strong>Email Reminder Fix</strong>
-                    <p>Fixed an issue where goal reminder emails were not being sent properly.</p>
+                    <strong>Upgraded Search</strong>
+                    <p>Search now groups results by language with keyboard navigation (↑↓ + Enter).</p>
+                </div>
+            </div>
+            <div class="splash-feature">
+                <span class="feature-icon">▶️</span>
+                <div>
+                    <strong>Continue Learning</strong>
+                    <p>Resume courses from where you left off with new Continue/Restart option.</p>
+                </div>
+            </div>
+            <div class="splash-feature">
+                <span class="feature-icon">📊</span>
+                <div>
+                    <strong>Mobile Chart Fix</strong>
+                    <p>Fixed mobile bar chart visibility issue for better stats viewing experience.</p>
+                </div>
+            </div>
+            <div class="splash-feature">
+                <span class="feature-icon">✨</span>
+                <div>
+                    <strong>Overall UX Improvements</strong>
+                    <p>Enhanced user interface with smoother interactions and better visual feedback.</p>
                 </div>
             </div>
         </div>
@@ -11469,127 +11023,112 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
         // LANDING PAGE FUNCTIONALITY
 
         // Initialize Landing Page
-        function initLandingPage() {
-            // Create helix nodes
-            createHelixNodes();
+        // Animated Background with Connected Nodes
+        function initAnimatedBackground() {
+            const bgContainer = document.getElementById('animatedBackground');
+            if (!bgContainer) return;
 
-            // Create computer nodes background
-            createComputerNodes();
+            const nodeCount = 40;
+            const nodes = [];
 
-            // Setup scroll effects
-            setupScrollEffects();
-        }
-
-        // Create animated helix nodes
-        function createHelixNodes() {
-            const helixNodes = document.getElementById('helixNodes');
-            if (!helixNodes) return;
-
-            const nodeCount = 20;
+            // Create nodes
             for (let i = 0; i < nodeCount; i++) {
                 const node = document.createElement('div');
-                node.className = 'helix-node';
+                node.className = 'bg-node';
 
-                // Position nodes along the helix path
-                const xPos = (i / nodeCount) * 100;
-                const yPos = 50 + Math.sin(i * 0.5) * 10;
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
 
-                node.style.left = xPos + '%';
-                node.style.top = yPos + '%';
-                node.style.animationDelay = (i * 0.1) + 's';
+                node.style.left = x + 'px';
+                node.style.top = y + 'px';
 
-                helixNodes.appendChild(node);
+                bgContainer.appendChild(node);
+
+                nodes.push({
+                    element: node,
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
             }
-        }
 
-        // Create computer nodes background
-        function createComputerNodes() {
-            const nodesBackground = document.getElementById('nodesBackground');
-            if (!nodesBackground) return;
+            // Create connections
+            function updateConnections() {
+                // Remove old connections
+                document.querySelectorAll('.bg-connection').forEach(conn => conn.remove());
 
-            const nodeCount = 30;
+                // Find nearby nodes and connect them
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const dx = nodes[j].x - nodes[i].x;
+                        const dy = nodes[j].y - nodes[i].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
 
-            for (let i = 0; i < nodeCount; i++) {
-                // Create node
-                const node = document.createElement('div');
-                node.className = 'node';
-                node.style.left = Math.random() * 100 + '%';
-                node.style.top = Math.random() * 100 + '%';
-                node.style.animationDuration = (10 + Math.random() * 20) + 's';
-                node.style.animationDelay = Math.random() * 5 + 's';
-                nodesBackground.appendChild(node);
-
-                // Create connections between some nodes
-                if (i > 0 && Math.random() > 0.7) {
-                    const connection = document.createElement('div');
-                    connection.className = 'node-connection';
-                    const length = 50 + Math.random() * 150;
-                    const angle = Math.random() * 360;
-                    connection.style.width = length + 'px';
-                    connection.style.left = Math.random() * 100 + '%';
-                    connection.style.top = Math.random() * 100 + '%';
-                    connection.style.transform = `rotate(${angle}deg)`;
-                    connection.style.animationDelay = Math.random() * 3 + 's';
-                    nodesBackground.appendChild(connection);
+                        if (distance < 150) {
+                            const connection = document.createElement('div');
+                            connection.className = 'bg-connection';
+                            connection.style.width = distance + 'px';
+                            connection.style.left = nodes[i].x + 'px';
+                            connection.style.top = nodes[i].y + 'px';
+                            connection.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+                            connection.style.opacity = (1 - distance / 150) * 0.3;
+                            bgContainer.appendChild(connection);
+                        }
+                    }
                 }
             }
-        }
 
-        // Setup scroll effects for fade-in animations
-        function setupScrollEffects() {
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+            // Animate nodes
+            function animate() {
+                nodes.forEach(node => {
+                    node.x += node.vx;
+                    node.y += node.vy;
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
+                    // Bounce off edges
+                    if (node.x < 0 || node.x > window.innerWidth) node.vx *= -1;
+                    if (node.y < 0 || node.y > window.innerHeight) node.vy *= -1;
+
+                    node.element.style.left = node.x + 'px';
+                    node.element.style.top = node.y + 'px';
                 });
-            }, observerOptions);
 
-            // Observe all scroll-fade-in elements
-            document.querySelectorAll('.scroll-fade-in').forEach(el => {
-                observer.observe(el);
+                updateConnections();
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                nodes.forEach(node => {
+                    if (node.x > window.innerWidth) node.x = window.innerWidth;
+                    if (node.y > window.innerHeight) node.y = window.innerHeight;
+                });
             });
         }
 
-        // Show auth screen (hide landing page)
+        // Show auth screen
         function showAuthScreen(tab = 'login') {
-            document.getElementById('landingPage').classList.add('hidden');
             document.getElementById('authScreen').style.display = 'flex';
-            // Switch to the appropriate tab
             switchAuthTab(tab);
         }
 
-        // Scroll to features section
-        function scrollToFeatures() {
-            const featuresSection = document.getElementById('featuresSection');
-            if (featuresSection) {
-                featuresSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        // Show landing page (for logout)
+        // Show landing page (for logout) - now just shows auth screen
         function showLandingPage() {
-            document.getElementById('landingPage').classList.remove('hidden');
-            document.getElementById('landingPage').style.display = 'block';
-            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'flex';
         }
 
-        // Add at the very top of your script, before everything else
-(function() {
-    document.body.classList.add('loading');
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            document.body.classList.remove('loading');
-            // Initialize landing page after load
-            initLandingPage();
-        }, 100);
-    });
-})();
+        // Initialize on load
+        (function() {
+            document.body.classList.add('loading');
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    document.body.classList.remove('loading');
+                    initAnimatedBackground();
+                }, 100);
+            });
+        })();
 
         // Mistral AI Configuration
 function getAIConfig() {
@@ -12290,15 +11829,13 @@ function checkAuth() {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
         currentUser = savedUser;
-        // Hide landing page and show app
-        document.getElementById('landingPage').style.display = 'none';
+        // Hide auth screen and show app
         document.getElementById('authScreen').style.display = 'none';
         initializeApp();
+        loadAISettings(); // Load AI settings after app initialization
     } else {
-        // Show landing page instead of auth screen
-        document.getElementById('landingPage').style.display = 'block';
-        document.getElementById('authScreen').style.display = 'none';
-        initLandingPage();
+        // Show auth screen
+        document.getElementById('authScreen').style.display = 'flex';
     }
 }
 
@@ -12827,26 +12364,36 @@ function closeMobileSearch() {
     document.getElementById('mobileSearchResults').innerHTML = '';
 }
 
+let selectedSearchIndex = -1;
+let searchMatches = [];
+
 function handleSearch() {
     const query = document.getElementById('searchInput').value.toLowerCase();
     const results = document.getElementById('searchResults');
-    
+
     if (!query) {
         results.classList.remove('active');
+        searchMatches = [];
+        selectedSearchIndex = -1;
         return;
     }
-    
-    const matches = [];
+
+    // Group matches by language
+    const groupedMatches = {};
     Object.keys(courses).forEach(lang => {
         courses[lang].forEach((course, index) => {
-            if (course.title.toLowerCase().includes(query) || 
+            if (course.title.toLowerCase().includes(query) ||
                 course.desc.toLowerCase().includes(query) ||
                 lang.includes(query)) {
-                
+
                 const isLocked = index > 0 && !userProgress[lang]['course' + index]?.completed;
                 const isCompleted = userProgress[lang][course.id]?.completed;
-                
-                matches.push({
+
+                if (!groupedMatches[lang]) {
+                    groupedMatches[lang] = [];
+                }
+
+                groupedMatches[lang].push({
                     lang,
                     course,
                     langName: lang.charAt(0).toUpperCase() + lang.slice(1),
@@ -12857,36 +12404,98 @@ function handleSearch() {
             }
         });
     });
-    
-    if (matches.length > 0) {
-        results.innerHTML = matches.map(m => {
-            let statusBadge = '';
-            let clickable = !m.isLocked;
-            
-            if (m.isCompleted) {
-                statusBadge = '<span style="color: #00ff00; margin-left: 8px;">✓ Completed</span>';
-            } else if (m.isLocked) {
-                statusBadge = '<span style="color: #ff6b6b; margin-left: 8px;">🔒 Locked</span>';
-            } else {
-                statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
-            }
-            
-            const onClick = clickable 
-                ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}')"` 
-                : `style="opacity: 0.5; cursor: not-allowed;"`;
-            
-            return `
-                <div class="search-result-item" ${onClick}>
-                    <div class="search-result-title">${m.course.icon} ${m.course.title}${statusBadge}</div>
-                    <div class="search-result-desc">${m.langName} • ${m.course.desc}</div>
-                </div>
-            `;
-        }).join('');
+
+    // Flatten for keyboard navigation
+    searchMatches = [];
+    Object.keys(groupedMatches).forEach(lang => {
+        searchMatches.push(...groupedMatches[lang]);
+    });
+
+    if (Object.keys(groupedMatches).length > 0) {
+        let html = '';
+
+        // Render grouped results
+        Object.keys(groupedMatches).forEach(lang => {
+            const langName = lang.charAt(0).toUpperCase() + lang.slice(1);
+            const langIcons = { python: '🐍', javascript: '⚡', html: '🌐', css: '🎨', react: '⚛️' };
+            const langIcon = langIcons[lang] || '💻';
+
+            html += `<div class="search-group-header">${langIcon} ${langName}</div>`;
+
+            groupedMatches[lang].forEach((m, idx) => {
+                let statusBadge = '';
+                let clickable = !m.isLocked;
+
+                if (m.isCompleted) {
+                    statusBadge = '<span style="color: #00ff00; margin-left: 8px;">✓ Completed</span>';
+                } else if (m.isLocked) {
+                    statusBadge = '<span style="color: #ff6b6b; margin-left: 8px;">🔒 Locked</span>';
+                } else {
+                    statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
+                }
+
+                const globalIdx = searchMatches.indexOf(m);
+                const onClick = clickable
+                    ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}')"`
+                    : `style="opacity: 0.5; cursor: not-allowed;"`;
+
+                html += `
+                    <div class="search-result-item" data-index="${globalIdx}" ${onClick}>
+                        <div class="search-result-title">${m.course.icon} ${m.course.title}${statusBadge}</div>
+                        <div class="search-result-desc">${m.course.desc}</div>
+                    </div>
+                `;
+            });
+        });
+
+        results.innerHTML = html;
         results.classList.add('active');
+        selectedSearchIndex = -1;
     } else {
         results.innerHTML = '<div class="search-result-item">No courses found</div>';
         results.classList.add('active');
+        searchMatches = [];
+        selectedSearchIndex = -1;
     }
+}
+
+// Handle keyboard navigation in search
+document.addEventListener('keydown', (e) => {
+    const searchInput = document.getElementById('searchInput');
+    const results = document.getElementById('searchResults');
+
+    if (document.activeElement !== searchInput || !results.classList.contains('active')) return;
+    if (searchMatches.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedSearchIndex = Math.min(selectedSearchIndex + 1, searchMatches.length - 1);
+        updateSearchSelection();
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedSearchIndex = Math.max(selectedSearchIndex - 1, -1);
+        updateSearchSelection();
+    } else if (e.key === 'Enter' && selectedSearchIndex >= 0) {
+        e.preventDefault();
+        const match = searchMatches[selectedSearchIndex];
+        if (!match.isLocked) {
+            openCourseFromSearch(match.lang, match.course.id, match.course.title);
+        }
+    } else if (e.key === 'Escape') {
+        toggleSearch();
+    }
+});
+
+function updateSearchSelection() {
+    document.querySelectorAll('.search-result-item').forEach((item, idx) => {
+        const itemIndex = parseInt(item.getAttribute('data-index'));
+        if (itemIndex === selectedSearchIndex) {
+            item.classList.add('selected');
+            item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } else {
+            item.classList.remove('selected');
+        }
+    });
 }
 
 function handleMobileSearch() {
@@ -13369,31 +12978,96 @@ function switchComingSoonTab(lang) {
     });
 }
 
-function openLesson(language, courseId, courseName) {
+function openLesson(language, courseId, courseName, shouldContinue = false) {
     currentLesson = { language, courseId, courseName };
     learnCompleted = false;
-    learnMessageIndex = 0;
     correctAnswers = 0;
     selectedMCQ = {};
-    
+
+    // Check if there's saved progress for this lesson
+    const savedProgress = getLessonProgress(language, courseId);
+
+    if (savedProgress && savedProgress.messageIndex > 0 && !shouldContinue && savedProgress.messageIndex !== 'ask') {
+        // Show continue/restart modal
+        showContinueRestartModal(language, courseId, courseName, savedProgress);
+        return;
+    }
+
+    // Continue from saved progress or start fresh
+    if (shouldContinue && savedProgress) {
+        learnMessageIndex = savedProgress.messageIndex;
+    } else {
+        learnMessageIndex = 0;
+    }
+
     studyStartTime = Date.now();
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(updateTimer, 1000);
 
-    // ADD THIS:
     document.body.classList.add('lesson-active');
-    
+
     document.getElementById('lessonTitle').textContent = courseName;
     document.getElementById('lessonView').classList.add('active');
     document.getElementById('learnMessages').innerHTML = '';
     document.getElementById('questionMessages').innerHTML = '';
-    
+
     document.getElementById('questionsTabBtn').disabled = true;
     document.getElementById('questionsTabBtn').innerHTML = 'Questions 🔒';
-    
+
     switchPanel('learn');
     updateLessonProgress();
     displayNextLearnMessage();
+}
+
+// Save lesson progress
+function saveLessonProgress(language, courseId, messageIndex) {
+    const key = `lessonProgress_${currentUser}_${language}_${courseId}`;
+    localStorage.setItem(key, JSON.stringify({ messageIndex, timestamp: Date.now() }));
+}
+
+// Get lesson progress
+function getLessonProgress(language, courseId) {
+    const key = `lessonProgress_${currentUser}_${language}_${courseId}`;
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : null;
+}
+
+// Clear lesson progress
+function clearLessonProgress(language, courseId) {
+    const key = `lessonProgress_${currentUser}_${language}_${courseId}`;
+    localStorage.removeItem(key);
+}
+
+// Show continue/restart modal
+function showContinueRestartModal(language, courseId, courseName, savedProgress) {
+    const modal = document.getElementById('continueRestartModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.dataset.language = language;
+        modal.dataset.courseId = courseId;
+        modal.dataset.courseName = courseName;
+    }
+}
+
+// Continue from saved progress
+function continueCourse() {
+    const modal = document.getElementById('continueRestartModal');
+    const language = modal.dataset.language;
+    const courseId = modal.dataset.courseId;
+    const courseName = modal.dataset.courseName;
+    modal.style.display = 'none';
+    openLesson(language, courseId, courseName, true);
+}
+
+// Restart course from beginning
+function restartCourse() {
+    const modal = document.getElementById('continueRestartModal');
+    const language = modal.dataset.language;
+    const courseId = modal.dataset.courseId;
+    const courseName = modal.dataset.courseName;
+    clearLessonProgress(language, courseId);
+    modal.style.display = 'none';
+    openLesson(language, courseId, courseName, false);
 }
 
 function closeLesson() {
@@ -13596,6 +13270,11 @@ if (msg.video) {
 
         learnMessageIndex++;
         updateLessonProgress();
+
+        // Save progress for continue/restart feature
+        if (currentLesson && !currentLesson.isAI) {
+            saveLessonProgress(currentLesson.language, currentLesson.courseId, learnMessageIndex);
+        }
 
         if (learnMessageIndex < content.learn.length) {
             setTimeout(displayNextLearnMessage, 600);
@@ -13980,7 +13659,10 @@ function completeLesson() {
     if (!isRetryMode) {
         userProgress[currentLesson.language][currentLesson.courseId].completed = true;
         userProgress[currentLesson.language][currentLesson.courseId].progress = 100;
-        
+
+        // Clear saved progress since course is completed
+        clearLessonProgress(currentLesson.language, currentLesson.courseId);
+
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
         
         const today = new Date().toDateString();
@@ -19990,6 +19672,55 @@ function toggleSetting(element) {
     element.classList.toggle('active');
 }
 
+// AI Settings Functions
+function toggleAISetting() {
+    const toggle = document.getElementById('showAIToggle');
+    toggle.classList.toggle('active');
+    const isActive = toggle.classList.contains('active');
+
+    // Store setting
+    localStorage.setItem('showAIInPlayground_' + currentUser, isActive);
+
+    // Show/hide AI button in playground
+    const aiButton = document.querySelector('.ai-toggle-btn');
+    if (aiButton) {
+        aiButton.style.display = isActive ? 'flex' : 'none';
+    }
+}
+
+function toggleBordersSetting() {
+    const toggle = document.getElementById('showBordersToggle');
+    toggle.classList.toggle('active');
+    const isActive = toggle.classList.contains('active');
+
+    // Store setting
+    localStorage.setItem('showButtonBorders_' + currentUser, isActive);
+
+    // Apply or remove borders
+    document.body.classList.toggle('show-button-borders', isActive);
+}
+
+// Load AI settings on startup
+function loadAISettings() {
+    const showAI = localStorage.getItem('showAIInPlayground_' + currentUser);
+    const showBorders = localStorage.getItem('showButtonBorders_' + currentUser);
+
+    // Show AI setting (default: true)
+    if (showAI === 'false') {
+        const toggle = document.getElementById('showAIToggle');
+        if (toggle) toggle.classList.remove('active');
+        const aiButton = document.querySelector('.ai-toggle-btn');
+        if (aiButton) aiButton.style.display = 'none';
+    }
+
+    // Show borders setting (default: false)
+    if (showBorders === 'true') {
+        const toggle = document.getElementById('showBordersToggle');
+        if (toggle) toggle.classList.add('active');
+        document.body.classList.add('show-button-borders');
+    }
+}
+
 function resetProgress() {
     if (confirm('Are you sure? This will delete all your progress!')) {
         Object.keys(userProgress).forEach(lang => {
@@ -20630,7 +20361,7 @@ function injectSplashScreenCSS() {
     document.head.appendChild(style);
 }
 
-const APP_VERSION = '4.7.1';
+const APP_VERSION = '5.0.0';
 
 function checkForUpdates() {
     const lastSeenVersion = localStorage.getItem('lastSeenVersion_' + currentUser);
