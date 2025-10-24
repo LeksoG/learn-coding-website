@@ -18429,12 +18429,12 @@ function removeTypingIndicator(typingId) {
 // Mistral AI Integration
 async function callMistralAI(userMessage, codeContext) {
     // Get Mistral API key from environment/config
-    const apiKey = getMistralAPIKey();
-
+    const apiKey = await getMistralAPIKey(); // ← ADD "await" here!
+    
     if (!apiKey) {
         return 'API key not configured. Please add your Mistral AI API key to continue.';
     }
-
+    
     const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -18457,11 +18457,13 @@ async function callMistralAI(userMessage, codeContext) {
             max_tokens: 1000
         })
     });
-
+    
     if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Mistral API error:', response.status, errorText);
         throw new Error('AI service error: ' + response.statusText);
     }
-
+    
     const data = await response.json();
     return data.choices[0].message.content;
 }
@@ -18469,30 +18471,36 @@ async function callMistralAI(userMessage, codeContext) {
 async function getMistralAPIKey() {
     // Try to fetch API key from server environment variable
     try {
+        console.log('🔍 Fetching API key from /api/ai-config...');
         const response = await fetch('/api/ai-config');
+        
         if (response.ok) {
             const data = await response.json();
             if (data.MISTRAL_API_KEY) {
                 console.log('✅ API key loaded from environment variables');
                 return data.MISTRAL_API_KEY;
+            } else {
+                console.error('❌ No MISTRAL_API_KEY in response');
             }
+        } else {
+            console.error('❌ Failed to fetch from /api/ai-config:', response.status);
         }
     } catch (error) {
-        console.error('Failed to fetch API key from server:', error);
+        console.error('❌ Failed to fetch API key from server:', error);
     }
-
+    
     // Fallback to localStorage if server fetch fails
     let apiKey = localStorage.getItem('mistral_api_key');
-
+    
     // Only prompt as last resort (shouldn't happen with env variable)
     if (!apiKey) {
-        console.warn('API key not found in environment or localStorage');
+        console.warn('⚠️ API key not found in environment or localStorage');
         apiKey = prompt('Please enter your Mistral AI API key:');
         if (apiKey) {
             localStorage.setItem('mistral_api_key', apiKey);
         }
     }
-
+    
     return apiKey;
 }
 
@@ -22475,10 +22483,3 @@ showSection = function(sectionId) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
