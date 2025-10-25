@@ -12179,14 +12179,12 @@ class NetworkAnimation {
         };
 
         this.theme = document.documentElement.getAttribute('data-theme') || 'green';
-
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
 
-        this.createNodes();
+        this.createNodes();  // ⬅️ THIS LINE
         this.animate();
         
-        // NEW CODE ADDED HERE ⬇️
         this.rafId = null;
         this.isVisible = true;
         
@@ -12197,23 +12195,17 @@ class NetworkAnimation {
                 this.animate();
             }
         });
-        // NEW CODE ENDS HERE ⬆️
 
         window.addEventListener('resize', () => this.resize());
         window.addEventListener('mousemove', (e) => {
             this.mouse.x = e.x;
             this.mouse.y = e.y;
         });
-    }  // ⬅️ MAKE SURE THIS CLOSING BRACE IS HERE!
+    }  // ⬅️ CLOSING BRACE FOR CONSTRUCTOR
 
-    resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    }
-
-    initNodes() {
-        this.nodes = [];
-        for (let i = 0; i < this.nodeCount; i++) {
+    // ⬇️ MAKE SURE THIS METHOD EXISTS AFTER THE CONSTRUCTOR!
+    createNodes() {
+        for (let i = 0; i < 40; i++) {
             this.nodes.push({
                 x: Math.random() * this.canvas.width,
                 y: Math.random() * this.canvas.height,
@@ -12391,26 +12383,23 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAIButtonVisibility(aiEnabled);
 
     // Event delegation for nav tabs
-    const navTabs = document.querySelector('.nav-tabs');
-    if (navTabs) {
-        let lastClick = 0;
+const navTabs = document.querySelector('.nav-tabs');
+if (navTabs) {
+    let lastClick = 0;
+    
+    navTabs.addEventListener('click', (e) => {
+        const now = Date.now();
+        if (now - lastClick < 300) return;
+        lastClick = now;
         
-        navTabs.addEventListener('click', (e) => {
-            const now = Date.now();
-            if (now - lastClick < 300) return;
-            lastClick = now;
-            
-            const tab = e.target.closest('.nav-tab');
-            if (!tab) return;
-            
-            const sectionId = tab.dataset.section;
-            if (sectionId) {
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                document.getElementById(sectionId)?.classList.add('active');
-                
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-            }
-        });
-    }
+        const tab = e.target.closest('.nav-tab');
+        if (!tab) return;
+        
+        const sectionId = tab.dataset.section;
+        if (sectionId) {
+            // Call your existing function!
+            showSection(sectionId);  // ⬅️ CHANGED THIS LINE
+        }
+    });
+}
 });  // ⬅️ THIS CLOSING BRACE + PARENTHESIS MUST BE HERE!
