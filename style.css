@@ -10747,27 +10747,32 @@ body.light-mode .error-popup-body {
 
 .loader-text {
     position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) scale(0.5) !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     z-index: 999999;
     font-size: 80px;
     font-weight: 900;
     color: #64ffda;
     opacity: 0;
+    transform: scale(0.5) !important;
     transition: opacity 1s ease, transform 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     text-shadow: 
         0 0 30px rgba(100, 255, 218, 0.8),
-        0 0 60px rgba(100, 255, 218, 0.5),
-        0 0 90px rgba(100, 255, 218, 0.3);
+        0 0 60px rgba(100, 255, 218, 0.5);
     font-family: 'Poppins', sans-serif;
     white-space: nowrap;
     letter-spacing: 2px;
+    pointer-events: none;
 }
 
 .loader-text.show {
     opacity: 1 !important;
-    transform: translate(-50%, -50%) scale(1) !important;
+    transform: scale(1) !important;
 }
 
 /* CRITICAL: Hide ALL content during loading */
@@ -10796,4 +10801,96 @@ body.loading::-webkit-scrollbar {
     .loader-text {
         font-size: 48px !important;
     }
+}
+
+.main-content {
+    min-height: 100vh;
+    width: 100%;
+    will-change: contents; /* Hint to browser */
+}
+
+/* Prevent layout shift when content loads */
+.section {
+    min-height: 500px; /* Reserve minimum space */
+    contain: layout; /* Contain layout changes */
+}
+
+.section.active {
+    min-height: 100vh;
+}
+
+.chart-container {
+    min-height: 400px; /* Reserve space BEFORE chart loads */
+    width: 100%;
+    position: relative;
+}
+
+.bar-chart,
+#allChart {
+    height: 400px !important; /* Fixed height prevents shifts */
+    width: 100% !important;
+}
+
+.stats-buttons-container {
+    min-height: 60px; /* Reserve space for buttons */
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.stats-buttons-container button {
+    height: 40px; /* Fixed height */
+    min-width: 100px;
+}
+
+#settings.section {
+    min-height: 100vh;
+}
+
+.settings-section {
+    margin-bottom: 20px;
+    min-height: 80px; /* Reserve space */
+}
+
+/* Remove theme options completely */
+.theme-options {
+    display: none !important; /* This removes the space */
+}
+
+/* PREVENT ALL LAYOUT SHIFTS */
+* {
+    box-sizing: border-box;
+}
+
+img, 
+video,
+iframe,
+canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Reserve space for dynamic content */
+[data-loading] {
+    min-height: 200px;
+}
+
+/* Font loading optimization */
+body {
+    font-display: swap; /* Prevent invisible text */
+}
+
+/* Prevent shifts from transitions */
+.section:not(.active) {
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.section.active {
+    position: relative;
+    visibility: visible;
+    opacity: 1;
 }
