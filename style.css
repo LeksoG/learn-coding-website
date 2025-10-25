@@ -300,8 +300,8 @@ body.light-mode .auth-screen {
             font-weight: 600;
             cursor: pointer;
             border-radius: 50px;
-            transition: color 0.3s ease, background 0.3s ease;
-        }
+            transition: color 0.15s ease, background 0.15s ease; /* was 0.3s */
+}
 
         body.light-mode .nav-tab {
             color: #666;
@@ -809,6 +809,7 @@ body.light-mode .mobile-search-container {
             animation: fadeIn 0.2s ease-out;
             position: relative;
             z-index: 1;
+            transition: opacity 0.2s ease; /* ✅ ADD THIS LINE */
             will-change: opacity, transform;
         }
 
@@ -10786,4 +10787,22 @@ body.light-mode .error-popup-body {
         font-size: 0.9em;
         padding: 15px;
     }
+}
+
+/* Add these containment rules - MAJOR performance boost */
+.section {
+    contain: layout style paint;
+    content-visibility: auto;
+}
+
+.section:not(.active) {
+    content-visibility: hidden;
+}
+
+.stat-card, .course-card, .lesson-card {
+    contain: layout paint;
+}
+
+.mobile-stats-carousel {
+    contain: layout style paint;
 }
