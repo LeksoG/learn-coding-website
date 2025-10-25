@@ -1,16 +1,23 @@
-// LOADING ANIMATION - ADD AT THE VERY TOP
+// IMPROVED LOADING ANIMATION
 class LegoLoader {
     constructor() {
         this.canvas = document.getElementById('loaderCanvas');
+        if (!this.canvas) return;
+        
         this.ctx = this.canvas.getContext('2d');
         this.particles = [];
         this.centerX = 0;
         this.centerY = 0;
+        this.animationPhase = 'snake'; // snake → circle → bounce → sand → reveal
+        this.snakeProgress = 0;
+        this.circleRotation = 0;
+        this.bounceCount = 0;
+        this.bounceScale = 1;
         
         this.resize();
         window.addEventListener('resize', () => this.resize());
         
-        this.createParticles();
+        this.createSnakeParticles();
         this.animate();
     }
     
@@ -21,105 +28,173 @@ class LegoLoader {
         this.centerY = this.canvas.height / 2;
     }
     
-    createParticles() {
-        const count = 150; // Number of LEGO pieces
+    createSnakeParticles() {
+        const count = 80;
+        const startX = -100;
+        const startY = this.centerY;
+        
         for (let i = 0; i < count; i++) {
             this.particles.push({
-                x: -50, // Start from left off-screen
-                y: Math.random() * this.canvas.height,
-                targetX: this.centerX + (Math.random() - 0.5) * 200,
-                targetY: this.centerY + (Math.random() - 0.5) * 200,
-                size: Math.random() * 6 + 3,
-                speedX: Math.random() * 3 + 2,
-                rotation: Math.random() * Math.PI * 2,
-                rotationSpeed: (Math.random() - 0.5) * 0.15,
-                opacity: 0,
-                phase: 'moving' // moving -> spinning -> forming
+                x: startX - (i * 15),
+                y: startY,
+                targetX: this.centerX,
+                targetY: this.centerY,
+                size: 8,
+                rotation: 0,
+                opacity: 1,
+                delay: i * 15,
+                originalIndex: i
             });
         }
     }
     
     animate() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        let allCentered = true;
-        
-        this.particles.forEach((p, i) => {
-            // Phase 1: Move from left to center
-            if (p.phase === 'moving') {
-                p.x += p.speedX;
-                p.opacity = Math.min(p.opacity + 0.02, 1);
-                
-                if (p.x >= this.centerX - 100) {
-                    p.phase = 'spinning';
-                    p.spinStartTime = Date.now();
-                }
-                allCentered = false;
-            }
-            
-            // Phase 2: Spin at center
-            else if (p.phase === 'spinning') {
-                const spinDuration = 1000;
-                const elapsed = Date.now() - p.spinStartTime;
-                
-                if (elapsed < spinDuration) {
-                    p.rotation += p.rotationSpeed;
-                    allCentered = false;
-                } else {
-                    p.phase = 'forming';
-                }
-            }
-            
-            // Phase 3: Form into position
-            else if (p.phase === 'forming') {
-                const dx = p.targetX - p.x;
-                const dy = p.targetY - p.y;
-                p.x += dx * 0.1;
-                p.y += dy * 0.1;
-                
-                if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
-                    allCentered = false;
-                }
-            }
-            
-            // Draw LEGO piece
-            this.ctx.save();
-            this.ctx.translate(p.x, p.y);
-            this.ctx.rotate(p.rotation);
-            this.ctx.globalAlpha = p.opacity;
-            
-            // LEGO brick shape with studs
-            this.ctx.fillStyle = '#64ffda';
-            this.ctx.shadowBlur = 15;
-            this.ctx.shadowColor = 'rgba(100, 255, 218, 0.8)';
-            
-            // Main brick
-            this.ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
-            
-            // Studs on top
-            this.ctx.beginPath();
-            this.ctx.arc(0, 0, p.size * 0.2, 0, Math.PI * 2);
-            this.ctx.fillStyle = '#52d4b8';
-            this.ctx.fill();
-            
-            this.ctx.restore();
-        });
-        
-        // Show text when all pieces are centered
-        if (allCentered) {
-            const loaderText = document.querySelector('.loader-text');
-            if (loaderText && !loaderText.classList.contains('show')) {
-                loaderText.classList.add('show');
-                
-                // Fade out after 1 second
-                setTimeout(() => {
-                    this.fadeOut();
-                }, 1000);
-            }
+        if (this.animationPhase === 'snake') {
+            this.animateSnake();
+        } else if (this.animationPhase === 'circle') {
+            this.animateCircle();
+        } else if (this.animationPhase === 'bounce') {
+            this.animateBounce();
+        } else if (this.animationPhase === 'sand') {
+            this.animateSand();
+        } else if (this.animationPhase === 'reveal') {
+            this.animateReveal();
         }
         
         requestAnimationFrame(() => this.animate());
+    }
+    
+    animateSnake() {
+        this.snakeProgress += 2;
+        let allArrived = true;
+        
+        this.particles.forEach((p, i) => {
+            if (this.snakeProgress > p.delay) {
+                // Move horizontally to center
+                const progress = Math.min((this.snakeProgress - p.delay) / 300, 1);
+                p.x = -100 - (i * 15) + (this.centerX + 100 + (i * 15)) * progress;
+                
+                // Slight wave motion
+                p.y = this.centerY + Math.sin(this.snakeProgress * 0.05 + i * 0.3) * 20;
+                
+                if (progress < 1) allArrived = false;
+            }
+            
+            this.drawParticle(p);
+        });
+        
+        if (allArrived) {
+            this.animationPhase = 'circle';
+            this.snakeProgress = 0;
+        }
+    }
+    
+    animateCircle() {
+        this.circleRotation += 0.08;
+        
+        this.particles.forEach((p, i) => {
+            const angle = (i / this.particles.length) * Math.PI * 2 + this.circleRotation;
+            const radius = 120;
+            p.x = this.centerX + Math.cos(angle) * radius;
+            p.y = this.centerY + Math.sin(angle) * radius;
+            p.rotation = angle;
+            
+            this.drawParticle(p);
+        });
+        
+        if (this.circleRotation > Math.PI * 4) { // 2 full rotations
+            this.animationPhase = 'bounce';
+            this.bounceCount = 0;
+        }
+    }
+    
+    animateBounce() {
+        this.bounceCount++;
+        
+        // Bounce effect
+        const bounceSpeed = 0.15;
+        this.bounceScale = 1 + Math.abs(Math.sin(this.bounceCount * bounceSpeed)) * 0.3;
+        
+        this.particles.forEach((p, i) => {
+            const angle = (i / this.particles.length) * Math.PI * 2;
+            const radius = 120 * this.bounceScale;
+            p.x = this.centerX + Math.cos(angle) * radius;
+            p.y = this.centerY + Math.sin(angle) * radius;
+            
+            this.drawParticle(p);
+        });
+        
+        if (this.bounceCount > 60) { // 3 bounces
+            this.animationPhase = 'sand';
+            this.sandProgress = 0;
+        }
+    }
+    
+    animateSand() {
+        this.sandProgress += 1;
+        
+        this.particles.forEach((p, i) => {
+            // Explode outward then fall like sand
+            if (this.sandProgress < 30) {
+                const angle = (i / this.particles.length) * Math.PI * 2;
+                const force = this.sandProgress * 8;
+                p.x = this.centerX + Math.cos(angle) * force;
+                p.y = this.centerY + Math.sin(angle) * force;
+            } else {
+                // Fall down with gravity
+                p.y += 12;
+                p.x += (Math.random() - 0.5) * 2;
+                p.opacity = Math.max(0, 1 - (p.y - this.centerY) / 400);
+            }
+            
+            this.drawParticle(p);
+        });
+        
+        if (this.sandProgress > 50) {
+            this.animationPhase = 'reveal';
+            this.revealProgress = 0;
+            this.showText();
+        }
+    }
+    
+    animateReveal() {
+        this.revealProgress += 1;
+        
+        // Just let text show, stop drawing particles
+        if (this.revealProgress > 80) {
+            this.fadeOut();
+        }
+    }
+    
+    drawParticle(p) {
+        this.ctx.save();
+        this.ctx.translate(p.x, p.y);
+        this.ctx.rotate(p.rotation);
+        this.ctx.globalAlpha = p.opacity;
+        
+        // LEGO brick
+        this.ctx.fillStyle = '#64ffda';
+        this.ctx.shadowBlur = 20;
+        this.ctx.shadowColor = 'rgba(100, 255, 218, 1)';
+        this.ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+        
+        // Stud
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, p.size * 0.25, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#52d4b8';
+        this.ctx.fill();
+        
+        this.ctx.restore();
+    }
+    
+    showText() {
+        const loaderText = document.querySelector('.loader-text');
+        if (loaderText) {
+            loaderText.classList.add('show');
+        }
     }
     
     fadeOut() {
@@ -129,20 +204,24 @@ class LegoLoader {
         setTimeout(() => {
             loader.style.display = 'none';
             document.body.classList.remove('loading');
+            document.documentElement.classList.remove('loading');
         }, 800);
     }
 }
 
 // Initialize loader IMMEDIATELY
-if (document.readyState === 'loading') {
+(function() {
+    document.documentElement.classList.add('loading');
     document.body.classList.add('loading');
-    document.addEventListener('DOMContentLoaded', () => {
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            new LegoLoader();
+        });
+    } else {
         new LegoLoader();
-    });
-} else {
-    document.body.classList.add('loading');
-    new LegoLoader();
-}
+    }
+})();
 
         // Mistral AI Configuration
 function getAIConfig() {
