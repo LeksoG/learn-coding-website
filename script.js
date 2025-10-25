@@ -76,24 +76,6 @@ function debounce(func, wait) {
     };
 }
 
-// Debounced mobile menu toggle
-const debouncedMenuToggle = debounce(() => {
-    const overlay = document.getElementById('mobileSidebarOverlay');
-    const sidebar = document.querySelector('.sidebar');
-    
-    if (overlay && sidebar) {
-        const isActive = overlay.classList.contains('active');
-        
-        if (isActive) {
-            overlay.classList.remove('active');
-            sidebar.classList.remove('mobile-open');
-        } else {
-            overlay.classList.add('active');
-            sidebar.classList.add('mobile-open');
-        }
-    }
-}, 50); // 50ms debounce
-
 let userProgress = {
     python: {
         course1: { completed: false, progress: 0, time: 0 },
@@ -1125,39 +1107,44 @@ function closeMobileSidebar() {
 }
 
 function showSectionSidebar(sectionId) {
-    // Close sidebar first
-    closeMobileSidebar();
-
-    // Small delay for smooth transition
-    setTimeout(() => {
-        // Show section
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(sectionId).classList.add('active');
-
-        // Update active state in sidebar
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.classList.remove('active');
-            if (item.textContent.toLowerCase().includes(sectionId === 'home' ? 'overview' : sectionId)) {
-                item.classList.add('active');
+    // Close sidebar (only if mobile)
+    if (window.innerWidth <= 768) {
+        closeMobileSidebar();
+    }
+    
+    // Use requestAnimationFrame for smooth updates (NO setTimeout!)
+    requestAnimationFrame(() => {
+        // Batch DOM updates together
+        const targetSection = document.getElementById(sectionId);
+        
+        // Hide all sections efficiently
+        document.querySelectorAll('.section').forEach(s => {
+            if (s !== targetSection) {
+                s.classList.remove('active');
             }
         });
-
-        // Update dashboard if home
+        
+        // Show target section
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+        
+        // Update sidebar items (only visible ones)
+        const activeKeyword = sectionId === 'home' ? 'overview' : sectionId;
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            const isActive = item.dataset.section === sectionId || 
+                           item.textContent.toLowerCase().includes(activeKeyword);
+            item.classList.toggle('active', isActive);
+        });
+        
+        // Lazy load dashboard/course cards
         if (sectionId === 'home') {
-            updateDashboard();
+            requestIdleCallback(() => updateDashboard());
         }
-
-        // Trigger course card animations when switching to learn section
-        if (sectionId === 'learn') {
-            const courseCards = document.querySelectorAll('.course-card');
-            courseCards.forEach((card, index) => {
-                // Reset animation
-                card.style.animation = 'none';
-                card.offsetHeight; // Trigger reflow
-                card.style.animation = null;
-            });
-        }
-    }, 300);
+        
+        // Don't reset animations - let CSS handle it
+        // Remove the entire course card animation block
+    });
 }
 
 function toggleTheme() {
@@ -12196,6 +12183,20 @@ class NetworkAnimation {
         this.initNodes();
         this.animate();
 
+         // 👇 ADD THE NEW CODE RIGHT HERE (after line 12222, before closing })
+        this.rafId = null;
+        this.isVisible = true;
+        
+        // Pause when tab hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                cancelAnimationFrame(this.rafId);
+            } else {
+                this.animate();
+            }
+        });
+    }
+
         window.addEventListener('resize', () => this.resize());
         window.addEventListener('mousemove', (e) => {
             this.mouse.x = e.x;
@@ -12266,20 +12267,10 @@ class NetworkAnimation {
             }
 
             // Draw node with glow effect
-            this.ctx.shadowBlur = 15;
-            this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`;
             this.ctx.beginPath();
             this.ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
             this.ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.9)`;
             this.ctx.fill();
-
-            // Add inner glow
-            this.ctx.shadowBlur = 8;
-            this.ctx.beginPath();
-            this.ctx.arc(node.x, node.y, node.radius * 0.6, 0, Math.PI * 2);
-            this.ctx.fillStyle = `rgba(255, 255, 255, 0.6)`;
-            this.ctx.fill();
-            this.ctx.shadowBlur = 0;
 
             // Draw connections with glow
             for (let j = i + 1; j < this.nodes.length; j++) {
@@ -12289,20 +12280,20 @@ class NetworkAnimation {
 
                 if (distance < 150) {
                     const opacity = (1 - distance / 150) * 0.6;
-                    this.ctx.shadowBlur = 3;
-                    this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
                     this.ctx.beginPath();
                     this.ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
                     this.ctx.lineWidth = 1;
                     this.ctx.moveTo(node.x, node.y);
                     this.ctx.lineTo(this.nodes[j].x, this.nodes[j].y);
                     this.ctx.stroke();
-                    this.ctx.shadowBlur = 0;
                 }
             }
         });
 
-        requestAnimationFrame(() => this.animate());
+        // Only animate if canvas is visible
+if (!document.hidden) {
+    this.rafId = requestAnimationFrame(() => this.animate());
+}
     }
 
     changeTheme(newTheme) {
@@ -12361,14 +12352,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize network animation (now hidden)
     networkAnimation = new NetworkAnimation();
 
-    // Mobile menu button - use event delegation and debouncing
-document.addEventListener('click', (e) => {
-    if (e.target.closest('#mobileMenuBtn')) {
-        e.preventDefault();
-        e.stopPropagation();
-        debouncedMenuToggle();
+    // 👇 ADD NEW MOBILE MENU CODE HERE:
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const overlay = document.getElementById('mobileSidebarOverlay');
+            const sidebar = document.querySelector('.sidebar');
+            
+            overlay.classList.toggle('active');
+            sidebar.classList.toggle('mobile-open');
+        });
     }
-});
 
     // Load saved theme
     const savedTheme = localStorage.getItem('nodeTheme') || 'green';
@@ -12393,24 +12388,26 @@ document.addEventListener('click', (e) => {
     }
     updateAIButtonVisibility(aiEnabled);
 
-    // Event delegation for nav tabs with debouncing
     const navTabs = document.querySelector('.nav-tabs');
-    if (navTabs) {
-        navTabs.addEventListener('click', (e) => {
-            if (isTransitioning) return;
+if (navTabs) {
+    let lastClick = 0;
+    
+    navTabs.addEventListener('click', (e) => {
+        const now = Date.now();
+        if (now - lastClick < 300) return; // Prevent rapid clicks
+        lastClick = now;
+        
+        const tab = e.target.closest('.nav-tab');
+        if (!tab) return;
+        
+        const sectionId = tab.dataset.section;
+        if (sectionId) {
+            // Use CSS classes instead of complex JS
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId)?.classList.add('active');
             
-            const tab = e.target.closest('.nav-tab');
-            if (!tab) return;
-            
-            const sectionId = tab.dataset.section;
-            if (sectionId) {
-                isTransitioning = true;
-                showSection(sectionId);
-                
-                setTimeout(() => {
-                    isTransitioning = false;
-                }, 300);
-            }
-        });
-    }
-});
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        }
+    });
+}
