@@ -29,31 +29,15 @@
             box-sizing: border-box;
         }
 
-        /* Performance optimizations - Hardware acceleration */
         button, a, .nav-tab, .card, .setting-card, .lesson-card,
-        .stat-card, .course-card, .roadmap-node, .theme-option {
-            backface-visibility: hidden;
-            -webkit-font-smoothing: antialiased;
-            transform: translateZ(0);
-        }
+.stat-card, .course-card, .roadmap-node, .theme-option {
+    -webkit-font-smoothing: antialiased;
+}
 
-        /* Standardize hover transitions for snappy feel - will-change on hover only */
-        button, a, .nav-tab, .card, .lesson-card, .course-card,
-        .setting-card, .roadmap-node, .theme-option {
-            transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        button:hover, a:hover, .nav-tab:hover, .card:hover,
-        .lesson-card:hover, .course-card:hover, .setting-card:hover,
-        .roadmap-node:hover, .theme-option:hover {
-            will-change: transform;
-        }
-
-        button:not(:hover), a:not(:hover), .nav-tab:not(:hover), .card:not(:hover),
-        .lesson-card:not(:hover), .course-card:not(:hover), .setting-card:not(:hover),
-        .roadmap-node:not(:hover), .theme-option:not(:hover) {
-            will-change: auto;
-        }
+button, a, .nav-tab, .card, .lesson-card, .course-card,
+.setting-card, .roadmap-node, .theme-option {
+    transition: transform 0.2s ease;
+}
 
         body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
@@ -117,7 +101,6 @@ body.light-mode .auth-screen {
             padding: 50px;
             width: 450px;
             max-width: 90%;
-            backdrop-filter: blur(20px);
             animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
@@ -293,9 +276,9 @@ body.light-mode .auth-screen {
         }
 
         .nav-tabs {
-            background: rgba(30, 30, 30, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(100, 255, 218, 0.1);
+            .nav-tabs {
+    background: rgba(30, 30, 30, 0.95); /* Increase opacity instead */
+    border: 1px solid rgba(100, 255, 218, 0.1);
             padding: 8px;
             border-radius: 50px;
             display: flex;
@@ -318,7 +301,7 @@ body.light-mode .auth-screen {
             font-weight: 600;
             cursor: pointer;
             border-radius: 50px;
-            transition: all 0.3s ease;
+            transition: color 0.3s ease, background 0.3s ease;
         }
 
         body.light-mode .nav-tab {
