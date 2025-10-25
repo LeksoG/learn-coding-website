@@ -12381,5 +12381,4 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     isTransitioning = false;
                 }, 300);
-            }
         });
