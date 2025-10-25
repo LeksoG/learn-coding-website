@@ -1112,7 +1112,7 @@ function showSectionSidebar(sectionId) {
         closeMobileSidebar();
     }
     
-    // Use requestAnimationFrame for smooth updates (NO setTimeout!)
+    // Use requestAnimationFrame for smooth updates
     requestAnimationFrame(() => {
         // Batch DOM updates together
         const targetSection = document.getElementById(sectionId);
@@ -1129,7 +1129,7 @@ function showSectionSidebar(sectionId) {
             targetSection.classList.add('active');
         }
         
-        // Update sidebar items (only visible ones)
+        // Update sidebar items
         const activeKeyword = sectionId === 'home' ? 'overview' : sectionId;
         document.querySelectorAll('.sidebar-item').forEach(item => {
             const isActive = item.dataset.section === sectionId || 
@@ -1137,13 +1137,10 @@ function showSectionSidebar(sectionId) {
             item.classList.toggle('active', isActive);
         });
         
-        // Lazy load dashboard/course cards
+        // Update dashboard after a short delay
         if (sectionId === 'home') {
-            requestIdleCallback(() => updateDashboard());
+            setTimeout(() => updateDashboard(), 50);
         }
-        
-        // Don't reset animations - let CSS handle it
-        // Remove the entire course card animation block
     });
 }
 
