@@ -133,11 +133,16 @@ class LegoLoader {
     }
 }
 
-// Initialize loader
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize loader IMMEDIATELY
+if (document.readyState === 'loading') {
+    document.body.classList.add('loading');
+    document.addEventListener('DOMContentLoaded', () => {
+        new LegoLoader();
+    });
+} else {
     document.body.classList.add('loading');
     new LegoLoader();
-});
+}
 
         // Mistral AI Configuration
 function getAIConfig() {
