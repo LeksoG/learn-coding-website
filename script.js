@@ -61,6 +61,7 @@ let timerInterval = null;
 let pendingLesson = null;
 let soundEnabled = true;
 let currentUser = null;
+let isTransitioning = false; // ✅ ADD THIS LINE
 
 // ✅ ADD DEBOUNCE FUNCTION HERE (after line 64)
 function debounce(func, wait) {
@@ -12436,18 +12437,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     updateAIButtonVisibility(aiEnabled);
-// ✅ ADD THIS - Event delegation for nav tabs
-    const navTabs = document.querySelector('.nav-tabs');
-    if (navTabs) {
-        // NEW - Add { passive: true } for better scroll performance:
-navTabs.addEventListener('click', (e) => {
-    const tab = e.target.closest('.nav-tab');
-    if (!tab) return;
     
-    const sectionId = tab.dataset.section;
-    if (sectionId) {
-        showSection(sectionId);
-    }
-}, { passive: true }); // ← ADD THIS
-    }
-});
+// ✅ Event delegation for nav tabs with debouncing
+const navTabs = document.querySelector('.nav-tabs');
+if (navTabs) {
+    navTabs.addEventListener('click', (e) => {
+        if (isTransitioning) return; // Prevent rapid clicks
+        
+        const tab = e.target.closest('.nav-tab');
+        if (!tab) return;
+        
+        const sectionId = tab.dataset.section;
+        if (sectionId) {
+            isTransitioning = true;
+            showSection(sectionId);
+            
+            // Reset after transition
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 300);
+        }
+    });
+}
