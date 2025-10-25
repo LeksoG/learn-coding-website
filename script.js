@@ -1650,40 +1650,36 @@ function showSection(sectionId) {
     if (sectionId === 'home') {
         updateDashboard();
 
-        // Animate stat cards with wave effect only on initial page load
-        if (isInitialPageLoad) {
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.classList.add('animate-in');
-                }, index * 150); // 150ms delay between each card
-            });
-        } else {
-            // If not initial load, just show them immediately
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach(card => {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0) scale(1)';
-                card.style.display = 'flex'; // Ensure cards are visible
-            });
-        }
+        // Just add a class - let CSS handle it
+const statCards = document.querySelectorAll('.stat-card');
+statCards.forEach(card => card.classList.add('visible'));
 
-        // Fix for mobile: Ensure carousel is properly updated
-        if (window.innerWidth <= 768) {
-            setTimeout(() => {
-                const statsGrid = document.querySelector('.stats-grid');
-                if (statsGrid) {
-                    statsGrid.style.display = 'none'; // Hide desktop grid on mobile
-                }
-
-                // Always remove and recreate carousel to fix disappearing issue
-                const existingCarousel = document.querySelector('.mobile-stats-carousel');
-                if (existingCarousel) {
-                    existingCarousel.remove();
-                }
-
-                createMobileStatsCarousel();
-            }, 100);
+        // Fix for mobile: Defer carousel updates
+if (window.innerWidth <= 768) {
+    // Use requestIdleCallback to defer non-critical work
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+            const statsGrid = document.querySelector('.stats-grid');
+            if (statsGrid) statsGrid.style.display = 'none';
+            
+            const existingCarousel = document.querySelector('.mobile-stats-carousel');
+            if (existingCarousel) existingCarousel.remove();
+            
+            createMobileStatsCarousel();
+        });
+    } else {
+        // Fallback for browsers without requestIdleCallback
+        setTimeout(() => {
+            const statsGrid = document.querySelector('.stats-grid');
+            if (statsGrid) statsGrid.style.display = 'none';
+            
+            const existingCarousel = document.querySelector('.mobile-stats-carousel');
+            if (existingCarousel) existingCarousel.remove();
+            
+            createMobileStatsCarousel();
+        }, 0);
+    }
+}
         } else {
             // On desktop, ensure the grid is visible
             const statsGrid = document.querySelector('.stats-grid');
@@ -1696,16 +1692,6 @@ function showSection(sectionId) {
                 existingCarousel.remove();
             }
         }
-    }
-
-    // Trigger course card animations when switching to learn section
-    if (sectionId === 'learn') {
-        const courseCards = document.querySelectorAll('.course-card');
-        courseCards.forEach((card, index) => {
-            // Reset animation
-            card.style.animation = 'none';
-            card.style.animation = null;
-        });
     }
 
     if (sectionId === 'stats') {
@@ -1742,7 +1728,12 @@ function showSectionMobile(sectionId, element) {
     }
 
     if (sectionId === 'home') {
-        updateDashboard();
+    // Defer dashboard updates
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => updateDashboard());
+    } else {
+        setTimeout(() => updateDashboard(), 0);
+    }
 
         // Animate stat cards with wave effect only on initial page load
         if (isInitialPageLoad) {
@@ -12450,4 +12441,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     updateAIButtonVisibility(aiEnabled);
+// ✅ ADD THIS - Event delegation for nav tabs
+    const navTabs = document.querySelector('.nav-tabs');
+    if (navTabs) {
+        navTabs.addEventListener('click', (e) => {
+            const tab = e.target.closest('.nav-tab');
+            if (!tab) return; // Not a tab click
+            
+            // Get section from data attribute
+            const sectionId = tab.dataset.section || 'home';
+            showSection(sectionId);
+        });
+    }
 });
