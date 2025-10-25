@@ -49,14 +49,11 @@ fetch('/api/email-config')
 
     if (EMAIL_CONFIG.publicKey) {
       emailjs.init(EMAIL_CONFIG.publicKey);
-      console.log('✅ EmailJS configured successfully');
     } else {
       console.warn('⚠️ EmailJS not configured - password reset will not work');
     }
   })
   .catch(err => console.error('Error fetching EmailJS config:', err));
-
-
 
 let studyStartTime = null;
 let totalStudyTime = 0;
@@ -66,7 +63,7 @@ let soundEnabled = true;
 let currentUser = null;
 
 let userProgress = {
-    python: { 
+    python: {
         course1: { completed: false, progress: 0, time: 0 },
         course2: { completed: false, progress: 0, time: 0 },
         course3: { completed: false, progress: 0, time: 0 },
@@ -78,7 +75,7 @@ let userProgress = {
         course9: { completed: false, progress: 0, time: 0 },   // ADD
         course10: { completed: false, progress: 0, time: 0 },  // ADD THIS
     },
-    javascript: { 
+    javascript: {
         course1: { completed: false, progress: 0, time: 0 },
         course2: { completed: false, progress: 0, time: 0 },
         course3: { completed: false, progress: 0, time: 0 },
@@ -90,7 +87,7 @@ let userProgress = {
         course9: { completed: false, progress: 0, time: 0 },   // ADD
         course10: { completed: false, progress: 0, time: 0 },  // ADD THIS
     },
-    html: { 
+    html: {
         course1: { completed: false, progress: 0, time: 0 },
         course2: { completed: false, progress: 0, time: 0 },
         course3: { completed: false, progress: 0, time: 0 },
@@ -102,7 +99,7 @@ let userProgress = {
         course9: { completed: false, progress: 0, time: 0 },  // ADD
         course10: { completed: false, progress: 0, time: 0 },  // ADD THIS
     },
-    css: { 
+    css: {
         course1: { completed: false, progress: 0, time: 0 },
         course2: { completed: false, progress: 0, time: 0 },
         course3: { completed: false, progress: 0, time: 0 },
@@ -114,7 +111,7 @@ let userProgress = {
         course9: { completed: false, progress: 0, time: 0 },   // ADD
         course10: { completed: false, progress: 0, time: 0 },  // ADD THIS
     },
-    react: { 
+    react: {
         course1: { completed: false, progress: 0, time: 0 },
         course2: { completed: false, progress: 0, time: 0 },
         course3: { completed: false, progress: 0, time: 0 },
@@ -240,35 +237,34 @@ let isFullscreen = false;
 let isWatchingVideo = false;
 let videoMessageIndex = null;
 
-// ==================== NOTIFICATION SYSTEM ====================
 function showNotification(message, type = 'info') {
     // Remove any existing notifications
     const existingNotif = document.querySelector('.notification-toast');
     if (existingNotif) {
         existingNotif.remove();
     }
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification-toast notification-${type}`;
-    
+
     // Set icon based on type
     let icon = 'ℹ️';
     if (type === 'success') icon = '✅';
     if (type === 'error') icon = '❌';
     if (type === 'warning') icon = '⚠️';
-    
+
     notification.innerHTML = `
         <span class="notification-icon">${icon}</span>
         <span class="notification-message">${message}</span>
     `;
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Animate in
     setTimeout(() => notification.classList.add('show'), 10);
-    
+
     // Auto remove after 4 seconds
     setTimeout(() => {
         notification.classList.remove('show');
@@ -278,35 +274,35 @@ function showNotification(message, type = 'info') {
 
 function handleForgotPassword(event) {
     event.preventDefault();
-    
+
     const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
     const btn = document.getElementById('forgotBtn');
-    
+
     if (!email) {
         showNotification('Please enter your email', 'error');
         return;
     }
-    
+
     // Check if user exists
     const userDataStr = localStorage.getItem('user_' + email);
-    
+
     if (!userDataStr) {
         showNotification('Email not found. Please sign up first!', 'error');
         return;
     }
-    
+
     const userData = JSON.parse(userDataStr);
-    
+
     btn.disabled = true;
     btn.textContent = 'Sending Code...';
-    
+
     // Generate 6-digit verification code
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // Store verification data
     currentVerificationCode = verificationCode;
     currentForgotEmail = email;
-    
+
     // Fetch EmailJS config and send email
     fetch('/api/email-config')
         .then(res => res.json())
@@ -317,7 +313,7 @@ function handleForgotPassword(event) {
                 verification_code: verificationCode,
                 user_name: userData.name || 'User'
             };
-            
+
             return emailjs.send(
                 config.EMAIL_SERVICE_ID,
                 config.EMAIL_TEMPLATE_ID,
@@ -329,7 +325,7 @@ function handleForgotPassword(event) {
             showNotification('✅ Verification code sent to ' + email, 'success');
             btn.disabled = false;
             btn.textContent = 'Send Code';
-            
+
             // Switch to verify form
             setTimeout(() => {
                 switchAuthTab('verify');
@@ -348,30 +344,30 @@ function verifyCodeOnly() {
     const inputs = document.querySelectorAll('.otp-input');
     const code = Array.from(inputs).map(input => input.value).join('');
     const btn = document.getElementById('verifyCodeBtn');
-    
+
     if (code.length !== 6) {
         showAuthMessage('verifyMessage', 'Please enter all 6 digits!', 'error');
         return;
     }
-    
+
     if (!currentVerificationCode || !currentForgotEmail) {
         showAuthMessage('verifyMessage', 'Session expired. Please request a new code.', 'error');
         setTimeout(() => switchAuthTab('forgot'), 2000);
         return;
     }
-    
+
     if (code !== currentVerificationCode) {
         showAuthMessage('verifyMessage', '✗ Invalid verification code!', 'error');
         inputs.forEach(input => input.value = '');
         inputs[0].focus();
         return;
     }
-    
+
     // Code is correct!
     showAuthMessage('verifyMessage', '✓ Code verified! Enter your new password below.', 'success');
     btn.disabled = true;
     inputs.forEach(input => input.disabled = true);
-    
+
     // Show password step
     setTimeout(() => {
         document.getElementById('codeStep').style.display = 'none';
@@ -383,7 +379,7 @@ function verifyCodeOnly() {
 // Initialize OTP inputs with auto-focus
 function initOTPInputs() {
     const inputs = document.querySelectorAll('.otp-input');
-    
+
     inputs.forEach((input, index) => {
         // Auto-focus next input
         input.addEventListener('input', (e) => {
@@ -391,19 +387,19 @@ function initOTPInputs() {
                 inputs[index + 1].focus();
             }
         });
-        
+
         // Handle backspace
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !e.target.value && index > 0) {
                 inputs[index - 1].focus();
             }
         });
-        
+
         // Only allow numbers
         input.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
         });
-        
+
         // Handle paste
         input.addEventListener('paste', (e) => {
             e.preventDefault();
@@ -424,30 +420,30 @@ function initOTPInputs() {
 // Step 2: Reset password
 function handleVerifyCode(e) {
     e.preventDefault();
-    
+
     const newPassword = document.getElementById('newPassword').value;
     const btn = document.getElementById('resetPasswordBtn');
-    
+
     if (!newPassword || newPassword.length < 6) {
         alert('Password must be at least 6 characters!');
         return;
     }
-    
+
     btn.disabled = true;
     btn.textContent = 'Resetting...';
-    
+
     // Update password
     const userDataStr = localStorage.getItem('user_' + currentForgotEmail);
     const userData = JSON.parse(userDataStr);
     userData.password = newPassword;
     localStorage.setItem('user_' + currentForgotEmail, JSON.stringify(userData));
-    
+
     alert('✓ Password reset successful! Please login with your new password.');
-    
+
     // Clear verification data
     currentVerificationCode = null;
     currentForgotEmail = null;
-    
+
     // Reset and go to login
     document.getElementById('verifyForm').reset();
     document.getElementById('codeStep').style.display = 'block';
@@ -455,23 +451,23 @@ function handleVerifyCode(e) {
     document.querySelectorAll('.otp-input').forEach(input => input.disabled = false);
     btn.disabled = false;
     btn.textContent = 'Reset Password';
-    
+
     switchAuthTab('login');
 }
 
 function switchAuthTab(tab) {
     const authTabs = document.querySelector('.auth-tabs');
     const allForms = document.querySelectorAll('.auth-form');
-    
+
     // Clear all messages
     ['loginMessage', 'signupMessage', 'forgotMessage', 'verifyMessage'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.innerHTML = '';
     });
-    
+
     // Hide all forms first
     allForms.forEach(f => f.classList.remove('active'));
-    
+
     if (tab === 'login') {
         authTabs.style.display = 'flex';
         document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -494,21 +490,21 @@ function switchAuthTab(tab) {
 
 function handleSignup(e) {
     e.preventDefault();
-    
+
     const name = document.getElementById('signupName').value.trim();
     const email = document.getElementById('signupEmail').value.trim().toLowerCase();
     const password = document.getElementById('signupPassword').value;
     const btn = document.getElementById('signupBtn');
-    
+
     const existingUser = localStorage.getItem('user_' + email);
     if (existingUser) {
         showAuthMessage('signupMessage', 'Account already exists! Please login.', 'error');
         return;
     }
-    
+
     btn.disabled = true;
     btn.textContent = 'Signing up...';
-    
+
     setTimeout(() => {
         const userData = {
             name: name,
@@ -516,15 +512,15 @@ function handleSignup(e) {
             password: password,
             createdAt: new Date().toISOString()
         };
-        
+
         localStorage.setItem('user_' + email, JSON.stringify(userData));
-        
+
         showAuthMessage('signupMessage', 'Account created successfully! Logging you in...', 'success');
         btn.disabled = false;
         btn.textContent = 'Create Account';
-        
+
         document.getElementById('signupForm').reset();
-        
+
         setTimeout(() => {
             document.getElementById('loginEmail').value = email;
             switchAuthTab('login');
@@ -534,28 +530,28 @@ function handleSignup(e) {
 
 function handleLogin(e) {
     e.preventDefault();
-    
+
     const email = document.getElementById('loginEmail').value.trim().toLowerCase();
     const password = document.getElementById('loginPassword').value;
     const btn = document.getElementById('loginBtn');
-    
+
     const userDataStr = localStorage.getItem('user_' + email);
-    
+
     if (!userDataStr) {
         showAuthMessage('loginMessage', 'Account doesn\'t exist. Please sign up!', 'error');
         return;
     }
-    
+
     const userData = JSON.parse(userDataStr);
-    
+
     if (userData.password !== password) {
         showAuthMessage('loginMessage', 'Incorrect password. Try again!', 'error');
         return;
     }
-    
+
     btn.disabled = true;
     btn.textContent = 'Logging in...';
-    
+
     setTimeout(() => {
         localStorage.setItem('currentUser', email);
         currentUser = email;
@@ -570,11 +566,11 @@ function showAuthMessage(elementId, message, type) {
 
 function initializeApp() {
     document.getElementById('authScreen').style.display = 'none';
-    
+
     const savedProgress = localStorage.getItem('progress_' + currentUser);
     if (savedProgress) {
         const loadedProgress = JSON.parse(savedProgress);
-        
+
         Object.keys(userProgress).forEach(lang => {
             Object.keys(userProgress[lang]).forEach(courseId => {
                 if (loadedProgress[lang] && loadedProgress[lang][courseId]) {
@@ -582,16 +578,16 @@ function initializeApp() {
                 }
             });
         });
-        
+
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
         soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
     }
-    
+
     const savedTime = localStorage.getItem('studyTime_' + currentUser);
     if (savedTime) {
         totalStudyTime = parseInt(savedTime);
     }
-    
+
     const userData = JSON.parse(localStorage.getItem('user_' + currentUser));
     if (userData) {
         const firstName = userData.name.split(' ')[0];
@@ -599,11 +595,11 @@ function initializeApp() {
         document.getElementById('userEmail').textContent = userData.email;
         document.getElementById('userAvatar').textContent = firstName.charAt(0).toUpperCase();
     }
-    
+
     renderCourses();
     updateDashboard();
     checkStreakStatus();
-    
+
     // Check for updates - will show splash for new users after 0.3s
     checkForUpdates();
 
@@ -615,7 +611,7 @@ if (savedGoals) {
         startSmartGoalMonitoring();
     }
 }
-    
+
     // ADD THESE LINES AT THE VERY END
     setTimeout(() => {
         initializeGoalsButtons();
@@ -639,18 +635,18 @@ function checkStreakStatus() {
     const today = new Date().toDateString();
     const lastActivity = localStorage.getItem('lastActivity_' + currentUser);
     const currentStreak = parseInt(localStorage.getItem('streak_' + currentUser) || '0');
-    
+
     if (lastActivity && currentStreak > 0) {
         const lastDate = new Date(lastActivity);
         const todayDate = new Date(today);
         const diffTime = todayDate - lastDate;
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays > 1) {
             // Streak broken - reset to 0
             const brokenStreak = currentStreak;
             localStorage.setItem('streak_' + currentUser, '0');
-            
+
             // Show broken streak message
             setTimeout(() => {
                 const modal = document.createElement('div');
@@ -683,72 +679,65 @@ function checkAuth() {
 
 function injectMobileBottomSheetCSS() {
     if (document.getElementById('mobileBottomSheetCSS')) return;
-    
+
     const style = document.createElement('style');
     style.id = 'mobileBottomSheetCSS';
     style.textContent = `
-        /* Mobile Bottom Sheet Styles */
-        @media (max-width: 768px) {
-            .goals-modal,
-            .completion-stats-modal,
-            #goalsListModal,
-            .retry-modal {  /* ✅ REMOVED #viewGoalsModal from this list */
-                align-items: flex-end !important;
-                padding: 0 !important;
-            }
-            
-            .goals-modal-content,
-            .completion-stats-content,
-            .goals-list-content,
-            .retry-modal-content {  /* ✅ REMOVED #viewGoalsModal > div from this list */
-                max-width: 100% !important;
-                width: 100% !important;
-                max-height: 85vh !important;
-                margin: 0 !important;
-                border-radius: 20px 20px 0 0 !important;
-                transform: translateY(100%) !important;
-                transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-            }
-            
-            .goals-modal.active .goals-modal-content,
-            .completion-stats-modal.active .completion-stats-content,
-            #goalsListModal.active .goals-list-content,
-            .retry-modal .retry-modal-content {  /* ✅ REMOVED view goals from this list */
-                transform: translateY(0) !important;
-            }
-            
-            /* Add drag handle */
-            .goals-modal-content::before,
-            .completion-stats-content::before,
-            .goals-list-content::before,
-            .retry-modal-content::before {  /* ✅ REMOVED view goals from this list */
-                content: '';
-                position: absolute;
-                top: 12px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 40px;
-                height: 4px;
-                background: rgba(255, 255, 255, 0.3);
-                border-radius: 2px;
-                z-index: 1;
-            }
-            
-            /* Adjust padding to accommodate drag handle */
-            .goals-modal-content,
-            .completion-stats-content,
-            .goals-list-content,
-            .retry-modal-content {  /* ✅ REMOVED view goals from this list */
-                padding-top: 30px !important;
-            }
-        }
-    `;
+@media (max-width: 768px) {
+.goals-modal,
+.completion-stats-modal,
+#goalsListModal,
+.retry-modal {
+align-items: flex-end !important;
+padding: 0 !important;
+}
+.goals-modal-content,
+.completion-stats-content,
+.goals-list-content,
+.retry-modal-content {
+max-width: 100% !important;
+width: 100% !important;
+max-height: 85vh !important;
+margin: 0 !important;
+border-radius: 20px 20px 0 0 !important;
+transform: translateY(100%) !important;
+transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+.goals-modal.active .goals-modal-content,
+.completion-stats-modal.active .completion-stats-content,
+#goalsListModal.active .goals-list-content,
+.retry-modal .retry-modal-content {
+transform: translateY(0) !important;
+}
+.goals-modal-content::before,
+.completion-stats-content::before,
+.goals-list-content::before,
+.retry-modal-content::before {
+content: '';
+position: absolute;
+top: 12px;
+left: 50%;
+transform: translateX(-50%);
+width: 40px;
+height: 4px;
+background: rgba(255, 255, 255, 0.3);
+border-radius: 2px;
+z-index: 1;
+}
+.goals-modal-content,
+.completion-stats-content,
+.goals-list-content,
+.retry-modal-content {
+padding-top: 30px !important;
+}
+}
+`;
     document.head.appendChild(style);
 }
 
 function enableBottomSheetSwipe() {
     if (window.innerWidth > 768) return; // Desktop only
-    
+
     const modals = [
         '.goals-modal-content',
         '.completion-stats-content',
@@ -756,7 +745,7 @@ function enableBottomSheetSwipe() {
         '.goals-list-content',
         '.retry-modal-content'  // ✅ Add this
     ];
-    
+
     modals.forEach(selector => {
         document.addEventListener('DOMContentLoaded', () => {
             const observer = new MutationObserver(() => {
@@ -766,7 +755,7 @@ function enableBottomSheetSwipe() {
                     addSwipeGesture(element);
                 }
             });
-            
+
             observer.observe(document.body, {
                 childList: true,
                 subtree: true
@@ -779,36 +768,36 @@ function addSwipeGesture(element) {
     let startY = 0;
     let currentY = 0;
     let isDragging = false;
-    
+
     element.addEventListener('touchstart', (e) => {
         // Only allow swipe from top 50px (drag handle area)
         const rect = element.getBoundingClientRect();
         const touchY = e.touches[0].clientY - rect.top;
-        
+
         if (touchY < 50) {
             startY = e.touches[0].clientY;
             isDragging = true;
         }
     }, { passive: true });
-    
+
     element.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-        
+
         currentY = e.touches[0].clientY;
         const diff = currentY - startY;
-        
+
         if (diff > 0) {
             element.style.transform = `translateY(${diff}px)`;
             element.style.transition = 'none';
         }
     }, { passive: true });
-    
+
     element.addEventListener('touchend', () => {
         if (!isDragging) return;
-        
+
         const diff = currentY - startY;
         element.style.transition = 'transform 0.3s ease';
-        
+
         if (diff > 100) {
             // Close modal
             element.style.transform = 'translateY(100%)';
@@ -828,7 +817,7 @@ function addSwipeGesture(element) {
         } else {
             element.style.transform = 'translateY(0)';
         }
-        
+
         isDragging = false;
         startY = 0;
         currentY = 0;
@@ -837,65 +826,55 @@ function addSwipeGesture(element) {
 
 function injectScrollLockCSS() {
     if (document.getElementById('scrollLockCSS')) return;
-    
+
     const style = document.createElement('style');
     style.id = 'scrollLockCSS';
     style.textContent = `
-        /* Prevent background scroll when modal is open */
-        body.modal-open {
-            overflow: hidden !important;
-            position: fixed !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-        
-        /* Prevent momentum scrolling on iOS */
-        .goals-modal,
-        .completion-stats-modal,
-        #viewGoalsModal,
-        #goalsListModal,
-        .inline-ai-overlay,
-        .update-splash {
-            position: fixed !important;
-            overflow: hidden !important;
-            -webkit-overflow-scrolling: auto !important;
-        }
-        
-        /* Make modal content scrollable with momentum */
-        .goals-modal-content,
-        .completion-stats-content,
-        #viewGoalsModal > div,
-        .goals-list-content,
-        #goalsContentContainer,
-        .stat-detail-content,
-        .wrong-answers-list {
-            overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-            overscroll-behavior: contain !important;
-        }
-        
-        /* Prevent pull-to-refresh on mobile */
-        .goals-modal-content,
-        .completion-stats-content,
-        #viewGoalsModal > div,
-        .goals-list-content {
-            touch-action: pan-y !important;
-        }
-        
-        @media (max-width: 768px) {
-            /* Extra protection for mobile */
-            body.modal-open {
-                touch-action: none !important;
-            }
-            
-            .goals-modal,
-            .completion-stats-modal,
-            #viewGoalsModal,
-            #goalsListModal {
-                touch-action: none !important;
-            }
-        }
-    `;
+body.modal-open {
+overflow: hidden !important;
+position: fixed !important;
+width: 100% !important;
+height: 100% !important;
+}
+.goals-modal,
+.completion-stats-modal,
+#viewGoalsModal,
+#goalsListModal,
+.inline-ai-overlay,
+.update-splash {
+position: fixed !important;
+overflow: hidden !important;
+-webkit-overflow-scrolling: auto !important;
+}
+.goals-modal-content,
+.completion-stats-content,
+#viewGoalsModal > div,
+.goals-list-content,
+#goalsContentContainer,
+.stat-detail-content,
+.wrong-answers-list {
+overflow-y: auto !important;
+-webkit-overflow-scrolling: touch !important;
+overscroll-behavior: contain !important;
+}
+.goals-modal-content,
+.completion-stats-content,
+#viewGoalsModal > div,
+.goals-list-content {
+touch-action: pan-y !important;
+}
+@media (max-width: 768px) {
+body.modal-open {
+touch-action: none !important;
+}
+.goals-modal,
+.completion-stats-modal,
+#viewGoalsModal,
+#goalsListModal {
+touch-action: none !important;
+}
+}
+`;
     document.head.appendChild(style);
 }
 
@@ -1038,26 +1017,26 @@ let scrollPosition = 0;
 function lockScroll() {
     // Save current scroll position
     scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-    
+
     // Add class to body
     document.body.classList.add('modal-open');
-    
+
     // Set body position to prevent scroll
     document.body.style.top = `-${scrollPosition}px`;
-    
+
     console.log('🔒 Scroll locked at position:', scrollPosition);
 }
 
 function unlockScroll() {
     // Remove class from body
     document.body.classList.remove('modal-open');
-    
+
     // Remove inline styles
     document.body.style.top = '';
-    
+
     // Restore scroll position
     window.scrollTo(0, scrollPosition);
-    
+
     console.log('🔓 Scroll unlocked, restored to:', scrollPosition);
 }
 
@@ -1094,7 +1073,7 @@ document.addEventListener('touchend', () => {
 function openMobileSidebar() {
     const sidebar = document.getElementById('mobileSidebar');
     const overlay = document.getElementById('mobileSidebarOverlay');
-    
+
     if (sidebar && overlay) {
         sidebar.classList.add('active');
         overlay.classList.add('active');
@@ -1105,7 +1084,7 @@ function openMobileSidebar() {
 function closeMobileSidebar() {
     const sidebar = document.getElementById('mobileSidebar');
     const overlay = document.getElementById('mobileSidebarOverlay');
-    
+
     if (sidebar && overlay) {
         sidebar.classList.remove('active');
         overlay.classList.remove('active');
@@ -1161,23 +1140,23 @@ function toggleSearch() {
     const tabs = document.getElementById('navTabs');
     const searchContainer = document.getElementById('searchContainer');
     const searchInput = document.getElementById('searchInput');
-    
+
     if (container.classList.contains('search-active')) {
         // Closing search - faster
         searchContainer.classList.remove('active');
         document.getElementById('searchResults').classList.remove('active');
         searchInput.value = '';
-        
+
         // Wait for search to fade out (reduced time)
         setTimeout(() => {
             container.classList.remove('search-active');
             tabs.style.opacity = '0';
             tabs.style.display = 'flex';
             tabs.classList.remove('show-tabs');
-            
+
             // Trigger reflow to restart animation
             void tabs.offsetWidth;
-            
+
             // Fade in tabs with animation
             setTimeout(() => {
                 tabs.classList.add('show-tabs');
@@ -1189,11 +1168,11 @@ function toggleSearch() {
         // Opening search - faster
         tabs.style.transition = 'opacity 0.2s ease';
         tabs.style.opacity = '0';
-        
+
         setTimeout(() => {
             container.classList.add('search-active');
             tabs.style.display = 'none';
-            
+
             setTimeout(() => {
                 searchContainer.classList.add('active');
                 searchInput.focus();
@@ -1535,22 +1514,22 @@ Return only the JSON array, no other text.`;
 function handleMobileSearch() {
     const query = document.getElementById('mobileSearchInput').value.toLowerCase();
     const results = document.getElementById('mobileSearchResults');
-    
+
     if (!query) {
         results.innerHTML = '';
         return;
     }
-    
+
     const matches = [];
     Object.keys(courses).forEach(lang => {
         courses[lang].forEach((course, index) => {
-            if (course.title.toLowerCase().includes(query) || 
+            if (course.title.toLowerCase().includes(query) ||
                 course.desc.toLowerCase().includes(query) ||
                 lang.includes(query)) {
-                
+
                 const isLocked = index > 0 && !userProgress[lang]['course' + index]?.completed;
                 const isCompleted = userProgress[lang][course.id]?.completed;
-                
+
                 matches.push({
                     lang,
                     course,
@@ -1562,12 +1541,12 @@ function handleMobileSearch() {
             }
         });
     });
-    
+
     if (matches.length > 0) {
         results.innerHTML = matches.map(m => {
             let statusBadge = '';
             let clickable = !m.isLocked;
-            
+
             if (m.isCompleted) {
                 statusBadge = '<span style="color: #00ff00; margin-left: 8px;">✓ Completed</span>';
             } else if (m.isLocked) {
@@ -1575,11 +1554,11 @@ function handleMobileSearch() {
             } else {
                 statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
             }
-            
-            const onClick = clickable 
-                ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}'); closeMobileSearch();"` 
+
+            const onClick = clickable
+                ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}'); closeMobileSearch();"`
                 : `style="opacity: 0.5; cursor: not-allowed;"`;
-            
+
             return `
                 <div class="search-result-item" ${onClick}>
                     <div class="search-result-title">${m.course.icon} ${m.course.title}${statusBadge}</div>
@@ -1595,18 +1574,18 @@ function handleMobileSearch() {
 function openCourseFromSearch(lang, courseId, courseName) {
     const courseIndex = courses[lang].findIndex(c => c.id === courseId);
     const isLocked = courseIndex > 0 && !userProgress[lang]['course' + courseIndex]?.completed;
-    
+
     if (isLocked) {
         alert('🔒 This course is locked! Complete the previous course to unlock it.');
         return;
     }
-    
+
     toggleSearch();
     showSection('learn');
     switchLanguage(lang);
-    
+
     const isCompleted = userProgress[lang][courseId]?.completed;
-    
+
     if (isCompleted) {
         showRetryModal(lang, courseId, courseName);
     } else {
@@ -1616,10 +1595,10 @@ function openCourseFromSearch(lang, courseId, courseName) {
 
 function retryLesson(lang, courseId, courseName) {
     closeRetryModal();
-    
+
     // Set retry mode flag
     isRetryMode = true;
-    
+
     // Open the lesson
     openLesson(lang, courseId, courseName);
 }
@@ -1719,7 +1698,6 @@ function showSection(sectionId) {
         });
     }
 
-    // ADD THIS CODE HERE
     if (sectionId === 'stats') {
         setTimeout(() => {
             initializeGoalsButtons();
@@ -1851,23 +1829,23 @@ function renderCourses() {
     const now = new Date().getTime();
     const oneDayMs = 24 * 60 * 60 * 1000;
     const shouldShowNew = !newCoursesSeenDate || (now - parseInt(newCoursesSeenDate)) < oneDayMs;
-    
+
     if (!newCoursesSeenDate) {
         localStorage.setItem('newCoursesSeen_' + currentUser, now.toString());
     }
-    
+
     Object.keys(courses).forEach(lang => {
         const container = document.getElementById(lang + '-courses');
         container.innerHTML = '';
-        
+
         // Active Courses Section - FILTER OUT COURSES 8-10
         const availableCourses = courses[lang].filter(course => !course.isNew);
-        
+
         availableCourses.forEach((course, index) => {
             const isLocked = index > 0 && !userProgress[lang]['course' + index]?.completed;
             const isCompleted = userProgress[lang][course.id]?.completed;
             const progress = userProgress[lang][course.id]?.progress || 0;
-            
+
             const card = document.createElement('div');
             card.className = 'course-card' + (isLocked ? ' locked' : '');
             card.innerHTML = `
@@ -1888,7 +1866,7 @@ function renderCourses() {
                     </div>
                 </div>
             `;
-            
+
             if (!isLocked) {
                 card.onclick = () => {
                     if (isCompleted) {
@@ -1898,27 +1876,27 @@ function renderCourses() {
                     }
                 };
             }
-            
+
             container.appendChild(card);
         });
     });
-    
+
     // ADD COMING SOON SECTION AT THE END (AFTER ALL LANGUAGES)
     createComingSoonSection();
 }
-        
+
         function createComingSoonSection() {
     // Check if already exists
     const existingSection = document.getElementById('globalComingSoonSection');
     if (existingSection) {
         existingSection.remove();
     }
-    
+
     const learnSection = document.getElementById('learn');
     const languageContent = learnSection.querySelector('.language-content.active');
-    
+
     if (!languageContent) return;
-    
+
     // Create coming soon container
     const comingSoonContainer = document.createElement('div');
     comingSoonContainer.id = 'globalComingSoonSection';
@@ -1932,7 +1910,7 @@ function renderCourses() {
         padding: 30px;
         box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
     `;
-    
+
     const titleSection = document.createElement('div');
     titleSection.style.cssText = `
         display: flex;
@@ -1942,7 +1920,7 @@ function renderCourses() {
         flex-wrap: wrap;
         gap: 15px;
     `;
-    
+
     const title = document.createElement('h2');
     title.style.cssText = `
         color: #fff;
@@ -1954,7 +1932,7 @@ function renderCourses() {
         gap: 10px;
     `;
     title.innerHTML = '🚀 Coming Soon';
-    
+
     const badge = document.createElement('span');
     badge.style.cssText = `
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(100, 255, 218, 0.2));
@@ -1968,10 +1946,10 @@ function renderCourses() {
     `;
     badge.textContent = 'FUTURE COURSES';
     title.appendChild(badge);
-    
+
     titleSection.appendChild(title);
     comingSoonContainer.appendChild(titleSection);
-    
+
     // Empty state message
     const emptyState = document.createElement('div');
     emptyState.style.cssText = `
@@ -1981,13 +1959,13 @@ function renderCourses() {
         border: 2px dashed rgba(100, 255, 218, 0.2);
         border-radius: 15px;
     `;
-    
+
     emptyState.innerHTML = `
         <div style="font-size: 4em; margin-bottom: 15px; opacity: 0.6;">📦</div>
         <div style="color: #fff; font-size: 1.3em; font-weight: 700; margin-bottom: 10px;">No courses coming soon yet</div>
         <div style="color: #8b949e; font-size: 1em; font-weight: 500;">More exciting courses will be added in future updates!</div>
     `;
-    
+
     comingSoonContainer.appendChild(emptyState);
     languageContent.appendChild(comingSoonContainer);
 }
@@ -2001,10 +1979,10 @@ function switchComingSoonTab(lang) {
         tab.style.borderColor = isActive ? 'rgba(102, 126, 234, 0.5)' : 'rgba(100, 255, 218, 0.2)';
         tab.style.color = isActive ? '#667eea' : '#64ffda';
     });
-    
+
     // Get coming soon courses (courses 8-10)
     const comingSoonCourses = courses[lang].filter(course => course.isNew);
-    
+
     // Update cards
     const cardsContainer = document.getElementById('comingSoonCards');
     cardsContainer.style.cssText = `
@@ -2013,9 +1991,9 @@ function switchComingSoonTab(lang) {
         gap: 20px;
         animation: fadeIn 0.4s ease;
     `;
-    
+
     cardsContainer.innerHTML = '';
-    
+
     comingSoonCourses.forEach(course => {
         const card = document.createElement('div');
         card.style.cssText = `
@@ -2030,21 +2008,21 @@ function switchComingSoonTab(lang) {
             cursor: not-allowed;
             opacity: 0.8;
         `;
-        
+
         card.onmouseenter = function() {
             this.style.background = 'rgba(100, 255, 218, 0.08)';
             this.style.borderColor = 'rgba(100, 255, 218, 0.25)';
             this.style.transform = 'translateY(-3px)';
             this.style.boxShadow = '0 8px 20px rgba(100, 255, 218, 0.2)';
         };
-        
+
         card.onmouseleave = function() {
             this.style.background = 'rgba(100, 255, 218, 0.05)';
             this.style.borderColor = 'rgba(100, 255, 218, 0.15)';
             this.style.transform = 'translateY(0)';
             this.style.boxShadow = 'none';
         };
-        
+
         card.innerHTML = `
             <div style="font-size: 3em; opacity: 0.7; flex-shrink: 0; filter: grayscale(30%);">${course.icon}</div>
             <div style="flex: 1;">
@@ -2056,7 +2034,7 @@ function switchComingSoonTab(lang) {
                 </div>
             </div>
         `;
-        
+
         cardsContainer.appendChild(card);
     });
 }
@@ -2067,22 +2045,21 @@ function openLesson(language, courseId, courseName) {
     learnMessageIndex = 0;
     correctAnswers = 0;
     selectedMCQ = {};
-    
+
     studyStartTime = Date.now();
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(updateTimer, 1000);
 
-    // ADD THIS:
     document.body.classList.add('lesson-active');
-    
+
     document.getElementById('lessonTitle').textContent = courseName;
     document.getElementById('lessonView').classList.add('active');
     document.getElementById('learnMessages').innerHTML = '';
     document.getElementById('questionMessages').innerHTML = '';
-    
+
     document.getElementById('questionsTabBtn').disabled = true;
     document.getElementById('questionsTabBtn').innerHTML = 'Questions 🔒';
-    
+
     switchPanel('learn');
     updateLessonProgress();
     displayNextLearnMessage();
@@ -2093,23 +2070,23 @@ function closeLesson() {
         const sessionTime = Math.floor((Date.now() - studyStartTime) / 1000);
         userProgress[currentLesson.language][currentLesson.courseId].time += sessionTime;
         totalStudyTime += sessionTime;
-        
+
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
         localStorage.setItem('studyTime_' + currentUser, totalStudyTime.toString());
     }
-    
+
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
     }
-    
+
     // Clear all AI course data
     if (currentLesson && currentLesson.isAI) {
         currentAICourse = null;
         aiCourseContent = null;
         wrongAnswers = [];
     }
-    
+
     studyStartTime = null;
     isRetryMode = false;
     learnCompleted = false;
@@ -2117,12 +2094,11 @@ function closeLesson() {
     correctAnswers = 0;
     selectedMCQ = {};
 
-    // ADD THIS:
     document.body.classList.remove('lesson-active');
-    
+
     document.getElementById('lessonView').classList.remove('active');
     currentLesson = null;
-    
+
     renderCourses();
     updateDashboard();
 }
@@ -2137,17 +2113,17 @@ function updateTimer() {
 
 function switchPanel(panel) {
     if (panel === 'questions' && !learnCompleted) return;
-    
+
     document.querySelectorAll('.tab-switch-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    
+
     if (panel === 'learn') {
         document.getElementById('learnTabBtn').classList.add('active');
         document.getElementById('learnPanel').classList.add('active');
     } else {
         document.getElementById('questionsTabBtn').classList.add('active');
         document.getElementById('questionsPanel').classList.add('active');
-        
+
         const questionMessages = document.getElementById('questionMessages');
         if (questionMessages.children.length === 0) {
             // Check if it's an AI course
@@ -2233,7 +2209,7 @@ async function displayNextLearnMessage() {
         if (learnMessageIndex === 0 && currentUser) {
             const userData = JSON.parse(localStorage.getItem('user_' + currentUser));
             const firstName = userData ? userData.name.split(' ')[0] : 'there';
-            
+
             // Personalize the greeting
             if (messageContent.includes('Welcome')) {
                 messageContent = messageContent.replace('Welcome', `Welcome, ${firstName}!`);
@@ -2281,9 +2257,9 @@ if (msg.video) {
     `;
 }
         learnMessages.appendChild(messageDiv);
-        
+
         learnMessages.scrollTop = learnMessages.scrollHeight;
-        
+
         requestAnimationFrame(() => {
             messageDiv.style.transition = 'all 0.4s ease';
             messageDiv.style.opacity = '1';
@@ -2318,7 +2294,7 @@ if (msg.video) {
             `;
             learnMessages.appendChild(unlockMsg);
             learnMessages.scrollTop = learnMessages.scrollHeight;
-            
+
             requestAnimationFrame(() => {
                 unlockMsg.style.transition = 'all 0.4s ease';
                 unlockMsg.style.opacity = '1';
@@ -2337,20 +2313,20 @@ function updateLessonProgress() {
         document.getElementById('lessonProgressText').textContent = `${progress}% Complete`;
         return;
     }
-    
+
     if (!currentLesson || !currentLesson.language || !currentLesson.courseId) return;
-    
+
     const content = lessonContent[currentLesson.language]?.[currentLesson.courseId];
     if (!content) return;
-    
+
     const totalSteps = content.learn.length + content.exercises.length;
     const completedSteps = learnMessageIndex + correctAnswers;
-    
+
     // Calculate progress - will be forced to 100% by checkCompletion() when done
     const progress = Math.min(100, Math.round((completedSteps / totalSteps) * 100));
-    
+
     document.getElementById('lessonProgressText').textContent = `${progress}% Complete`;
-    
+
     if (!isRetryMode) {
         userProgress[currentLesson.language][currentLesson.courseId].progress = progress;
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
@@ -2360,10 +2336,10 @@ function updateLessonProgress() {
 function displayQuestions() {
     const content = lessonContent[currentLesson.language]?.[currentLesson.courseId];
     if (!content) return;
-    
+
     const questionMessages = document.getElementById('questionMessages');
     questionMessages.innerHTML = ''; // Clear any existing content
-    
+
     const welcomeDiv = document.createElement('div');
     welcomeDiv.className = 'message';
     welcomeDiv.innerHTML = `
@@ -2371,21 +2347,21 @@ function displayQuestions() {
         <div class="message-bubble">🎯 Test your knowledge!</div>
     `;
     questionMessages.appendChild(welcomeDiv);
-    
+
     // ✅ DEBUG: Log total exercises
     console.log('Total exercises to display:', content.exercises.length);
-    
+
     content.exercises.forEach((exercise, index) => {
         console.log('Creating question', index + 1, ':', exercise.question); // Debug
-        
+
         const exerciseDiv = document.createElement('div');
         exerciseDiv.className = 'message';
-        
+
         if (exercise.type === 'mcq') {
-            let optionsHTML = exercise.options.map((opt, i) => 
+            let optionsHTML = exercise.options.map((opt, i) =>
                 `<div class="mcq-option" onclick="selectOption(this, ${index}, ${i})">${opt}</div>`
             ).join('');
-            
+
             exerciseDiv.innerHTML = `
                 <div class="message-avatar">🤖</div>
                 <div class="message-bubble">
@@ -2401,11 +2377,11 @@ function displayQuestions() {
             `;
         } else if (exercise.type === 'fill') {
             const isMobile = window.innerWidth <= 768;
-            
+
             if (isMobile) {
                 // Mobile version with clickable options
                 const options = generateFillOptions(exercise.answer, exercise.code);
-                
+
                 exerciseDiv.innerHTML = `
                     <div class="message-avatar">🤖</div>
                     <div class="message-bubble">
@@ -2423,9 +2399,9 @@ function displayQuestions() {
                 `;
             } else {
                 // Desktop version with input field
-                const codeWithBlanks = exercise.code.replace(/___BLANK___/g, 
+                const codeWithBlanks = exercise.code.replace(/___BLANK___/g,
                     `<span class="code-blank-wrapper"><input type="text" class="code-blank" data-index="${index}" placeholder="____"></span>`);
-                
+
                 exerciseDiv.innerHTML = `
                     <div class="message-avatar">🤖</div>
                     <div class="message-bubble">
@@ -2439,13 +2415,13 @@ function displayQuestions() {
                 `;
             }
         }
-        
+
         questionMessages.appendChild(exerciseDiv);
     });
-    
+
     // ✅ Force scroll to top of questions panel
     questionMessages.scrollTop = 0;
-    
+
     // ✅ DEBUG: Log how many questions were created
     console.log('Questions created:', questionMessages.children.length - 1); // -1 for welcome message
 }
@@ -2458,22 +2434,22 @@ function selectOption(element, exerciseIndex, optionIndex) {
 
 function checkMCQAnswer(exerciseIndex) {
     // FIX: Check if AI course or regular course
-    const content = currentLesson.isAI 
-        ? aiCourseContent 
+    const content = currentLesson.isAI
+        ? aiCourseContent
         : lessonContent[currentLesson.language][currentLesson.courseId];
-    
+
     const exercise = content.exercises[exerciseIndex];
     const selected = selectedMCQ[exerciseIndex];
     const feedbackDiv = document.getElementById('feedback-' + exerciseIndex);
     const optionsContainer = document.querySelector(`.mcq-options[data-exercise="${exerciseIndex}"]`);
     const options = optionsContainer.querySelectorAll('.mcq-option');
     const submitBtn = optionsContainer.closest('.exercise-box').querySelector('.submit-button');
-    
+
     if (selected === undefined) {
         feedbackDiv.innerHTML = '<div class="feedback incorrect">Select an answer!</div>';
         return;
     }
-    
+
     if (selected === exercise.correct) {
         options[selected].classList.add('correct');
         options.forEach(opt => {
@@ -2496,7 +2472,7 @@ function checkMCQAnswer(exerciseIndex) {
                 exercise.options[exercise.correct]
             );
         }
-        
+
         options[selected].classList.add('incorrect');
         options[exercise.correct].classList.add('correct');
         feedbackDiv.innerHTML = '<div class="feedback incorrect">❌ Try again!</div>';
@@ -2550,7 +2526,7 @@ function checkFillAnswer(exerciseIndex, correctAnswer) {
 // Generate fill options for mobile
 function generateFillOptions(correctAnswer, codeSnippet) {
     const options = [correctAnswer];
-    
+
     // Common wrong answers based on context
     const commonWrong = {
         'print': ['println', 'console', 'echo'],
@@ -2580,7 +2556,7 @@ function generateFillOptions(correctAnswer, codeSnippet) {
         'then': ['next', 'after', 'done'],
         'catch': ['error', 'fail', 'exception']
     };
-    
+
     // Add wrong options
     if (commonWrong[correctAnswer]) {
         options.push(...commonWrong[correctAnswer].slice(0, 2));
@@ -2588,7 +2564,7 @@ function generateFillOptions(correctAnswer, codeSnippet) {
         // Generic wrong options
         options.push(correctAnswer + 's', correctAnswer.toUpperCase(), correctAnswer + '()');
     }
-    
+
     // Shuffle options
     return options.sort(() => Math.random() - 0.5).slice(0, 4);
 }
@@ -2599,7 +2575,7 @@ function selectFillOption(exerciseIndex, selected, correctAnswer) {
     const optionsContainer = document.querySelector(`#feedback-${exerciseIndex}`).closest('.exercise-box').querySelector('.fill-options');
     const buttons = optionsContainer.querySelectorAll('.fill-option-btn');
     const placeholder = document.querySelector(`#feedback-${exerciseIndex}`).closest('.exercise-box').querySelector('.code-blank-placeholder');
-    
+
     if (selected.toLowerCase() === correctAnswer.toLowerCase()) {
         buttons.forEach(btn => {
             btn.disabled = true;
@@ -2609,11 +2585,11 @@ function selectFillOption(exerciseIndex, selected, correctAnswer) {
                 btn.classList.add('correct-option');
             }
         });
-        
+
         placeholder.textContent = selected;
         placeholder.style.color = '#64ffda';
         placeholder.style.fontWeight = '700';
-        
+
         feedbackDiv.innerHTML = '<div class="feedback correct">✅ Correct!</div>';
         correctAnswers++;
         updateLessonProgress();
@@ -2627,7 +2603,7 @@ function selectFillOption(exerciseIndex, selected, correctAnswer) {
                 }, 1000);
             }
         });
-        
+
         feedbackDiv.innerHTML = '<div class="feedback incorrect">❌ Try again!</div>';
         setTimeout(() => {
             feedbackDiv.innerHTML = '';
@@ -2637,10 +2613,10 @@ function selectFillOption(exerciseIndex, selected, correctAnswer) {
 
 function checkCompletion() {
     // FIX: Support AI courses
-    const content = currentLesson.isAI 
-        ? aiCourseContent 
+    const content = currentLesson.isAI
+        ? aiCourseContent
         : lessonContent[currentLesson.language][currentLesson.courseId];
-    
+
     if (correctAnswers >= content.exercises.length) {
         // ✅ CRITICAL: Update progress to 100% BEFORE showing completion message
         if (!isRetryMode) {
@@ -2656,9 +2632,9 @@ function checkCompletion() {
         } else {
             document.getElementById('lessonProgressText').textContent = '100% Complete';
         }
-        
+
         const questionMessages = document.getElementById('questionMessages');
-        
+
         const completeMsg = document.createElement('div');
         completeMsg.className = 'message';
         completeMsg.innerHTML = `
@@ -2720,10 +2696,10 @@ function completeLesson() {
         const today = new Date().toDateString();
         const lastActivity = localStorage.getItem('lastActivity_' + currentUser);
         const currentStreak = parseInt(localStorage.getItem('streak_' + currentUser) || '0');
-        
+
         let newStreak = currentStreak;
         let showStreak = false;
-        
+
         if (!lastActivity) {
             newStreak = 1;
             showStreak = true;
@@ -2734,7 +2710,7 @@ function completeLesson() {
             const todayDate = new Date(today);
             const diffTime = todayDate - lastDate;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
+
             if (diffDays === 1) {
                 newStreak = currentStreak + 1;
                 showStreak = true;
@@ -2742,25 +2718,25 @@ function completeLesson() {
                 newStreak = 1;
                 showStreak = true; // ✅ FIXED: Show animation even when restarting streak
             }
-            
+
             localStorage.setItem('streak_' + currentUser, newStreak.toString());
             localStorage.setItem('lastActivity_' + currentUser, today);
         }
-        
+
         document.getElementById('lessonView').classList.remove('active');
         currentLesson = null;
-        
+
         // ✅ FIX: Update both courses list AND roadmap
         renderCourses();
-        
+
         // Check if roadmap is visible and regenerate it
         const roadmapView = document.getElementById('roadmapView');
         if (roadmapView && roadmapView.classList.contains('active')) {
             generateRoadmap();
         }
-        
+
         showSection('home');
-        
+
         if (showStreak && newStreak > 0) {
             setTimeout(() => {
                 showStreakCelebration(newStreak);
@@ -2773,26 +2749,26 @@ function completeLesson() {
 
 function showStreakCelebration(streakNumber) {
     const isMobile = window.innerWidth <= 768;
-    
+
     if (isMobile) {
         // Mobile: Navigate to streak card in carousel FIRST
         showSection('home');
-        
+
         setTimeout(() => {
             // Slide to streak card (index 2 - third card)
             goToStatsSlide(2);
-            
+
             // Wait for carousel to settle
             setTimeout(() => {
                 const statsCards = document.querySelectorAll('.stats-carousel-slide .stat-card');
                 const streakCard = statsCards[2]; // Third card is streak
-                
+
                 if (!streakCard) return;
-                
+
                 // Get card position
                 const rect = streakCard.getBoundingClientRect();
                 const oldStreak = streakNumber - 1;
-                
+
                 // Create floating card clone
                 const floatingCard = document.createElement('div');
                 floatingCard.className = 'floating-streak-card';
@@ -2801,7 +2777,7 @@ function showStreakCelebration(streakNumber) {
                     <div class="stat-value" id="floatingStreakValue">${oldStreak}</div>
                     <div class="stat-label">Day Streak</div>
                 `;
-                
+
                 floatingCard.style.cssText = `
                     position: fixed;
                     left: ${rect.left}px;
@@ -2816,13 +2792,13 @@ function showStreakCelebration(streakNumber) {
                     transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
                     box-shadow: 0 10px 40px rgba(100, 255, 218, 0.3);
                 `;
-                
+
                 // Hide original card
                 streakCard.style.opacity = '0';
-                
+
                 // Add to body
                 document.body.appendChild(floatingCard);
-                
+
                 // Create overlay
                 const overlay = document.createElement('div');
                 overlay.style.cssText = `
@@ -2836,29 +2812,29 @@ function showStreakCelebration(streakNumber) {
                     transition: background 0.5s ease;
                 `;
                 document.body.appendChild(overlay);
-                
+
                 // Animate to center
                 setTimeout(() => {
                     overlay.style.background = 'rgba(0, 0, 0, 0.8)';
-                    
+
                     const centerX = window.innerWidth / 2;
                     const centerY = window.innerHeight / 2;
-                    
+
                     floatingCard.style.left = centerX + 'px';
                     floatingCard.style.top = centerY + 'px';
                     floatingCard.style.transform = 'translate(-50%, -50%) scale(1.2)';
                     floatingCard.style.boxShadow = '0 20px 60px rgba(100, 255, 218, 0.5)';
                 }, 100);
-                
+
                 // Animate number change
                 setTimeout(() => {
                     const valueElement = document.getElementById('floatingStreakValue');
-                    
+
                     // Create number slide container
                     valueElement.style.position = 'relative';
                     valueElement.style.overflow = 'hidden';
                     valueElement.style.height = '60px';
-                    
+
                     const numberContainer = document.createElement('div');
                     numberContainer.style.cssText = `
                         position: relative;
@@ -2869,7 +2845,7 @@ function showStreakCelebration(streakNumber) {
                         align-items: center;
                         transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
                     `;
-                    
+
                     const oldNumber = document.createElement('div');
                     oldNumber.textContent = oldStreak;
                     oldNumber.style.cssText = `
@@ -2881,7 +2857,7 @@ function showStreakCelebration(streakNumber) {
                         align-items: center;
                         justify-content: center;
                     `;
-                    
+
                     const newNumber = document.createElement('div');
                     newNumber.textContent = streakNumber;
                     newNumber.style.cssText = `
@@ -2894,29 +2870,29 @@ function showStreakCelebration(streakNumber) {
                         justify-content: center;
                         text-shadow: 0 0 30px rgba(100, 255, 218, 0.8);
                     `;
-                    
+
                     numberContainer.appendChild(oldNumber);
                     numberContainer.appendChild(newNumber);
-                    
+
                     valueElement.innerHTML = '';
                     valueElement.appendChild(numberContainer);
-                    
+
                     // Slide animation
                     setTimeout(() => {
                         numberContainer.style.transform = 'translateY(-60px)';
                     }, 100);
-                    
+
                     // Pulse card
                     setTimeout(() => {
                         floatingCard.style.transform = 'translate(-50%, -50%) scale(1.25)';
                     }, 300);
-                    
+
                     setTimeout(() => {
                         floatingCard.style.transform = 'translate(-50%, -50%) scale(1.2)';
                     }, 600);
-                    
+
                 }, 1000);
-                
+
                 // Fly back to original position
                 setTimeout(() => {
                     overlay.style.background = 'rgba(0, 0, 0, 0)';
@@ -2925,33 +2901,33 @@ function showStreakCelebration(streakNumber) {
                     floatingCard.style.transform = 'translate(0, 0) scale(1)';
                     floatingCard.style.boxShadow = '0 10px 40px rgba(100, 255, 218, 0.3)';
                 }, 3000);
-                
+
                 // Clean up
                 setTimeout(() => {
                     floatingCard.style.opacity = '0';
-                    
+
                     setTimeout(() => {
                         floatingCard.remove();
                         overlay.remove();
                         streakCard.style.opacity = '1';
-                        
+
                         // Update the actual streak value
                         document.getElementById('streakDays').textContent = streakNumber;
                         updateMobileStatsCarousel();
                     }, 500);
                 }, 3500);
-                
+
             }, 600);
         }, 300);
-        
+
         return; // Exit early for mobile
     }
-    
+
     // DESKTOP VERSION (keep existing desktop code below)
     const celebration = document.getElementById('streakCelebration');
     const card = celebration.querySelector('.streak-card-animated');
     const numberContainer = card.querySelector('.streak-number-container');
-    
+
     const statCards = document.querySelectorAll('.stat-card');
     let streakCard = null;
     statCards.forEach(c => {
@@ -2959,47 +2935,47 @@ function showStreakCelebration(streakNumber) {
             streakCard = c;
         }
     });
-    
+
     if (!streakCard) return;
-    
+
     streakCard.classList.add('animating');
-    
+
     const rect = streakCard.getBoundingClientRect();
     const oldStreak = streakNumber - 1;
-    
+
     const cardWidth = rect.width;
     const cardHeight = rect.height;
     card.style.width = cardWidth + 'px';
     card.style.height = cardHeight + 'px';
-    
+
     numberContainer.innerHTML = `
         <div class="streak-number-big" style="transform: translateY(0); opacity: 1;">${oldStreak}</div>
     `;
-    
+
     card.style.left = (rect.left + rect.width / 2) + 'px';
     card.style.top = (rect.top + rect.height / 2) + 'px';
     card.style.transform = 'translate(-50%, -50%) scale(1)';
     card.style.opacity = '1';
-    
+
     celebration.style.display = 'flex';
     celebration.classList.add('active');
-    
+
     setTimeout(() => {
         celebration.classList.add('show-bg');
-        
+
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
-        
+
         card.style.left = centerX + 'px';
         card.style.top = centerY + 'px';
         card.style.transform = 'translate(-50%, -50%) scale(1.15)';
-        
+
         setTimeout(() => {
             numberContainer.innerHTML = `
                 <div class="streak-number-big" style="transform: translateY(0); opacity: 0;">${oldStreak}</div>
                 <div class="streak-number-big" style="transform: translateY(60px); opacity: 1;">${streakNumber}</div>
             `;
-            
+
             setTimeout(() => {
                 const numbers = numberContainer.querySelectorAll('.streak-number-big');
                 numbers[0].style.transform = 'translateY(-60px)';
@@ -3008,628 +2984,535 @@ function showStreakCelebration(streakNumber) {
                 numbers[1].style.opacity = '1';
             }, 50);
         }, 800);
-        
+
         setTimeout(() => {
             card.style.left = (rect.left + rect.width / 2) + 'px';
             card.style.top = (rect.top + rect.height / 2) + 'px';
             card.style.transform = 'translate(-50%, -50%) scale(1)';
             celebration.classList.remove('show-bg');
-            
+
             setTimeout(() => {
                 card.style.opacity = '0';
-                
+
                 setTimeout(() => {
                     celebration.classList.remove('active');
                     celebration.style.display = 'none';
-                    
+
                     streakCard.classList.remove('animating');
-                    
+
                     card.style.left = '';
                     card.style.top = '';
                     card.style.transform = '';
                     card.style.opacity = '';
                     card.style.width = '';
                     card.style.height = '';
-                    
+
                     updateDashboard();
                     renderCourses();
                 }, 500);
             }, 800);
         }, 2500);
-        
+
     }, 500);
 }
 
-// ============================================
 // ENHANCED DETAILED STATS WITH GLASSMORPHISM
-// ============================================
 
 // Inject Enhanced CSS with Glassmorphism
 function injectDetailedStatsCSS() {
     if (document.getElementById('detailedStatsCSS')) {
         document.getElementById('detailedStatsCSS').remove();
     }
-    
+
     const style = document.createElement('style');
     style.id = 'detailedStatsCSS';
     style.textContent = `
-        /* Hide roadmap navigation buttons in top left */
-        #roadmapNavContainer {
-            display: none !important;
-        }
-
-        .roadmap-scroll-top-btn {
-    position: fixed;
-    top: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 56px;
-    height: 56px;
-    background: transparent;  /* Changed */
-    backdrop-filter: none;    /* Changed */
-    -webkit-backdrop-filter: none;  /* Changed */
-    border: 3px solid #64ffda;  /* Changed - solid green ring */
-            width: 56px;
-            height: 56px;
-            background: rgba(100, 255, 218, 0.15);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid rgba(100, 255, 218, 0.4);
-            border-radius: 50%;
-            color: #64ffda;
-            font-size: 1.5em;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 8px 32px rgba(100, 255, 218, 0.2);
-        }
-
-        .roadmap-scroll-top-btn.show {
-            display: flex;
-            animation: bounceIn 0.6s ease;
-        }
-
-        .roadmap-scroll-top-btn:hover {
-    background: rgba(100, 255, 218, 0.25);
-    border-color: rgba(100, 255, 218, 0.6);
-    transform: translateX(-50%) translateY(-5px) scale(1.1);  /* KEEP centered */
-    box-shadow: 0 12px 40px rgba(100, 255, 218, 0.4);
+#roadmapNavContainer {
+display: none !important;
 }
-
-        .roadmap-scroll-top-btn:active {
-    transform: translateX(-50%) translateY(-3px) scale(1.05);  /* KEEP centered */
+.roadmap-scroll-top-btn {
+position: fixed;
+top: 80px;
+left: 50%;
+transform: translateX(-50%);
+width: 56px;
+height: 56px;
+background: transparent;
+backdrop-filter: none;
+-webkit-backdrop-filter: none;
+border: 3px solid #64ffda;
+width: 56px;
+height: 56px;
+background: rgba(100, 255, 218, 0.15);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border: 2px solid rgba(100, 255, 218, 0.4);
+border-radius: 50%;
+color: #64ffda;
+font-size: 1.5em;
+cursor: pointer;
+display: none;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+box-shadow: 0 8px 32px rgba(100, 255, 218, 0.2);
 }
-
-        @keyframes bounceIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.3) translateY(20px);
-            }
-            50% {
-                transform: scale(1.05) translateY(0);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        /* Remove gap in overview */
-        .stats-grid {
-            margin-bottom: 0 !important;
-        }
-
-        /* Stats Buttons Container - Enhanced Glassmorphism */
-        .stats-buttons-container {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin: 0;
-            padding: 20px;
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 16px;
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            width: 100%;
-            box-sizing: border-box;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.4s ease;
-        }
-
-        .stats-buttons-container:hover {
-            border-color: rgba(100, 255, 218, 0.3);
-            box-shadow: 0 12px 40px rgba(100, 255, 218, 0.15);
-        }
-
-        /* Enhanced Stat Toggle Buttons */
-        .stat-toggle-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            background: rgba(100, 255, 218, 0.08);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 2px solid rgba(100, 255, 218, 0.3);
-            border-radius: 50px;
-            color: #64ffda;
-            font-weight: 600;
-            font-size: 0.95em;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            white-space: nowrap;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-toggle-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(100, 255, 218, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
-        }
-
-        .stat-toggle-btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .stat-toggle-btn:hover {
-            background: rgba(100, 255, 218, 0.15);
-            border-color: rgba(100, 255, 218, 0.6);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(100, 255, 218, 0.4);
-        }
-
-        .stat-toggle-btn:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-
-        .stat-btn-icon {
-            font-size: 1.3em;
-            position: relative;
-            z-index: 1;
-            filter: drop-shadow(0 2px 4px rgba(100, 255, 218, 0.3));
-        }
-
-        .stat-toggle-btn span {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Enhanced Back Button */
-        .stats-back-btn {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            background: rgba(100, 255, 218, 0.12);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid rgba(100, 255, 218, 0.5);
-            border-radius: 50px;
-            color: #64ffda;
-            font-weight: 700;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            margin-bottom: 20px;
-            width: fit-content;
-            box-shadow: 0 4px 16px rgba(100, 255, 218, 0.2);
-        }
-
-        .stats-back-btn:hover {
-            background: rgba(100, 255, 218, 0.2);
-            border-color: rgba(100, 255, 218, 0.7);
-            transform: translateX(-5px) scale(1.05);
-            box-shadow: 0 8px 24px rgba(100, 255, 218, 0.4);
-        }
-
-        .stats-back-btn:active {
-            transform: translateX(-3px) scale(1.02);
-        }
-
-        .stats-back-btn.show {
-            display: flex;
-            animation: slideInLeft 0.5s ease;
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* Detail Views Container */
-        #statDetailViews {
-            position: relative;
-            width: 100%;
-            min-height: 200px;
-        }
-
-        /* Enhanced Detail View with Glassmorphism */
-        .stat-detail-view {
-            display: none;
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-detail-view.active {
-            display: block;
-            animation: slideUpFade 0.6s ease forwards;
-        }
-
-        @keyframes slideUpFade {
-            0% {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            50% {
-                transform: translateY(-5px) scale(1.02);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Enhanced Detail Header */
-        .stat-detail-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(100, 255, 218, 0.3);
-            position: relative;
-        }
-
-        .stat-detail-header::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100px;
-            height: 2px;
-            background: linear-gradient(90deg, #64ffda, transparent);
-            animation: expandLine 0.8s ease;
-        }
-
-        @keyframes expandLine {
-            from { width: 0; }
-            to { width: 100px; }
-        }
-
-        .stat-detail-icon {
-            font-size: 2.8em;
-            filter: drop-shadow(0 4px 12px rgba(100, 255, 218, 0.5));
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-        }
-
-        .stat-detail-title {
-            font-size: 2em;
-            color: #fff;
-            font-weight: 700;
-            background: linear-gradient(135deg, #64ffda 0%, #667eea 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(100, 255, 218, 0.3);
-        }
-
-        .stat-detail-content {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        /* Enhanced Item Styles with Glassmorphism */
-        .language-item, .time-item, .metric-row, .activity-item {
-            background: rgba(100, 255, 218, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(100, 255, 218, 0.15);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .language-item:hover, .time-item:hover, .metric-row:hover, .activity-item:hover {
-            background: rgba(100, 255, 218, 0.12);
-            border-color: rgba(100, 255, 218, 0.4);
-            box-shadow: 0 8px 24px rgba(100, 255, 218, 0.2);
-        }
-
-        /* Language Items */
-        .language-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-radius: 16px;
-            cursor: pointer;
-        }
-
-        .language-item:hover {
-            transform: translateX(5px);
-        }
-
-        .language-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .language-icon {
-            font-size: 2em;
-            filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
-        }
-
-        .language-name {
-            font-weight: 700;
-            color: #fff;
-            font-size: 1.1em;
-        }
-
-        .language-stats {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-        }
-
-        .language-progress {
-            font-size: 1.4em;
-            color: #64ffda;
-            font-weight: 800;
-            text-shadow: 0 0 15px rgba(100, 255, 218, 0.6);
-        }
-
-        .language-courses {
-            font-size: 0.9em;
-            color: #8b949e;
-            font-weight: 600;
-        }
-
-        /* Time Items */
-        .time-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            border-radius: 14px;
-            border-left: 4px solid #64ffda;
-        }
-
-        .time-item:hover {
-            transform: translateX(5px);
-            border-left-width: 6px;
-        }
-
-        .time-label {
-            color: #fff;
-            font-weight: 600;
-            font-size: 1.05em;
-        }
-
-        .time-value {
-            color: #64ffda;
-            font-weight: 800;
-            font-size: 1.3em;
-            text-shadow: 0 0 12px rgba(100, 255, 218, 0.6);
-        }
-
-        /* Performance Metrics */
-        .metric-row {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            padding: 16px 20px;
-            border-radius: 16px;
-        }
-
-        .metric-row:hover {
-             transform: scale(1.01);
-        }
-
-        .metric-icon {
-            font-size: 2.2em;
-            filter: drop-shadow(0 2px 10px rgba(100, 255, 218, 0.5));
-        }
-
-        .metric-info {
-            flex: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .metric-label {
-            color: #8b949e;
-            font-weight: 600;
-            font-size: 1em;
-        }
-
-        .metric-value {
-            color: #64ffda;
-            font-weight: 800;
-            font-size: 1.4em;
-            text-shadow: 0 0 12px rgba(100, 255, 218, 0.6);
-        }
-
-        /* Activity Items */
-        .activity-item {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            padding: 16px 20px;
-            border-radius: 16px;
-            border-left: 4px solid #64ffda;
-        }
-
-        .activity-item:hover {
-            transform: translateX(5px);
-        }
-
-        .activity-icon {
-            font-size: 2em;
-            filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
-        }
-
-        .activity-details {
-            flex: 1;
-        }
-
-        .activity-title {
-            color: #fff;
-            font-weight: 700;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        .activity-date {
-            color: #8b949e;
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-
-        /* Enhanced Scrollbar */
-        .stat-detail-content {
-            max-height: 450px;
-            overflow-y: auto;
-            padding-right: 12px;
-        }
-
-        .stat-detail-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .stat-detail-content::-webkit-scrollbar-track {
-            background: rgba(100, 255, 218, 0.05);
-            border-radius: 10px;
-        }
-
-        .stat-detail-content::-webkit-scrollbar-thumb {
-            background: rgba(100, 255, 218, 0.3);
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .stat-detail-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 255, 218, 0.5);
-        }
-
-        /* Chart Container Smooth Transitions */
-        .chart-container {
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .chart-container.hide {
-            opacity: 0;
-            transform: scale(0.95) translateY(-20px);
-            height: 0;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Goals Button */
-        .goals-button-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 15px;
-        }
-
-        .goals-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: rgba(102, 126, 234, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 2px solid rgba(102, 126, 234, 0.3);
-    border-radius: 50px;
-    color: #667eea;
-    font-weight: 600;
-    font-size: 0.95em;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    white-space: nowrap;  /* ADD THIS */
-    margin-left: auto;     /* ADD THIS - pushes to right */
+.roadmap-scroll-top-btn.show {
+display: flex;
+animation: bounceIn 0.6s ease;
 }
-
-        .goals-btn:hover {
-            background: rgba(102, 126, 234, 0.2);
-            border-color: rgba(102, 126, 234, 0.6);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .goals-btn-icon {
-            font-size: 1.2em;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .roadmap-scroll-top-btn {
-                bottom: 80px;
-                right: 20px;
-                width: 50px;
-                height: 50px;
-                font-size: 1.3em;
-            }
-
-            .stats-buttons-container {
-                gap: 10px;
-                padding: 15px;
-            }
-
-            .stat-toggle-btn {
-                padding: 10px 18px;
-                font-size: 0.85em;
-            }
-
-            .stat-detail-view {
-                padding: 20px;
-            }
-
-            .stat-detail-title {
-                font-size: 1.5em;
-            }
-
-            .stat-detail-icon {
-                font-size: 2.2em;
-            }
-        }
-    `;
+.roadmap-scroll-top-btn:hover {
+background: rgba(100, 255, 218, 0.25);
+border-color: rgba(100, 255, 218, 0.6);
+transform: translateX(-50%) translateY(-5px) scale(1.1);
+box-shadow: 0 12px 40px rgba(100, 255, 218, 0.4);
+}
+.roadmap-scroll-top-btn:active {
+transform: translateX(-50%) translateY(-3px) scale(1.05);
+}
+@keyframes bounceIn {
+0% {
+opacity: 0;
+transform: scale(0.3) translateY(20px);
+}
+50% {
+transform: scale(1.05) translateY(0);
+}
+100% {
+opacity: 1;
+transform: scale(1) translateY(0);
+}
+}
+.stats-grid {
+margin-bottom: 0 !important;
+}
+.stats-buttons-container {
+display: flex;
+gap: 12px;
+flex-wrap: wrap;
+margin: 0;
+padding: 20px;
+background: rgba(30, 30, 30, 0.6);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border-radius: 16px;
+border: 1px solid rgba(100, 255, 218, 0.2);
+width: 100%;
+box-sizing: border-box;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+transition: all 0.4s ease;
+}
+.stats-buttons-container:hover {
+border-color: rgba(100, 255, 218, 0.3);
+box-shadow: 0 12px 40px rgba(100, 255, 218, 0.15);
+}
+.stat-toggle-btn {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 12px 24px;
+background: rgba(100, 255, 218, 0.08);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+border: 2px solid rgba(100, 255, 218, 0.3);
+border-radius: 50px;
+color: #64ffda;
+font-weight: 600;
+font-size: 0.95em;
+cursor: pointer;
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+white-space: nowrap;
+position: relative;
+overflow: hidden;
+}
+.stat-toggle-btn::before {
+content: '';
+position: absolute;
+top: 50%;
+left: 50%;
+width: 0;
+height: 0;
+border-radius: 50%;
+background: rgba(100, 255, 218, 0.3);
+transform: translate(-50%, -50%);
+transition: width 0.6s ease, height 0.6s ease;
+}
+.stat-toggle-btn:hover::before {
+width: 300px;
+height: 300px;
+}
+.stat-toggle-btn:hover {
+background: rgba(100, 255, 218, 0.15);
+border-color: rgba(100, 255, 218, 0.6);
+transform: translateY(-3px);
+box-shadow: 0 8px 20px rgba(100, 255, 218, 0.4);
+}
+.stat-toggle-btn:active {
+transform: translateY(-1px) scale(0.98);
+}
+.stat-btn-icon {
+font-size: 1.3em;
+position: relative;
+z-index: 1;
+filter: drop-shadow(0 2px 4px rgba(100, 255, 218, 0.3));
+}
+.stat-toggle-btn span {
+position: relative;
+z-index: 1;
+}
+.stats-back-btn {
+display: none;
+align-items: center;
+gap: 10px;
+padding: 12px 24px;
+background: rgba(100, 255, 218, 0.12);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border: 2px solid rgba(100, 255, 218, 0.5);
+border-radius: 50px;
+color: #64ffda;
+font-weight: 700;
+font-size: 1em;
+cursor: pointer;
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+margin-bottom: 20px;
+width: fit-content;
+box-shadow: 0 4px 16px rgba(100, 255, 218, 0.2);
+}
+.stats-back-btn:hover {
+background: rgba(100, 255, 218, 0.2);
+border-color: rgba(100, 255, 218, 0.7);
+transform: translateX(-5px) scale(1.05);
+box-shadow: 0 8px 24px rgba(100, 255, 218, 0.4);
+}
+.stats-back-btn:active {
+transform: translateX(-3px) scale(1.02);
+}
+.stats-back-btn.show {
+display: flex;
+animation: slideInLeft 0.5s ease;
+}
+@keyframes slideInLeft {
+from {
+opacity: 0;
+transform: translateX(-30px);
+}
+to {
+opacity: 1;
+transform: translateX(0);
+}
+}
+#statDetailViews {
+position: relative;
+width: 100%;
+min-height: 200px;
+}
+.stat-detail-view {
+display: none;
+opacity: 0;
+transform: translateY(30px) scale(0.95);
+transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+background: rgba(30, 30, 30, 0.6);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border: 1px solid rgba(100, 255, 218, 0.2);
+border-radius: 20px;
+padding: 25px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+.stat-detail-view.active {
+display: block;
+animation: slideUpFade 0.6s ease forwards;
+}
+@keyframes slideUpFade {
+0% {
+opacity: 0;
+transform: translateY(30px) scale(0.95);
+}
+50% {
+transform: translateY(-5px) scale(1.02);
+}
+100% {
+opacity: 1;
+transform: translateY(0) scale(1);
+}
+}
+.stat-detail-header {
+display: flex;
+align-items: center;
+gap: 15px;
+margin-bottom: 25px;
+padding-bottom: 20px;
+border-bottom: 2px solid rgba(100, 255, 218, 0.3);
+position: relative;
+}
+.stat-detail-header::after {
+content: '';
+position: absolute;
+bottom: -2px;
+left: 0;
+width: 100px;
+height: 2px;
+background: linear-gradient(90deg, #64ffda, transparent);
+animation: expandLine 0.8s ease;
+}
+@keyframes expandLine {
+from { width: 0; }
+to { width: 100px; }
+}
+.stat-detail-icon {
+font-size: 2.8em;
+filter: drop-shadow(0 4px 12px rgba(100, 255, 218, 0.5));
+animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+0%, 100% { transform: translateY(0px); }
+50% { transform: translateY(-8px); }
+}
+.stat-detail-title {
+font-size: 2em;
+color: #fff;
+font-weight: 700;
+background: linear-gradient(135deg, #64ffda 0%, #667eea 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+text-shadow: 0 2px 10px rgba(100, 255, 218, 0.3);
+}
+.stat-detail-content {
+display: flex;
+flex-direction: column;
+gap: 14px;
+}
+.language-item, .time-item, .metric-row, .activity-item {
+background: rgba(100, 255, 218, 0.05);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+border: 1px solid rgba(100, 255, 218, 0.15);
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.language-item:hover, .time-item:hover, .metric-row:hover, .activity-item:hover {
+background: rgba(100, 255, 218, 0.12);
+border-color: rgba(100, 255, 218, 0.4);
+box-shadow: 0 8px 24px rgba(100, 255, 218, 0.2);
+}
+.language-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px 20px;
+border-radius: 16px;
+cursor: pointer;
+}
+.language-item:hover {
+transform: translateX(5px);
+}
+.language-info {
+display: flex;
+align-items: center;
+gap: 15px;
+}
+.language-icon {
+font-size: 2em;
+filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
+}
+.language-name {
+font-weight: 700;
+color: #fff;
+font-size: 1.1em;
+}
+.language-stats {
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+gap: 5px;
+}
+.language-progress {
+font-size: 1.4em;
+color: #64ffda;
+font-weight: 800;
+text-shadow: 0 0 15px rgba(100, 255, 218, 0.6);
+}
+.language-courses {
+font-size: 0.9em;
+color: #8b949e;
+font-weight: 600;
+}
+.time-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 16px 20px;
+border-radius: 14px;
+border-left: 4px solid #64ffda;
+}
+.time-item:hover {
+transform: translateX(5px);
+border-left-width: 6px;
+}
+.time-label {
+color: #fff;
+font-weight: 600;
+font-size: 1.05em;
+}
+.time-value {
+color: #64ffda;
+font-weight: 800;
+font-size: 1.3em;
+text-shadow: 0 0 12px rgba(100, 255, 218, 0.6);
+}
+.metric-row {
+display: flex;
+align-items: center;
+gap: 18px;
+padding: 16px 20px;
+border-radius: 16px;
+}
+.metric-row:hover {
+transform: scale(1.01);
+}
+.metric-icon {
+font-size: 2.2em;
+filter: drop-shadow(0 2px 10px rgba(100, 255, 218, 0.5));
+}
+.metric-info {
+flex: 1;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.metric-label {
+color: #8b949e;
+font-weight: 600;
+font-size: 1em;
+}
+.metric-value {
+color: #64ffda;
+font-weight: 800;
+font-size: 1.4em;
+text-shadow: 0 0 12px rgba(100, 255, 218, 0.6);
+}
+.activity-item {
+display: flex;
+align-items: center;
+gap: 18px;
+padding: 16px 20px;
+border-radius: 16px;
+border-left: 4px solid #64ffda;
+}
+.activity-item:hover {
+transform: translateX(5px);
+}
+.activity-icon {
+font-size: 2em;
+filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
+}
+.activity-details {
+flex: 1;
+}
+.activity-title {
+color: #fff;
+font-weight: 700;
+font-size: 1.1em;
+margin-bottom: 5px;
+}
+.activity-date {
+color: #8b949e;
+font-size: 0.9em;
+font-weight: 600;
+}
+.stat-detail-content {
+max-height: 450px;
+overflow-y: auto;
+padding-right: 12px;
+}
+.stat-detail-content::-webkit-scrollbar {
+width: 8px;
+}
+.stat-detail-content::-webkit-scrollbar-track {
+background: rgba(100, 255, 218, 0.05);
+border-radius: 10px;
+}
+.stat-detail-content::-webkit-scrollbar-thumb {
+background: rgba(100, 255, 218, 0.3);
+border-radius: 10px;
+transition: all 0.3s ease;
+}
+.stat-detail-content::-webkit-scrollbar-thumb:hover {
+background: rgba(100, 255, 218, 0.5);
+}
+.chart-container {
+transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+opacity: 1;
+transform: scale(1);
+}
+.chart-container.hide {
+opacity: 0;
+transform: scale(0.95) translateY(-20px);
+height: 0;
+overflow: hidden;
+margin: 0;
+padding: 0;
+}
+.goals-button-container {
+display: flex;
+justify-content: flex-end;
+margin-top: 15px;
+}
+.goals-btn {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 10px 20px;
+background: rgba(102, 126, 234, 0.1);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+border: 2px solid rgba(102, 126, 234, 0.3);
+border-radius: 50px;
+color: #667eea;
+font-weight: 600;
+font-size: 0.95em;
+cursor: pointer;
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+white-space: nowrap;
+margin-left: auto;
+}
+.goals-btn:hover {
+background: rgba(102, 126, 234, 0.2);
+border-color: rgba(102, 126, 234, 0.6);
+transform: translateY(-3px);
+box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+.goals-btn-icon {
+font-size: 1.2em;
+}
+@media (max-width: 768px) {
+.roadmap-scroll-top-btn {
+bottom: 80px;
+right: 20px;
+width: 50px;
+height: 50px;
+font-size: 1.3em;
+}
+.stats-buttons-container {
+gap: 10px;
+padding: 15px;
+}
+.stat-toggle-btn {
+padding: 10px 18px;
+font-size: 0.85em;
+}
+.stat-detail-view {
+padding: 20px;
+}
+.stat-detail-title {
+font-size: 1.5em;
+}
+.stat-detail-icon {
+font-size: 2.2em;
+}
+}
+`;
     document.head.appendChild(style);
 }
 
@@ -3637,13 +3520,13 @@ function injectDetailedStatsCSS() {
 function createRoadmapScrollButton() {
     // Check if already exists
     if (document.getElementById('roadmapScrollTopBtn')) return;
-    
+
     const btn = document.createElement('button');
     btn.id = 'roadmapScrollTopBtn';
     btn.className = 'roadmap-scroll-top-btn';
     btn.innerHTML = '↑';
     btn.onclick = scrollRoadmapToTop;
-    
+
     document.body.appendChild(btn);
 }
 
@@ -3659,9 +3542,9 @@ function scrollRoadmapToTop() {
 function monitorRoadmapScroll() {
     const roadmapView = document.getElementById('roadmapView');
     const scrollBtn = document.getElementById('roadmapScrollTopBtn');
-    
+
     if (!roadmapView || !scrollBtn) return;
-    
+
     window.addEventListener('scroll', function() {
         // Only show button if on roadmap view
         if (roadmapView.classList.contains('active')) {
@@ -3682,26 +3565,26 @@ function addStatsButtons() {
         console.log('Buttons already exist, skipping creation');
         return;
     }
-    
+
     // Find the progress section
     const progressSection = document.querySelector('.progress-section');
     if (!progressSection) return;
-    
+
     // Find the chart tabs
     const chartTabs = progressSection.querySelector('.chart-tabs');
     if (!chartTabs) return;
-    
+
     // ✅ Add transition to chart containers BEFORE inserting buttons
     const allChartContainers = document.querySelectorAll('.chart-container');
     allChartContainers.forEach(container => {
         container.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
     });
-    
+
     // Create buttons container
     const buttonsContainer = document.createElement('div');
     buttonsContainer.id = 'statsButtonsContainer';
     buttonsContainer.className = 'stats-buttons-container';
-    
+
     // ✅ Start with 0 height and hidden
     buttonsContainer.style.cssText = `
         opacity: 0;
@@ -3710,7 +3593,7 @@ function addStatsButtons() {
         overflow: hidden;
         transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     `;
-    
+
     buttonsContainer.innerHTML = `
     <div style="display: flex; flex: 1; gap: 12px; flex-wrap: wrap; padding: 20px; transition: all 0.4s ease;">
         <button class="stat-toggle-btn stat-btn-animate" style="opacity: 0; transform: translateX(-30px);" onclick="showStatDetail('time')">
@@ -3727,10 +3610,10 @@ function addStatsButtons() {
         </button>
     </div>
     `;
-    
+
     // Insert after chart tabs
     chartTabs.parentNode.insertBefore(buttonsContainer, chartTabs.nextSibling);
-    
+
     // ✅ Measure the natural height
     buttonsContainer.style.maxHeight = 'none';
     buttonsContainer.style.position = 'absolute';
@@ -3739,19 +3622,19 @@ function addStatsButtons() {
     buttonsContainer.style.position = '';
     buttonsContainer.style.visibility = '';
     buttonsContainer.style.maxHeight = '0';
-    
+
     // ✅ Animate container expanding
     setTimeout(() => {
         buttonsContainer.style.maxHeight = naturalHeight + 'px';
         buttonsContainer.style.opacity = '1';
         buttonsContainer.style.transform = 'translateY(0)';
     }, 100);
-    
+
     // ✅ After expansion, set to auto for responsiveness
     setTimeout(() => {
         buttonsContainer.style.maxHeight = 'none';
     }, 700);
-    
+
     // Animate buttons in one by one
     const buttons = buttonsContainer.querySelectorAll('.stat-btn-animate');
     buttons.forEach((btn, index) => {
@@ -3761,10 +3644,10 @@ function addStatsButtons() {
             btn.style.transform = 'translateX(0)';
         }, 300 + (index * 100)); // Stagger by 100ms
     });
-    
+
     // Create detail views
     createDetailViews();
-    
+
     // Make chart tabs clickable to go back
     makeChartTabsClickable();
 }
@@ -3773,7 +3656,7 @@ function addStatsButtons() {
 function addGoalsButton(chartTabs) {
     // Check if already exists
     if (document.getElementById('goalsButtonContainer')) return;
-    
+
     const goalsContainer = document.createElement('div');
     goalsContainer.id = 'goalsButtonContainer';
     goalsContainer.className = 'goals-button-container';
@@ -3782,7 +3665,7 @@ function addGoalsButton(chartTabs) {
         gap: 10px;
         align-items: center;
     `;
-    
+
     // Set Goals Button
     const setGoalsBtn = document.createElement('button');
     setGoalsBtn.className = 'goals-btn';
@@ -3805,21 +3688,21 @@ function addGoalsButton(chartTabs) {
         white-space: nowrap;
     `;
     setGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">🎯</span><span>Set Goals</span>';
-    
+
     setGoalsBtn.onmouseenter = function() {
         this.style.background = 'rgba(102, 126, 234, 0.2)';
         this.style.borderColor = 'rgba(102, 126, 234, 0.6)';
         this.style.transform = 'translateY(-3px)';
         this.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
     };
-    
+
     setGoalsBtn.onmouseleave = function() {
         this.style.background = 'rgba(102, 126, 234, 0.1)';
         this.style.borderColor = 'rgba(102, 126, 234, 0.3)';
         this.style.transform = 'translateY(0)';
         this.style.boxShadow = 'none';
     };
-    
+
     // View Goals Button (initially hidden)
 const viewGoalsBtn = document.createElement('button');
 viewGoalsBtn.id = 'viewGoalsBtn';
@@ -3845,27 +3728,27 @@ viewGoalsBtn.style.cssText = `
     transform: scale(0.8) translateX(-20px);
 `;
     viewGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">👁️</span><span>View Goals</span>';
-    
+
     viewGoalsBtn.onmouseenter = function() {
         this.style.background = 'rgba(100, 255, 218, 0.2)';
         this.style.borderColor = 'rgba(100, 255, 218, 0.6)';
         this.style.transform = 'translateY(-3px)';
         this.style.boxShadow = '0 8px 20px rgba(100, 255, 218, 0.4)';
     };
-    
+
     viewGoalsBtn.onmouseleave = function() {
         this.style.background = 'rgba(100, 255, 218, 0.1)';
         this.style.borderColor = 'rgba(100, 255, 218, 0.3)';
         this.style.transform = 'translateY(0)';
         this.style.boxShadow = 'none';
     };
-    
+
     goalsContainer.appendChild(setGoalsBtn);
     goalsContainer.appendChild(viewGoalsBtn);
-    
+
     // Insert after chart tabs
     chartTabs.parentNode.insertBefore(goalsContainer, chartTabs.nextSibling);
-    
+
     // Check if goals exist and show view button
     checkAndShowViewGoalsButton();
 }
@@ -3873,15 +3756,15 @@ viewGoalsBtn.style.cssText = `
 function checkAndShowViewGoalsButton() {
     const viewBtn = document.getElementById('viewGoalsBtn');
     const allGoals = JSON.parse(localStorage.getItem('allUserGoals_' + currentUser) || '[]');
-    
+
     console.log('Checking view button - Goals found:', allGoals.length);
-    
+
     if (!viewBtn) {
         console.warn('View button not found - recreating');
         initializeGoalsButtons();
         return;
     }
-    
+
     if (allGoals.length > 0) {
         viewBtn.style.display = 'flex';
         setTimeout(() => {
@@ -3902,16 +3785,16 @@ function checkAndShowViewGoalsButton() {
 function openGoals() {
     // Lock scroll FIRST
     lockScroll();
-    
+
     // Create modal if it doesn't exist
     let modal = document.getElementById('goalsModal');
     if (!modal) {
         modal = createGoalsModal();
     }
-    
+
     // Load saved goals
     loadSavedGoals();
-    
+
     // Show modal with animation
     modal.style.display = 'flex';
     setTimeout(() => {
@@ -3931,13 +3814,13 @@ function initializeGoalsButtons() {
         console.log('Chart tabs not found');
         return;
     }
-    
+
     // Remove existing goals container if it exists
     const existingContainer = document.getElementById('goalsButtonContainer');
     if (existingContainer) {
         existingContainer.remove();
     }
-    
+
     // Create new goals container
     const goalsContainer = document.createElement('div');
     goalsContainer.id = 'goalsButtonContainer';
@@ -3951,7 +3834,7 @@ function initializeGoalsButtons() {
         transform: translateY(20px);
         transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     `;
-    
+
     // View Goals Button (initially hidden)
 const viewGoalsBtn = document.createElement('button');
 viewGoalsBtn.id = 'viewGoalsBtn';
@@ -3977,21 +3860,21 @@ viewGoalsBtn.style.cssText = `
     transform: scale(0.8) translateX(-20px);
 `;
     viewGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">👁️</span><span>View Goals</span>';
-    
+
     viewGoalsBtn.onmouseenter = function() {
         this.style.background = 'linear-gradient(135deg, rgba(100, 255, 218, 0.25), rgba(100, 255, 218, 0.15))';
         this.style.borderColor = 'rgba(100, 255, 218, 0.6)';
         this.style.transform = 'translateY(-3px) scale(1) translateX(0)';
         this.style.boxShadow = '0 8px 20px rgba(100, 255, 218, 0.4)';
     };
-    
+
     viewGoalsBtn.onmouseleave = function() {
         this.style.background = 'linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(100, 255, 218, 0.08))';
         this.style.borderColor = 'rgba(100, 255, 218, 0.3)';
         this.style.transform = 'translateY(0) scale(1) translateX(0)';
         this.style.boxShadow = '0 4px 12px rgba(100, 255, 218, 0.2)';
     };
-    
+
     // Set Goals Button
     const setGoalsBtn = document.createElement('button');
     setGoalsBtn.id = 'setGoalsBtn';
@@ -4017,40 +3900,40 @@ viewGoalsBtn.style.cssText = `
         transform: scale(0.8) translateX(20px);
     `;
     setGoalsBtn.innerHTML = '<span style="font-size: 1.2em;">🎯</span><span>Set Goals</span>';
-    
+
     setGoalsBtn.onmouseenter = function() {
         this.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(102, 126, 234, 0.15))';
         this.style.borderColor = 'rgba(102, 126, 234, 0.6)';
         this.style.transform = 'translateY(-3px) scale(1) translateX(0)';
         this.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
     };
-    
+
     setGoalsBtn.onmouseleave = function() {
         this.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.08))';
         this.style.borderColor = 'rgba(102, 126, 234, 0.3)';
         this.style.transform = 'translateY(0) scale(1) translateX(0)';
         this.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.2)';
     };
-    
+
     // Add buttons to container
     goalsContainer.appendChild(viewGoalsBtn);
     goalsContainer.appendChild(setGoalsBtn);
-    
+
     // Insert after chart tabs
     chartTabs.parentNode.insertBefore(goalsContainer, chartTabs.nextSibling);
-    
+
     // Animate container in
     setTimeout(() => {
         goalsContainer.style.opacity = '1';
         goalsContainer.style.transform = 'translateY(0)';
-        
+
         // Animate Set Goals button
         setTimeout(() => {
             setGoalsBtn.style.opacity = '1';
             setGoalsBtn.style.transform = 'scale(1) translateX(0)';
         }, 100);
     }, 300);
-    
+
     // Check if goals exist and show view button with animation
     setTimeout(() => {
         checkAndShowViewGoalsButton();
@@ -4078,13 +3961,13 @@ function createGoalsModal() {
         overflow-y: auto;
         padding: 20px;
     `;
-    
+
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeGoalsModal();
         }
     });
-    
+
     const content = document.createElement('div');
     content.className = 'goals-modal-content';
     content.style.cssText = `
@@ -4102,11 +3985,11 @@ function createGoalsModal() {
         box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
         margin: auto;
     `;
-    
+
     content.addEventListener('click', function(e) {
         e.stopPropagation();
     });
-    
+
     const langIcons = {
         python: '🐍',
         javascript: '⚡',
@@ -4114,7 +3997,7 @@ function createGoalsModal() {
         css: '🎨',
         react: '⚛️'
     };
-    
+
     content.innerHTML = `
         <!-- Header (Now part of scrollable content) -->
         <div style="margin-bottom: 30px;">
@@ -4252,7 +4135,7 @@ function createGoalsModal() {
             <div style="margin-bottom: 18px;">
                 <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">🎯 Choose a language to add courses</h3>
             </div>
-            
+
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
                 ${Object.keys(courses).map(lang => {
                     const availableCount = courses[lang].filter((c, idx) => {
@@ -4261,12 +4144,12 @@ function createGoalsModal() {
                         const isLocked = idx > 0 && !userProgress[lang][courses[lang][idx - 1].id]?.completed;
                         return !isNew && !isCompleted && !isLocked;
                     }).length;
-                    
+
                     if (availableCount === 0) return '';
-                    
+
                     return `
-                        <button onclick="showCourseSelection('${lang}')" style="padding: 20px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 10px;" 
-                                onmouseenter="this.style.background='rgba(100, 255, 218, 0.1)'; this.style.borderColor='rgba(100, 255, 218, 0.4)'; this.style.transform='translateY(-2px)'" 
+                        <button onclick="showCourseSelection('${lang}')" style="padding: 20px; background: rgba(100, 255, 218, 0.05); border: 2px solid rgba(100, 255, 218, 0.2); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 10px;"
+                                onmouseenter="this.style.background='rgba(100, 255, 218, 0.1)'; this.style.borderColor='rgba(100, 255, 218, 0.4)'; this.style.transform='translateY(-2px)'"
                                 onmouseleave="this.style.background='rgba(100, 255, 218, 0.05)'; this.style.borderColor='rgba(100, 255, 218, 0.2)'; this.style.transform='translateY(0)'">
                             <span style="font-size: 2.8em;">${langIcons[lang]}</span>
                             <span style="color: #fff; font-weight: 600; font-size: 1em;">${lang.charAt(0).toUpperCase() + lang.slice(1)}</span>
@@ -4287,7 +4170,7 @@ function createGoalsModal() {
                 </button>
                 <h3 id="courseSelectionTitle" style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">Select Courses</h3>
             </div>
-            
+
             <div id="coursesList" style="display: flex; flex-direction: column; gap: 10px; padding: 18px; background: rgba(100, 255, 218, 0.03); border: 2px solid rgba(100, 255, 218, 0.15); border-radius: 12px; max-height: 320px; overflow-y: auto;">
                 <!-- Courses will be populated here -->
             </div>
@@ -4322,13 +4205,13 @@ function createGoalsModal() {
                 gap: 8px;
             "></div>
         </div>
-        
+
         <!-- Settings -->
         <div style="margin-bottom: 30px;">
             <div style="margin-bottom: 18px;">
                 <h3 style="color: #fff; margin: 0; font-size: 1.1em; font-weight: 600;">⚙️ Additional settings</h3>
             </div>
-            
+
             <!-- Streak -->
             <div style="padding: 16px; background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.15); border-radius: 10px; margin-bottom: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -4345,7 +4228,7 @@ function createGoalsModal() {
                     Goal courses will add to your learning streak
                 </div>
             </div>
-            
+
             <!-- Email -->
             <div style="padding: 16px; background: rgba(102, 126, 234, 0.08); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -4363,164 +4246,145 @@ function createGoalsModal() {
                 </div>
             </div>
         </div>
-        
+
         <!-- Save Button -->
         <button onclick="saveGoalsWithCourses()" style="width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #64ffda 100%); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1.1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);">
             💾 Save My Goal
         </button>
     `;
-    
+
     // Add scrollbar hiding CSS
     const style = document.createElement('style');
     style.textContent = `
-        .goals-modal-content::-webkit-scrollbar {
-            width: 6px;
-        }
-        .goals-modal-content::-webkit-scrollbar-track {
-            background: rgba(100, 255, 218, 0.05);
-            border-radius: 10px;
-        }
-        .goals-modal-content::-webkit-scrollbar-thumb {
-            background: rgba(100, 255, 218, 0.3);
-            border-radius: 10px;
-        }
-        #coursesList::-webkit-scrollbar {
-            width: 6px;
-        }
-        #coursesList::-webkit-scrollbar-track {
-            background: rgba(100, 255, 218, 0.05);
-            border-radius: 10px;
-        }
-        #coursesList::-webkit-scrollbar-thumb {
-            background: rgba(100, 255, 218, 0.3);
-            border-radius: 10px;
-        }
-
-        /* Custom Dropdown Styles */
-        .custom-dropdown {
-            position: relative;
-            width: 100%;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .dropdown-selected {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 18px;
-            background: rgba(100, 255, 218, 0.05);
-            border: 2px solid rgba(100, 255, 218, 0.2);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 1em;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .custom-dropdown:hover .dropdown-selected {
-            background: rgba(100, 255, 218, 0.1);
-            border-color: rgba(100, 255, 218, 0.4);
-        }
-
-        .custom-dropdown.active .dropdown-selected {
-            border-color: rgba(100, 255, 218, 0.5);
-            background: rgba(100, 255, 218, 0.15);
-        }
-
-        .dropdown-arrow {
-            font-size: 0.8em;
-            transition: transform 0.3s ease;
-            color: #64ffda;
-        }
-
-        .custom-dropdown.active .dropdown-arrow {
-            transform: rotate(180deg);
-        }
-
-        .dropdown-options {
-            position: absolute;
-            top: calc(100% + 8px);
-            left: 0;
-            right: 0;
-            background: rgba(30, 30, 30, 0.98);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(100, 255, 218, 0.3);
-            border-radius: 12px;
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 1000;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-
-        .custom-dropdown.active .dropdown-options {
-            max-height: 300px;
-            opacity: 1;
-            overflow-y: auto;
-        }
-
-        .dropdown-options::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .dropdown-options::-webkit-scrollbar-track {
-            background: rgba(100, 255, 218, 0.05);
-            border-radius: 10px;
-        }
-
-        .dropdown-options::-webkit-scrollbar-thumb {
-            background: rgba(100, 255, 218, 0.3);
-            border-radius: 10px;
-        }
-
-        .dropdown-option {
-            padding: 12px 18px;
-            color: #fff;
-            font-size: 0.95em;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
-        }
-
-        .dropdown-option:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown-option:hover {
-            background: rgba(100, 255, 218, 0.15);
-            color: #64ffda;
-            padding-left: 24px;
-        }
-
-        .dropdown-option.selected {
-            background: rgba(100, 255, 218, 0.2);
-            color: #64ffda;
-            font-weight: 600;
-        }
-
-        body.light-mode .dropdown-selected {
-            background: rgba(100, 255, 218, 0.1);
-            border-color: rgba(100, 255, 218, 0.3);
-            color: #000;
-        }
-
-        body.light-mode .dropdown-options {
-            background: rgba(255, 255, 255, 0.98);
-            border-color: rgba(100, 255, 218, 0.4);
-        }
-
-        body.light-mode .dropdown-option {
-            color: #000;
-            border-bottom: 1px solid rgba(100, 255, 218, 0.15);
-        }
-    `;
+.goals-modal-content::-webkit-scrollbar {
+width: 6px;
+}
+.goals-modal-content::-webkit-scrollbar-track {
+background: rgba(100, 255, 218, 0.05);
+border-radius: 10px;
+}
+.goals-modal-content::-webkit-scrollbar-thumb {
+background: rgba(100, 255, 218, 0.3);
+border-radius: 10px;
+}
+#coursesList::-webkit-scrollbar {
+width: 6px;
+}
+#coursesList::-webkit-scrollbar-track {
+background: rgba(100, 255, 218, 0.05);
+border-radius: 10px;
+}
+#coursesList::-webkit-scrollbar-thumb {
+background: rgba(100, 255, 218, 0.3);
+border-radius: 10px;
+}
+.custom-dropdown {
+position: relative;
+width: 100%;
+cursor: pointer;
+user-select: none;
+}
+.dropdown-selected {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 14px 18px;
+background: rgba(100, 255, 218, 0.05);
+border: 2px solid rgba(100, 255, 218, 0.2);
+border-radius: 12px;
+color: #fff;
+font-size: 1em;
+font-weight: 500;
+transition: all 0.3s ease;
+}
+.custom-dropdown:hover .dropdown-selected {
+background: rgba(100, 255, 218, 0.1);
+border-color: rgba(100, 255, 218, 0.4);
+}
+.custom-dropdown.active .dropdown-selected {
+border-color: rgba(100, 255, 218, 0.5);
+background: rgba(100, 255, 218, 0.15);
+}
+.dropdown-arrow {
+font-size: 0.8em;
+transition: transform 0.3s ease;
+color: #64ffda;
+}
+.custom-dropdown.active .dropdown-arrow {
+transform: rotate(180deg);
+}
+.dropdown-options {
+position: absolute;
+top: calc(100% + 8px);
+left: 0;
+right: 0;
+background: rgba(30, 30, 30, 0.98);
+backdrop-filter: blur(20px);
+border: 2px solid rgba(100, 255, 218, 0.3);
+border-radius: 12px;
+max-height: 0;
+overflow: hidden;
+opacity: 0;
+transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+z-index: 1000;
+box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.custom-dropdown.active .dropdown-options {
+max-height: 300px;
+opacity: 1;
+overflow-y: auto;
+}
+.dropdown-options::-webkit-scrollbar {
+width: 6px;
+}
+.dropdown-options::-webkit-scrollbar-track {
+background: rgba(100, 255, 218, 0.05);
+border-radius: 10px;
+}
+.dropdown-options::-webkit-scrollbar-thumb {
+background: rgba(100, 255, 218, 0.3);
+border-radius: 10px;
+}
+.dropdown-option {
+padding: 12px 18px;
+color: #fff;
+font-size: 0.95em;
+transition: all 0.2s ease;
+cursor: pointer;
+border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+}
+.dropdown-option:last-child {
+border-bottom: none;
+}
+.dropdown-option:hover {
+background: rgba(100, 255, 218, 0.15);
+color: #64ffda;
+padding-left: 24px;
+}
+.dropdown-option.selected {
+background: rgba(100, 255, 218, 0.2);
+color: #64ffda;
+font-weight: 600;
+}
+body.light-mode .dropdown-selected {
+background: rgba(100, 255, 218, 0.1);
+border-color: rgba(100, 255, 218, 0.3);
+color: #000;
+}
+body.light-mode .dropdown-options {
+background: rgba(255, 255, 255, 0.98);
+border-color: rgba(100, 255, 218, 0.4);
+}
+body.light-mode .dropdown-option {
+color: #000;
+border-bottom: 1px solid rgba(100, 255, 218, 0.15);
+}
+`;
     document.head.appendChild(style);
-    
+
     modal.appendChild(content);
     document.body.appendChild(modal);
-    
+
     // Add event listener for close button after modal is created
     setTimeout(() => {
         const closeBtn = content.querySelector('button[onclick*="closeGoalsModal"]');
@@ -4534,7 +4398,7 @@ function createGoalsModal() {
             });
         }
     }, 100);
-    
+
     return modal;
 }
 
@@ -4702,7 +4566,7 @@ function showCourseSelection(lang) {
     const courseScreen = document.getElementById('courseSelectionScreen');
     const courseTitle = document.getElementById('courseSelectionTitle');
     const coursesList = document.getElementById('coursesList');
-    
+
     const langIcons = {
         python: '🐍',
         javascript: '⚡',
@@ -4710,31 +4574,31 @@ function showCourseSelection(lang) {
         css: '🎨',
         react: '⚛️'
     };
-    
+
     // Update title
     courseTitle.innerHTML = `${langIcons[lang]} ${lang.charAt(0).toUpperCase() + lang.slice(1)} Courses`;
-    
+
     // ✅ Get ALL courses (not just available ones)
     const allCourses = courses[lang];
-    
+
     // Group courses by status
     const unlockedCourses = [];
     const lockedCourses = [];
-    
+
     allCourses.forEach((course, idx) => {
         const isNew = course.isNew;
         const isCompleted = userProgress[lang][course.id]?.completed;
         const isLocked = idx > 0 && !userProgress[lang][courses[lang][idx - 1].id]?.completed;
-        
+
         if (isNew) return; // Skip "coming soon" courses
-        
+
         if (isCompleted || isLocked) {
             lockedCourses.push({ course, idx, isCompleted, isLocked });
         } else {
             unlockedCourses.push({ course, idx });
         }
     });
-    
+
     // Populate courses with better styling
     coursesList.innerHTML = `
         ${unlockedCourses.length > 0 ? `
@@ -4745,7 +4609,7 @@ function showCourseSelection(lang) {
                 </div>
                 ${unlockedCourses.map(({ course, idx }) => {
                     const isSelected = tempSelectedCourses.some(c => c.lang === lang && c.courseId === course.id);
-                    
+
                     return `
                         <label class="enhanced-course-item ${isSelected ? 'selected' : ''}" style="
                             display: flex;
@@ -4758,11 +4622,11 @@ function showCourseSelection(lang) {
                             cursor: pointer;
                             transition: all 0.3s ease;
                             margin-bottom: 10px;
-                        " 
-                           onmouseenter="if(!this.querySelector('input').checked) { this.style.background='rgba(100, 255, 218, 0.08)'; this.style.borderColor='rgba(100, 255, 218, 0.25)'; this.style.transform='translateX(5px)'; }" 
+                        "
+                           onmouseenter="if(!this.querySelector('input').checked) { this.style.background='rgba(100, 255, 218, 0.08)'; this.style.borderColor='rgba(100, 255, 218, 0.25)'; this.style.transform='translateX(5px)'; }"
                            onmouseleave="if(!this.querySelector('input').checked) { this.style.background='rgba(100, 255, 218, 0.05)'; this.style.borderColor='rgba(100, 255, 218, 0.15)'; this.style.transform='translateX(0)'; }">
-                            <input type="checkbox" class="temp-course-checkbox" data-lang="${lang}" data-course="${course.id}" ${isSelected ? 'checked' : ''} 
-                                   onchange="handleCourseSelection('${lang}', '${course.id}', this)" 
+                            <input type="checkbox" class="temp-course-checkbox" data-lang="${lang}" data-course="${course.id}" ${isSelected ? 'checked' : ''}
+                                   onchange="handleCourseSelection('${lang}', '${course.id}', this)"
                                    style="width: 22px; height: 22px; cursor: pointer; accent-color: #64ffda;">
                             <span style="font-size: 1.8em; filter: drop-shadow(0 2px 6px rgba(100, 255, 218, 0.4));">${course.icon}</span>
                             <div style="flex: 1;">
@@ -4777,7 +4641,7 @@ function showCourseSelection(lang) {
                 }).join('')}
             </div>
         ` : ''}
-        
+
         ${lockedCourses.length > 0 ? `
             <div>
                 <div style="color: #ff6b6b; font-weight: 600; font-size: 0.95em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
@@ -4812,14 +4676,14 @@ function showCourseSelection(lang) {
             </div>
         ` : ''}
     `;
-    
+
     // Fade transition
     langScreen.style.opacity = '0';
-    
+
     setTimeout(() => {
         langScreen.style.display = 'none';
         courseScreen.style.display = 'block';
-        
+
         setTimeout(() => {
             courseScreen.style.opacity = '1';
         }, 50);
@@ -4829,18 +4693,18 @@ function showCourseSelection(lang) {
 function backToLanguageSelection() {
     const langScreen = document.getElementById('languageSelectionScreen');
     const courseScreen = document.getElementById('courseSelectionScreen');
-    
+
     // Fade transition
     courseScreen.style.opacity = '0';
-    
+
     setTimeout(() => {
         courseScreen.style.display = 'none';
         langScreen.style.display = 'block';
-        
+
         setTimeout(() => {
             langScreen.style.opacity = '1';
         }, 50);
-        
+
         // Update summary
         updateSelectedCoursesSummary();
     }, 300);
@@ -4848,7 +4712,7 @@ function backToLanguageSelection() {
 
 function handleCourseSelection(lang, courseId, checkbox) {
     const label = checkbox.closest('label');
-    
+
     if (checkbox.checked) {
         // Add to temp selection
         if (!tempSelectedCourses.some(c => c.lang === lang && c.courseId === courseId)) {
@@ -4862,7 +4726,7 @@ function handleCourseSelection(lang, courseId, checkbox) {
         label.style.background = 'rgba(100, 255, 218, 0.05)';
         label.style.borderColor = 'rgba(100, 255, 218, 0.15)';
     }
-    
+
     // Update count in real-time
     updateSelectedCoursesCountInline();
 }
@@ -4871,17 +4735,17 @@ function updateSelectedCoursesCountInline() {
     const summary = document.getElementById('selectedCoursesSummary');
     const countEl = document.getElementById('selectedCoursesCount');
     const listEl = document.getElementById('selectedCoursesList');
-    
+
     if (!summary || !countEl || !listEl) return;
-    
+
     if (tempSelectedCourses.length === 0) {
         summary.style.display = 'none';
         return;
     }
-    
+
     summary.style.display = 'block';
     countEl.textContent = tempSelectedCourses.length;
-    
+
     const langIcons = {
         python: '🐍',
         javascript: '⚡',
@@ -4889,7 +4753,7 @@ function updateSelectedCoursesCountInline() {
         css: '🎨',
         react: '⚛️'
     };
-    
+
     // Show oval badges
     listEl.innerHTML = tempSelectedCourses.map(selected => {
         const course = courses[selected.lang].find(c => c.id === selected.courseId);
@@ -4929,7 +4793,7 @@ function updateSelectedCoursesSummary() {
 
 function removeCourseFromSelection(lang, courseId) {
     tempSelectedCourses = tempSelectedCourses.filter(c => !(c.lang === lang && c.courseId === courseId));
-    
+
     // Update checkbox if on that screen
     const checkbox = document.querySelector(`.temp-course-checkbox[data-lang="${lang}"][data-course="${courseId}"]`);
     if (checkbox) {
@@ -4938,7 +4802,7 @@ function removeCourseFromSelection(lang, courseId) {
         label.style.background = 'rgba(100, 255, 218, 0.05)';
         label.style.borderColor = 'rgba(100, 255, 218, 0.15)';
     }
-    
+
     updateSelectedCoursesSummary();
 }
 
@@ -4966,9 +4830,9 @@ function toggleModernSwitch(id) {
     const checkbox = document.getElementById(id);
     const toggle = checkbox.closest('.modern-toggle');
     const circle = toggle.querySelector('.toggle-circle');
-    
+
     checkbox.checked = !checkbox.checked;
-    
+
     if (checkbox.checked) {
         circle.style.transform = 'translateX(26px)';
         toggle.style.background = '#64ffda'; // Only streak uses this now
@@ -4978,7 +4842,7 @@ function toggleModernSwitch(id) {
         toggle.style.background = '#8b949e';
         toggle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
     }
-    
+
     // ✅ Only update streak status message (removed email case)
     if (id === 'dailyStreak') {
         const streakMessage = document.getElementById('streakStatusMessage');
@@ -5001,7 +4865,7 @@ function switchGoalTab(tab) {
         btn.style.background = isActive ? 'rgba(100, 255, 218, 0.2)' : 'rgba(100, 255, 218, 0.05)';
         btn.style.borderColor = isActive ? 'rgba(100, 255, 218, 0.5)' : 'rgba(100, 255, 218, 0.2)';
     });
-    
+
     // Update sections
     document.getElementById('dailyGoals').style.display = tab === 'daily' ? 'block' : 'none';
     document.getElementById('weeklyGoals').style.display = tab === 'weekly' ? 'block' : 'none';
@@ -5263,20 +5127,20 @@ function loadSavedGoals() {
     const saved = localStorage.getItem('userGoals_' + currentUser);
     if (saved) {
         const goals = JSON.parse(saved);
-        
+
         // Set time goal
         if (document.getElementById('dailyTimeGoal')) {
             document.getElementById('dailyTimeGoal').value = goals.daily.timeGoal || 60;
         }
-        
+
         // ✅ REMOVED: reminder time loading
-        
+
         // Set streak checkbox
         if (document.getElementById('dailyStreak')) {
             document.getElementById('dailyStreak').checked = goals.daily.streak;
             updateToggleVisualState('dailyStreak', goals.daily.streak);
         }
-        
+
         // Load selected courses into temp
         if (goals.daily.selectedCourses) {
             tempSelectedCourses = [...goals.daily.selectedCourses];
@@ -5290,10 +5154,10 @@ function loadSavedGoals() {
 function updateToggleVisualState(id, isChecked) {
     const checkbox = document.getElementById(id);
     if (!checkbox) return;
-    
+
     const toggle = checkbox.closest('.modern-toggle');
     const circle = toggle.querySelector('.toggle-circle');
-    
+
     if (isChecked) {
         circle.style.transform = 'translateX(26px)';
         toggle.style.background = '#64ffda'; // Only for streak
@@ -5303,7 +5167,7 @@ function updateToggleVisualState(id, isChecked) {
         toggle.style.background = '#8b949e';
         toggle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
     }
-    
+
     // ✅ Only handle streak (removed email case)
     if (id === 'dailyStreak') {
         const streakMessage = document.getElementById('streakStatusMessage');
@@ -5964,10 +5828,10 @@ function closeGoalsModal() {
         setTimeout(() => {
             modal.style.display = 'none';
             modal.classList.remove('active');
-            
+
             // Unlock scroll AFTER animation
             unlockScroll();
-            
+
             // Check and show view button after modal closes
             checkAndShowViewGoalsButton();
         }, 300);
@@ -5984,7 +5848,7 @@ function closeViewGoalsModal() {
         }
         setTimeout(() => {
             modal.remove();
-            
+
             // ✅ Always unlock scroll
             unlockScroll();
         }, 300);
@@ -6013,7 +5877,7 @@ function confirmDeleteGoals() {
         opacity: 0;
         transition: opacity 0.3s ease;
     `;
-    
+
     modal.innerHTML = `
         <div class="delete-modal-content" style="
             background: rgba(30, 30, 30, 0.98);
@@ -6032,7 +5896,7 @@ function confirmDeleteGoals() {
                 <h2 style="color: #fff; margin: 0 0 10px 0; font-size: 1.6em;">Delete Goals?</h2>
                 <p style="color: #8b949e; margin: 0; line-height: 1.6;">This will remove all your daily goals, stop email reminders, and reset today's progress. This action cannot be undone.</p>
             </div>
-            
+
             <div style="display: flex; gap: 12px;">
                 <button onclick="closeDeleteModal()" style="
                     flex: 1;
@@ -6061,9 +5925,9 @@ function confirmDeleteGoals() {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
     setTimeout(() => {
         modal.style.opacity = '1';
         const content = modal.querySelector('.delete-modal-content');
@@ -6090,13 +5954,13 @@ function deleteGoals() {
     localStorage.removeItem('userGoals_' + currentUser);
     localStorage.removeItem('goalStartTime_' + currentUser);
     localStorage.removeItem('coursesCompletedToday_' + currentUser);
-    
+
     // Stop monitoring
     if (goalMonitoringInterval) {
         clearInterval(goalMonitoringInterval);
         goalMonitoringInterval = null;
     }
-    
+
     // Hide view button with animation
     const viewBtn = document.getElementById('viewGoalsBtn');
     if (viewBtn) {
@@ -6106,7 +5970,7 @@ function deleteGoals() {
             viewBtn.style.display = 'none';
         }, 300);
     }
-    
+
     showNotification('✅ Goals deleted successfully!', 'success');
     closeViewGoalsModal();
 }
@@ -6117,29 +5981,29 @@ function startSmartGoalMonitoring() {
     if (goalMonitoringInterval) {
         clearInterval(goalMonitoringInterval);
     }
-    
+
     const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
-    
+
     if (!goals.emailNotifications) {
         console.log('📧 Email notifications disabled');
         return;
     }
-    
+
     // ✅ FIX: Ensure goal start time is set
     if (!localStorage.getItem('goalStartTime_' + currentUser)) {
         localStorage.setItem('goalStartTime_' + currentUser, Date.now().toString());
         console.log('⏰ Goal start time initialized');
     }
-    
+
     console.log(`✅ Smart goal monitoring started - Will check every minute`);
     console.log(`📊 Goal settings:`, goals);
-    
+
     // ✅ Check immediately on start
     setTimeout(() => {
         console.log('🔍 Running initial check...');
         checkSmartGoalProgress();
     }, 5000);
-    
+
     // Then check every minute
     goalMonitoringInterval = setInterval(() => {
         checkSmartGoalProgress();
@@ -6148,47 +6012,46 @@ function startSmartGoalMonitoring() {
 
 function checkSmartGoalProgress() {
     const goals = JSON.parse(localStorage.getItem('userGoals_' + currentUser) || '{}');
-    
+
     if (!goals.emailNotifications) {
         console.log('❌ Email notifications disabled - skipping check');
         return;
     }
-    
+
     const startTime = parseInt(localStorage.getItem('goalStartTime_' + currentUser) || Date.now());
     const elapsed = Math.floor((Date.now() - startTime) / 60000);
     const completed = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser) || '0');
-    
+
     const currentGoalId = localStorage.getItem('activeGoalId_' + currentUser);
     const emailSent = localStorage.getItem('goalEmailSent_' + currentUser + '_' + currentGoalId);
-    
+
     const totalCourses = goals.daily.selectedCourses.length;
     const remainingCourses = totalCourses - completed;
     const progressPercent = totalCourses > 0 ? (completed / totalCourses) * 100 : 0;
-    
+
     const reminderThreshold = goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7);
-    
+
     console.log(`📊 Progress Check:
     - Elapsed: ${elapsed}/${goals.daily.timeGoal} min
     - Completed: ${completed}/${totalCourses} courses (${progressPercent.toFixed(0)}%)
     - Threshold: ${reminderThreshold} min
     - Email sent: ${emailSent ? 'YES' : 'NO'}
     `);
-    
+
     // ✅ FIX: Check all conditions and log which ones pass/fail
     const passedThreshold = elapsed >= reminderThreshold;
     const belowHalfway = progressPercent < 50;
     const hasRemaining = remainingCourses > 0;
     const notSent = !emailSent;
-    
+
     console.log(`Conditions:
     - Passed threshold (${elapsed} >= ${reminderThreshold}): ${passedThreshold}
     - Below 50% (${progressPercent}% < 50%): ${belowHalfway}
     - Has remaining (${remainingCourses} > 0): ${hasRemaining}
     - Email not sent: ${notSent}
     `);
-    
+
     if (passedThreshold && belowHalfway && hasRemaining && notSent) {
-        console.log('✅ All conditions met - sending email now!');
         sendSmartGoalEmail(goals, completed, totalCourses, elapsed);
         localStorage.setItem('goalEmailSent_' + currentUser + '_' + currentGoalId, 'true');
     } else {
@@ -6201,26 +6064,23 @@ async function sendSmartGoalEmail(goals, completed, total, elapsed) {
         const userData = JSON.parse(localStorage.getItem('user_' + currentUser));
         const remaining = total - completed;
         const progressPercent = Math.round((completed / total) * 100);
-        
+
         const reminderThreshold = goals.daily.emailReminderThreshold || Math.floor(goals.daily.timeGoal * 0.7);
-        
+
         // ✅ Fetch email config
         const response = await fetch('/api/email-config');
         const config = await response.json();
-        
+
         console.log('📧 Email Config:', config); // Debug - check what templates we have
-        
+
         // ✅ FIX: Use the goal template ID, NOT the password reset template
         const templateId = config.EMAIL_GOAL_TEMPLATE_ID;
-        
+
         if (!templateId) {
             console.error('❌ EMAIL_GOAL_TEMPLATE_ID not found in config!');
             showNotification('Goal reminder template not configured', 'error');
             return;
         }
-        
-        console.log('✅ Using template ID:', templateId);
-        
         const langIcons = {
             python: '🐍',
             javascript: '⚡',
@@ -6228,14 +6088,14 @@ async function sendSmartGoalEmail(goals, completed, total, elapsed) {
             css: '🎨',
             react: '⚛️'
         };
-        
+
         const coursesList = goals.daily.selectedCourses.map(c => {
             const courseData = courses[c.lang].find(course => course.id === c.courseId);
             const isCompleted = userProgress[c.lang][c.courseId]?.completed;
             const status = isCompleted ? '✅ Done' : '⏳ Pending';
             return `${status} ${langIcons[c.lang]} ${courseData.title} (${c.lang.toUpperCase()})`;
         }).join('\n');
-        
+
         const emailParams = {
             to_email: userData.email,
             to_name: userData.name,
@@ -6252,19 +6112,17 @@ async function sendSmartGoalEmail(goals, completed, total, elapsed) {
             remaining_time: goals.daily.timeGoal - elapsed,
             reminder_threshold: reminderThreshold
         };
-        
+
         console.log('📤 Sending email with params:', emailParams);
-        
+
         await emailjs.send(
             config.EMAIL_SERVICE_ID,
             templateId, // ✅ Use the goal template ID
             emailParams,
             config.EMAIL_PUBLIC_KEY
         );
-        
-        console.log('✅ Goal reminder email sent successfully!');
         showNotification('📧 Reminder email sent!', 'success');
-        
+
     } catch (error) {
         console.error('❌ Email error:', error);
         showNotification('Failed to send reminder email', 'error');
@@ -6274,15 +6132,15 @@ async function sendSmartGoalEmail(goals, completed, total, elapsed) {
 function trackCourseCompletion() {
     const count = parseInt(localStorage.getItem('coursesCompletedToday_' + currentUser) || '0');
     localStorage.setItem('coursesCompletedToday_' + currentUser, (count + 1).toString());
-    
+
     console.log('🎓 Course completed! Today\'s count:', count + 1);
-    
+
     // ✅ Check if this course was part of an active goal
     const activeGoalId = localStorage.getItem('activeGoalId_' + currentUser);
     if (activeGoalId) {
         const allGoals = JSON.parse(localStorage.getItem('allUserGoals_' + currentUser) || '[]');
         const activeGoal = allGoals.find(g => g.id === activeGoalId);
-        
+
         if (activeGoal) {
             // Count completed courses in this goal
             let goalCompleted = 0;
@@ -6291,7 +6149,7 @@ function trackCourseCompletion() {
                     goalCompleted++;
                 }
             });
-            
+
             // Update goal progress
             activeGoal.completed = goalCompleted;
             const goalIndex = allGoals.findIndex(g => g.id === activeGoalId);
@@ -6299,7 +6157,7 @@ function trackCourseCompletion() {
                 allGoals[goalIndex] = activeGoal;
                 localStorage.setItem('allUserGoals_' + currentUser, JSON.stringify(allGoals));
             }
-            
+
             // ✅ Check if goal is now complete
 if (goalCompleted >= activeGoal.daily.selectedCourses.length) {
     // Goal completed! - Store flag to show notification after stats close
@@ -6312,18 +6170,16 @@ if (goalCompleted >= activeGoal.daily.selectedCourses.length) {
                 // Show progress towards goal
                 showNotification(`🎯 Goal Progress: ${goalCompleted}/${activeGoal.daily.selectedCourses.length} courses completed!`, 'success');
             }
-            
+
             // ✅ Update streak if enabled
             if (activeGoal.daily.streak) {
-                console.log('✅ Streak updated for goal completion');
             } else {
                 console.log('ℹ️ Streak NOT updated (setting is off)');
             }
-            
+
             // Stop monitoring if goal complete
             if (goalCompleted >= activeGoal.daily.selectedCourses.length && goalMonitoringInterval) {
                 clearInterval(goalMonitoringInterval);
-                console.log('✅ Goal achieved - monitoring stopped');
             }
         }
     }
@@ -6348,7 +6204,7 @@ function showGoalCompletionCelebration(goal) {
         opacity: 0;
         transition: opacity 0.5s ease;
     `;
-    
+
     const content = document.createElement('div');
     content.style.cssText = `
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(100, 255, 218, 0.95));
@@ -6364,13 +6220,13 @@ function showGoalCompletionCelebration(goal) {
         position: relative;
         overflow: hidden;
     `;
-    
+
     // Animated background effect
     content.innerHTML = `
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
             <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: rotateGlow 10s linear infinite;"></div>
         </div>
-        
+
         <div style="position: relative; z-index: 1;">
             <div style="font-size: 5em; margin-bottom: 20px; animation: bounceIn 0.8s ease;">🎉</div>
             <h1 style="color: #fff; font-size: 2.5em; font-weight: 800; margin: 0 0 15px 0; text-shadow: 0 4px 20px rgba(0,0,0,0.3);">
@@ -6379,7 +6235,7 @@ function showGoalCompletionCelebration(goal) {
             <p style="color: rgba(255,255,255,0.95); font-size: 1.2em; margin: 0 0 30px 0; font-weight: 600;">
                 You've completed all ${goal.daily.selectedCourses.length} courses in this goal!
             </p>
-            
+
             <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 15px; padding: 25px; margin-bottom: 30px;">
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
                     <div>
@@ -6391,7 +6247,7 @@ function showGoalCompletionCelebration(goal) {
                         <div style="color: rgba(255,255,255,0.9); font-size: 0.9em; font-weight: 600;">Minutes</div>
                     </div>
                 </div>
-                
+
                 <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
                     ${goal.daily.selectedCourses.slice(0, 4).map(c => {
                         const courseData = courses[c.lang].find(course => course.id === c.courseId);
@@ -6409,7 +6265,7 @@ function showGoalCompletionCelebration(goal) {
                     ` : ''}
                 </div>
             </div>
-            
+
             <button onclick="closeGoalCompletion()" style="
                 padding: 16px 40px;
                 background: rgba(255,255,255,0.95);
@@ -6426,28 +6282,28 @@ function showGoalCompletionCelebration(goal) {
             </button>
         </div>
     `;
-    
+
     // Add rotation animation
     const style = document.createElement('style');
     style.textContent = `
-        @keyframes rotateGlow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        @keyframes bounceIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-    `;
+@keyframes rotateGlow {
+from { transform: rotate(0deg); }
+to { transform: rotate(360deg); }
+}
+@keyframes bounceIn {
+0% { transform: scale(0); }
+50% { transform: scale(1.2); }
+100% { transform: scale(1); }
+}
+`;
     document.head.appendChild(style);
-    
+
     modal.appendChild(content);
     document.body.appendChild(modal);
-    
+
     // Confetti effect
     createConfetti();
-    
+
     // Animate in
     setTimeout(() => {
         modal.style.opacity = '1';
@@ -6458,22 +6314,22 @@ function showGoalCompletionCelebration(goal) {
 function showGoalsList() {
     const allGoals = JSON.parse(localStorage.getItem('allUserGoals_' + currentUser) || '[]');
     const activeGoalId = localStorage.getItem('activeGoalId_' + currentUser);
-    
+
     if (allGoals.length === 0) {
         showNotification('No goals found!', 'info');
         return;
     }
-    
+
     // Lock scroll FIRST
     lockScroll();
-    
+
     // ✅ Inject CSS if not already injected
     injectGoalsCSS();
-    
+
     const modal = document.createElement('div');
     modal.className = 'goals-list-modal';
     modal.id = 'goalsListModal';
-    
+
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeGoalsList();
@@ -6486,19 +6342,19 @@ function showGoalsList() {
         modal.classList.remove('active');
         setTimeout(() => {
             modal.remove();
-            
+
             // Unlock scroll AFTER removal
             unlockScroll();
         }, 300);
     }
 }
-    
+
     const langIcons = { python: '🐍', javascript: '⚡', html: '🌐', css: '🎨', react: '⚛️' };
-    
+
     const content = document.createElement('div');
     content.className = 'goals-list-content';
     content.addEventListener('click', (e) => e.stopPropagation());
-    
+
     content.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
             <h2 style="color: #fff; margin: 0; font-size: 1.8em; font-weight: 700;">
@@ -6506,30 +6362,30 @@ function showGoalsList() {
             </h2>
             <button id="closeGoalsListBtn" style="background: none; border: none; color: #64ffda; font-size: 2em; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease;">×</button>
         </div>
-        
+
         <div style="color: #8b949e; margin-bottom: 20px; font-size: 0.95em;">
             📊 You have ${allGoals.length} goal${allGoals.length !== 1 ? 's' : ''} • Click to view details
         </div>
-        
+
         <div id="goalsCardsContainer" style="margin-bottom: 20px;"></div>
-        
+
         <button id="createNewGoalBtn" style="width: 100%; padding: 14px; margin-top: 20px; background: linear-gradient(135deg, #667eea, #64ffda); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);">
             ➕ Create New Goal
         </button>
     `;
-    
+
     modal.appendChild(content);
     document.body.appendChild(modal);
-    
+
     // ✅ Add event listeners
     setTimeout(() => {
         const closeBtn = document.getElementById('closeGoalsListBtn');
         const createBtn = document.getElementById('createNewGoalBtn');
-        
+
         if (closeBtn) {
             closeBtn.addEventListener('click', closeGoalsList);
         }
-        
+
         if (createBtn) {
             createBtn.addEventListener('click', function() {
                 closeGoalsList();
@@ -6537,10 +6393,10 @@ function showGoalsList() {
             });
         }
     }, 50);
-    
+
     // ✅ Populate goal cards
     const container = document.getElementById('goalsCardsContainer');
-    
+
     if (allGoals.length === 0) {
         container.innerHTML = `
             <div class="goals-empty-state">
@@ -6552,7 +6408,7 @@ function showGoalsList() {
     } else {
         allGoals.reverse().forEach((goal, index) => {
             const isActive = goal.id === activeGoalId;
-            
+
             // ✅ Recalculate progress for each goal
             let completed = 0;
             goal.daily.selectedCourses.forEach(course => {
@@ -6561,10 +6417,10 @@ function showGoalsList() {
                 }
             });
             goal.completed = completed;
-            
+
             const progress = Math.round((completed / goal.total) * 100);
             const createdDate = new Date(goal.createdAt).toLocaleDateString();
-            
+
             let badge = '';
             let badgeClass = '';
             if (progress === 100) {
@@ -6577,11 +6433,11 @@ function showGoalsList() {
                 badge = '⏸️ Paused';
                 badgeClass = 'badge-paused';
             }
-            
+
             const card = document.createElement('div');
             card.className = 'goal-card' + (isActive ? ' active-goal' : '');
             card.style.animationDelay = (index * 0.05) + 's';
-            
+
             card.innerHTML = `
                 <div class="goal-card-header">
                     <div class="goal-card-title">
@@ -6589,7 +6445,7 @@ function showGoalsList() {
                     </div>
                     <span class="goal-card-badge ${badgeClass}">${badge}</span>
                 </div>
-                
+
                 <div class="goal-card-stats">
                     <div class="goal-stat">
                         <div class="goal-stat-value">${progress}%</div>
@@ -6604,11 +6460,11 @@ function showGoalsList() {
                         <div class="goal-stat-label">Time Goal</div>
                     </div>
                 </div>
-                
+
                 <div style="color: #8b949e; font-size: 0.85em; margin-bottom: 12px;">
                     📅 Created: ${createdDate}
                 </div>
-                
+
                 <div class="goal-card-courses">
                     ${goal.daily.selectedCourses.slice(0, 4).map(c => {
                         const courseData = courses[c.lang].find(course => course.id === c.courseId);
@@ -6626,16 +6482,16 @@ function showGoalsList() {
                     ` : ''}
                 </div>
             `;
-            
+
             // ✅ Add click handler
             card.addEventListener('click', function() {
                 openSpecificGoal(goal.id);
             });
-            
+
             container.appendChild(card);
         });
     }
-    
+
     // Animate in
     setTimeout(() => {
         modal.classList.add('active');
@@ -6648,7 +6504,7 @@ function closeGoalCompletion() {
         modal.style.opacity = '0';
         setTimeout(() => modal.remove(), 500);
     }
-    
+
     // Clean up confetti
     document.querySelectorAll('.confetti').forEach(c => c.remove());
 }
@@ -6656,7 +6512,7 @@ function closeGoalCompletion() {
 function createConfetti() {
     const colors = ['#667eea', '#64ffda', '#ffc107', '#ff6b6b', '#00ff00'];
     const confettiCount = 50;
-    
+
     for (let i = 0; i < confettiCount; i++) {
         const confetti = document.createElement('div');
         confetti.className = 'confetti';
@@ -6673,28 +6529,28 @@ function createConfetti() {
             z-index: 10002;
         `;
         document.body.appendChild(confetti);
-        
+
         // Remove after animation
         setTimeout(() => confetti.remove(), 5000);
     }
-    
+
     // Add confetti animation
     const style = document.createElement('style');
     style.textContent = `
-        @keyframes confettiFall {
-            to {
-                transform: translateY(100vh) rotate(${Math.random() * 720}deg);
-                opacity: 0;
-            }
-        }
-    `;
+@keyframes confettiFall {
+to {
+transform: translateY(100vh) rotate(${Math.random() * 720}deg);
+opacity: 0;
+}
+}
+`;
     document.head.appendChild(style);
 }
 
 // Make chart tabs clickable to return from detail view
 function makeChartTabsClickable() {
     const chartTabs = document.querySelectorAll('.chart-tab');
-    
+
     chartTabs.forEach(tab => {
         tab.addEventListener('click', function() {
             // If detail view is active, hide it first
@@ -6710,11 +6566,11 @@ function makeChartTabsClickable() {
 function createDetailViews() {
     // Check if already exists
     if (document.getElementById('statDetailViews')) return;
-    
+
     // Find the buttons container
     const buttonsContainer = document.getElementById('statsButtonsContainer');
     if (!buttonsContainer) return;
-    
+
     const detailContainer = document.createElement('div');
     detailContainer.id = 'statDetailViews';
     detailContainer.innerHTML = `
@@ -6749,7 +6605,7 @@ function createDetailViews() {
             <div id="performanceDetailContent" class="stat-detail-content"></div>
         </div>
     `;
-    
+
     // Insert after buttons container
     buttonsContainer.parentNode.insertBefore(detailContainer, buttonsContainer.nextSibling);
 }
@@ -6759,15 +6615,15 @@ function showStatDetail(type) {
     // Hide all chart containers
     const chartContainers = document.querySelectorAll('.chart-container');
     chartContainers.forEach(c => c.classList.add('hide'));
-    
+
     // Hide all detail views
     const detailViews = document.querySelectorAll('.stat-detail-view');
     detailViews.forEach(v => v.classList.remove('active'));
-    
+
     // Show back button
     const backBtn = document.getElementById('statsBackBtn');
     if (backBtn) backBtn.classList.add('show');
-    
+
     // Update content first
     if (type === 'time') {
         updateTimeDetail();
@@ -6776,7 +6632,7 @@ function showStatDetail(type) {
     } else if (type === 'activity') {
         updateActivityDetail();
     }
-    
+
     // Show selected detail
     setTimeout(() => {
         const detailView = document.getElementById(type + 'Detail');
@@ -6791,11 +6647,11 @@ function hideStatDetails() {
     // Hide all detail views
     const detailViews = document.querySelectorAll('.stat-detail-view');
     detailViews.forEach(v => v.classList.remove('active'));
-    
+
     // Hide back button
     const backBtn = document.getElementById('statsBackBtn');
     if (backBtn) backBtn.classList.remove('show');
-    
+
     // Show charts again
     setTimeout(() => {
         const chartContainers = document.querySelectorAll('.chart-container');
@@ -6827,7 +6683,7 @@ function navigateToLanguage(lang) {
 function updateLanguageDetail() {
     const container = document.getElementById('languageDetailContent');
     if (!container) return;
-    
+
     const langIcons = {
         python: '🐍',
         javascript: '⚡',
@@ -6835,14 +6691,14 @@ function updateLanguageDetail() {
         css: '🎨',
         react: '⚛️'
     };
-    
+
     container.innerHTML = '';
-    
+
     Object.keys(courses).forEach(lang => {
         const totalCourses = courses[lang].length;
         const completedCourses = Object.values(userProgress[lang]).filter(c => c.completed).length;
         const avgProgress = calculateAvgProgress(lang);
-        
+
         const item = document.createElement('div');
         item.className = 'language-item';
         item.onclick = () => navigateToLanguage(lang);
@@ -6863,7 +6719,7 @@ function updateLanguageDetail() {
 function updateTimeDetail() {
     const container = document.getElementById('timeDetailContent');
     if (!container) return;
-    
+
     const langIcons = {
         python: '🐍',
         javascript: '⚡',
@@ -6871,26 +6727,26 @@ function updateTimeDetail() {
         css: '🎨',
         react: '⚛️'
     };
-    
+
     container.innerHTML = '';
-    
+
     const timeByLang = {};
     const detailsByLang = {};
-    
+
     Object.keys(courses).forEach(lang => {
         let totalTime = 0;
         const courseDetails = [];
-        
+
         Object.keys(userProgress[lang]).forEach(courseId => {
             const time = userProgress[lang][courseId].time || 0;
             totalTime += time;
-            
+
             const course = courses[lang].find(c => c.id === courseId);
             if (course && time > 0) {
                 const hours = Math.floor(time / 3600);
                 const mins = Math.floor((time % 3600) / 60);
                 const timeStr = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-                
+
                 courseDetails.push({
                     title: course.title,
                     icon: course.icon,
@@ -6900,21 +6756,21 @@ function updateTimeDetail() {
                 });
             }
         });
-        
+
         timeByLang[lang] = totalTime;
         detailsByLang[lang] = courseDetails.sort((a, b) => b.time - a.time);
     });
-    
+
     const sortedLangs = Object.entries(timeByLang).sort((a, b) => b[1] - a[1]);
-    
+
     sortedLangs.forEach(([lang, seconds]) => {
         const hours = Math.floor(seconds / 3600);
         const mins = Math.floor((seconds % 3600) / 60);
         const timeStr = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-        
+
         const itemWrapper = document.createElement('div');
         itemWrapper.style.marginBottom = '12px';
-        
+
         const item = document.createElement('div');
         item.className = 'time-item';
         item.style.cursor = 'pointer';
@@ -6928,7 +6784,7 @@ function updateTimeDetail() {
                 <span class="expand-icon" style="color: #64ffda; font-size: 1.2em; transition: transform 0.3s ease;">▼</span>
             </div>
         `;
-        
+
         // Create expandable details section
         const detailsSection = document.createElement('div');
         detailsSection.className = 'time-details-section';
@@ -6939,7 +6795,7 @@ function updateTimeDetail() {
             opacity: 0;
             margin-top: 0;
         `;
-        
+
         if (detailsByLang[lang].length > 0) {
             detailsSection.innerHTML = detailsByLang[lang].map(course => `
                 <div style="
@@ -6970,13 +6826,13 @@ function updateTimeDetail() {
                 </div>
             `;
         }
-        
+
         // Toggle expand/collapse
         let isExpanded = false;
         item.onclick = function() {
             isExpanded = !isExpanded;
             const expandIcon = item.querySelector('.expand-icon');
-            
+
             if (isExpanded) {
                 detailsSection.style.maxHeight = (detailsByLang[lang].length * 60 + 50) + 'px';
                 detailsSection.style.opacity = '1';
@@ -6991,7 +6847,7 @@ function updateTimeDetail() {
                 item.style.borderColor = 'rgba(100, 255, 218, 0.15)';
             }
         };
-        
+
         itemWrapper.appendChild(item);
         itemWrapper.appendChild(detailsSection);
         container.appendChild(itemWrapper);
@@ -7002,10 +6858,10 @@ function updateTimeDetail() {
 function updatePerformanceDetail() {
     const container = document.getElementById('performanceDetailContent');
     if (!container) return;
-    
+
     let bestLang = '';
     let bestProgress = 0;
-    
+
     Object.keys(courses).forEach(lang => {
         const progress = calculateAvgProgress(lang);
         if (progress > bestProgress) {
@@ -7013,7 +6869,7 @@ function updatePerformanceDetail() {
             bestLang = lang;
         }
     });
-    
+
     const langIcons = {
         python: '🐍',
         javascript: '⚡',
@@ -7021,7 +6877,7 @@ function updatePerformanceDetail() {
         css: '🎨',
         react: '⚛️'
     };
-    
+
     let totalProgress = 0;
     let courseCount = 0;
     Object.keys(courses).forEach(lang => {
@@ -7031,9 +6887,9 @@ function updatePerformanceDetail() {
         });
     });
     const avgCompletion = courseCount > 0 ? Math.round(totalProgress / courseCount) : 0;
-    
+
     const activeDaysCount = localStorage.getItem('activeDaysCount_' + currentUser) || '1';
-    
+
     container.innerHTML = `
         <div class="metric-row">
             <div class="metric-icon">🏆</div>
@@ -7063,14 +6919,14 @@ function updatePerformanceDetail() {
 function updateActivityDetail() {
     const container = document.getElementById('activityDetailContent');
     if (!container) return;
-    
+
     const activities = [];
-    
+
     Object.keys(courses).forEach(lang => {
         Object.keys(userProgress[lang]).forEach(courseId => {
             const course = courses[lang].find(c => c.id === courseId);
             const progress = userProgress[lang][courseId];
-            
+
             if (progress.completed) {
                 activities.push({
                     lang,
@@ -7080,16 +6936,16 @@ function updateActivityDetail() {
             }
         });
     });
-    
+
     const recentActivities = activities.slice(-10).reverse();
-    
+
     if (recentActivities.length === 0) {
         container.innerHTML = '<p style="color: #8b949e; text-align: center; padding: 40px 20px;">No completed courses yet</p>';
         return;
     }
-    
+
     container.innerHTML = '';
-    
+
     recentActivities.forEach(activity => {
         const item = document.createElement('div');
         item.className = 'activity-item';
@@ -7108,19 +6964,19 @@ function initDetailedStats() {
     injectDetailedStatsCSS();
     createRoadmapScrollButton();
     monitorRoadmapScroll();
-    
+
     // ✅ Add smooth transition to all chart elements FIRST
     setTimeout(() => {
         const progressSection = document.querySelector('.progress-section');
         if (progressSection) {
             progressSection.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
         }
-        
+
         const chartContainers = document.querySelectorAll('.chart-container');
         chartContainers.forEach(container => {
             container.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
         });
-        
+
         // Now add the buttons with animation
         addStatsButtons();
     }, 100);
@@ -7129,28 +6985,27 @@ function initDetailedStats() {
 function updateDashboard() {
     let totalStarted = 0;
     let totalCompleted = 0;
-    
+
     Object.keys(userProgress).forEach(lang => {
         Object.keys(userProgress[lang]).forEach(course => {
             if (userProgress[lang][course].progress > 0) totalStarted++;
             if (userProgress[lang][course].completed) totalCompleted++;
         });
     });
-    
+
     document.getElementById('totalCourses').textContent = totalStarted;
     document.getElementById('completedLessons').textContent = totalCompleted;
     const currentStreak = parseInt(localStorage.getItem('streak_' + currentUser) || '0');
     document.getElementById('streakDays').textContent = currentStreak;
-    
+
     const hours = Math.floor(totalStudyTime / 3600);
     const minutes = Math.floor((totalStudyTime % 3600) / 60);
     document.getElementById('totalTime').textContent = `${hours}h ${minutes}m`;
-    
+
     updateCharts();
 
     initDetailedStats();
-    
-    // ADD THIS LINE:
+
     if (window.innerWidth <= 768) {
         createMobileStatsCarousel();
         updateMobileStatsCarousel();
@@ -7278,9 +7133,9 @@ function createMobileStatsCarousel() {
 function updateMobileStatsCarousel() {
     const track = document.getElementById('statsCarouselTrack');
     const dots = document.getElementById('statsCarouselDots');
-    
+
     if (!track || !dots) return;
-    
+
     // Get all stat cards data
     const statsData = [
         {
@@ -7304,10 +7159,10 @@ function updateMobileStatsCarousel() {
             label: 'Time Studied'
         }
     ];
-    
+
     track.innerHTML = '';
     dots.innerHTML = '';
-    
+
     statsData.forEach((stat, index) => {
         // Create slide
         const slide = document.createElement('div');
@@ -7320,14 +7175,14 @@ function updateMobileStatsCarousel() {
             </div>
         `;
         track.appendChild(slide);
-        
+
         // Create dot
         const dot = document.createElement('div');
         dot.className = 'stats-carousel-dot' + (index === 0 ? ' active' : '');
         dot.onclick = () => goToStatsSlide(index);
         dots.appendChild(dot);
     });
-    
+
     initStatsCarouselSwipe();
 }
 
@@ -7338,27 +7193,27 @@ let statsIsDragging = false;
 function initStatsCarouselSwipe() {
     const track = document.getElementById('statsCarouselTrack');
     if (!track) return;
-    
+
     track.addEventListener('touchstart', (e) => {
         statsStartX = e.touches[0].clientX;
         statsIsDragging = true;
     });
-    
+
     track.addEventListener('touchmove', (e) => {
         if (!statsIsDragging) return;
         const currentX = e.touches[0].clientX;
         const diff = statsStartX - currentX;
-        
+
         if (Math.abs(diff) > 10) {
             e.preventDefault();
         }
     });
-    
+
     track.addEventListener('touchend', (e) => {
         if (!statsIsDragging) return;
         const endX = e.changedTouches[0].clientX;
         const diff = statsStartX - endX;
-        
+
         if (Math.abs(diff) > 50) {
             if (diff > 0 && currentStatsSlide < 3) {
                 goToStatsSlide(currentStatsSlide + 1);
@@ -7366,7 +7221,7 @@ function initStatsCarouselSwipe() {
                 goToStatsSlide(currentStatsSlide - 1);
             }
         }
-        
+
         statsIsDragging = false;
     });
 }
@@ -7375,11 +7230,11 @@ function goToStatsSlide(index) {
     currentStatsSlide = index;
     const track = document.getElementById('statsCarouselTrack');
     const dots = document.querySelectorAll('.stats-carousel-dot');
-    
+
     if (track) {
         track.style.transform = `translateX(-${index * 100}%)`;
     }
-    
+
     dots.forEach((dot, i) => {
         dot.classList.toggle('active', i === index);
     });
@@ -7410,11 +7265,11 @@ function createBarItem(label, progress) {
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: linear-gradient(180deg, 
-                    rgba(100, 255, 218, 0.8) 0%, 
+                background: linear-gradient(180deg,
+                    rgba(100, 255, 218, 0.8) 0%,
                     rgba(102, 126, 234, 0.6) 100%);
                 border-radius: 8px 8px 0 0;
-                box-shadow: 
+                box-shadow:
                     0 -4px 20px rgba(100, 255, 218, 0.4),
                     inset 0 2px 10px rgba(255, 255, 255, 0.2);
             "></div>
@@ -7424,8 +7279,8 @@ function createBarItem(label, progress) {
                 left: 0;
                 right: 0;
                 height: 30%;
-                background: linear-gradient(180deg, 
-                    rgba(255, 255, 255, 0.3) 0%, 
+                background: linear-gradient(180deg,
+                    rgba(255, 255, 255, 0.3) 0%,
                     transparent 100%);
                 border-radius: 8px 8px 0 0;
             "></div>
@@ -7436,8 +7291,8 @@ function createBarItem(label, progress) {
                 transform: translateX(-50%);
                 width: 120%;
                 height: 20px;
-                background: radial-gradient(ellipse at center, 
-                    rgba(100, 255, 218, 0.6) 0%, 
+                background: radial-gradient(ellipse at center,
+                    rgba(100, 255, 218, 0.6) 0%,
                     transparent 70%);
                 filter: blur(8px);
             "></div>
@@ -7449,7 +7304,7 @@ function createBarItem(label, progress) {
                 color: #64ffda;
                 font-weight: 800;
                 font-size: 1.1em;
-                text-shadow: 
+                text-shadow:
                     0 0 10px rgba(100, 255, 218, 0.8),
                     0 2px 4px rgba(0, 0, 0, 0.5);
                 white-space: nowrap;
@@ -7463,15 +7318,15 @@ function createBarItem(label, progress) {
             text-align: center;
         ">${label}</div>
     `;
-    
+
     setTimeout(() => {
         const bar = div.querySelector('.bar');
         const valueEl = div.querySelector('.bar-value');
-        
+
         // Animate height
         bar.style.transition = 'height 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
         bar.style.height = heightPercent + '%';
-        
+
         // Animate value counter
         let current = 0;
         const increment = Math.max(1, Math.ceil(progress / 50));
@@ -7898,7 +7753,7 @@ function runCode(isAutoRun = false) {
         logToConsole('No code to run', 'warn');
         return;
     }
-    
+
     if (language === 'Python') {
     const encodedCode = btoa(unescape(encodeURIComponent(code)));
     logToConsole('Initializing Python environment...', 'info');
@@ -8089,9 +7944,9 @@ runPython();
         logToConsole('CSS loaded successfully', 'log');
         return;
     }
-    
+
     const escapedCode = code.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-    
+
     const jsHTML = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <style>
@@ -8142,10 +7997,10 @@ function detectLanguage(code) {
     if (!code || code.trim().length === 0) {
         return 'None';
     }
-    
+
     const trimmedCode = code.trim();
     const lowerCode = trimmedCode.toLowerCase(); // IMPORTANT: Use this for ALL checks
-    
+
     // HTML Detection
     if (/^<!doctype/i.test(lowerCode) || // CHANGED: Use lowerCode
         /^<html/i.test(lowerCode) ||
@@ -8157,14 +8012,14 @@ function detectLanguage(code) {
         /<h[1-6]>/i.test(lowerCode)) {
         return 'HTML';
     }
-    
+
     // CSS Detection - IMPROVED
     if (/^\s*[\w-#.]+\s*\{[\s\S]*\}/m.test(lowerCode) || // Use lowerCode
         /@media|@keyframes/i.test(lowerCode) ||
         /body\s*\{|\.[\w-]+\s*\{|#[\w-]+\s*\{/i.test(lowerCode)) {
         return 'CSS';
     }
-    
+
     // Python Detection - ALL lowercase checks
     if (/\bdef\s+\w+\s*\(/i.test(lowerCode) ||
         /\bprint\s*\(/i.test(lowerCode) ||
@@ -8180,7 +8035,7 @@ function detectLanguage(code) {
         /:$/m.test(trimmedCode)) {
         return 'Python';
     }
-    
+
     // JavaScript Detection
     if (/\bfunction\s+\w+\s*\(/i.test(lowerCode) ||
         /\b(const|let|var)\s+\w+/i.test(lowerCode) ||
@@ -8189,7 +8044,7 @@ function detectLanguage(code) {
         /document\./i.test(lowerCode)) {
         return 'JavaScript';
     }
-    
+
     return 'Unknown';
 }
 window.addEventListener('message', (e) => {
@@ -8197,8 +8052,6 @@ window.addEventListener('message', (e) => {
         logToConsole(e.data.data, e.data.type);
     }
 });
-
-// ==================== NEW PLAYGROUND FUNCTIONS ====================
 
 // Console Management
 let lastErrorMessage = '';
@@ -8680,11 +8533,11 @@ function removeTypingIndicator(typingId) {
 async function callMistralAI(userMessage, codeContext) {
     // Get Mistral API key from environment/config
     const apiKey = await getMistralAPIKey(); // ← ADD "await" here!
-    
+
     if (!apiKey) {
         return 'API key not configured. Please add your Mistral AI API key to continue.';
     }
-    
+
     const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -8707,13 +8560,13 @@ async function callMistralAI(userMessage, codeContext) {
             max_tokens: 1000
         })
     });
-    
+
     if (!response.ok) {
         const errorText = await response.text();
         console.error('❌ Mistral API error:', response.status, errorText);
         throw new Error('AI service error: ' + response.statusText);
     }
-    
+
     const data = await response.json();
     return data.choices[0].message.content;
 }
@@ -8723,11 +8576,10 @@ async function getMistralAPIKey() {
     try {
         console.log('🔍 Fetching API key from /api/ai-config...');
         const response = await fetch('/api/ai-config');
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data.MISTRAL_API_KEY) {
-                console.log('✅ API key loaded from environment variables');
                 return data.MISTRAL_API_KEY;
             } else {
                 console.error('❌ No MISTRAL_API_KEY in response');
@@ -8738,10 +8590,10 @@ async function getMistralAPIKey() {
     } catch (error) {
         console.error('❌ Failed to fetch API key from server:', error);
     }
-    
+
     // Fallback to localStorage if server fetch fails
     let apiKey = localStorage.getItem('mistral_api_key');
-    
+
     // Only prompt as last resort (shouldn't happen with env variable)
     if (!apiKey) {
         console.warn('⚠️ API key not found in environment or localStorage');
@@ -8750,7 +8602,7 @@ async function getMistralAPIKey() {
             localStorage.setItem('mistral_api_key', apiKey);
         }
     }
-    
+
     return apiKey;
 }
 
@@ -8796,10 +8648,10 @@ function resetProgress() {
             });
         });
         totalStudyTime = 0;
-        
+
         localStorage.setItem('progress_' + currentUser, JSON.stringify(userProgress));
         localStorage.setItem('studyTime_' + currentUser, '0');
-        
+
         renderCourses();update
 
         updateDashboard();
@@ -8810,621 +8662,532 @@ function resetProgress() {
 // Add this function with your other CSS injection functions
 function injectGoalsCSS() {
     if (document.getElementById('goalsListCSS')) return; // Already injected
-    
+
     const style = document.createElement('style');
     style.id = 'goalsListCSS';
     style.textContent = `
-        /* ==================== GOALS LIST MODAL STYLES ==================== */
-        
-        .goals-list-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            padding: 20px;
-            overflow-y: auto;
-        }
+.goals-list-modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.85);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+z-index: 10000;
+justify-content: center;
+align-items: center;
+opacity: 0;
+transition: opacity 0.3s ease;
+padding: 20px;
+overflow-y: auto;
+}
+.goals-list-modal.active {
+display: flex;
+opacity: 1;
+}
+.goals-list-content {
+background: rgba(30, 30, 30, 0.98);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border: 2px solid rgba(100, 255, 218, 0.3);
+border-radius: 20px;
+padding: 30px;
+max-width: 700px;
+width: 100%;
+max-height: 90vh;
+overflow-y: auto;
+transform: scale(0.9);
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
+}
+.goals-list-modal.active .goals-list-content {
+transform: scale(1);
+}
+.goal-card {
+background: rgba(100, 255, 218, 0.05);
+border: 2px solid rgba(100, 255, 218, 0.2);
+border-radius: 15px;
+padding: 20px;
+margin-bottom: 15px;
+cursor: pointer;
+transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+position: relative;
+overflow: hidden;
+}
+.goal-card::before {
+content: '';
+position: absolute;
+top: 0;
+left: -100%;
+width: 100%;
+height: 100%;
+background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+transition: left 0.5s ease;
+}
+.goal-card:hover::before {
+left: 100%;
+}
+.goal-card:hover {
+background: rgba(100, 255, 218, 0.1);
+border-color: rgba(100, 255, 218, 0.4);
+transform: translateY(-3px);
+box-shadow: 0 8px 24px rgba(100, 255, 218, 0.3);
+}
+.goal-card:active {
+transform: translateY(-1px);
+}
+.goal-card.active-goal {
+border-color: rgba(100, 255, 218, 0.6);
+background: rgba(100, 255, 218, 0.12);
+box-shadow: 0 4px 16px rgba(100, 255, 218, 0.2);
+}
+.goal-card.active-goal::after {
+content: '';
+position: absolute;
+top: 0;
+right: 0;
+width: 0;
+height: 0;
+border-style: solid;
+border-width: 0 50px 50px 0;
+border-color: transparent rgba(100, 255, 218, 0.3) transparent transparent;
+}
+.goal-card-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 15px;
+position: relative;
+z-index: 1;
+}
+.goal-card-title {
+font-size: 1.3em;
+font-weight: 700;
+color: #fff;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.goal-card-badge {
+padding: 4px 12px;
+border-radius: 20px;
+font-size: 0.75em;
+font-weight: 600;
+white-space: nowrap;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.badge-active {
+background: rgba(100, 255, 218, 0.2);
+color: #64ffda;
+border: 1px solid rgba(100, 255, 218, 0.4);
+animation: badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePulse {
+0%, 100% {
+box-shadow: 0 2px 8px rgba(100, 255, 218, 0.2);
+}
+50% {
+box-shadow: 0 2px 16px rgba(100, 255, 218, 0.4);
+}
+}
+.badge-completed {
+background: rgba(0, 255, 0, 0.2);
+color: #00ff00;
+border: 1px solid rgba(0, 255, 0, 0.4);
+}
+.badge-paused {
+background: rgba(255, 193, 7, 0.2);
+color: #ffc107;
+border: 1px solid rgba(255, 193, 7, 0.4);
+}
+.goal-card-stats {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 15px;
+margin-bottom: 15px;
+position: relative;
+z-index: 1;
+}
+.goal-stat {
+text-align: center;
+padding: 10px;
+background: rgba(0, 0, 0, 0.2);
+border-radius: 10px;
+border: 1px solid rgba(100, 255, 218, 0.1);
+transition: all 0.3s ease;
+}
+.goal-card:hover .goal-stat {
+background: rgba(0, 0, 0, 0.3);
+border-color: rgba(100, 255, 218, 0.2);
+}
+.goal-stat-value {
+font-size: 1.5em;
+font-weight: 700;
+color: #64ffda;
+text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+}
+.goal-stat-label {
+font-size: 0.8em;
+color: #8b949e;
+margin-top: 5px;
+}
+.goal-card-courses {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+position: relative;
+z-index: 1;
+}
+.goal-course-chip {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+padding: 6px 12px;
+background: rgba(102, 126, 234, 0.15);
+border: 1px solid rgba(102, 126, 234, 0.3);
+border-radius: 20px;
+font-size: 0.85em;
+color: #fff;
+transition: all 0.3s ease;
+}
+.goal-card:hover .goal-course-chip {
+background: rgba(102, 126, 234, 0.25);
+border-color: rgba(102, 126, 234, 0.5);
+}
+.goals-list-content::-webkit-scrollbar {
+width: 8px;
+}
+.goals-list-content::-webkit-scrollbar-track {
+background: rgba(100, 255, 218, 0.05);
+border-radius: 10px;
+}
+.goals-list-content::-webkit-scrollbar-thumb {
+background: rgba(100, 255, 218, 0.3);
+border-radius: 10px;
+transition: all 0.3s ease;
+}
+.goals-list-content::-webkit-scrollbar-thumb:hover {
+background: rgba(100, 255, 218, 0.5);
+}
+.goals-empty-state {
+text-align: center;
+padding: 60px 20px;
+color: #8b949e;
+}
+.goals-empty-state-icon {
+font-size: 5em;
+margin-bottom: 20px;
+opacity: 0.5;
+}
+.goals-empty-state-text {
+font-size: 1.2em;
+font-weight: 600;
+margin-bottom: 10px;
+}
+@media (max-width: 768px) {
+.goals-list-content {
+padding: 20px;
+max-height: 85vh;
+}
+.goal-card {
+padding: 15px;
+}
+.goal-card-title {
+font-size: 1.1em;
+}
+.goal-card-stats {
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+}
+.goal-stat {
+padding: 8px;
+}
+.goal-stat-value {
+font-size: 1.3em;
+}
+.goal-stat-label {
+font-size: 0.75em;
+}
+.goal-course-chip {
+font-size: 0.8em;
+padding: 5px 10px;
+}
+.goal-card-badge {
+font-size: 0.7em;
+padding: 3px 10px;
+}
+}
+@media (max-width: 480px) {
+.goals-list-modal {
+padding: 10px;
+}
+.goals-list-content {
+padding: 15px;
+}
+.goal-card {
+padding: 12px;
+margin-bottom: 12px;
+}
+.goal-card-header {
+flex-direction: column;
+align-items: flex-start;
+gap: 8px;
+}
+.goal-card-stats {
+gap: 8px;
+}
+}
+@keyframes goalCardSlideIn {
+from {
+opacity: 0;
+transform: translateY(20px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+.goal-card {
+animation: goalCardSlideIn 0.4s ease forwards;
+}
+.goal-card:nth-child(1) { animation-delay: 0.05s; }
+.goal-card:nth-child(2) { animation-delay: 0.1s; }
+.goal-card:nth-child(3) { animation-delay: 0.15s; }
+.goal-card:nth-child(4) { animation-delay: 0.2s; }
+.goal-card:nth-child(5) { animation-delay: 0.25s; }
+@keyframes shimmer {
+0% {
+background-position: -1000px 0;
+}
+100% {
+background-position: 1000px 0;
+}
+}
+.goals-loading {
+background: linear-gradient(
+90deg,
+rgba(100, 255, 218, 0.05) 0%,
+rgba(100, 255, 218, 0.1) 50%,
+rgba(100, 255, 218, 0.05) 100%
+);
+background-size: 1000px 100%;
+animation: shimmer 2s infinite;
+}
+`;
 
-        .goals-list-modal.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .goals-list-content {
-            background: rgba(30, 30, 30, 0.98);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid rgba(100, 255, 218, 0.3);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 700px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            transform: scale(0.9);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
-        }
-
-        .goals-list-modal.active .goals-list-content {
-            transform: scale(1);
-        }
-
-        .goal-card {
-            background: rgba(100, 255, 218, 0.05);
-            border: 2px solid rgba(100, 255, 218, 0.2);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .goal-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .goal-card:hover::before {
-            left: 100%;
-        }
-
-        .goal-card:hover {
-            background: rgba(100, 255, 218, 0.1);
-            border-color: rgba(100, 255, 218, 0.4);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(100, 255, 218, 0.3);
-        }
-
-        .goal-card:active {
-            transform: translateY(-1px);
-        }
-
-        .goal-card.active-goal {
-            border-color: rgba(100, 255, 218, 0.6);
-            background: rgba(100, 255, 218, 0.12);
-            box-shadow: 0 4px 16px rgba(100, 255, 218, 0.2);
-        }
-
-        .goal-card.active-goal::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 0 50px 50px 0;
-            border-color: transparent rgba(100, 255, 218, 0.3) transparent transparent;
-        }
-
-        .goal-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .goal-card-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .goal-card-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            font-weight: 600;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .badge-active {
-            background: rgba(100, 255, 218, 0.2);
-            color: #64ffda;
-            border: 1px solid rgba(100, 255, 218, 0.4);
-            animation: badgePulse 2s ease-in-out infinite;
-        }
-
-        @keyframes badgePulse {
-            0%, 100% {
-                box-shadow: 0 2px 8px rgba(100, 255, 218, 0.2);
-            }
-            50% {
-                box-shadow: 0 2px 16px rgba(100, 255, 218, 0.4);
-            }
-        }
-
-        .badge-completed {
-            background: rgba(0, 255, 0, 0.2);
-            color: #00ff00;
-            border: 1px solid rgba(0, 255, 0, 0.4);
-        }
-
-        .badge-paused {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
-            border: 1px solid rgba(255, 193, 7, 0.4);
-        }
-
-        .goal-card-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .goal-stat {
-            text-align: center;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            border: 1px solid rgba(100, 255, 218, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .goal-card:hover .goal-stat {
-            background: rgba(0, 0, 0, 0.3);
-            border-color: rgba(100, 255, 218, 0.2);
-        }
-
-        .goal-stat-value {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #64ffda;
-            text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
-        }
-
-        .goal-stat-label {
-            font-size: 0.8em;
-            color: #8b949e;
-            margin-top: 5px;
-        }
-
-        .goal-card-courses {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .goal-course-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: rgba(102, 126, 234, 0.15);
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            border-radius: 20px;
-            font-size: 0.85em;
-            color: #fff;
-            transition: all 0.3s ease;
-        }
-
-        .goal-card:hover .goal-course-chip {
-            background: rgba(102, 126, 234, 0.25);
-            border-color: rgba(102, 126, 234, 0.5);
-        }
-
-        /* Scrollbar for goals list */
-        .goals-list-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .goals-list-content::-webkit-scrollbar-track {
-            background: rgba(100, 255, 218, 0.05);
-            border-radius: 10px;
-        }
-
-        .goals-list-content::-webkit-scrollbar-thumb {
-            background: rgba(100, 255, 218, 0.3);
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .goals-list-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 255, 218, 0.5);
-        }
-
-        /* Empty state */
-        .goals-empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #8b949e;
-        }
-
-        .goals-empty-state-icon {
-            font-size: 5em;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .goals-empty-state-text {
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .goals-list-content {
-                padding: 20px;
-                max-height: 85vh;
-            }
-            
-            .goal-card {
-                padding: 15px;
-            }
-            
-            .goal-card-title {
-                font-size: 1.1em;
-            }
-            
-            .goal-card-stats {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-            }
-            
-            .goal-stat {
-                padding: 8px;
-            }
-            
-            .goal-stat-value {
-                font-size: 1.3em;
-            }
-            
-            .goal-stat-label {
-                font-size: 0.75em;
-            }
-            
-            .goal-course-chip {
-                font-size: 0.8em;
-                padding: 5px 10px;
-            }
-            
-            .goal-card-badge {
-                font-size: 0.7em;
-                padding: 3px 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .goals-list-modal {
-                padding: 10px;
-            }
-            
-            .goals-list-content {
-                padding: 15px;
-            }
-            
-            .goal-card {
-                padding: 12px;
-                margin-bottom: 12px;
-            }
-            
-            .goal-card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            
-            .goal-card-stats {
-                gap: 8px;
-            }
-        }
-
-        /* Animation for goal cards appearing */
-        @keyframes goalCardSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .goal-card {
-            animation: goalCardSlideIn 0.4s ease forwards;
-        }
-
-        .goal-card:nth-child(1) { animation-delay: 0.05s; }
-        .goal-card:nth-child(2) { animation-delay: 0.1s; }
-        .goal-card:nth-child(3) { animation-delay: 0.15s; }
-        .goal-card:nth-child(4) { animation-delay: 0.2s; }
-        .goal-card:nth-child(5) { animation-delay: 0.25s; }
-
-        /* Loading shimmer effect */
-        @keyframes shimmer {
-            0% {
-                background-position: -1000px 0;
-            }
-            100% {
-                background-position: 1000px 0;
-            }
-        }
-
-        .goals-loading {
-            background: linear-gradient(
-                90deg,
-                rgba(100, 255, 218, 0.05) 0%,
-                rgba(100, 255, 218, 0.1) 50%,
-                rgba(100, 255, 218, 0.05) 100%
-            );
-            background-size: 1000px 100%;
-            animation: shimmer 2s infinite;
-        }
-    `;
-    
     document.head.appendChild(style);
 }
 
 // Add this function near the top of your script (after the global variables)
 function injectSplashScreenCSS() {
     if (document.getElementById('splashScreenCSS')) return; // Already injected
-    
+
     const style = document.createElement('style');
     style.id = 'splashScreenCSS';
     style.textContent = `
-        /* ==================== SPLASH SCREEN STYLES ==================== */
-        
-        .update-splash {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            padding: 20px;
-        }
-
-        .update-splash.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .splash-content {
-            background: rgba(30, 30, 30, 0.95);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 2px solid rgba(100, 255, 218, 0.3);
-            border-radius: 25px;
-            padding: 50px 40px;
-            max-width: 550px;
-            width: 100%;
-            text-align: center;
-            transform: scale(0.9);
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.5),
-                0 0 100px rgba(100, 255, 218, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .update-splash.active .splash-content {
-            transform: scale(1);
-        }
-
-        .splash-content::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, 
-                transparent 0%, 
-                rgba(100, 255, 218, 0.05) 50%, 
-                transparent 100%);
-            animation: splashShimmer 3s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        @keyframes splashShimmer {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            50% { transform: translate(10%, 10%) rotate(5deg); }
-        }
-
-        .splash-icon {
-            font-size: 5em;
-            margin-bottom: 20px;
-            animation: splashIconBounce 1s ease infinite;
-            filter: drop-shadow(0 10px 30px rgba(100, 255, 218, 0.4));
-        }
-
-        @keyframes splashIconBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .splash-title {
-            font-size: 2.5em;
-            font-weight: 800;
-            margin: 0 0 15px 0;
-            background: linear-gradient(135deg, #667eea 0%, #64ffda 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-            z-index: 1;
-        }
-
-        .splash-version {
-            font-size: 1.2em;
-            color: #64ffda;
-            font-weight: 700;
-            margin-bottom: 35px;
-            padding: 8px 20px;
-            background: rgba(100, 255, 218, 0.1);
-            border: 2px solid rgba(100, 255, 218, 0.3);
-            border-radius: 50px;
-            display: inline-block;
-            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.2);
-        }
-
-        .splash-features {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 35px;
-            text-align: left;
-        }
-
-        .splash-feature {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 20px;
-            background: rgba(100, 255, 218, 0.05);
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 1;
-        }
-
-        .splash-feature:hover {
-            background: rgba(100, 255, 218, 0.1);
-            border-color: rgba(100, 255, 218, 0.4);
-            transform: translateX(5px);
-        }
-
-        .feature-icon {
-            font-size: 2em;
-            flex-shrink: 0;
-            filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
-        }
-
-        .feature-text {
-            color: #fff;
-            font-weight: 600;
-            font-size: 1.05em;
-        }
-
-        .splash-button {
-            padding: 16px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #64ffda 100%);
-            border: none;
-            border-radius: 50px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 25px rgba(100, 255, 218, 0.4);
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .splash-button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
-        }
-
-        .splash-button:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .splash-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 35px rgba(100, 255, 218, 0.6);
-        }
-
-        .splash-button:active {
-            transform: translateY(-1px);
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .splash-content {
-                padding: 40px 25px;
-                max-width: 90%;
-            }
-
-            .splash-icon {
-                font-size: 3.5em;
-            }
-
-            .splash-title {
-                font-size: 2em;
-            }
-
-            .splash-version {
-                font-size: 1em;
-                margin-bottom: 25px;
-            }
-
-            .splash-features {
-                gap: 12px;
-                margin-bottom: 25px;
-            }
-
-            .splash-feature {
-                padding: 12px 15px;
-            }
-
-            .feature-icon {
-                font-size: 1.6em;
-            }
-
-            .feature-text {
-                font-size: 0.95em;
-            }
-
-            .splash-button {
-                padding: 14px 30px;
-                font-size: 1em;
-                width: 100%;
-            }
-        }
-    `;
+.update-splash {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.95);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+display: none;
+justify-content: center;
+align-items: center;
+z-index: 10000;
+opacity: 0;
+transition: opacity 0.4s ease;
+padding: 20px;
+}
+.update-splash.active {
+display: flex;
+opacity: 1;
+}
+.splash-content {
+background: rgba(30, 30, 30, 0.95);
+backdrop-filter: blur(30px);
+-webkit-backdrop-filter: blur(30px);
+border: 2px solid rgba(100, 255, 218, 0.3);
+border-radius: 25px;
+padding: 50px 40px;
+max-width: 550px;
+width: 100%;
+text-align: center;
+transform: scale(0.9);
+transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+box-shadow:
+0 20px 60px rgba(0, 0, 0, 0.5),
+0 0 100px rgba(100, 255, 218, 0.2);
+position: relative;
+overflow: hidden;
+}
+.update-splash.active .splash-content {
+transform: scale(1);
+}
+.splash-content::before {
+content: '';
+position: absolute;
+top: -50%;
+left: -50%;
+width: 200%;
+height: 200%;
+background: linear-gradient(45deg,
+transparent 0%,
+rgba(100, 255, 218, 0.05) 50%,
+transparent 100%);
+animation: splashShimmer 3s ease-in-out infinite;
+pointer-events: none;
+}
+@keyframes splashShimmer {
+0%, 100% { transform: translate(0, 0) rotate(0deg); }
+50% { transform: translate(10%, 10%) rotate(5deg); }
+}
+.splash-icon {
+font-size: 5em;
+margin-bottom: 20px;
+animation: splashIconBounce 1s ease infinite;
+filter: drop-shadow(0 10px 30px rgba(100, 255, 218, 0.4));
+}
+@keyframes splashIconBounce {
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(-10px); }
+}
+.splash-title {
+font-size: 2.5em;
+font-weight: 800;
+margin: 0 0 15px 0;
+background: linear-gradient(135deg, #667eea 0%, #64ffda 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+position: relative;
+z-index: 1;
+}
+.splash-version {
+font-size: 1.2em;
+color: #64ffda;
+font-weight: 700;
+margin-bottom: 35px;
+padding: 8px 20px;
+background: rgba(100, 255, 218, 0.1);
+border: 2px solid rgba(100, 255, 218, 0.3);
+border-radius: 50px;
+display: inline-block;
+box-shadow: 0 4px 15px rgba(100, 255, 218, 0.2);
+}
+.splash-features {
+display: flex;
+flex-direction: column;
+gap: 15px;
+margin-bottom: 35px;
+text-align: left;
+}
+.splash-feature {
+display: flex;
+align-items: center;
+gap: 15px;
+padding: 15px 20px;
+background: rgba(100, 255, 218, 0.05);
+border: 1px solid rgba(100, 255, 218, 0.2);
+border-radius: 12px;
+transition: all 0.3s ease;
+position: relative;
+z-index: 1;
+}
+.splash-feature:hover {
+background: rgba(100, 255, 218, 0.1);
+border-color: rgba(100, 255, 218, 0.4);
+transform: translateX(5px);
+}
+.feature-icon {
+font-size: 2em;
+flex-shrink: 0;
+filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
+}
+.feature-text {
+color: #fff;
+font-weight: 600;
+font-size: 1.05em;
+}
+.splash-button {
+padding: 16px 40px;
+background: linear-gradient(135deg, #667eea 0%, #64ffda 100%);
+border: none;
+border-radius: 50px;
+color: #fff;
+font-weight: 700;
+font-size: 1.1em;
+cursor: pointer;
+transition: all 0.3s ease;
+box-shadow: 0 6px 25px rgba(100, 255, 218, 0.4);
+position: relative;
+z-index: 1;
+overflow: hidden;
+}
+.splash-button::before {
+content: '';
+position: absolute;
+top: 50%;
+left: 50%;
+width: 0;
+height: 0;
+border-radius: 50%;
+background: rgba(255, 255, 255, 0.3);
+transform: translate(-50%, -50%);
+transition: width 0.6s ease, height 0.6s ease;
+}
+.splash-button:hover::before {
+width: 300px;
+height: 300px;
+}
+.splash-button:hover {
+transform: translateY(-3px);
+box-shadow: 0 10px 35px rgba(100, 255, 218, 0.6);
+}
+.splash-button:active {
+transform: translateY(-1px);
+}
+@media (max-width: 768px) {
+.splash-content {
+padding: 40px 25px;
+max-width: 90%;
+}
+.splash-icon {
+font-size: 3.5em;
+}
+.splash-title {
+font-size: 2em;
+}
+.splash-version {
+font-size: 1em;
+margin-bottom: 25px;
+}
+.splash-features {
+gap: 12px;
+margin-bottom: 25px;
+}
+.splash-feature {
+padding: 12px 15px;
+}
+.feature-icon {
+font-size: 1.6em;
+}
+.feature-text {
+font-size: 0.95em;
+}
+.splash-button {
+padding: 14px 30px;
+font-size: 1em;
+width: 100%;
+}
+}
+`;
     document.head.appendChild(style);
 }
 
@@ -9434,7 +9197,7 @@ function checkForUpdates() {
     const lastSeenVersion = localStorage.getItem('lastSeenVersion_' + currentUser);
     const hasSeenThisVersion = lastSeenVersion === APP_VERSION;
     const isNewUser = !localStorage.getItem('isReturningUser_' + currentUser);
-    
+
     // New users see welcome splash
     if (isNewUser) {
         localStorage.setItem('isReturningUser_' + currentUser, 'true');
@@ -9443,11 +9206,11 @@ function checkForUpdates() {
             document.getElementById('splashTitle').textContent = 'Welcome to DevLearn Pro';
             document.getElementById('updateSplash').classList.add('active');
             document.body.classList.add('splash-open');
-            
+
             // Lock scroll when splash opens
             lockScroll();
         }, 300);
-    } 
+    }
     // Returning users see update splash only if version changed
     else if (!hasSeenThisVersion) {
         localStorage.setItem('lastSeenVersion_' + currentUser, APP_VERSION);
@@ -9455,7 +9218,7 @@ function checkForUpdates() {
             document.getElementById('splashTitle').textContent = 'New Version';
             document.getElementById('updateSplash').classList.add('active');
             document.body.classList.add('splash-open');
-            
+
             // Lock scroll when splash opens
             lockScroll();
         }, 1000);
@@ -9465,7 +9228,7 @@ function checkForUpdates() {
 function showRetryModal(lang, courseId, courseName) {
     // Lock scroll
     lockScroll();
-    
+
     const modal = document.createElement('div');
     modal.className = 'retry-modal';
     modal.style.cssText = `
@@ -9485,24 +9248,24 @@ function showRetryModal(lang, courseId, courseName) {
         transition: opacity 0.3s ease;
         padding: 20px;
     `;
-    
+
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeRetryModal();
         }
     });
-    
+
     const content = document.createElement('div');
     content.className = 'retry-modal-content';
-    
+
     // ✅ Check if mobile
     const isMobile = window.innerWidth <= 768;
-    
+
     if (isMobile) {
         // Mobile bottom sheet style
         modal.style.alignItems = 'flex-end';
         modal.style.padding = '0';
-        
+
         content.style.cssText = `
             background: rgba(30, 30, 30, 0.98);
             backdrop-filter: blur(20px);
@@ -9537,13 +9300,13 @@ function showRetryModal(lang, courseId, courseName) {
             box-shadow: 0 20px 60px rgba(100, 255, 218, 0.3);
         `;
     }
-    
+
     content.addEventListener('click', function(e) {
         e.stopPropagation();
     });
-    
+
     const courseData = courses[lang].find(c => c.id === courseId);
-    
+
     // ✅ Add drag handle for mobile
     const dragHandle = isMobile ? `
         <div style="
@@ -9558,7 +9321,7 @@ function showRetryModal(lang, courseId, courseName) {
             margin-bottom: 10px;
         "></div>
     ` : '';
-    
+
     content.innerHTML = `
         ${dragHandle}
         <div style="font-size: 4em; margin-bottom: 20px;">✅</div>
@@ -9571,7 +9334,7 @@ function showRetryModal(lang, courseId, courseName) {
         <p style="color: #64ffda; margin: 0 0 30px 0; font-size: 0.95em; font-weight: 600;">
             You've already finished this course
         </p>
-        
+
         <div style="display: flex; flex-direction: column; gap: 12px;">
             <button onclick="retryLesson('${lang}', '${courseId}', '${courseName}')" style="
                 padding: 14px 30px;
@@ -9587,7 +9350,7 @@ function showRetryModal(lang, courseId, courseName) {
             " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(100, 255, 218, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(100, 255, 218, 0.3)'">
                 🔄 Retry Course
             </button>
-            
+
             <button onclick="closeRetryModal()" style="
                 padding: 14px 30px;
                 background: rgba(139, 148, 158, 0.15);
@@ -9603,15 +9366,15 @@ function showRetryModal(lang, courseId, courseName) {
             </button>
         </div>
     `;
-    
+
     modal.appendChild(content);
     document.body.appendChild(modal);
-    
+
     // ✅ Add swipe gesture for mobile
     if (isMobile) {
         addSwipeGesture(content);
     }
-    
+
     // Animate in
     setTimeout(() => {
         modal.style.opacity = '1';
@@ -9628,9 +9391,9 @@ function closeRetryModal() {
     if (modal) {
         const content = modal.querySelector('.retry-modal-content');
         const isMobile = window.innerWidth <= 768;
-        
+
         modal.style.opacity = '0';
-        
+
         if (content) {
             if (isMobile) {
                 content.style.transform = 'translateY(100%)';
@@ -9638,10 +9401,10 @@ function closeRetryModal() {
                 content.style.transform = 'scale(0.9)';
             }
         }
-        
+
         setTimeout(() => {
             modal.remove();
-            
+
             // Unlock scroll
             unlockScroll();
         }, 400);
@@ -9651,7 +9414,7 @@ function closeRetryModal() {
 function closeUpdateSplash() {
     document.getElementById('updateSplash').classList.remove('active');
     document.body.classList.remove('splash-open');
-    
+
     // Unlock scroll
     unlockScroll();
 }
@@ -9659,7 +9422,7 @@ function closeUpdateSplash() {
 function showPreviewExplanation() {
     const preview = document.getElementById('previewExplanation');
     preview.classList.add('show');
-    
+
     setTimeout(() => {
         preview.classList.remove('show');
     }, 2500);
@@ -9671,19 +9434,19 @@ async function highlightKeywords(text) {
     if (highlightCache.has(text)) {
         return highlightCache.get(text);
     }
-    
+
     if (text.length < 50 || !containsCodeContent(text)) {
         return text;
     }
-    
+
     try {
         const config = await fetchAIConfig();
-        
+
         if (!config.apiKey) {
             highlightCache.set(text, text);
             return text;
         }
-        
+
         const response = await fetch(config.endpoint, {
             method: 'POST',
             headers: {
@@ -9702,27 +9465,27 @@ async function highlightKeywords(text) {
                 temperature: 0.2
             })
         });
-        
+
         if (!response.ok) throw new Error('API failed');
-        
+
         const data = await response.json();
         const content = data.choices[0].message.content;
-        
+
         const match = content.match(/\[.*\]/);
         if (!match) {
             highlightCache.set(text, text);
             return text;
         }
-        
+
         const keywords = JSON.parse(match[0]);
         let highlightedText = text;
-        
+
         const technicalKeywords = keywords.filter(keyword => {
             const lower = keyword.toLowerCase();
             const commonWords = ['automatically', 'important', 'essential', 'fundamental', 'basic', 'simple', 'easy', 'quickly', 'useful', 'great', 'good', 'best'];
             return !commonWords.includes(lower) && keyword.length > 2;
         });
-        
+
         technicalKeywords.forEach(keyword => {
             const parts = highlightedText.split(/(<[^>]+>)/);
             highlightedText = parts.map((part, index) => {
@@ -9735,10 +9498,10 @@ async function highlightKeywords(text) {
                 return part;
             }).join('');
         });
-        
+
         highlightCache.set(text, highlightedText);
         return highlightedText;
-        
+
     } catch (error) {
         console.error('Highlight error:', error);
         highlightCache.set(text, text);
@@ -9751,33 +9514,33 @@ let currentInlinePopup = null;
 async function showInlineAI(event, keyword) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     // Lock scroll when inline AI opens
     lockScroll();
-    
+
     // Close existing popup if any
     if (currentInlinePopup) {
         closeInlineAI();
         return;
     }
-    
+
     const clickedElement = event.target;
     const rect = clickedElement.getBoundingClientRect();
-    
+
     const overlay = document.createElement('div');
     overlay.className = 'inline-ai-overlay';
     overlay.onclick = closeInlineAI;
     overlay.ontouchstart = closeInlineAI; // Add touch support
     document.body.appendChild(overlay);
-    
+
     const popup = document.createElement('div');
     popup.className = 'inline-ai-popup';
     popup.onclick = (e) => e.stopPropagation();
     popup.ontouchstart = (e) => e.stopPropagation(); // Prevent closing on touch inside
-    
+
     // Mobile-specific positioning
     const isMobile = window.innerWidth <= 768;
-    
+
     if (isMobile) {
         // Center popup on mobile
         popup.style.left = '50%';
@@ -9791,10 +9554,10 @@ async function showInlineAI(event, keyword) {
         popup.style.top = rect.top + 'px';
         popup.style.transform = 'translate(-50%, 0) scale(0.8)';
     }
-    
+
     popup.style.opacity = '0';
     popup.style.visibility = 'hidden';
-    
+
     popup.innerHTML = `
         <div class="inline-ai-arrow"></div>
         <div class="inline-ai-header">
@@ -9812,18 +9575,18 @@ async function showInlineAI(event, keyword) {
             <div class="inline-ai-text" style="display: none;"></div>
         </div>
     `;
-    
+
     document.body.appendChild(popup);
-    
+
     const popupRect = popup.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
     const spaceAbove = rect.top;
     const spaceBelow = viewportHeight - rect.bottom;
     const popupHeight = popupRect.height || 250;
-    
+
     let finalTop, finalTransform, arrowPosition;
-    
+
     if (spaceAbove > popupHeight + 30 && spaceAbove > spaceBelow) {
         finalTop = rect.top - 20;
         finalTransform = 'translate(-50%, -100%) scale(0.8)';
@@ -9835,21 +9598,21 @@ async function showInlineAI(event, keyword) {
         arrowPosition = 'top';
         popup.classList.add('popup-below');
     }
-    
+
     let finalLeft = rect.left + (rect.width / 2);
     const popupWidth = popupRect.width || 350;
-    
+
     if (finalLeft - popupWidth / 2 < 10) {
         finalLeft = popupWidth / 2 + 10;
     } else if (finalLeft + popupWidth / 2 > viewportWidth - 10) {
         finalLeft = viewportWidth - popupWidth / 2 - 10;
     }
-    
+
     popup.style.left = finalLeft + 'px';
     popup.style.top = finalTop + 'px';
     popup.style.transform = finalTransform;
     popup.style.visibility = 'visible';
-    
+
     const arrow = popup.querySelector('.inline-ai-arrow');
     if (arrowPosition === 'bottom') {
         arrow.style.bottom = '-10px';
@@ -9862,13 +9625,13 @@ async function showInlineAI(event, keyword) {
         arrow.style.borderBottom = '10px solid rgba(100, 255, 218, 0.4)';
         arrow.style.borderTop = 'none';
     }
-    
+
     currentInlinePopup = { overlay, popup };
-    
+
     setTimeout(() => {
     overlay.classList.add('active');
     popup.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    
+
     if (isMobile) {
         // Mobile: scale up to center
         popup.style.transform = 'translate(-50%, -50%) scale(1)';
@@ -9883,17 +9646,17 @@ async function showInlineAI(event, keyword) {
         popup.style.opacity = '1';
     }
 }, 50);
-    
+
     const startTime = Date.now();
-    
+
     // Inside showInlineAI() function, replace the API call with:
 try {
     const config = await fetchAIConfig();
-    
+
     if (!config.apiKey) {
         throw new Error('AI API key not configured');
     }
-    
+
     const response = await fetch(config.endpoint, {
         method: 'POST',
         headers: {
@@ -9912,34 +9675,34 @@ try {
             temperature: 0.7
         })
     });
-    
+
     if (!response.ok) {
         throw new Error(`API Error: ${response.status}`);
     }
 
-        
+
         const data = await response.json();
-        
+
         const minLoadingTime = 800;
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
-        
+
         setTimeout(() => {
             const loadingDiv = popup.querySelector('.inline-ai-loading');
             const textDiv = popup.querySelector('.inline-ai-text');
-            
+
             if (loadingDiv && textDiv) {
                 loadingDiv.style.display = 'none';
                 textDiv.textContent = data.choices[0].message.content;
                 textDiv.style.display = 'block';
             }
         }, remainingTime);
-        
+
     } catch (error) {
         console.error('AI Error:', error);
         const loadingDiv = popup.querySelector('.inline-ai-loading');
         const textDiv = popup.querySelector('.inline-ai-text');
-        
+
         if (loadingDiv && textDiv) {
             loadingDiv.style.display = 'none';
             textDiv.textContent = 'Sorry, could not load explanation. Please try again.';
@@ -9954,7 +9717,7 @@ function closeInlineAI() {
         currentInlinePopup.overlay.remove();
         currentInlinePopup.popup.remove();
         currentInlinePopup = null;
-        
+
         // Unlock scroll when inline AI closes
         unlockScroll();
     }
@@ -9968,38 +9731,38 @@ function smoothTypeInline(element, text) {
     const words = text.split(' ');
     element.innerHTML = '';
     let wordIndex = 0;
-    
+
     function revealNextWord() {
         if (wordIndex < words.length) {
             const word = words[wordIndex];
-            
+
             const container = document.createElement('span');
             container.className = 'word-reveal-container';
-            
+
             const glowOuter = document.createElement('span');
             glowOuter.className = 'word-glow-outer';
-            
+
             const glowInner = document.createElement('span');
             glowInner.className = 'word-glow-inner';
-            
+
             const glowCore = document.createElement('span');
             glowCore.className = 'word-glow-core';
-            
+
             const textSpan = document.createElement('span');
             textSpan.className = 'word-reveal-text-inline';
             textSpan.textContent = word + ' ';
-            
+
             container.appendChild(glowOuter);
             container.appendChild(glowInner);
             container.appendChild(glowCore);
             container.appendChild(textSpan);
             element.appendChild(container);
-            
+
             wordIndex++;
             setTimeout(revealNextWord, 85); // Slightly slower for dramatic effect
         }
     }
-    
+
     revealNextWord();
 }
 
@@ -10008,38 +9771,38 @@ function smoothTypeWithGlow(element, text) {
     const words = text.split(' ');
     element.innerHTML = '';
     let wordIndex = 0;
-    
+
     function revealNextWord() {
         if (wordIndex < words.length) {
             const word = words[wordIndex];
-            
+
             const container = document.createElement('span');
             container.className = 'word-reveal-container';
-            
+
             const glowOuter = document.createElement('span');
             glowOuter.className = 'word-glow-outer';
-            
+
             const glowInner = document.createElement('span');
             glowInner.className = 'word-glow-inner';
-            
+
             const glowCore = document.createElement('span');
             glowCore.className = 'word-glow-core';
-            
+
             const textSpan = document.createElement('span');
             textSpan.className = 'word-reveal-text';
             textSpan.innerHTML = word + ' ';
-            
+
             container.appendChild(glowOuter);
             container.appendChild(glowInner);
             container.appendChild(glowCore);
             container.appendChild(textSpan);
             element.appendChild(container);
-            
+
             wordIndex++;
             setTimeout(revealNextWord, 80);
         }
     }
-    
+
     revealNextWord();
 }
 
@@ -10048,24 +9811,24 @@ async function showAIExplanation(keyword) {
     const keywordDisplay = document.getElementById('aiKeyword');
     const loading = document.getElementById('aiLoading');
     const explanationText = document.getElementById('aiExplanationText');
-    
+
     keywordDisplay.textContent = keyword;
     loading.style.display = 'block';
     explanationText.style.display = 'none';
     explanationText.innerHTML = '';
-    
+
     modal.classList.add('active');
-    
+
     const startTime = Date.now();
-    
+
     // ✅ UPDATED: Now uses environment variable
     try {
         const config = getAIConfig();
-        
+
         if (!config.apiKey) {
             throw new Error('AI API key not configured');
         }
-        
+
         const response = await fetch(config.endpoint, {
             method: 'POST',
             headers: {
@@ -10084,26 +9847,26 @@ async function showAIExplanation(keyword) {
                 temperature: 0.7
             })
         });
-        
+
         if (!response.ok) {
             throw new Error('API request failed');
         }
-        
+
         const data = await response.json();
         const explanation = data.choices[0].message.content;
-        
+
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, 2000 - elapsedTime);
-        
+
         setTimeout(() => {
             loading.style.display = 'none';
             explanationText.style.display = 'block';
             smoothTypeWithGlow(explanationText, explanation);
         }, remainingTime);
-        
+
     } catch (error) {
         console.error('Error fetching AI explanation:', error);
-        
+
         const explanations = {
             'print()': 'The <code>print()</code> function displays output to the console or terminal. It\'s one of the most basic and essential functions for seeing what your code is doing.',
             'variable': 'A variable is a named container that stores data. Think of it as a labeled box where you can put information and retrieve it later using its name.',
@@ -10127,13 +9890,13 @@ async function showAIExplanation(keyword) {
             'if': 'The if statement executes code only when a condition is true. It\'s fundamental for making decisions in your programs.',
             'for': 'A for loop repeats code a specific number of times. It\'s commonly used to iterate through arrays or perform actions a set number of times.'
         };
-        
-        const explanation = explanations[keyword.toLowerCase()] || 
+
+        const explanation = explanations[keyword.toLowerCase()] ||
             `<strong>${keyword}</strong> is an important programming concept. Understanding it will help you write better code.`;
-        
+
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, 2000 - elapsedTime);
-        
+
         setTimeout(() => {
             loading.style.display = 'none';
             explanationText.style.display = 'block';
@@ -10150,20 +9913,20 @@ function closeAIExplanation(event) {
 function createPreviewPanel() {
     const existingPanel = document.querySelector('.preview-panel');
     if (existingPanel) return existingPanel;
-    
+
     const lessonView = document.querySelector('.lesson-view');
     const chatMessages = document.querySelector('.chat-messages');
-    
+
     // Wrap content in container
     const container = document.createElement('div');
     container.className = 'lesson-container';
-    
+
     const mainContent = document.createElement('div');
     mainContent.className = 'lesson-main';
-    
+
     // Move chat messages to main content
     mainContent.appendChild(chatMessages);
-    
+
     // Create preview panel
     const previewPanel = document.createElement('div');
     previewPanel.className = 'preview-panel';
@@ -10178,19 +9941,19 @@ function createPreviewPanel() {
             </p>
         </div>
     `;
-    
+
     container.appendChild(mainContent);
     container.appendChild(previewPanel);
-    
+
     lessonView.insertBefore(container, lessonView.querySelector('.lesson-progress'));
-    
+
     return previewPanel;
 }
 
 function updateLivePreview(content, type = 'html') {
     const previewContent = document.getElementById('livePreview');
     if (!previewContent) return;
-    
+
     if (type === 'html') {
         const iframe = document.createElement('iframe');
         iframe.className = 'preview-iframe';
@@ -10199,8 +9962,8 @@ function updateLivePreview(content, type = 'html') {
             <html>
             <head>
                 <style>
-                    body { 
-                        font-family: Arial, sans-serif; 
+                    body {
+                        font-family: Arial, sans-serif;
                         padding: 20px;
                         margin: 0;
                     }
@@ -10240,11 +10003,11 @@ function updateLivePreview(content, type = 'html') {
             <html>
             <head>
                 <style>
-                    body { 
-                        display: flex; 
-                        justify-content: center; 
-                        align-items: center; 
-                        min-height: 100vh; 
+                    body {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        min-height: 100vh;
                         margin: 0;
                         background: #f0f0f0;
                     }
@@ -10264,13 +10027,13 @@ function updateLivePreview(content, type = 'html') {
 // Auto-detect code examples and show previews
 function enhanceCodeExamples() {
     const codeExamples = document.querySelectorAll('.code-example');
-    
+
     codeExamples.forEach((example, index) => {
         const code = example.querySelector('code');
         if (!code) return;
-        
+
         const codeText = code.textContent;
-        
+
         // Detect code type
         let type = 'html';
         if (codeText.includes('transition:') || codeText.includes('@keyframes') || codeText.includes('animation:')) {
@@ -10278,7 +10041,7 @@ function enhanceCodeExamples() {
         } else if (codeText.includes('{') && codeText.includes('}') && codeText.includes(':')) {
             type = 'css';
         }
-        
+
         // Add "Try It" button
         if (!example.querySelector('.try-it-btn')) {
             const tryBtn = document.createElement('button');
@@ -10296,9 +10059,7 @@ function enhanceCodeExamples() {
     });
 }
 
-// ============================================
 // LANGUAGE FILTER FUNCTIONS
-// ============================================
 
 function toggleFilter() {
     const filter = document.getElementById('languageFilter');
@@ -10311,11 +10072,11 @@ function filterChart(language) {
     const filter = document.getElementById('languageFilter');
     const filterText = document.getElementById('filterText');
     const options = document.querySelectorAll('.filter-option');
-    
+
     // Update active state
     options.forEach(opt => opt.classList.remove('active'));
     event.target.classList.add('active');
-    
+
     // Update filter text with icons
     const icons = {
         'all': '🌐 All Languages',
@@ -10325,16 +10086,16 @@ function filterChart(language) {
         'css': '🎨 CSS',
         'react': '⚛️ React'
     };
-    
+
     if (filterText) {
         filterText.textContent = icons[language] || '🌐 All Languages';
     }
-    
+
     // Close dropdown
     if (filter) {
         filter.classList.remove('active');
     }
-    
+
     // Switch to the selected chart
     switchChart(language);
 }
@@ -10348,7 +10109,6 @@ document.addEventListener('click', function(e) {
 });
 
 // ROADMAP FUNCTIONALITY
-// ============================================
 
 function switchLearnMode(mode) {
     // Update tabs
@@ -10356,12 +10116,12 @@ function switchLearnMode(mode) {
         tab.classList.remove('active');
     });
     event.target.closest('.learn-mode-tab').classList.add('active');
-    
+
     // Update content
     document.querySelectorAll('.learn-mode-content').forEach(content => {
         content.classList.remove('active');
     });
-    
+
     if (mode === 'courses') {
         document.getElementById('coursesView').classList.add('active');
         renderCourses(); // ✅ Refresh courses
@@ -10374,13 +10134,13 @@ function switchLearnMode(mode) {
 function generateRoadmap() {
     const timeline = document.getElementById('roadmapTimeline');
     timeline.innerHTML = '';
-    
+
     let totalCourses = 0;
     let completedCourses = 0;
     let inProgressCourses = 0;
     let lockedCourses = 0;
     let totalEstimatedTime = 0;
-    
+
     // IMPROVED: Better structured overview
     const overview = document.createElement('div');
     overview.className = 'roadmap-overview';
@@ -10402,22 +10162,22 @@ function generateRoadmap() {
         </div>
     `;
     timeline.appendChild(overview);
-    
+
     // Create progress line (will be positioned absolutely)
     const progressLine = document.createElement('div');
     progressLine.className = 'roadmap-progress-line';
     progressLine.style.height = '0';
     timeline.appendChild(progressLine);
-    
+
     let nextMilestone = null;
     let lastActiveItemTop = 0;
-    
+
     // Generate roadmap for each language
     Object.keys(courses).forEach((lang, langIndex) => {
         const section = document.createElement('div');
         section.className = 'roadmap-language-section';
         section.setAttribute('data-lang', lang);
-        
+
         const langIcons = {
             python: '🐍',
             javascript: '⚡',
@@ -10425,7 +10185,7 @@ function generateRoadmap() {
             css: '🎨',
             react: '⚛️'
         };
-        
+
         section.innerHTML = `
             <div class="roadmap-language-header">
                 <div class="roadmap-language-title">
@@ -10434,34 +10194,34 @@ function generateRoadmap() {
                 </div>
             </div>
         `;
-        
+
         courses[lang].forEach((course, index) => {
             totalCourses++;
             const progress = userProgress[lang][course.id];
             const isCompleted = progress?.completed || false;
             const isInProgress = progress?.progress > 0 && !isCompleted;
-            
+
             // FIX: Proper unlock logic
             const prevCourse = index > 0 ? userProgress[lang]['course' + index] : null;
             const isLocked = index > 0 && !prevCourse?.completed;
-            
+
             if (isCompleted) completedCourses++;
             else if (isInProgress) inProgressCourses++;
             else if (isLocked) lockedCourses++;
-            
+
             // Estimate 15-30 minutes per course
             const estimatedMinutes = 20;
             if (!isCompleted) totalEstimatedTime += estimatedMinutes;
-            
+
             // Find next milestone
             if (!nextMilestone && !isCompleted && !isLocked) {
                 nextMilestone = course.title;
             }
-            
+
             let status = 'locked';
             let statusText = '🔒 Locked';
             let nodeIcon = '🔒';
-            
+
             if (isCompleted) {
                 status = 'completed';
                 statusText = '✅ Completed';
@@ -10475,7 +10235,7 @@ function generateRoadmap() {
                 statusText = '🎯 Available';
                 nodeIcon = '🎯';
             }
-            
+
             const item = document.createElement('div');
             item.className = 'roadmap-item';
             item.innerHTML = `
@@ -10492,36 +10252,36 @@ function generateRoadmap() {
                     </div>
                 </div>
             `;
-            
+
             section.appendChild(item);
         });
-        
+
         timeline.appendChild(section);
     });
-    
+
     // Update overview stats
     const overallProgress = totalCourses > 0 ? Math.round((completedCourses / totalCourses) * 100) : 0;
     document.getElementById('roadmapProgress').textContent = overallProgress + '%';
-    
+
     const hours = Math.floor(totalEstimatedTime / 60);
     const mins = totalEstimatedTime % 60;
     document.getElementById('estimatedTime').textContent = hours + 'h ' + mins + 'm';
     document.getElementById('nextMilestone').textContent = nextMilestone || '🎉 Done!';
-    
+
     // Calculate progress line height - START FROM FIRST NODE CENTER
 setTimeout(() => {
     const sections = document.querySelectorAll('.roadmap-language-section');
     const firstNode = document.querySelector('.roadmap-node');
     let lastActiveNode = firstNode;
-    
+
     sections.forEach(section => {
         const items = section.querySelectorAll('.roadmap-item');
-        
+
         items.forEach(item => {
             const node = item.querySelector('.roadmap-node');
-            const status = node.classList.contains('completed') ? 'completed' : 
+            const status = node.classList.contains('completed') ? 'completed' :
                           node.classList.contains('in-progress') ? 'in-progress' : 'locked';
-            
+
             if (status === 'completed' || status === 'in-progress') {
                 lastActiveNode = node;
                 // ADDED: Trigger fill animation
@@ -10530,16 +10290,16 @@ setTimeout(() => {
             }
         });
     });
-    
+
     if (firstNode && lastActiveNode) {
         const firstRect = firstNode.getBoundingClientRect();
         const lastRect = lastActiveNode.getBoundingClientRect();
         const timelineRect = timeline.getBoundingClientRect();
-        
+
         // Calculate from first node CENTER to last active node CENTER
         const startPoint = firstRect.top + (firstRect.height / 2) - timelineRect.top;
         const endPoint = lastRect.top + (lastRect.height / 2) - timelineRect.top;
-        
+
         progressLine.style.top = startPoint + 'px';
         progressLine.style.height = Math.max(0, endPoint - startPoint) + 'px';
     }
@@ -10550,7 +10310,7 @@ setTimeout(() => {
     const inProgressNode = document.querySelector('.roadmap-node.in-progress');
     const firstAvailableNode = document.querySelector('.roadmap-node:not(.completed):not(.locked)');
     const targetNode = inProgressNode || firstAvailableNode;
-    
+
     if (targetNode) {
         targetNode.scrollIntoView({
             behavior: 'smooth',
@@ -10558,7 +10318,7 @@ setTimeout(() => {
         });
     }
 }, 500);
-    
+
     // Update stats
     document.getElementById('roadmapTotal').textContent = totalCourses;
     document.getElementById('roadmapCompleted').textContent = completedCourses;
@@ -10569,17 +10329,17 @@ setTimeout(() => {
 function openCourseFromRoadmap(lang, courseId, courseName) {
     const courseIndex = courses[lang].findIndex(c => c.id === courseId);
     const isLocked = courseIndex > 0 && !userProgress[lang]['course' + courseIndex]?.completed;
-    
+
     if (isLocked) {
         showNotification('🔒 This course is locked! Complete the previous course to unlock it.', 'warning');
         return;
     }
-    
+
     // Switch to courses view
     switchLanguage(lang);
-    
+
     const isCompleted = userProgress[lang][courseId]?.completed;
-    
+
     if (isCompleted) {
         showRetryModal(lang, courseId, courseName);
     } else {
@@ -10590,22 +10350,22 @@ function openCourseFromRoadmap(lang, courseId, courseName) {
 function handleMobileTopSearch() {
     const query = document.getElementById('mobileTopSearchInput').value.toLowerCase();
     const results = document.getElementById('mobileTopSearchResults');
-    
+
     if (!query) {
         results.classList.remove('active');
         return;
     }
-    
+
     const matches = [];
     Object.keys(courses).forEach(lang => {
         courses[lang].forEach((course, index) => {
-            if (course.title.toLowerCase().includes(query) || 
+            if (course.title.toLowerCase().includes(query) ||
                 course.desc.toLowerCase().includes(query) ||
                 lang.includes(query)) {
-                
+
                 const isLocked = index > 0 && !userProgress[lang]['course' + index]?.completed;
                 const isCompleted = userProgress[lang][course.id]?.completed;
-                
+
                 matches.push({
                     lang,
                     course,
@@ -10617,12 +10377,12 @@ function handleMobileTopSearch() {
             }
         });
     });
-    
+
     if (matches.length > 0) {
         results.innerHTML = matches.map(m => {
             let statusBadge = '';
             let clickable = !m.isLocked;
-            
+
             if (m.isCompleted) {
                 statusBadge = '<span style="color: #00ff00; margin-left: 8px;">✓ Completed</span>';
             } else if (m.isLocked) {
@@ -10630,11 +10390,11 @@ function handleMobileTopSearch() {
             } else {
                 statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
             }
-            
-            const onClick = clickable 
-                ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}'); document.getElementById('mobileTopSearchInput').value = ''; document.getElementById('mobileTopSearchResults').classList.remove('active');"` 
+
+            const onClick = clickable
+                ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}'); document.getElementById('mobileTopSearchInput').value = ''; document.getElementById('mobileTopSearchResults').classList.remove('active');"`
                 : `style="opacity: 0.5; cursor: not-allowed;"`;
-            
+
             return `
                 <div class="search-result-item" ${onClick}>
                     <div class="search-result-title">${m.course.icon} ${m.course.title}${statusBadge}</div>
@@ -10660,12 +10420,12 @@ document.addEventListener('click', function(e) {
 // Prevent search bar movement on mobile
 if (window.innerWidth <= 768) {
     const searchInput = document.getElementById('mobileTopSearchInput');
-    
+
     if (searchInput) {
         searchInput.addEventListener('focus', () => {
             document.body.classList.add('keyboard-open');
         });
-        
+
         searchInput.addEventListener('blur', () => {
             document.body.classList.remove('keyboard-open');
             // Force reposition
@@ -10689,10 +10449,10 @@ async function showCompletionStats() {
     const totalQuestions = lessonContent[currentLesson.language][currentLesson.courseId].exercises.length;
     const wrongAttempts = wrongAnswers.length;
     const accuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
-    
+
     // Lock scroll FIRST
     lockScroll();
-    
+
     const modal = document.createElement('div');
     modal.className = 'completion-stats-modal';
     modal.id = 'completionStatsModal';
@@ -10703,7 +10463,7 @@ async function showCompletionStats() {
                 <div class="stats-title">Course Completed!</div>
                 <p style="color: #8b949e;">Great job on finishing ${currentLesson.courseName}!</p>
             </div>
-            
+
             <div class="stats-score">
                 <div class="score-item">
                     <div class="score-value">${totalQuestions}</div>
@@ -10718,7 +10478,7 @@ async function showCompletionStats() {
                     <div class="score-label">Accuracy</div>
                 </div>
             </div>
-            
+
             ${wrongAttempts > 0 ? `
                 <div class="wrong-answers-list" id="wrongAnswersList">
                     <h3 style="color: #ff6b6b; margin-bottom: 15px;">📝 Review These:</h3>
@@ -10731,14 +10491,14 @@ async function showCompletionStats() {
                     `).join('')}
                 </div>
             ` : '<div style="text-align: center; color: #00ff00; padding: 20px;">🌟 Perfect score! No mistakes!</div>'}
-            
+
             <button class="continue-btn" onclick="closeStatsAndSuggest()">Continue</button>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('active'), 100);
-    
+
     // ✅ Store wrong answers data for AI
     if (wrongAttempts > 0) {
         localStorage.setItem('lastWrongAnswers_' + currentUser, JSON.stringify(wrongAnswers));
@@ -10762,42 +10522,42 @@ async function closeStatsAndSuggest() {
         localStorage.removeItem('goalJustCompleted_' + currentUser);
         localStorage.removeItem('completedGoalData_' + currentUser);
     }
-    
+
     const accuracy = parseInt(localStorage.getItem('lastLessonAccuracy') || '100');
     const lessonName = localStorage.getItem('lastLessonName') || '';
     const lessonLang = localStorage.getItem('lastLessonLanguage') || '';
-    
+
     // Close lesson and navigate
     document.getElementById('lessonView').classList.remove('active');
     currentLesson = null;
-    
+
     renderCourses();
     const roadmapView = document.getElementById('roadmapView');
     if (roadmapView && roadmapView.classList.contains('active')) {
         generateRoadmap();
     }
-    
+
     showSection('home');
-    
+
     // Wait for transition
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // ✅ STEP 1: Show streak FIRST (if applicable)
     if (!isRetryMode) {
         const streakShown = await checkAndShowStreakAsync();
-        
+
         // ✅ STEP 2: Wait for streak animation to finish
         if (streakShown) {
             await new Promise(resolve => setTimeout(resolve, 4000)); // Wait for streak animation
         }
     }
-    
+
     // ✅ STEP 3: THEN show AI suggestion (if needed)
     if (!isRetryMode && accuracy < 80 && lessonName && lessonLang) {
-        console.log('🤖 Generating AI suggestion after streak...'); 
+        console.log('🤖 Generating AI suggestion after streak...');
         await generateAISuggestionFromLesson(lessonName, lessonLang);
     }
-    
+
     // Clean up
     wrongAnswers = [];
     localStorage.removeItem('lastLessonAccuracy');
@@ -10810,10 +10570,10 @@ async function checkAndShowStreakAsync() {
     const today = new Date().toDateString();
     const lastActivity = localStorage.getItem('lastActivity_' + currentUser);
     const currentStreak = parseInt(localStorage.getItem('streak_' + currentUser) || '0');
-    
+
     let newStreak = currentStreak;
     let showStreak = false;
-    
+
     if (!lastActivity) {
         newStreak = 1;
         showStreak = true;
@@ -10824,7 +10584,7 @@ async function checkAndShowStreakAsync() {
         const todayDate = new Date(today);
         const diffTime = todayDate - lastDate;
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 1) {
             newStreak = currentStreak + 1;
             showStreak = true;
@@ -10832,17 +10592,17 @@ async function checkAndShowStreakAsync() {
             newStreak = 1;
             showStreak = false;
         }
-        
+
         localStorage.setItem('streak_' + currentUser, newStreak.toString());
         localStorage.setItem('lastActivity_' + currentUser, today);
     }
-    
+
     // Show streak celebration if needed
     if (showStreak && newStreak > 0) {
         showStreakCelebration(newStreak);
         return true; // Streak was shown
     }
-    
+
     return false; // No streak shown
 }
 
@@ -10850,9 +10610,9 @@ async function checkAndShowStreakAsync() {
 function showAISuggestionButton(title) {
     const existingBtn = document.querySelector('.ai-suggestion-btn');
     if (existingBtn) existingBtn.remove();
-    
+
     const isMobile = window.innerWidth <= 768;
-    
+
     const btn = document.createElement('div');
     btn.className = 'ai-suggestion-btn';
     btn.style.cssText = `
@@ -10874,7 +10634,7 @@ function showAISuggestionButton(title) {
         max-width: ${isMobile ? '85%' : '90%'};
         text-align: center;
     `;
-    
+
     btn.innerHTML = `
         <div style="display: flex; align-items: center; gap: ${isMobile ? '8px' : '12px'}; flex-wrap: wrap; justify-content: center;">
             <div style="font-size: ${isMobile ? '1.3em' : '1.8em'};">💡</div>
@@ -10884,27 +10644,27 @@ function showAISuggestionButton(title) {
             </div>
         </div>
     `;
-    
+
     btn.onclick = () => openPersonalizedAIPractice(title);
-    
+
     btn.onmouseenter = function() {
         this.style.transform = 'translateX(-50%) translateY(0) scale(1.05)';
         this.style.boxShadow = '0 12px 40px rgba(100, 255, 218, 0.6)';
     };
-    
+
     btn.onmouseleave = function() {
         this.style.transform = 'translateX(-50%) translateY(0) scale(1)';
         this.style.boxShadow = '0 8px 32px rgba(100, 255, 218, 0.4)';
     };
-    
+
     document.body.appendChild(btn);
-    
+
     // ✅ Animate in with delay (appears AFTER streak)
     setTimeout(() => {
         btn.style.opacity = '1';
         btn.style.transform = 'translateX(-50%) translateY(0) scale(1)';
     }, 100);
-    
+
     // Auto-hide after 15 seconds
     setTimeout(() => {
         if (btn && btn.parentNode) {
@@ -10917,35 +10677,35 @@ function showAISuggestionButton(title) {
 
 async function openPersonalizedAIPractice(title) {
     closeAISuggestion();
-    
+
     const loadingOverlay = document.getElementById('loadingOverlay');
     if (loadingOverlay) {
         loadingOverlay.classList.add('active');
         document.querySelector('.loading-text').textContent = '🤖 Creating Personalized Practice...';
     }
-    
+
     // ✅ Get wrong answers from storage
     const wrongAnswersData = JSON.parse(localStorage.getItem('lastWrongAnswers_' + currentUser) || '[]');
     const completedLesson = localStorage.getItem('lastLessonName') || '';
-    
+
     currentAICourse = {
         title: title,
         language: 'ai-generated',
         courseId: 'ai_' + Date.now()
     };
-    
+
     try {
         const config = await fetchAIConfig();
-        
+
         if (!config.apiKey) {
             throw new Error('AI API key not configured');
         }
-        
+
         // ✅ ENHANCED PROMPT: Include wrong answers for better targeting
-        const wrongAnswersSummary = wrongAnswersData.map((wa, idx) => 
+        const wrongAnswersSummary = wrongAnswersData.map((wa, idx) =>
             `${idx + 1}. Q: "${wa.question}" - User answered: "${wa.userAnswer}" (Correct: "${wa.correctAnswer}")`
         ).join('\n');
-        
+
         const enhancedPrompt = `The user completed "${completedLesson}" but struggled with these concepts:
 
 ${wrongAnswersSummary}
@@ -10956,9 +10716,9 @@ Create 8 targeted practice questions about "${title}" that specifically address 
 3. Include clear explanations in options
 
 Format as JSON array: [{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"Why this is correct"}]`;
-        
+
         console.log('📤 Sending enhanced prompt:', enhancedPrompt);
-        
+
         const response = await fetch(config.endpoint, {
             method: 'POST',
             headers: {
@@ -10975,43 +10735,43 @@ Format as JSON array: [{"question":"...","options":["A","B","C","D"],"correct":0
                 temperature: 0.7
             })
         });
-        
+
         if (!response.ok) {
             throw new Error('Failed to generate questions');
         }
-        
+
         const data = await response.json();
         console.log('📥 AI Response:', data);
-        
+
         let questions;
         try {
             const content = data.choices[0].message.content;
             const jsonMatch = content.match(/\[[\s\S]*\]/);
-            
+
             if (!jsonMatch) {
                 throw new Error('No JSON found');
             }
-            
+
             questions = JSON.parse(jsonMatch[0]);
-            
+
             // Validate
-            questions = questions.filter(q => 
-                q.question && 
-                Array.isArray(q.options) && 
+            questions = questions.filter(q =>
+                q.question &&
+                Array.isArray(q.options) &&
                 q.options.length >= 2 &&
                 typeof q.correct === 'number'
             );
-            
+
             if (questions.length === 0) {
                 throw new Error('No valid questions');
             }
-            
+
         } catch (parseError) {
             console.error('Parse error:', parseError);
             // Enhanced fallback based on wrong answers
             questions = generateFallbackQuestions(wrongAnswersData, title);
         }
-        
+
         // ✅ Store for direct practice (no learn phase)
         aiCourseContent = {
             learn: [], // ✅ EMPTY - go straight to practice
@@ -11023,15 +10783,15 @@ Format as JSON array: [{"question":"...","options":["A","B","C","D"],"correct":0
                 explanation: q.explanation || ''
             }))
         };
-        
+
         if (loadingOverlay) loadingOverlay.classList.remove('active');
-        
+
         // ✅ Open AI lesson directly in practice mode
         openAILessonDirectPractice();
-        
+
         // Clean up
         localStorage.removeItem('lastWrongAnswers_' + currentUser);
-        
+
     } catch (error) {
         console.error('AI Practice Error:', error);
         if (loadingOverlay) loadingOverlay.classList.remove('active');
@@ -11063,32 +10823,32 @@ function openAILessonDirectPractice() {
         courseName: '🎯 ' + currentAICourse.title,
         isAI: true
     };
-    
+
     learnCompleted = true; // ✅ Skip learn phase
     learnMessageIndex = 0;
     correctAnswers = 0;
     selectedMCQ = {};
     wrongAnswers = []; // Reset
-    
+
     studyStartTime = Date.now();
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(updateTimer, 1000);
-    
+
     document.getElementById('lessonTitle').textContent = '🎯 ' + currentAICourse.title;
     document.getElementById('lessonView').classList.add('active');
     document.getElementById('learnMessages').innerHTML = '';
     document.getElementById('questionMessages').innerHTML = '';
-    
+
     // ✅ Show only questions tab, auto-switch to it
     document.getElementById('questionsTabBtn').disabled = false;
     document.getElementById('questionsTabBtn').innerHTML = 'Practice Questions';
-    
+
     // ✅ Hide learn tab for AI practice
     document.getElementById('learnTabBtn').style.display = 'none';
-    
+
     switchPanel('questions');
     updateLessonProgress();
-    
+
     // ✅ Display questions immediately
     displayAIQuestions(aiCourseContent.exercises);
 }
@@ -11096,19 +10856,19 @@ function openAILessonDirectPractice() {
 function closeAISuggestion() {
     const btn = document.querySelector('.ai-suggestion-btn');
     const overlay = document.querySelector('.ai-suggestion-overlay');
-    
+
     if (btn) {
         btn.style.opacity = '0';
         btn.style.transform = 'translateX(-50%) translateY(150px)';
     }
-    
+
     if (overlay) {
         overlay.style.background = 'rgba(0, 0, 0, 0)';
         overlay.style.backdropFilter = 'blur(0px)';
         overlay.style.webkitBackdropFilter = 'blur(0px)';
         overlay.style.opacity = '0';
     }
-    
+
     setTimeout(() => {
         if (btn && btn.parentNode) btn.remove();
         if (overlay && overlay.parentNode) overlay.remove();
@@ -11117,29 +10877,29 @@ function closeAISuggestion() {
 
 async function openAISuggestedCourse(title) {
     closeAISuggestion(); // CHANGE: Use new close function
-    
+
     const loadingOverlay = document.getElementById('loadingOverlay');
     if (loadingOverlay) {
         loadingOverlay.classList.add('active');
         document.querySelector('.loading-text').textContent = 'Generating AI Course...';
     }
-    
+
     currentAICourse = {
         title: title,
         language: 'ai-generated',
         courseId: 'ai_' + Date.now()
     };
-    
+
     try {
         const config = await fetchAIConfig();
-        
+
         if (!config.apiKey) {
             throw new Error('AI API key not configured');
         }
-        
+
         // IMPROVED: Reference the completed lesson
         const completedLesson = localStorage.getItem('lastLessonName') || '';
-        
+
         const lessonResponse = await fetch(config.endpoint, {
             method: 'POST',
             headers: {
@@ -11156,25 +10916,25 @@ async function openAISuggestedCourse(title) {
                 temperature: 0.7
             })
         });
-        
+
         if (!lessonResponse.ok) {
             throw new Error('Failed to generate lesson content');
         }
-        
+
         const lessonData = await lessonResponse.json();
         console.log('📚 Lesson Response:', lessonData); // Debug
-        
+
         let messages;
         try {
             const content = lessonData.choices[0].message.content;
             const jsonMatch = content.match(/\[[\s\S]*\]/);
-            
+
             if (!jsonMatch) {
                 throw new Error('No JSON array found in response');
             }
-            
+
             messages = JSON.parse(jsonMatch[0]);
-            
+
             // Validate messages
             if (!Array.isArray(messages) || messages.length === 0) {
                 throw new Error('Invalid messages format');
@@ -11189,7 +10949,7 @@ async function openAISuggestedCourse(title) {
                 `Practice makes perfect - let's test your knowledge!`
             ];
         }
-        
+
         // ✅ FIXED: Generate 5 questions instead of 3
 const questionsResponse = await fetch(config.endpoint, {
     method: 'POST',
@@ -11207,42 +10967,42 @@ const questionsResponse = await fetch(config.endpoint, {
         temperature: 0.7
     })
 });
-        
+
         if (!questionsResponse.ok) {
             throw new Error('Failed to generate questions');
         }
-        
+
         const questionsData = await questionsResponse.json();
         console.log('❓ Questions Response:', questionsData); // Debug
-        
+
         let questions;
         try {
             const content = questionsData.choices[0].message.content;
             const jsonMatch = content.match(/\[[\s\S]*\]/);
-            
+
             if (!jsonMatch) {
                 throw new Error('No JSON array found in questions');
             }
-            
+
             questions = JSON.parse(jsonMatch[0]);
-            
+
             // Validate questions
             if (!Array.isArray(questions) || questions.length === 0) {
                 throw new Error('Invalid questions format');
             }
-            
+
             // Validate each question has required fields
-            questions = questions.filter(q => 
-                q.question && 
-                Array.isArray(q.options) && 
+            questions = questions.filter(q =>
+                q.question &&
+                Array.isArray(q.options) &&
                 q.options.length >= 2 &&
                 typeof q.correct === 'number'
             );
-            
+
             if (questions.length === 0) {
                 throw new Error('No valid questions found');
             }
-            
+
         } catch (parseError) {
             console.error('Questions parse error:', parseError);
             // ✅ FIXED: 5 fallback questions instead of 3
@@ -11300,7 +11060,7 @@ questions = [
 ];
 }
 
-        
+
         // Store AI course content
         aiCourseContent = {
             learn: messages.map(msg => ({ bot: msg })),
@@ -11311,23 +11071,23 @@ questions = [
                 correct: q.correct
             }))
         };
-        
+
         console.log('✅ AI Course Content:', aiCourseContent); // Debug
-        
+
         // Hide loading and open lesson
         if (loadingOverlay) loadingOverlay.classList.remove('active');
-        
+
         openAILesson();
-        
+
     } catch (error) {
         console.error('❌ AI Course Generation Error:', error);
-        
+
         // Hide loading
         if (loadingOverlay) loadingOverlay.classList.remove('active');
-        
+
         // Show error notification
         showNotification('Failed to generate AI course. Please try again later.', 'error');
-        
+
         currentAICourse = null;
     }
 }
@@ -11340,24 +11100,24 @@ function openAILesson() {
         courseName: '🤖 ' + currentAICourse.title,
         isAI: true // Flag to track it's AI
     };
-    
+
     learnCompleted = false;
     learnMessageIndex = 0;
     correctAnswers = 0;
     selectedMCQ = {};
-    
+
     studyStartTime = Date.now();
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(updateTimer, 1000);
-    
+
     document.getElementById('lessonTitle').textContent = '🤖 ' + currentAICourse.title;
     document.getElementById('lessonView').classList.add('active');
     document.getElementById('learnMessages').innerHTML = '';
     document.getElementById('questionMessages').innerHTML = '';
-    
+
     document.getElementById('questionsTabBtn').disabled = true;
     document.getElementById('questionsTabBtn').innerHTML = 'Questions 🔒';
-    
+
     switchPanel('learn');
     updateLessonProgress();
     displayNextAIMessage();
@@ -11365,7 +11125,7 @@ function openAILesson() {
 
 async function displayNextAIMessage() {
     const learnMessages = document.getElementById('learnMessages');
-    
+
     if (learnMessageIndex >= aiCourseContent.learn.length) {
         learnCompleted = true;
         const questionsBtn = document.getElementById('questionsTabBtn');
@@ -11373,7 +11133,7 @@ async function displayNextAIMessage() {
             questionsBtn.disabled = false;
             questionsBtn.innerHTML = 'Questions ✓';
         }
-        
+
         const unlockMsg = document.createElement('div');
         unlockMsg.className = 'message';
         unlockMsg.innerHTML = `
@@ -11386,7 +11146,7 @@ async function displayNextAIMessage() {
         learnMessages.scrollTop = learnMessages.scrollHeight;
         return; // Don't display questions yet - wait for user to switch tabs
     }
-    
+
     const typingDiv = document.createElement('div');
     typingDiv.className = 'message';
     typingDiv.innerHTML = `
@@ -11401,10 +11161,10 @@ async function displayNextAIMessage() {
     `;
     learnMessages.appendChild(typingDiv);
     learnMessages.scrollTop = learnMessages.scrollHeight;
-    
+
     setTimeout(() => {
         typingDiv.remove();
-        
+
         const msg = aiCourseContent.learn[learnMessageIndex];
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message';
@@ -11414,10 +11174,10 @@ async function displayNextAIMessage() {
         `;
         learnMessages.appendChild(messageDiv);
         learnMessages.scrollTop = learnMessages.scrollHeight;
-        
+
         learnMessageIndex++;
         updateLessonProgress();
-        
+
         if (learnMessageIndex < aiCourseContent.learn.length) {
             setTimeout(displayNextAIMessage, 600);
         } else {
@@ -11429,7 +11189,7 @@ async function displayNextAIMessage() {
                     questionsBtn.disabled = false;
                     questionsBtn.innerHTML = 'Questions ✓';
                 }
-                
+
                 const unlockMsg = document.createElement('div');
                 unlockMsg.className = 'message';
                 unlockMsg.innerHTML = `
@@ -11460,7 +11220,7 @@ function displayAIMessage(text) {
 function displayAIQuestions(questions) {
     const questionMessages = document.getElementById('questionMessages');
     questionMessages.innerHTML = '';
-    
+
     const welcomeDiv = document.createElement('div');
     welcomeDiv.className = 'message';
     welcomeDiv.innerHTML = `
@@ -11468,15 +11228,15 @@ function displayAIQuestions(questions) {
         <div class="message-bubble">🎯 Test your AI-generated knowledge!</div>
     `;
     questionMessages.appendChild(welcomeDiv);
-    
+
     questions.forEach((q, index) => {
         const exerciseDiv = document.createElement('div');
         exerciseDiv.className = 'message';
-        
-        let optionsHTML = q.options.map((opt, i) => 
+
+        let optionsHTML = q.options.map((opt, i) =>
             `<div class="mcq-option" onclick="selectOption(this, ${index}, ${i})">${opt}</div>`
         ).join('');
-        
+
         exerciseDiv.innerHTML = `
             <div class="message-avatar">🤖</div>
             <div class="message-bubble">
@@ -11490,7 +11250,7 @@ function displayAIQuestions(questions) {
                 </div>
             </div>
         `;
-        
+
         questionMessages.appendChild(exerciseDiv);
     });
 }
@@ -11504,7 +11264,7 @@ function showAICompletionStats() {
     const totalQuestions = aiCourseContent.exercises.length;
     const wrongAttempts = wrongAnswers.length;
     const accuracy = Math.round(((totalQuestions - wrongAttempts) / totalQuestions) * 100);
-    
+
     const modal = document.createElement('div');
     modal.className = 'completion-stats-modal';
     modal.innerHTML = `
@@ -11517,7 +11277,7 @@ function showAICompletionStats() {
                     <strong style="color: #64ffda;">✨ Extra Task Completed!</strong>
                 </div>
             </div>
-            
+
             <div class="stats-score">
                 <div class="score-item">
                     <div class="score-value">${totalQuestions}</div>
@@ -11532,7 +11292,7 @@ function showAICompletionStats() {
                     <div class="score-label">Accuracy</div>
                 </div>
             </div>
-            
+
             ${wrongAttempts > 0 ? `
                 <div class="wrong-answers-list">
                     <h3 style="color: #ff6b6b; margin-bottom: 15px;">📝 Review These:</h3>
@@ -11545,11 +11305,11 @@ function showAICompletionStats() {
                     `).join('')}
                 </div>
             ` : '<div style="text-align: center; color: #00ff00; padding: 20px;">🌟 Perfect score! No mistakes!</div>'}
-            
+
             <button class="continue-btn" onclick="closeAIStats()">Continue</button>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('active'), 100);
 }
@@ -11565,12 +11325,12 @@ function closeAIStats() {
 async function generateAISuggestionFromLesson(lessonName, language) {
     try {
         const config = await fetchAIConfig();
-        
+
         if (!config.apiKey) {
             showAISuggestionButton(`Review ${lessonName}`);
             return;
         }
-        
+
         // IMPROVED PROMPT: Use the lesson that was just completed
         const response = await fetch(config.endpoint, {
             method: 'POST',
@@ -11588,17 +11348,17 @@ async function generateAISuggestionFromLesson(lessonName, language) {
                 temperature: 0.7
             })
         });
-        
+
         if (!response.ok) {
             showAISuggestionButton(`Practice ${lessonName}`);
             return;
         }
-        
+
         const data = await response.json();
         const title = data.choices[0].message.content.replace(/['"]/g, '').trim();
-        
+
         showAISuggestionButton(title);
-        
+
     } catch (error) {
         console.error('AI Suggestion Error:', error);
         showAISuggestionButton(`Master ${lessonName}`);
@@ -11613,21 +11373,21 @@ window.addEventListener('scroll', function() {
     const container = document.getElementById('scrollButtonContainer');
     const prevBtn = document.getElementById('scrollPrevBtn');
     const nextBtn = document.getElementById('scrollNextBtn');
-    
+
     if (!container) return;
-    
+
     // Always show scroll to top after 300px (both mobile & desktop)
     if (window.pageYOffset > 300) {
         container.classList.add('show');
     } else {
         container.classList.remove('show');
     }
-    
+
     // Roadmap navigation buttons (NEW) - Check this BEFORE desktop check
     const roadmapNavContainer = document.getElementById('roadmapNavContainer');
     const roadmapPrevBtn = document.getElementById('roadmapPrevBtn');
     const roadmapNextBtn = document.getElementById('roadmapNextBtn');
-    
+
     // Check if on roadmap for prev/next buttons
     const roadmapView = document.getElementById('roadmapView');
     if (roadmapView && roadmapView.classList.contains('active')) {
@@ -11639,22 +11399,22 @@ window.addEventListener('scroll', function() {
         } else if (roadmapNavContainer) {
             roadmapNavContainer.classList.remove('show');
         }
-        
+
         // Detect current section for prev/next buttons (works on both mobile and desktop)
         const sections = document.querySelectorAll('.roadmap-language-section');
         let currentSection = null;
-        
+
         sections.forEach(section => {
             const rect = section.getBoundingClientRect();
             if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
                 currentSection = section.getAttribute('data-lang');
             }
         });
-        
+
         if (currentSection) {
             currentLanguageSection = currentSection;
             const currentIndex = languageOrder.indexOf(currentSection);
-            
+
             // Show/hide prev button (roadmap navigation)
             if (currentIndex > 0 && roadmapPrevBtn) {
                 roadmapPrevBtn.classList.add('show');
@@ -11662,7 +11422,7 @@ window.addEventListener('scroll', function() {
             } else if (roadmapPrevBtn) {
                 roadmapPrevBtn.classList.remove('show');
             }
-            
+
             // Show/hide next button (roadmap navigation)
             if (currentIndex < languageOrder.length - 1 && roadmapNextBtn) {
                 roadmapNextBtn.classList.add('show');
@@ -11678,7 +11438,7 @@ window.addEventListener('scroll', function() {
             roadmapNavContainer.style.display = 'none';
         }
     }
-    
+
     // ✅ HIDE prev/next buttons on desktop (>768px) - but only for mobile buttons
     const isDesktop = window.innerWidth > 768;
     if (isDesktop) {
@@ -11686,22 +11446,22 @@ window.addEventListener('scroll', function() {
         if (nextBtn) nextBtn.classList.remove('show');
         return; // Exit early on desktop
     }
-    
+
     // Mobile-only section detection (for mobile prev/next buttons)
     const sections = document.querySelectorAll('.roadmap-language-section');
     let currentSection = null;
-    
+
     sections.forEach(section => {
         const rect = section.getBoundingClientRect();
         if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
             currentSection = section.getAttribute('data-lang');
         }
     });
-    
+
     if (currentSection) {
         currentLanguageSection = currentSection;
         const currentIndex = languageOrder.indexOf(currentSection);
-        
+
         // Show/hide prev button (mobile only)
         if (currentIndex > 0 && prevBtn) {
             prevBtn.classList.add('show');
@@ -11709,7 +11469,7 @@ window.addEventListener('scroll', function() {
         } else if (prevBtn) {
             prevBtn.classList.remove('show');
         }
-        
+
         // Show/hide next button (mobile only)
         if (currentIndex < languageOrder.length - 1 && nextBtn) {
             nextBtn.classList.add('show');
@@ -11753,357 +11513,319 @@ function scrollToTop() {
 
 function injectVideoPlayerCSS() {
     if (document.getElementById('videoPlayerCSS')) return;
-    
+
     const style = document.createElement('style');
     style.id = 'videoPlayerCSS';
     style.textContent = `
-        /* Video Message Buttons */
-        .video-message-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            animation: fadeInUp 0.4s ease;
-        }
-
-        .video-btn {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.95em;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .video-btn-watch {
-            background: linear-gradient(135deg, #667eea, #64ffda);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
-        }
-
-        .video-btn-watch:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(100, 255, 218, 0.5);
-        }
-
-        .video-btn-later {
-            background: rgba(139, 148, 158, 0.15);
-            border: 2px solid rgba(139, 148, 158, 0.3);
-            color: #8b949e;
-        }
-
-        .video-btn-later:hover {
-            background: rgba(139, 148, 158, 0.25);
-            border-color: rgba(139, 148, 158, 0.5);
-        }
-
-        /* Video Container - Normal State */
-        .video-container {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            margin-top: 0;
-            border-radius: 15px;
-            background: rgba(30, 30, 30, 0.95);
-            border: 2px solid rgba(100, 255, 218, 0.3);
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-        }
-
-        .video-container.active {
-            max-height: 500px;
-            opacity: 1;
-            margin-top: 20px;
-            padding: 15px;
-        }
-
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Fullscreen Button */
-        .fullscreen-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 44px;
-            height: 44px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(100, 255, 218, 0.5);
-            border-radius: 50%;
-            color: #64ffda;
-            font-size: 1.2em;
-            cursor: pointer;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.3s ease;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .video-container:hover .fullscreen-btn {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .fullscreen-btn:hover {
-            background: rgba(100, 255, 218, 0.2);
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(100, 255, 218, 0.5);
-        }
-
-        /* MODAL FULLSCREEN OVERLAY */
-        .video-fullscreen-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 2147483647;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
-        }
-
-        .video-fullscreen-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .video-fullscreen-backdrop {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.98);
-            backdrop-filter: blur(10px);
-            animation: fadeIn 0.3s ease;
-        }
-
-        .video-fullscreen-content {
-            position: relative;
-            width: 90vw;
-            height: calc(90vw * 9 / 16);
-            max-height: 85vh;
-            max-width: calc(85vh * 16 / 9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
-            padding: 0;
-            transform: scale(0.8);
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 25px 100px rgba(100, 255, 218, 0.4);
-        }
-
-        .video-fullscreen-modal.active .video-fullscreen-content {
-            transform: scale(1);
-            opacity: 1;
-        }
-
-        .video-fullscreen-content iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .video-fullscreen-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(100, 255, 218, 0.5);
-            border-radius: 50%;
-            color: #64ffda;
-            font-size: 1.8em;
-            cursor: pointer;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            line-height: 1;
-            opacity: 0.9;
-        }
-
-        .video-fullscreen-close:hover {
-            background: rgba(255, 0, 0, 0.85);
-            border-color: rgba(255, 0, 0, 0.8);
-            transform: scale(1.15) rotate(90deg);
-            color: #fff;
-            opacity: 1;
-        }
-
-        .video-fullscreen-controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7), transparent);
-            z-index: 5;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-
-        .video-fullscreen-modal.show-controls .video-fullscreen-controls {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .video-progress-container {
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            cursor: pointer;
-            position: relative;
-            margin-bottom: 10px;
-        }
-
-        .video-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #64ffda, #00d4ff);
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.1s linear;
-            box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
-        }
-
-        .video-time-display {
-            color: #fff;
-            font-size: 0.9em;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-            .video-fullscreen-content {
-                width: 100vw;
-                height: 56.25vw;
-                max-height: 100vh;
-                max-width: 177.78vh;
-                border-radius: 0;
-            }
-
-            .video-fullscreen-close {
-                width: 45px;
-                height: 45px;
-                font-size: 1.5em;
-                top: 15px;
-                right: 15px;
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .video-message-buttons {
-                flex-direction: column;
-            }
-
-            .video-btn {
-                width: 100%;
-            }
-
-            .video-container.active {
-                max-height: 300px;
-            }
-
-            .fullscreen-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.1em;
-            }
-
-            .video-fullscreen-close {
-                width: 50px;
-                height: 50px;
-                font-size: 1.6em;
-            }
-        }
-    `;
+.video-message-buttons {
+display: flex;
+gap: 10px;
+margin-top: 15px;
+animation: fadeInUp 0.4s ease;
+}
+.video-btn {
+flex: 1;
+padding: 12px 20px;
+border: none;
+border-radius: 10px;
+font-weight: 600;
+font-size: 0.95em;
+cursor: pointer;
+transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+}
+.video-btn-watch {
+background: linear-gradient(135deg, #667eea, #64ffda);
+color: #fff;
+box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+}
+.video-btn-watch:hover {
+transform: translateY(-2px);
+box-shadow: 0 6px 20px rgba(100, 255, 218, 0.5);
+}
+.video-btn-later {
+background: rgba(139, 148, 158, 0.15);
+border: 2px solid rgba(139, 148, 158, 0.3);
+color: #8b949e;
+}
+.video-btn-later:hover {
+background: rgba(139, 148, 158, 0.25);
+border-color: rgba(139, 148, 158, 0.5);
+}
+.video-container {
+max-height: 0;
+overflow: hidden;
+opacity: 0;
+margin-top: 0;
+border-radius: 15px;
+background: rgba(30, 30, 30, 0.95);
+border: 2px solid rgba(100, 255, 218, 0.3);
+transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+position: relative;
+}
+.video-container.active {
+max-height: 500px;
+opacity: 1;
+margin-top: 20px;
+padding: 15px;
+}
+.video-wrapper {
+position: relative;
+width: 100%;
+padding-bottom: 56.25%;
+background: #000;
+border-radius: 10px;
+overflow: hidden;
+}
+.video-wrapper iframe {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+border: none;
+}
+.fullscreen-btn {
+position: absolute;
+bottom: 20px;
+right: 20px;
+width: 44px;
+height: 44px;
+background: rgba(0, 0, 0, 0.8);
+backdrop-filter: blur(10px);
+border: 2px solid rgba(100, 255, 218, 0.5);
+border-radius: 50%;
+color: #64ffda;
+font-size: 1.2em;
+cursor: pointer;
+opacity: 0;
+transform: scale(0.8);
+transition: all 0.3s ease;
+z-index: 10;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.video-container:hover .fullscreen-btn {
+opacity: 1;
+transform: scale(1);
+}
+.fullscreen-btn:hover {
+background: rgba(100, 255, 218, 0.2);
+transform: scale(1.1);
+box-shadow: 0 0 20px rgba(100, 255, 218, 0.5);
+}
+.video-fullscreen-modal {
+position: fixed;
+top: 0;
+left: 0;
+width: 100vw;
+height: 100vh;
+z-index: 2147483647;
+display: flex;
+align-items: center;
+justify-content: center;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.video-fullscreen-modal.active {
+opacity: 1;
+visibility: visible;
+}
+.video-fullscreen-backdrop {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.98);
+backdrop-filter: blur(10px);
+animation: fadeIn 0.3s ease;
+}
+.video-fullscreen-content {
+position: relative;
+width: 90vw;
+height: calc(90vw * 9 / 16);
+max-height: 85vh;
+max-width: calc(85vh * 16 / 9);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1;
+padding: 0;
+transform: scale(0.8);
+opacity: 0;
+transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+background: #000;
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 25px 100px rgba(100, 255, 218, 0.4);
+}
+.video-fullscreen-modal.active .video-fullscreen-content {
+transform: scale(1);
+opacity: 1;
+}
+.video-fullscreen-content iframe {
+width: 100%;
+height: 100%;
+border: none;
+}
+.video-fullscreen-close {
+position: absolute;
+top: 20px;
+right: 20px;
+width: 50px;
+height: 50px;
+background: rgba(0, 0, 0, 0.85);
+backdrop-filter: blur(10px);
+border: 2px solid rgba(100, 255, 218, 0.5);
+border-radius: 50%;
+color: #64ffda;
+font-size: 1.8em;
+cursor: pointer;
+z-index: 10;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.3s ease;
+line-height: 1;
+opacity: 0.9;
+}
+.video-fullscreen-close:hover {
+background: rgba(255, 0, 0, 0.85);
+border-color: rgba(255, 0, 0, 0.8);
+transform: scale(1.15) rotate(90deg);
+color: #fff;
+opacity: 1;
+}
+.video-fullscreen-controls {
+position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+padding: 20px;
+background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7), transparent);
+z-index: 5;
+opacity: 0;
+transition: opacity 0.3s ease;
+pointer-events: none;
+}
+.video-fullscreen-modal.show-controls .video-fullscreen-controls {
+opacity: 1;
+pointer-events: all;
+}
+.video-progress-container {
+width: 100%;
+height: 6px;
+background: rgba(255, 255, 255, 0.2);
+border-radius: 3px;
+cursor: pointer;
+position: relative;
+margin-bottom: 10px;
+}
+.video-progress-bar {
+height: 100%;
+background: linear-gradient(90deg, #64ffda, #00d4ff);
+border-radius: 3px;
+width: 0%;
+transition: width 0.1s linear;
+box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+}
+.video-time-display {
+color: #fff;
+font-size: 0.9em;
+text-align: center;
+font-weight: 600;
+}
+@media (max-width: 768px) {
+.video-fullscreen-content {
+width: 100vw;
+height: 56.25vw;
+max-height: 100vh;
+max-width: 177.78vh;
+border-radius: 0;
+}
+.video-fullscreen-close {
+width: 45px;
+height: 45px;
+font-size: 1.5em;
+top: 15px;
+right: 15px;
+}
+}
+@keyframes fadeInUp {
+from {
+opacity: 0;
+transform: translateY(20px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+@media (max-width: 768px) {
+.video-message-buttons {
+flex-direction: column;
+}
+.video-btn {
+width: 100%;
+}
+.video-container.active {
+max-height: 300px;
+}
+.fullscreen-btn {
+width: 40px;
+height: 40px;
+font-size: 1.1em;
+}
+.video-fullscreen-close {
+width: 50px;
+height: 50px;
+font-size: 1.6em;
+}
+}
+`;
     document.head.appendChild(style);
 }
 
 function showVideoPlayer(messageIndex) {
     const container = document.getElementById('videoContainer-' + messageIndex);
     const iframe = document.getElementById('videoFrame-' + messageIndex);
-    
+
     if (!container || !iframe) return;
-    
+
     // Get video URL from current lesson
-    const content = currentLesson.isAI 
-        ? aiCourseContent 
+    const content = currentLesson.isAI
+        ? aiCourseContent
         : lessonContent[currentLesson.language][currentLesson.courseId];
-    
+
     const videoUrl = content.videoUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ'; // Fallback video
-    
+
     // Convert YouTube watch URL to embed URL if needed
     let embedUrl = videoUrl;
     if (videoUrl.includes('youtube.com/watch')) {
         const videoId = videoUrl.split('v=')[1]?.split('&')[0];
         embedUrl = `https://www.youtube.com/embed/${videoId}`;
     }
-    
+
     // Set video source
     iframe.src = embedUrl;
-    
+
     // Show container with animation
     setTimeout(() => {
         container.classList.add('active');
         currentVideoIndex = messageIndex;
-        
+
         // Play sound effect if enabled
         if (soundEnabled) {
             playNotificationSound();
         }
     }, 100);
-    
+
     // Scroll to video
     setTimeout(() => {
         container.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -12195,32 +11917,32 @@ function closeVideoFullscreen() {
             document.body.style.overflow = '';
         }, 300);
     }
-    
+
     isFullscreen = false;
     unlockScroll();
 }
 
 function exitFullscreen() {
     if (currentVideoIndex === null) return;
-    
+
     const container = document.getElementById('videoContainer-' + currentVideoIndex);
     if (!container) return;
-    
+
     container.classList.remove('fullscreen');
     isFullscreen = false;
-    
+
     // Change button icon back
     const btn = container.querySelector('.fullscreen-btn');
     if (btn) btn.innerHTML = '⛶';
-    
+
     // Unlock scroll
     unlockScroll();
-    
+
     // Scroll back to video
     setTimeout(() => {
         container.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 400);
-    
+
     currentVideoIndex = null;
 }
 
@@ -12325,7 +12047,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// ==================== PROGRESS BAR CLICK ANIMATION ====================
 function toggleProgressBar(event, lang, courseId, progress) {
     event.stopPropagation();
 
@@ -12350,7 +12071,6 @@ function toggleProgressBar(event, lang, courseId, progress) {
     }
 }
 
-// ==================== PAGE LOAD ANIMATIONS ====================
 let hasLoadedOnce = false;
 
 function animateWidgetCards() {
@@ -12436,8 +12156,6 @@ showSection = function(sectionId) {
         }, 100);
     }
 };
-
-// ==================== NETWORK ANIMATION ====================
 
 class NetworkAnimation {
     constructor() {
@@ -12568,8 +12286,6 @@ class NetworkAnimation {
 
 let networkAnimation;
 
-// ==================== THEME MANAGEMENT ====================
-
 function changeTheme(theme) {
     // Update visual selection
     document.querySelectorAll('.theme-option').forEach(opt => {
@@ -12604,8 +12320,6 @@ function updateThemeColors(theme) {
     document.body.offsetHeight;
 }
 
-// ==================== AI ASSISTANT TOGGLE ====================
-
 function toggleAIAssistant() {
     const toggle = document.getElementById('aiAssistantToggle');
     toggle.classList.toggle('active');
@@ -12629,9 +12343,6 @@ function updateAIButtonVisibility(isEnabled) {
     }
 }
 
-// ==================== INITIALIZATION ====================
-
-// ==================== WELCOME ANIMATION INIT ====================
 function initWelcomeAnimation() {
     const welcomeDiv = document.getElementById('welcomeAnimation');
     const binaryRain = document.getElementById('binaryRain');
