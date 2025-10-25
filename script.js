@@ -1624,15 +1624,16 @@ function showSection(sectionId) {
     const sections = document.querySelectorAll('.section');
     const navTabs = document.querySelectorAll('.nav-tab');
     
-    // Remove active classes
+    // Batch all DOM changes in one animation frame
+requestAnimationFrame(() => {
     sections.forEach(s => {
         s.classList.remove('active', 'page-load-animate');
     });
     navTabs.forEach(t => t.classList.remove('active'));
-
-    // Add active class to target section
+    
     const section = document.getElementById(sectionId);
     section.classList.add('active');
+});
 
     // Only add page load animation on initial page load for 'home' section
     if (isInitialPageLoad && sectionId === 'home') {
@@ -1650,9 +1651,11 @@ function showSection(sectionId) {
     if (sectionId === 'home') {
         updateDashboard();
 
-        // Just add a class - let CSS handle it
-        const statCards = document.querySelectorAll('.stat-card');
-        statCards.forEach(card => card.classList.add('visible'));
+        // Use requestAnimationFrame to batch DOM updates
+requestAnimationFrame(() => {
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => card.classList.add('visible'));
+});
 
         // Fix for mobile: Defer carousel updates
         if (window.innerWidth <= 768) {
@@ -12146,7 +12149,11 @@ showSection = function(sectionId) {
     if (activeTab) activeTab.classList.add('active');
 
     if (sectionId === 'home') {
-        updateDashboard();
+    // Defer ALL dashboard work
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => updateDashboard(), { timeout: 500 });
+    } else {
+        setTimeout(() => updateDashboard(), 0);
     }
 
     if (sectionId === 'stats') {
@@ -12432,13 +12439,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // ✅ ADD THIS - Event delegation for nav tabs
     const navTabs = document.querySelector('.nav-tabs');
     if (navTabs) {
-        navTabs.addEventListener('click', (e) => {
-            const tab = e.target.closest('.nav-tab');
-            if (!tab) return; // Not a tab click
-            
-            // Get section from data attribute
-            const sectionId = tab.dataset.section || 'home';
-            showSection(sectionId);
-        });
+        // NEW - Add { passive: true } for better scroll performance:
+navTabs.addEventListener('click', (e) => {
+    const tab = e.target.closest('.nav-tab');
+    if (!tab) return;
+    
+    const sectionId = tab.dataset.section;
+    if (sectionId) {
+        showSection(sectionId);
+    }
+}, { passive: true }); // ← ADD THIS
     }
 });
