@@ -12351,7 +12351,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedThemeOption = document.querySelector(`[data-theme="${savedTheme}"]`);
     if (savedThemeOption) {
         savedThemeOption.classList.add('active');
-    }
 
     // Load AI assistant setting
     const aiEnabled = localStorage.getItem('aiAssistantEnabled') !== 'false';
