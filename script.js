@@ -1770,17 +1770,6 @@ function showSectionMobile(sectionId, element) {
             }, 100);
         }
     }
-
-    // Trigger course card animations when switching to learn section
-    if (sectionId === 'learn') {
-        const courseCards = document.querySelectorAll('.course-card');
-        courseCards.forEach((card, index) => {
-            // Reset animation
-            card.style.animation = 'none';
-            card.offsetHeight; // Trigger reflow
-            card.style.animation = null;
-        });
-    }
 }
 
 function switchLanguage(lang) {
