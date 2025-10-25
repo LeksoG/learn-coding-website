@@ -76,6 +76,24 @@ function debounce(func, wait) {
     };
 }
 
+// Debounced mobile menu toggle
+const debouncedMenuToggle = debounce(() => {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (overlay && sidebar) {
+        const isActive = overlay.classList.contains('active');
+        
+        if (isActive) {
+            overlay.classList.remove('active');
+            sidebar.classList.remove('mobile-open');
+        } else {
+            overlay.classList.add('active');
+            sidebar.classList.add('mobile-open');
+        }
+    }
+}, 50); // 50ms debounce
+
 let userProgress = {
     python: {
         course1: { completed: false, progress: 0, time: 0 },
@@ -12342,6 +12360,15 @@ function updateAIButtonVisibility(isEnabled) {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize network animation (now hidden)
     networkAnimation = new NetworkAnimation();
+
+    // Mobile menu button - use event delegation and debouncing
+document.addEventListener('click', (e) => {
+    if (e.target.closest('#mobileMenuBtn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        debouncedMenuToggle();
+    }
+});
 
     // Load saved theme
     const savedTheme = localStorage.getItem('nodeTheme') || 'green';
