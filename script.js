@@ -1322,37 +1322,34 @@ function closeMobileSidebar() {
 }
 
 function showSectionSidebar(sectionId) {
-    // Close sidebar (only if mobile)
     if (window.innerWidth <= 768) {
         closeMobileSidebar();
     }
     
-    // Use requestAnimationFrame for smooth updates
     requestAnimationFrame(() => {
-        // Batch DOM updates together
         const targetSection = document.getElementById(sectionId);
         
-        // Hide all sections efficiently
+        // FIX: Set min-height BEFORE showing to prevent shift
+        if (targetSection) {
+            targetSection.style.minHeight = '100vh';
+        }
+        
+        // Hide all sections
         document.querySelectorAll('.section').forEach(s => {
-            if (s !== targetSection) {
-                s.classList.remove('active');
-            }
+            s.classList.remove('active');
         });
         
-        // Show target section
+        // Show target
         if (targetSection) {
             targetSection.classList.add('active');
         }
         
-        // Update sidebar items
-        const activeKeyword = sectionId === 'home' ? 'overview' : sectionId;
+        // Update sidebar
         document.querySelectorAll('.sidebar-item').forEach(item => {
-            const isActive = item.dataset.section === sectionId || 
-                           item.textContent.toLowerCase().includes(activeKeyword);
-            item.classList.toggle('active', isActive);
+            item.classList.toggle('active', item.dataset.section === sectionId);
         });
         
-        // Update dashboard after a short delay
+        // Lazy updates
         if (sectionId === 'home') {
             setTimeout(() => updateDashboard(), 50);
         }
