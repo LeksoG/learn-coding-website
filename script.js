@@ -12150,11 +12150,12 @@ showSection = function(sectionId) {
     if (activeTab) activeTab.classList.add('active');
 
     if (sectionId === 'home') {
-    // Defer ALL dashboard work
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => updateDashboard(), { timeout: 500 });
-    } else {
-        setTimeout(() => updateDashboard(), 0);
+        // Defer ALL dashboard work
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => updateDashboard(), { timeout: 500 });
+        } else {
+            setTimeout(() => updateDashboard(), 0);
+        }
     }
 
     if (sectionId === 'stats') {
@@ -12351,6 +12352,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedThemeOption = document.querySelector(`[data-theme="${savedTheme}"]`);
     if (savedThemeOption) {
         savedThemeOption.classList.add('active');
+    }
 
     // Load AI assistant setting
     const aiEnabled = localStorage.getItem('aiAssistantEnabled') !== 'false';
@@ -12383,6 +12385,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 300);
             }
         });
-        }
     }
 });
