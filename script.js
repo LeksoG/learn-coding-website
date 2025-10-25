@@ -12439,23 +12439,24 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAIButtonVisibility(aiEnabled);
     
 // ✅ Event delegation for nav tabs with debouncing
-const navTabs = document.querySelector('.nav-tabs');
-if (navTabs) {
-    navTabs.addEventListener('click', (e) => {
-        if (isTransitioning) return; // Prevent rapid clicks
-        
-        const tab = e.target.closest('.nav-tab');
-        if (!tab) return;
-        
-        const sectionId = tab.dataset.section;
-        if (sectionId) {
-            isTransitioning = true;
-            showSection(sectionId);
+    const navTabs = document.querySelector('.nav-tabs');
+    if (navTabs) {
+        navTabs.addEventListener('click', (e) => {
+            if (isTransitioning) return; // Prevent rapid clicks
             
-            // Reset after transition
-            setTimeout(() => {
-                isTransitioning = false;
-            }, 300);
-        }
-    });
-}
+            const tab = e.target.closest('.nav-tab');
+            if (!tab) return;
+            
+            const sectionId = tab.dataset.section;
+            if (sectionId) {
+                isTransitioning = true;
+                showSection(sectionId);
+                
+                // Reset after transition
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 300);
+            }
+        });
+    }
+});
