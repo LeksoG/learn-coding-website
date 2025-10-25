@@ -12172,19 +12172,24 @@ class NetworkAnimation {
         this.canvas = document.getElementById('networkCanvas');
         this.ctx = this.canvas.getContext('2d');
         this.nodes = [];
-        this.nodeCount = 100;
-        this.mouse = { x: null, y: null, radius: 150 };
-        this.theme = localStorage.getItem('nodeTheme') || 'green';
+        this.mouse = {
+            x: null,
+            y: null,
+            radius: 150
+        };
 
-        this.resize();
-        this.initNodes();
+        this.theme = document.documentElement.getAttribute('data-theme') || 'green';
+
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+
+        this.createNodes();
         this.animate();
-
-         // 👇 ADD THE NEW CODE RIGHT HERE (after line 12222, before closing })
+        
+        // NEW CODE ADDED HERE ⬇️
         this.rafId = null;
         this.isVisible = true;
         
-        // Pause when tab hidden
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 cancelAnimationFrame(this.rafId);
@@ -12192,14 +12197,14 @@ class NetworkAnimation {
                 this.animate();
             }
         });
-    }
+        // NEW CODE ENDS HERE ⬆️
 
         window.addEventListener('resize', () => this.resize());
         window.addEventListener('mousemove', (e) => {
             this.mouse.x = e.x;
             this.mouse.y = e.y;
         });
-    }
+    }  // ⬅️ MAKE SURE THIS CLOSING BRACE IS HERE!
 
     resize() {
         this.canvas.width = window.innerWidth;
