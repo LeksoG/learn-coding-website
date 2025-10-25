@@ -1326,34 +1326,34 @@ function showSectionSidebar(sectionId) {
         closeMobileSidebar();
     }
     
+    // Use CSS classes only - no JS layout changes
+    const sections = document.querySelectorAll('.section');
+    const targetSection = document.getElementById(sectionId);
+    
+    // CRITICAL: All changes in ONE batch
     requestAnimationFrame(() => {
-        const targetSection = document.getElementById(sectionId);
-        
-        // FIX: Set min-height BEFORE showing to prevent shift
-        if (targetSection) {
-            targetSection.style.minHeight = '100vh';
-        }
-        
-        // Hide all sections
-        document.querySelectorAll('.section').forEach(s => {
-            s.classList.remove('active');
+        sections.forEach(s => {
+            if (s === targetSection) {
+                s.classList.add('active');
+            } else {
+                s.classList.remove('active');
+            }
         });
-        
-        // Show target
-        if (targetSection) {
-            targetSection.classList.add('active');
-        }
         
         // Update sidebar
         document.querySelectorAll('.sidebar-item').forEach(item => {
             item.classList.toggle('active', item.dataset.section === sectionId);
         });
-        
-        // Lazy updates
-        if (sectionId === 'home') {
-            setTimeout(() => updateDashboard(), 50);
-        }
     });
+    
+    // Lazy load heavy content AFTER transition
+    if (sectionId === 'home') {
+        setTimeout(() => {
+            if (typeof updateDashboard === 'function') {
+                updateDashboard();
+            }
+        }, 350); // After transition completes
+    }
 }
 
 function toggleTheme() {
