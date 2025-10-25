@@ -1651,35 +1651,34 @@ function showSection(sectionId) {
         updateDashboard();
 
         // Just add a class - let CSS handle it
-const statCards = document.querySelectorAll('.stat-card');
-statCards.forEach(card => card.classList.add('visible'));
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => card.classList.add('visible'));
 
         // Fix for mobile: Defer carousel updates
-if (window.innerWidth <= 768) {
-    // Use requestIdleCallback to defer non-critical work
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-            const statsGrid = document.querySelector('.stats-grid');
-            if (statsGrid) statsGrid.style.display = 'none';
-            
-            const existingCarousel = document.querySelector('.mobile-stats-carousel');
-            if (existingCarousel) existingCarousel.remove();
-            
-            createMobileStatsCarousel();
-        });
-    } else {
-        // Fallback for browsers without requestIdleCallback
-        setTimeout(() => {
-            const statsGrid = document.querySelector('.stats-grid');
-            if (statsGrid) statsGrid.style.display = 'none';
-            
-            const existingCarousel = document.querySelector('.mobile-stats-carousel');
-            if (existingCarousel) existingCarousel.remove();
-            
-            createMobileStatsCarousel();
-        }, 0);
-    }
-}
+        if (window.innerWidth <= 768) {
+            // Use requestIdleCallback to defer non-critical work
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    const statsGrid = document.querySelector('.stats-grid');
+                    if (statsGrid) statsGrid.style.display = 'none';
+                    
+                    const existingCarousel = document.querySelector('.mobile-stats-carousel');
+                    if (existingCarousel) existingCarousel.remove();
+                    
+                    createMobileStatsCarousel();
+                });
+            } else {
+                // Fallback for browsers without requestIdleCallback
+                setTimeout(() => {
+                    const statsGrid = document.querySelector('.stats-grid');
+                    if (statsGrid) statsGrid.style.display = 'none';
+                    
+                    const existingCarousel = document.querySelector('.mobile-stats-carousel');
+                    if (existingCarousel) existingCarousel.remove();
+                    
+                    createMobileStatsCarousel();
+                }, 0);
+            }
         } else {
             // On desktop, ensure the grid is visible
             const statsGrid = document.querySelector('.stats-grid');
@@ -1692,14 +1691,14 @@ if (window.innerWidth <= 768) {
                 existingCarousel.remove();
             }
         }
-    }
+    } // ✅ CLOSES if (sectionId === 'home')
 
     if (sectionId === 'stats') {
         setTimeout(() => {
             initializeGoalsButtons();
         }, 100);
     }
-}
+} // ✅ CLOSES function showSection
 
 function showSectionMobile(sectionId, element) {
     document.querySelectorAll('.section').forEach(s => {
@@ -1728,12 +1727,12 @@ function showSectionMobile(sectionId, element) {
     }
 
     if (sectionId === 'home') {
-    // Defer dashboard updates
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => updateDashboard());
-    } else {
-        setTimeout(() => updateDashboard(), 0);
-    }
+        // Defer dashboard updates
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => updateDashboard());
+        } else {
+            setTimeout(() => updateDashboard(), 0);
+        }
 
         // Animate stat cards with wave effect only on initial page load
         if (isInitialPageLoad) {
