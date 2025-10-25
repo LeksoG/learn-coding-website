@@ -1,12 +1,143 @@
-// Add at the very top of your script, before everything else
-(function() {
-    document.body.classList.add('loading');
-    window.addEventListener('load', function() {
-        setTimeout(function() {
+// LOADING ANIMATION - ADD AT THE VERY TOP
+class LegoLoader {
+    constructor() {
+        this.canvas = document.getElementById('loaderCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.centerX = 0;
+        this.centerY = 0;
+        
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        
+        this.createParticles();
+        this.animate();
+    }
+    
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.centerX = this.canvas.width / 2;
+        this.centerY = this.canvas.height / 2;
+    }
+    
+    createParticles() {
+        const count = 150; // Number of LEGO pieces
+        for (let i = 0; i < count; i++) {
+            this.particles.push({
+                x: -50, // Start from left off-screen
+                y: Math.random() * this.canvas.height,
+                targetX: this.centerX + (Math.random() - 0.5) * 200,
+                targetY: this.centerY + (Math.random() - 0.5) * 200,
+                size: Math.random() * 6 + 3,
+                speedX: Math.random() * 3 + 2,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.15,
+                opacity: 0,
+                phase: 'moving' // moving -> spinning -> forming
+            });
+        }
+    }
+    
+    animate() {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        let allCentered = true;
+        
+        this.particles.forEach((p, i) => {
+            // Phase 1: Move from left to center
+            if (p.phase === 'moving') {
+                p.x += p.speedX;
+                p.opacity = Math.min(p.opacity + 0.02, 1);
+                
+                if (p.x >= this.centerX - 100) {
+                    p.phase = 'spinning';
+                    p.spinStartTime = Date.now();
+                }
+                allCentered = false;
+            }
+            
+            // Phase 2: Spin at center
+            else if (p.phase === 'spinning') {
+                const spinDuration = 1000;
+                const elapsed = Date.now() - p.spinStartTime;
+                
+                if (elapsed < spinDuration) {
+                    p.rotation += p.rotationSpeed;
+                    allCentered = false;
+                } else {
+                    p.phase = 'forming';
+                }
+            }
+            
+            // Phase 3: Form into position
+            else if (p.phase === 'forming') {
+                const dx = p.targetX - p.x;
+                const dy = p.targetY - p.y;
+                p.x += dx * 0.1;
+                p.y += dy * 0.1;
+                
+                if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+                    allCentered = false;
+                }
+            }
+            
+            // Draw LEGO piece
+            this.ctx.save();
+            this.ctx.translate(p.x, p.y);
+            this.ctx.rotate(p.rotation);
+            this.ctx.globalAlpha = p.opacity;
+            
+            // LEGO brick shape with studs
+            this.ctx.fillStyle = '#64ffda';
+            this.ctx.shadowBlur = 15;
+            this.ctx.shadowColor = 'rgba(100, 255, 218, 0.8)';
+            
+            // Main brick
+            this.ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+            
+            // Studs on top
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, p.size * 0.2, 0, Math.PI * 2);
+            this.ctx.fillStyle = '#52d4b8';
+            this.ctx.fill();
+            
+            this.ctx.restore();
+        });
+        
+        // Show text when all pieces are centered
+        if (allCentered) {
+            const loaderText = document.querySelector('.loader-text');
+            if (loaderText && !loaderText.classList.contains('show')) {
+                loaderText.classList.add('show');
+                
+                // Fade out after 1 second
+                setTimeout(() => {
+                    this.fadeOut();
+                }, 1000);
+            }
+        }
+        
+        requestAnimationFrame(() => this.animate());
+    }
+    
+    fadeOut() {
+        const loader = document.getElementById('pageLoader');
+        loader.classList.add('fade-out');
+        
+        setTimeout(() => {
+            loader.style.display = 'none';
             document.body.classList.remove('loading');
-        }, 100);
-    });
-})();
+        }, 800);
+    }
+}
+
+// Initialize loader
+document.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('loading');
+    new LegoLoader();
+});
 
         // Mistral AI Configuration
 function getAIConfig() {
