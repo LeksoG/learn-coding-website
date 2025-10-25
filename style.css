@@ -10894,3 +10894,65 @@ body {
     visibility: visible;
     opacity: 1;
 }
+
+            /* FIX MAIN-CONTENT LAYOUT SHIFTS */
+.main-content {
+    min-height: 100vh !important;
+    width: 100% !important;
+    position: relative !important;
+    contain: layout style paint; /* Isolate layout changes */
+}
+
+/* Fix sections inside main-content */
+.main-content .section {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+}
+
+.main-content .section.active {
+    position: relative !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1 !important;
+}
+
+/* Prevent content from shifting when loading */
+.main-content > * {
+    will-change: contents;
+}
+
+/* Fix charts that load dynamically */
+.chart-container,
+.bar-chart {
+    min-height: 400px !important;
+    height: 400px !important;
+}
+
+/* Fix stats that appear */
+.stat-card {
+    min-height: 120px !important;
+}
+
+/* Reserve space for dashboard elements */
+#home .dashboard-grid {
+    min-height: 600px !important;
+}
+
+#home .stats-container {
+    min-height: 150px !important;
+}
+
+/* Fix learn section course cards */
+#learn .courses-grid {
+    min-height: 500px !important;
+}
+
+.course-card {
+    min-height: 200px !important;
+}
