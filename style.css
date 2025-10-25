@@ -29,20 +29,30 @@
             box-sizing: border-box;
         }
 
-        /* Performance optimizations */
+        /* Performance optimizations - Hardware acceleration */
         button, a, .nav-tab, .card, .setting-card, .lesson-card,
         .stat-card, .course-card, .roadmap-node, .theme-option {
-            will-change: transform;
             backface-visibility: hidden;
             -webkit-font-smoothing: antialiased;
+            transform: translateZ(0);
         }
 
-        /* Standardize hover transitions for snappy feel */
+        /* Standardize hover transitions for snappy feel - will-change on hover only */
+        button, a, .nav-tab, .card, .lesson-card, .course-card,
+        .setting-card, .roadmap-node, .theme-option {
+            transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+        }
+
         button:hover, a:hover, .nav-tab:hover, .card:hover,
-        .lesson-card:hover, .course-card:hover {
-            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-                        background 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-                        opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        .lesson-card:hover, .course-card:hover, .setting-card:hover,
+        .roadmap-node:hover, .theme-option:hover {
+            will-change: transform;
+        }
+
+        button:not(:hover), a:not(:hover), .nav-tab:not(:hover), .card:not(:hover),
+        .lesson-card:not(:hover), .course-card:not(:hover), .setting-card:not(:hover),
+        .roadmap-node:not(:hover), .theme-option:not(:hover) {
+            will-change: auto;
         }
 
         body {
@@ -54,6 +64,9 @@
     transition: color 0.3s ease;
     padding-bottom: 80px;
     position: relative;
+    /* Improve touch scrolling performance */
+    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
 }
 
 body.light-mode {
@@ -804,16 +817,17 @@ body.light-mode .mobile-search-container {
             z-index: 1;
         }
 
-        /* Settings section shows at top */
+        /* Settings section positioning fixed */
         #settings.section.active {
-            margin-top: -80px;
+            margin-top: 0;
         }
 
         .section {
             display: none;
-            animation: fadeIn 0.25s ease-out;
+            animation: fadeIn 0.2s ease-out;
             position: relative;
             z-index: 1;
+            will-change: opacity, transform;
         }
 
         .section.active {
@@ -821,39 +835,45 @@ body.light-mode .mobile-search-container {
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px) translateZ(0);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) translateZ(0);
+            }
         }
 
         @keyframes iPhoneUnlock {
             0% {
                 opacity: 0;
-                transform: scale(0.98) translateY(15px);
-                filter: blur(4px);
+                transform: scale(0.98) translateY(12px) translateZ(0);
             }
             100% {
                 opacity: 1;
-                transform: scale(1) translateY(0);
-                filter: blur(0);
+                transform: scale(1) translateY(0) translateZ(0);
             }
         }
 
         .page-load-animate {
-            animation: iPhoneUnlock 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation: iPhoneUnlock 0.25s ease-out forwards;
+            will-change: opacity, transform;
         }
 
         .page-load-animate > * {
-            animation: iPhoneUnlock 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation: iPhoneUnlock 0.2s ease-out forwards;
+            will-change: opacity, transform;
         }
 
-        .page-load-animate > *:nth-child(1) { animation-delay: 0.02s; }
-        .page-load-animate > *:nth-child(2) { animation-delay: 0.04s; }
-        .page-load-animate > *:nth-child(3) { animation-delay: 0.06s; }
-        .page-load-animate > *:nth-child(4) { animation-delay: 0.08s; }
-        .page-load-animate > *:nth-child(5) { animation-delay: 0.1s; }
-        .page-load-animate > *:nth-child(6) { animation-delay: 0.12s; }
-        .page-load-animate > *:nth-child(7) { animation-delay: 0.14s; }
-        .page-load-animate > *:nth-child(8) { animation-delay: 0.16s; }
+        .page-load-animate > *:nth-child(1) { animation-delay: 0.01s; }
+        .page-load-animate > *:nth-child(2) { animation-delay: 0.02s; }
+        .page-load-animate > *:nth-child(3) { animation-delay: 0.03s; }
+        .page-load-animate > *:nth-child(4) { animation-delay: 0.04s; }
+        .page-load-animate > *:nth-child(5) { animation-delay: 0.05s; }
+        .page-load-animate > *:nth-child(6) { animation-delay: 0.06s; }
+        .page-load-animate > *:nth-child(7) { animation-delay: 0.07s; }
+        .page-load-animate > *:nth-child(8) { animation-delay: 0.08s; }
 
         .dashboard {
             max-width: 1600px;
@@ -896,7 +916,8 @@ body.light-mode .mobile-search-container {
             padding: 30px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            contain: layout style paint;
             opacity: 0;
             transform: translateY(30px) scale(0.9);
         }
@@ -2864,8 +2885,9 @@ body.light-mode .motivational-message {
             height: 22px;
             background: var(--theme-primary);
             border-radius: 50%;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transition: left 0.25s ease, transform 0.25s ease;
             box-shadow: 0 2px 8px var(--theme-shadow);
+            will-change: left, transform;
         }
 
         .toggle-switch.active::after {
@@ -2890,7 +2912,7 @@ body.light-mode .motivational-message {
             border: 2px solid rgba(100, 255, 218, 0.2);
             border-radius: 15px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
             position: relative;
             min-width: 120px;
         }
@@ -3628,7 +3650,8 @@ body.light-mode .account-details h2 {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    contain: layout style paint;
 }
 
 body.light-mode .setting-card {
@@ -10229,13 +10252,38 @@ html {
     background: rgba(100, 255, 218, 0.5);
 }
 
-/* Prevent layout shift during load */
+/* Prevent layout shift during load and improve rendering performance */
 .section,
 .progress-section,
-.stats-grid {
+.stats-grid,
+.settings-container,
+.settings-section,
+.dashboard,
+.learn-section,
+.practice-container {
     transform: translateZ(0);
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     perspective: 1000px;
+}
+
+/* Smooth scrolling with reduced motion support */
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 /* Smooth page load */
