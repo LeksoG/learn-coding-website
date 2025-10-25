@@ -12479,8 +12479,11 @@ function updateAIButtonVisibility(isEnabled) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize network animation
+    // Initialize network animation (only if canvas exists)
+const networkCanvas = document.getElementById('networkCanvas');
+if (networkCanvas) {
     networkAnimation = new NetworkAnimation();
+}
 
     // Mobile menu button
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
