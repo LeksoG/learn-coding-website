@@ -9,28 +9,7 @@
         
 </head>
 <body>
-    <!-- WELCOME ANIMATION -->
-    <div class="welcome-animation" id="welcomeAnimation">
-        <div class="binary-rain" id="binaryRain"></div>
-        <div class="lego-container" id="legoContainer"></div>
-        <div class="welcome-text">Dev/earn</div>
-    </div>
 
-    <!-- ERROR POPUP MODAL -->
-    <div class="error-popup-modal" id="errorPopupModal">
-        <div class="error-popup-content">
-            <div class="error-popup-header">
-                <div class="error-popup-title">
-                    <span>⚠️</span> Error Details
-                </div>
-                <button class="error-popup-close" onclick="closeErrorPopup()">×</button>
-            </div>
-            <div class="error-popup-body" id="errorPopupBody"></div>
-            <div class="error-popup-actions">
-                <button class="error-popup-btn" onclick="closeErrorPopup()">Close</button>
-            </div>
-        </div>
-    </div>
 
     <!-- ANIMATED NETWORK BACKGROUND -->
     <canvas id="networkCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
