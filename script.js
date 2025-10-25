@@ -12384,4 +12384,3 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
