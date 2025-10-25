@@ -62,6 +62,19 @@ let pendingLesson = null;
 let soundEnabled = true;
 let currentUser = null;
 
+// ✅ ADD DEBOUNCE FUNCTION HERE (after line 64)
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 let userProgress = {
     python: {
         course1: { completed: false, progress: 0, time: 0 },
@@ -1607,31 +1620,29 @@ function retryLesson(lang, courseId, courseName) {
 let isInitialPageLoad = true;
 
 function showSection(sectionId) {
-    document.querySelectorAll('.section').forEach(s => {
-        s.classList.remove('active');
-        s.classList.remove('page-load-animate');
+    // Cache all queries at once
+    const sections = document.querySelectorAll('.section');
+    const navTabs = document.querySelectorAll('.nav-tab');
+    
+    // Remove active classes
+    sections.forEach(s => {
+        s.classList.remove('active', 'page-load-animate');
     });
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    navTabs.forEach(t => t.classList.remove('active'));
 
+    // Add active class to target section
     const section = document.getElementById(sectionId);
     section.classList.add('active');
 
     // Only add page load animation on initial page load for 'home' section
     if (isInitialPageLoad && sectionId === 'home') {
-        setTimeout(() => {
-            section.classList.add('page-load-animate');
-        }, 10);
-
-        // Remove animation class after animation completes
-        setTimeout(() => {
-            section.classList.remove('page-load-animate');
-        }, 1000);
-
-        // Mark that the initial page load animation has been shown
+        setTimeout(() => section.classList.add('page-load-animate'), 10);
+        setTimeout(() => section.classList.remove('page-load-animate'), 1000);
         isInitialPageLoad = false;
     }
 
-    const activeTab = Array.from(document.querySelectorAll('.nav-tab')).find(
+    // Find and activate nav tab (reuse cached navTabs)
+    const activeTab = Array.from(navTabs).find(
         tab => tab.textContent.toLowerCase().includes(sectionId === 'home' ? 'overview' : sectionId)
     );
     if (activeTab) activeTab.classList.add('active');
@@ -1693,7 +1704,6 @@ function showSection(sectionId) {
         courseCards.forEach((card, index) => {
             // Reset animation
             card.style.animation = 'none';
-            card.offsetHeight; // Trigger reflow
             card.style.animation = null;
         });
     }
@@ -11946,13 +11956,12 @@ function exitFullscreen() {
     currentVideoIndex = null;
 }
 
-// ESC key handler for fullscreen
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', debounce(function(e) {
     if (e.key === 'Escape' && isFullscreen) {
         e.preventDefault();
         closeVideoFullscreen();
     }
-});
+}, 100)); // ← Add debounce here!
 
 // Prevent scroll while in fullscreen
 document.addEventListener('wheel', function(e) {
@@ -11979,10 +11988,21 @@ function trackActiveVideo() {
     }
 }
 
-// Monitor for active video containers
+// ✅ Only watch specific containers, not entire body
 const videoObserver = new MutationObserver(() => {
     trackActiveVideo();
 });
+
+// Only observe the specific container where videos are shown
+const videoContainer = document.querySelector('.lessons-container'); // or whatever contains videos
+if (videoContainer) {
+    videoObserver.observe(videoContainer, {
+        attributes: true,
+        attributeFilter: ['class'], // Only watch class changes
+        subtree: true
+        // Removed childList to reduce triggers
+    });
+}
 
 // Start observing when DOM is ready
 if (document.body) {
@@ -12301,23 +12321,11 @@ function changeTheme(theme) {
         networkAnimation.changeTheme(theme);
     }
 
-    // Update UI elements with theme colors
-    updateThemeColors(theme);
-
     // Save to localStorage
     localStorage.setItem('nodeTheme', theme);
 
     // Show notification
     showNotification(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}!`, 'success');
-}
-
-function updateThemeColors(theme) {
-    // This function applies theme colors to dynamic elements
-    const root = document.documentElement;
-    const computedStyle = getComputedStyle(root);
-
-    // Force reflow to apply CSS variables
-    document.body.offsetHeight;
 }
 
 function toggleAIAssistant() {
