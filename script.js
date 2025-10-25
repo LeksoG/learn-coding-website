@@ -12343,78 +12343,79 @@ function updateAIButtonVisibility(isEnabled) {
     }
 }
 
-function initWelcomeAnimation() {
-    const welcomeDiv = document.getElementById('welcomeAnimation');
-    const binaryRain = document.getElementById('binaryRain');
-    const legoContainer = document.getElementById('legoContainer');
-
-    // Create binary rain columns
-    const numColumns = Math.floor(window.innerWidth / 30);
-    for (let i = 0; i < numColumns; i++) {
-        const column = document.createElement('div');
-        column.className = 'binary-column';
-        column.style.left = (i * 30) + 'px';
-        column.style.animationDuration = (2 + Math.random() * 2) + 's';
-        column.style.animationDelay = (Math.random() * 2) + 's';
-
-        // Generate random binary string
-        let binaryText = '';
-        for (let j = 0; j < 30; j++) {
-            binaryText += Math.random() > 0.5 ? '1' : '0';
-            binaryText += j % 5 === 4 ? '<br>' : ' ';
-        }
-        column.innerHTML = binaryText;
-        binaryRain.appendChild(column);
-    }
-
-    // Create lego pieces
-    const numLegos = 15;
-    const positions = [
-        { left: '20%', top: '30%', delay: 0.1 },
-        { left: '40%', top: '40%', delay: 0.3 },
-        { left: '60%', top: '35%', delay: 0.5 },
-        { left: '80%', top: '30%', delay: 0.7 },
-        { left: '30%', top: '60%', delay: 0.9 },
-        { left: '50%', top: '55%', delay: 1.1 },
-        { left: '70%', top: '60%', delay: 1.3 },
-        { left: '25%', top: '20%', delay: 0.2 },
-        { left: '45%', top: '70%', delay: 0.4 },
-        { left: '65%', top: '25%', delay: 0.6 },
-        { left: '85%', top: '65%', delay: 0.8 },
-        { left: '15%', top: '50%', delay: 1.0 },
-        { left: '55%', top: '15%', delay: 1.2 },
-        { left: '75%', top: '50%', delay: 1.4 },
-        { left: '35%', top: '75%', delay: 1.6 }
-    ];
-
-    positions.forEach((pos, i) => {
-        const lego = document.createElement('div');
-        lego.className = 'lego-piece';
-        lego.style.left = pos.left;
-        lego.style.top = pos.top;
-        lego.style.animationDelay = pos.delay + 's';
-        legoContainer.appendChild(lego);
-    });
-
-    // Hide welcome animation after 3.5 seconds
-    setTimeout(() => {
-        welcomeDiv.classList.add('fade-out');
-        setTimeout(() => {
-            welcomeDiv.remove();
-        }, 800);
-    }, 3500);
-}
+// Welcome animation disabled
+// function initWelcomeAnimation() {
+//     const welcomeDiv = document.getElementById('welcomeAnimation');
+//     const binaryRain = document.getElementById('binaryRain');
+//     const legoContainer = document.getElementById('legoContainer');
+//
+//     // Create binary rain columns
+//     const numColumns = Math.floor(window.innerWidth / 30);
+//     for (let i = 0; i < numColumns; i++) {
+//         const column = document.createElement('div');
+//         column.className = 'binary-column';
+//         column.style.left = (i * 30) + 'px';
+//         column.style.animationDuration = (2 + Math.random() * 2) + 's';
+//         column.style.animationDelay = (Math.random() * 2) + 's';
+//
+//         // Generate random binary string
+//         let binaryText = '';
+//         for (let j = 0; j < 30; j++) {
+//             binaryText += Math.random() > 0.5 ? '1' : '0';
+//             binaryText += j % 5 === 4 ? '<br>' : ' ';
+//         }
+//         column.innerHTML = binaryText;
+//         binaryRain.appendChild(column);
+//     }
+//
+//     // Create lego pieces
+//     const numLegos = 15;
+//     const positions = [
+//         { left: '20%', top: '30%', delay: 0.1 },
+//         { left: '40%', top: '40%', delay: 0.3 },
+//         { left: '60%', top: '35%', delay: 0.5 },
+//         { left: '80%', top: '30%', delay: 0.7 },
+//         { left: '30%', top: '60%', delay: 0.9 },
+//         { left: '50%', top: '55%', delay: 1.1 },
+//         { left: '70%', top: '60%', delay: 1.3 },
+//         { left: '25%', top: '20%', delay: 0.2 },
+//         { left: '45%', top: '70%', delay: 0.4 },
+//         { left: '65%', top: '25%', delay: 0.6 },
+//         { left: '85%', top: '65%', delay: 0.8 },
+//         { left: '15%', top: '50%', delay: 1.0 },
+//         { left: '55%', top: '15%', delay: 1.2 },
+//         { left: '75%', top: '50%', delay: 1.4 },
+//         { left: '35%', top: '75%', delay: 1.6 }
+//     ];
+//
+//     positions.forEach((pos, i) => {
+//         const lego = document.createElement('div');
+//         lego.className = 'lego-piece';
+//         lego.style.left = pos.left;
+//         lego.style.top = pos.top;
+//         lego.style.animationDelay = pos.delay + 's';
+//         legoContainer.appendChild(lego);
+//     });
+//
+//     // Hide welcome animation after 3.5 seconds
+//     setTimeout(() => {
+//         welcomeDiv.classList.add('fade-out');
+//         setTimeout(() => {
+//             welcomeDiv.remove();
+//         }, 800);
+//     }, 3500);
+// }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Show welcome animation on first load
-    if (!sessionStorage.getItem('welcomeShown')) {
-        initWelcomeAnimation();
-        sessionStorage.setItem('welcomeShown', 'true');
-    } else {
-        // Hide welcome animation immediately if already shown
-        const welcomeDiv = document.getElementById('welcomeAnimation');
-        if (welcomeDiv) welcomeDiv.remove();
-    }
+    // Welcome animation disabled - page loads instantly
+    // if (!sessionStorage.getItem('welcomeShown')) {
+    //     initWelcomeAnimation();
+    //     sessionStorage.setItem('welcomeShown', 'true');
+    // } else {
+    //     // Hide welcome animation immediately if already shown
+    //     const welcomeDiv = document.getElementById('welcomeAnimation');
+    //     if (welcomeDiv) welcomeDiv.remove();
+    // }
 
     // Initialize network animation (now hidden)
     networkAnimation = new NetworkAnimation();
