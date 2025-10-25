@@ -12351,10 +12351,10 @@ function updateAIButtonVisibility(isEnabled) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize network animation (now hidden)
+    // Initialize network animation
     networkAnimation = new NetworkAnimation();
 
-    // 👇 ADD NEW MOBILE MENU CODE HERE:
+    // Mobile menu button
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     if (mobileMenuBtn) {
         mobileMenuBtn.addEventListener('click', function(e) {
@@ -12390,26 +12390,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     updateAIButtonVisibility(aiEnabled);
 
+    // Event delegation for nav tabs
     const navTabs = document.querySelector('.nav-tabs');
-if (navTabs) {
-    let lastClick = 0;
-    
-    navTabs.addEventListener('click', (e) => {
-        const now = Date.now();
-        if (now - lastClick < 300) return; // Prevent rapid clicks
-        lastClick = now;
+    if (navTabs) {
+        let lastClick = 0;
         
-        const tab = e.target.closest('.nav-tab');
-        if (!tab) return;
-        
-        const sectionId = tab.dataset.section;
-        if (sectionId) {
-            // Use CSS classes instead of complex JS
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(sectionId)?.classList.add('active');
+        navTabs.addEventListener('click', (e) => {
+            const now = Date.now();
+            if (now - lastClick < 300) return;
+            lastClick = now;
             
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-        }
-    });
-}
+            const tab = e.target.closest('.nav-tab');
+            if (!tab) return;
+            
+            const sectionId = tab.dataset.section;
+            if (sectionId) {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(sectionId)?.classList.add('active');
+                
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            }
+        });
+    }
+});  // ⬅️ THIS CLOSING BRACE + PARENTHESIS MUST BE HERE!
