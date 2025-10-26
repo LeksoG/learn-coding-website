@@ -786,6 +786,16 @@ body.light-mode .mobile-search-container {
         /* Settings section positioning fixed */
         #settings.section.active {
             margin-top: 0;
+            padding-top: 80px; /* Add minimal top padding for nav clearance */
+        }
+
+        #settings .settings-container {
+            padding-top: 20px; /* Minimal padding at top of settings */
+        }
+
+        #settings .settings-header {
+            margin-top: 0;
+            padding-top: 0;
         }
 
         .section {
@@ -3331,6 +3341,20 @@ body.light-mode .code-example code {
 
             .main-content {
                 padding-top: 20px;
+            }
+
+            /* Settings on mobile - minimal top spacing */
+            #settings.section.active {
+                padding-top: 100px; /* Account for mobile top search bar */
+            }
+
+            #settings .settings-container {
+                padding-top: 10px;
+            }
+
+            #settings .settings-header {
+                margin-top: 0;
+                margin-bottom: 20px;
             }
 
             .dashboard-title {
