@@ -209,19 +209,19 @@ class LegoLoader {
     }
 }
 
-// Initialize loader IMMEDIATELY
-(function() {
-    document.documentElement.classList.add('loading');
-    document.body.classList.add('loading');
-    
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            new LegoLoader();
-        });
-    } else {
-        new LegoLoader();
-    }
-})();
+// DISABLED: Welcome animation removed - page loads immediately
+// (function() {
+//     document.documentElement.classList.add('loading');
+//     document.body.classList.add('loading');
+//
+//     if (document.readyState === 'loading') {
+//         document.addEventListener('DOMContentLoaded', () => {
+//             new LegoLoader();
+//         });
+//     } else {
+//         new LegoLoader();
+//     }
+// })();
 
         // Mistral AI Configuration
 function getAIConfig() {
@@ -7323,8 +7323,16 @@ function createMobileStatsCarousel() {
     const statsGrid = document.querySelector('.stats-grid');
     if (!statsGrid) return;
 
-    // Create carousel
-    const carousel = document.createElement('div');
+    // FIX: Check if carousel already exists to prevent duplicate creation
+    let carousel = document.querySelector('.mobile-stats-carousel');
+    if (carousel) {
+        // Carousel already exists, just update it
+        updateMobileStatsCarousel();
+        return;
+    }
+
+    // Create carousel only if it doesn't exist
+    carousel = document.createElement('div');
     carousel.className = 'mobile-stats-carousel';
     carousel.innerHTML = `
         <div class="stats-carousel-track" id="statsCarouselTrack"></div>
