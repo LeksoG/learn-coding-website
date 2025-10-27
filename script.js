@@ -1438,44 +1438,10 @@ function toggleSettingsPanel() {
         // Close settings panel
         settingsPanel.classList.remove('active');
         settingsBtn.classList.remove('active');
-        navContainer.classList.remove('settings-active');
     } else {
         // Open settings panel
         settingsPanel.classList.add('active');
         settingsBtn.classList.add('active');
-        navContainer.classList.add('settings-active');
-
-        // Update user avatar with first letter
-        updateSettingsUserAvatar();
-    }
-}
-
-// Open settings from mobile sidebar (hide sidebar first, then show settings)
-function openSettingsFromMobile() {
-    const mobileSidebar = document.getElementById('mobileSidebar');
-    const mobileSidebarOverlay = document.getElementById('mobileSidebarOverlay');
-    const settingsPanel = document.getElementById('settingsPanel');
-
-    // First, close the sidebar smoothly
-    mobileSidebar.classList.remove('active');
-    mobileSidebarOverlay.classList.remove('active');
-    document.body.classList.remove('sidebar-open');
-
-    // Then, after sidebar animation completes, open settings panel
-    setTimeout(() => {
-        settingsPanel.classList.add('active');
-        updateSettingsUserAvatar();
-    }, 300);
-}
-
-// Update user avatar in settings panel
-function updateSettingsUserAvatar() {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    const avatarElement = document.getElementById('settingsUserAvatar');
-
-    if (user && user.name && avatarElement) {
-        const firstLetter = user.name.charAt(0).toUpperCase();
-        avatarElement.textContent = firstLetter;
     }
 }
 
@@ -1483,26 +1449,14 @@ function updateSettingsUserAvatar() {
 document.addEventListener('click', function(event) {
     const settingsPanel = document.getElementById('settingsPanel');
     const settingsBtn = document.getElementById('settingsNavBtn');
-    const settingsNavClose = document.querySelector('.settings-nav-close');
 
     if (!settingsPanel || !settingsBtn) return;
 
     // Check if click is outside both the panel and button
     if (!settingsPanel.contains(event.target) &&
         !settingsBtn.contains(event.target) &&
-        (!settingsNavClose || !settingsNavClose.contains(event.target)) &&
         settingsPanel.classList.contains('active')) {
         toggleSettingsPanel();
-    }
-});
-
-// Close settings panel with ESC key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        const settingsPanel = document.getElementById('settingsPanel');
-        if (settingsPanel && settingsPanel.classList.contains('active')) {
-            toggleSettingsPanel();
-        }
     }
 });
 
