@@ -1575,8 +1575,13 @@ function handleSearch() {
                     statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
                 }
 
+                // Escape quotes for onclick attribute
+                const escapedTitle = m.course.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const escapedLang = m.lang.replace(/'/g, "\\'");
+                const escapedId = m.course.id.replace(/'/g, "\\'");
+
                 const onClickAttr = clickable
-                    ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}')"`
+                    ? `onclick="openCourseFromSearch('${escapedLang}', '${escapedId}', '${escapedTitle}')" style="cursor: pointer;"`
                     : `style="opacity: 0.5; cursor: not-allowed;"`;
 
                 html += `
@@ -1754,8 +1759,13 @@ Return only the JSON array, no other text.`;
                             statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
                         }
 
+                        // Escape quotes for onclick attribute
+                        const escapedTitle = course.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const escapedLang = lang.replace(/'/g, "\\'");
+                        const escapedId = course.id.replace(/'/g, "\\'");
+
                         const onClickAttr = clickable
-                            ? `onclick="openCourseFromSearch('${lang}', '${course.id}', '${course.title}')"`
+                            ? `onclick="openCourseFromSearch('${escapedLang}', '${escapedId}', '${escapedTitle}')" style="cursor: pointer;"`
                             : `style="opacity: 0.5; cursor: not-allowed;"`;
 
                         const langName = lang.charAt(0).toUpperCase() + lang.slice(1);
@@ -1834,8 +1844,13 @@ function handleMobileSearch() {
                 statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
             }
 
+            // Escape quotes for onclick attribute
+            const escapedTitle = m.course.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedLang = m.lang.replace(/'/g, "\\'");
+            const escapedId = m.course.id.replace(/'/g, "\\'");
+
             const onClick = clickable
-                ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}'); closeMobileSearch();"`
+                ? `onclick="openCourseFromSearch('${escapedLang}', '${escapedId}', '${escapedTitle}'); closeMobileSearch();" style="cursor: pointer;"`
                 : `style="opacity: 0.5; cursor: not-allowed;"`;
 
             return `
@@ -10657,8 +10672,13 @@ function handleMobileTopSearch() {
                 statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
             }
 
+            // Escape quotes for onclick attribute
+            const escapedTitle = m.course.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedLang = m.lang.replace(/'/g, "\\'");
+            const escapedId = m.course.id.replace(/'/g, "\\'");
+
             const onClick = clickable
-                ? `onclick="openCourseFromSearch('${m.lang}', '${m.course.id}', '${m.course.title}'); document.getElementById('mobileTopSearchInput').value = ''; document.getElementById('mobileTopSearchResults').classList.remove('active');"`
+                ? `onclick="openCourseFromSearch('${escapedLang}', '${escapedId}', '${escapedTitle}'); document.getElementById('mobileTopSearchInput').value = ''; document.getElementById('mobileTopSearchResults').classList.remove('active');" style="cursor: pointer;"`
                 : `style="opacity: 0.5; cursor: not-allowed;"`;
 
             return `
@@ -10683,19 +10703,16 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Prevent search bar movement on mobile
+// Mobile search input handlers
 if (window.innerWidth <= 768) {
     const searchInput = document.getElementById('mobileTopSearchInput');
 
     if (searchInput) {
+        // Scroll to top when search is focused to ensure results are visible
         searchInput.addEventListener('focus', () => {
-            document.body.classList.add('keyboard-open');
-        });
-
-        searchInput.addEventListener('blur', () => {
-            document.body.classList.remove('keyboard-open');
-            // Force reposition
-            window.scrollTo(window.scrollX, window.scrollY);
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
         });
     }
 }
