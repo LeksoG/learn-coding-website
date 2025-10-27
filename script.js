@@ -1,6 +1,4 @@
-<script>
-
-        // Add at the very top of your script, before everything else
+     // Add at the very top of your script, before everything else
 (function() {
     document.body.classList.add('loading');
     window.addEventListener('load', function() {
