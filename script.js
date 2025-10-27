@@ -1359,8 +1359,13 @@ function showSectionSidebar(sectionId) {
 function toggleTheme() {
     document.body.classList.toggle('light-mode');
     document.documentElement.classList.toggle('light-mode');
+
+    // Sync both theme toggles (settings page and panel)
     const toggle = document.getElementById('themeToggle');
-    toggle.classList.toggle('active');
+    const togglePanel = document.getElementById('themeTogglePanel');
+
+    if (toggle) toggle.classList.toggle('active');
+    if (togglePanel) togglePanel.classList.toggle('active');
 }
 
 function toggleSearch() {
@@ -1368,6 +1373,14 @@ function toggleSearch() {
     const tabs = document.getElementById('navTabs');
     const searchContainer = document.getElementById('searchContainer');
     const searchInput = document.getElementById('searchInput');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsBtn = document.getElementById('settingsNavBtn');
+
+    // Close settings panel if it's open
+    if (settingsPanel && settingsPanel.classList.contains('active')) {
+        settingsPanel.classList.remove('active');
+        if (settingsBtn) settingsBtn.classList.remove('active');
+    }
 
     if (container.classList.contains('search-active')) {
         // Closing search - faster
@@ -1408,6 +1421,44 @@ function toggleSearch() {
         }, 200); // Reduced from 300ms
     }
 }
+
+function toggleSettingsPanel() {
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsBtn = document.getElementById('settingsNavBtn');
+    const searchContainer = document.getElementById('searchContainer');
+    const navContainer = document.getElementById('navContainer');
+
+    // Close search if it's open
+    if (navContainer.classList.contains('search-active')) {
+        toggleSearch();
+    }
+
+    // Toggle settings panel
+    if (settingsPanel.classList.contains('active')) {
+        // Close settings panel
+        settingsPanel.classList.remove('active');
+        settingsBtn.classList.remove('active');
+    } else {
+        // Open settings panel
+        settingsPanel.classList.add('active');
+        settingsBtn.classList.add('active');
+    }
+}
+
+// Close settings panel when clicking outside
+document.addEventListener('click', function(event) {
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsBtn = document.getElementById('settingsNavBtn');
+
+    if (!settingsPanel || !settingsBtn) return;
+
+    // Check if click is outside both the panel and button
+    if (!settingsPanel.contains(event.target) &&
+        !settingsBtn.contains(event.target) &&
+        settingsPanel.classList.contains('active')) {
+        toggleSettingsPanel();
+    }
+});
 
 function toggleMobileSearch() {
     document.getElementById('mobileSearchOverlay').classList.add('active');
@@ -12541,9 +12592,16 @@ function changeTheme(theme) {
 
 function toggleAIAssistant() {
     const toggle = document.getElementById('aiAssistantToggle');
-    toggle.classList.toggle('active');
+    const togglePanel = document.getElementById('aiAssistantTogglePanel');
 
-    const isEnabled = toggle.classList.contains('active');
+    // Toggle both elements
+    if (toggle) toggle.classList.toggle('active');
+    if (togglePanel) togglePanel.classList.toggle('active');
+
+    // Use whichever toggle exists to determine enabled state
+    const isEnabled = (toggle && toggle.classList.contains('active')) ||
+                     (togglePanel && togglePanel.classList.contains('active'));
+
     localStorage.setItem('aiAssistantEnabled', isEnabled);
 
     // Update AI button visibility

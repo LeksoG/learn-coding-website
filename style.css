@@ -596,6 +596,226 @@ body.light-mode .search-input-container {
             font-size: 0.85em;
         }
 
+        /* SETTINGS PANEL - EXPANDS FROM NAVBAR */
+        .settings-panel {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            max-width: calc(100vw - 40px);
+            background: rgba(30, 30, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(100, 255, 218, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .settings-panel.active {
+            max-height: 600px;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: all;
+            overflow-y: auto;
+        }
+
+        body.light-mode .settings-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border-color: rgba(10, 122, 94, 0.3);
+        }
+
+        .settings-panel-content {
+            padding: 20px;
+        }
+
+        .settings-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(100, 255, 218, 0.2);
+        }
+
+        .settings-panel-header h3 {
+            margin: 0;
+            color: #64ffda;
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        body.light-mode .settings-panel-header h3 {
+            color: #0a7a5e;
+        }
+
+        .settings-close-btn {
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            font-size: 2em;
+            cursor: pointer;
+            padding: 0;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .settings-close-btn:hover {
+            background: rgba(100, 255, 218, 0.1);
+            color: #64ffda;
+            transform: rotate(90deg);
+        }
+
+        .settings-panel-section {
+            margin-bottom: 20px;
+        }
+
+        .settings-panel-section h4 {
+            color: #64ffda;
+            font-size: 1em;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+            padding-left: 5px;
+        }
+
+        body.light-mode .settings-panel-section h4 {
+            color: #0a7a5e;
+        }
+
+        .settings-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(100, 255, 218, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .settings-option:hover {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: rgba(100, 255, 218, 0.2);
+            transform: translateX(5px);
+        }
+
+        body.light-mode .settings-option {
+            background: rgba(10, 122, 94, 0.05);
+            border-color: rgba(10, 122, 94, 0.1);
+        }
+
+        body.light-mode .settings-option:hover {
+            background: rgba(10, 122, 94, 0.1);
+            border-color: rgba(10, 122, 94, 0.2);
+        }
+
+        .settings-option-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .settings-option-icon {
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+
+        .settings-option-text {
+            flex: 1;
+        }
+
+        .settings-option-title {
+            color: #e0e0e0;
+            font-weight: 600;
+            font-size: 0.95em;
+            margin-bottom: 3px;
+        }
+
+        body.light-mode .settings-option-title {
+            color: #1a1a1a;
+        }
+
+        .settings-option-desc {
+            color: #8b949e;
+            font-size: 0.8em;
+        }
+
+        .settings-panel-footer {
+            padding-top: 15px;
+            border-top: 2px solid rgba(100, 255, 218, 0.2);
+            margin-top: 20px;
+        }
+
+        .settings-logout-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(255, 59, 48, 0.1);
+            border: 2px solid rgba(255, 59, 48, 0.3);
+            border-radius: 12px;
+            color: #ff3b30;
+            font-weight: 600;
+            font-size: 0.95em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .settings-logout-btn:hover {
+            background: rgba(255, 59, 48, 0.2);
+            border-color: rgba(255, 59, 48, 0.5);
+            transform: scale(1.02);
+        }
+
+        .settings-logout-btn span:first-child {
+            font-size: 1.2em;
+        }
+
+        /* Highlight settings button when panel is active */
+        .nav-tab#settingsNavBtn.active {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+        }
+
+        body.light-mode .nav-tab#settingsNavBtn.active {
+            background: rgba(10, 122, 94, 0.2);
+            color: #0a7a5e;
+        }
+
+        /* Mobile styles for settings panel */
+        @media (max-width: 768px) {
+            .settings-panel {
+                top: 20px;
+                width: calc(100vw - 30px);
+                left: 15px;
+                transform: none;
+            }
+
+            .settings-panel.active {
+                transform: none;
+            }
+        }
+
         /* MOBILE NAV - ALWAYS FIXED AT BOTTOM */
 .mobile-nav {
     display: none;
