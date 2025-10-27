@@ -1575,10 +1575,10 @@ function handleSearch() {
                     statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
                 }
 
-                // Escape quotes for onclick attribute
-                const escapedTitle = m.course.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                const escapedLang = m.lang.replace(/'/g, "\\'");
-                const escapedId = m.course.id.replace(/'/g, "\\'");
+                // Use HTML entities for proper escaping
+                const escapedTitle = m.course.title.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                const escapedLang = m.lang.replace(/'/g, "&#39;");
+                const escapedId = m.course.id.replace(/'/g, "&#39;");
 
                 const onClickAttr = clickable
                     ? `onclick="openCourseFromSearch('${escapedLang}', '${escapedId}', '${escapedTitle}')" style="cursor: pointer;"`
@@ -1759,10 +1759,10 @@ Return only the JSON array, no other text.`;
                             statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
                         }
 
-                        // Escape quotes for onclick attribute
-                        const escapedTitle = course.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        const escapedLang = lang.replace(/'/g, "\\'");
-                        const escapedId = course.id.replace(/'/g, "\\'");
+                        // Use HTML entities for proper escaping
+                        const escapedTitle = course.title.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                        const escapedLang = lang.replace(/'/g, "&#39;");
+                        const escapedId = course.id.replace(/'/g, "&#39;");
 
                         const onClickAttr = clickable
                             ? `onclick="openCourseFromSearch('${escapedLang}', '${escapedId}', '${escapedTitle}')" style="cursor: pointer;"`
@@ -1844,10 +1844,10 @@ function handleMobileSearch() {
                 statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
             }
 
-            // Escape quotes for onclick attribute
-            const escapedTitle = m.course.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const escapedLang = m.lang.replace(/'/g, "\\'");
-            const escapedId = m.course.id.replace(/'/g, "\\'");
+            // Use HTML entities for proper escaping
+            const escapedTitle = m.course.title.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+            const escapedLang = m.lang.replace(/'/g, "&#39;");
+            const escapedId = m.course.id.replace(/'/g, "&#39;");
 
             const onClick = clickable
                 ? `onclick="openCourseFromSearch('${escapedLang}', '${escapedId}', '${escapedTitle}'); closeMobileSearch();" style="cursor: pointer;"`
@@ -10672,10 +10672,10 @@ function handleMobileTopSearch() {
                 statusBadge = '<span style="color: #64ffda; margin-left: 8px;">📖 Available</span>';
             }
 
-            // Escape quotes for onclick attribute
-            const escapedTitle = m.course.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const escapedLang = m.lang.replace(/'/g, "\\'");
-            const escapedId = m.course.id.replace(/'/g, "\\'");
+            // Use HTML entities for proper escaping
+            const escapedTitle = m.course.title.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+            const escapedLang = m.lang.replace(/'/g, "&#39;");
+            const escapedId = m.course.id.replace(/'/g, "&#39;");
 
             const onClick = clickable
                 ? `onclick="openCourseFromSearch('${escapedLang}', '${escapedId}', '${escapedTitle}'); document.getElementById('mobileTopSearchInput').value = ''; document.getElementById('mobileTopSearchResults').classList.remove('active');" style="cursor: pointer;"`
@@ -12576,6 +12576,11 @@ class NetworkAnimation {
 if (!document.hidden) {
     this.rafId = requestAnimationFrame(() => this.animate());
 }
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
     }
 
     changeTheme(newTheme) {
