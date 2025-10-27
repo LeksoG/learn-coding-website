@@ -139,7 +139,7 @@
     <button class="nav-tab active" data-section="home">Overview</button>
     <button class="nav-tab" data-section="learn">Learn</button>
     <button class="nav-tab" data-section="practice">Practice</button>
-    <button class="nav-tab" data-section="settings">Settings</button>
+    <button class="nav-tab" id="settingsNavBtn" onclick="toggleSettingsPanel()">Settings</button>
     <button class="search-icon" onclick="toggleSearch()">
                 <svg viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="8"></circle>
@@ -153,6 +153,77 @@
                 <button class="search-close-btn" onclick="toggleSearch()">×</button>
             </div>
             <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Settings Panel (Expands from Navbar) -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-panel-content">
+            <div class="settings-panel-header">
+                <h3>⚙️ Settings</h3>
+                <button class="settings-close-btn" onclick="toggleSettingsPanel()">×</button>
+            </div>
+
+            <div class="settings-panel-section">
+                <h4>⚙️ Preferences</h4>
+                <div class="settings-options">
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <span class="settings-option-icon">🌓</span>
+                            <div class="settings-option-text">
+                                <div class="settings-option-title">Dark Mode</div>
+                                <div class="settings-option-desc">Toggle between dark and light themes</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" id="themeTogglePanel" onclick="toggleTheme()"></div>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <span class="settings-option-icon">⏩</span>
+                            <div class="settings-option-text">
+                                <div class="settings-option-title">Auto-advance</div>
+                                <div class="settings-option-desc">Move to next lesson automatically</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSetting(this)"></div>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <span class="settings-option-icon">📧</span>
+                            <div class="settings-option-text">
+                                <div class="settings-option-title">Email Notifications</div>
+                                <div class="settings-option-desc">Get updates about your progress</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-panel-section">
+                <h4>🤖 AI Tools</h4>
+                <div class="settings-options">
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <span class="settings-option-icon">✨</span>
+                            <div class="settings-option-text">
+                                <div class="settings-option-title">AI Assistant</div>
+                                <div class="settings-option-desc">Show AI assistant in code playground</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" id="aiAssistantTogglePanel" onclick="toggleAIAssistant()"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-panel-footer">
+                <button class="settings-logout-btn" onclick="logout()">
+                    <span>🚪</span>
+                    <span>Logout</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -180,7 +251,7 @@
             <span class="sidebar-icon">⚡</span>
             <span class="sidebar-label">Practice</span>
         </div>
-        <div class="sidebar-item" onclick="showSectionSidebar('settings')">
+        <div class="sidebar-item" onclick="toggleSettingsPanel(); closeMobileSidebar();">
             <span class="sidebar-icon">⚙️</span>
             <span class="sidebar-label">Settings</span>
         </div>
@@ -700,4 +771,5 @@ document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
     
 </body>
 </html>
+
 
