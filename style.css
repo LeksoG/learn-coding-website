@@ -597,73 +597,35 @@ body.light-mode .search-input-container {
         }
 
         /* SETTINGS PANEL - EXPANDS FROM NAVBAR */
-        .settings-panel {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 500px;
-            max-width: calc(100vw - 40px);
-            background: rgba(30, 30, 30, 0.98);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(100, 255, 218, 0.3);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            z-index: 999;
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateX(-50%) translateY(-20px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none;
-        }
-
-        .settings-panel.active {
-            max-height: 600px;
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            pointer-events: all;
-            overflow-y: auto;
-        }
-
-        body.light-mode .settings-panel {
-            background: rgba(255, 255, 255, 0.98);
-            border-color: rgba(10, 122, 94, 0.3);
-        }
-
-        .settings-panel-content {
-            padding: 20px;
-        }
-
-        .settings-panel-header {
-            display: flex;
+        /* Settings Nav Title (shown in nav bar when panel is open) */
+        .settings-nav-title {
+            display: none;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(100, 255, 218, 0.2);
+            width: 100%;
+            padding: 0 20px;
         }
 
-        .settings-panel-header h3 {
+        .settings-nav-title h2 {
             margin: 0;
             color: #64ffda;
-            font-size: 1.3em;
+            font-size: 1.5em;
             font-weight: 700;
         }
 
-        body.light-mode .settings-panel-header h3 {
+        body.light-mode .settings-nav-title h2 {
             color: #0a7a5e;
         }
 
-        .settings-close-btn {
+        .settings-nav-close {
             background: transparent;
             border: none;
             color: #8b949e;
             font-size: 2em;
             cursor: pointer;
             padding: 0;
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -671,10 +633,54 @@ body.light-mode .search-input-container {
             transition: all 0.3s ease;
         }
 
-        .settings-close-btn:hover {
+        .settings-nav-close:hover {
             background: rgba(100, 255, 218, 0.1);
             color: #64ffda;
             transform: rotate(90deg);
+        }
+
+        /* Hide nav tabs when settings is open */
+        .nav-container.settings-active .nav-tabs {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        /* Show settings title when panel is open */
+        .nav-container.settings-active .settings-nav-title {
+            display: flex;
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(13, 17, 23, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 998;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .settings-panel.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        body.light-mode .settings-panel {
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .settings-panel-content {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
 
         .settings-panel-section {
@@ -759,14 +765,59 @@ body.light-mode .search-input-container {
         }
 
         .settings-panel-footer {
-            padding-top: 15px;
+            padding-top: 30px;
             border-top: 2px solid rgba(100, 255, 218, 0.2);
-            margin-top: 20px;
+            margin-top: 30px;
+        }
+
+        /* User Avatar Section */
+        .settings-user-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .settings-user-avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .settings-user-avatar-ring {
+            position: relative;
+            padding: 4px;
+            background: linear-gradient(135deg, #64ffda, #00d4ff);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+        }
+
+        body.light-mode .settings-user-avatar-ring {
+            background: linear-gradient(135deg, #0a7a5e, #00a8cc);
+        }
+
+        .settings-user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(30, 30, 30, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64ffda;
+            font-size: 1.8em;
+            font-weight: 700;
+            border: 3px solid rgba(13, 17, 23, 1);
+        }
+
+        body.light-mode .settings-user-avatar {
+            background: rgba(255, 255, 255, 0.95);
+            color: #0a7a5e;
+            border-color: rgba(255, 255, 255, 1);
         }
 
         .settings-logout-btn {
-            width: 100%;
-            padding: 12px 20px;
+            padding: 14px 28px;
             background: rgba(255, 59, 48, 0.1);
             border: 2px solid rgba(255, 59, 48, 0.3);
             border-radius: 12px;
@@ -776,15 +827,15 @@ body.light-mode .search-input-container {
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .settings-logout-btn:hover {
             background: rgba(255, 59, 48, 0.2);
             border-color: rgba(255, 59, 48, 0.5);
-            transform: scale(1.02);
+            transform: scale(1.05);
         }
 
         .settings-logout-btn span:first-child {
@@ -805,14 +856,49 @@ body.light-mode .search-input-container {
         /* Mobile styles for settings panel */
         @media (max-width: 768px) {
             .settings-panel {
-                top: 20px;
-                width: calc(100vw - 30px);
-                left: 15px;
-                transform: none;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-radius: 30px 30px 0 0;
+                transform: translateY(100%);
+                transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
             }
 
             .settings-panel.active {
-                transform: none;
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            .settings-nav-title {
+                display: none !important;
+            }
+
+            /* Mobile - show settings title at top of panel */
+            .settings-panel-content::before {
+                content: '⚙️ Settings';
+                display: block;
+                font-size: 1.8em;
+                font-weight: 700;
+                color: #64ffda;
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid rgba(100, 255, 218, 0.2);
+            }
+
+            body.light-mode .settings-panel-content::before {
+                color: #0a7a5e;
+            }
+
+            .settings-user-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .settings-logout-btn {
+                width: 100%;
+                justify-content: center;
             }
         }
 
