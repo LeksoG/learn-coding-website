@@ -12852,6 +12852,23 @@ function updateAIButtonVisibility(isEnabled) {
     }
 }
 
+// ==================== SETTINGS PANEL TOGGLE ====================
+
+function toggleSettingsPanel() {
+    const settingsPanel = document.getElementById('settingsPanel');
+    if (!settingsPanel) {
+        console.warn('Settings panel not found');
+        return;
+    }
+    
+    // Toggle visibility
+    if (settingsPanel.style.display === 'none' || !settingsPanel.style.display) {
+        settingsPanel.style.display = 'block';
+    } else {
+        settingsPanel.style.display = 'none';
+    }
+}
+
 // ==================== INITIALIZATION ====================
 
 // ==================== WELCOME ANIMATION INIT ====================
@@ -12859,6 +12876,12 @@ function initWelcomeAnimation() {
     const welcomeDiv = document.getElementById('welcomeAnimation');
     const binaryRain = document.getElementById('binaryRain');
     const legoContainer = document.getElementById('legoContainer');
+
+    // Check if required elements exist
+    if (!welcomeDiv || !binaryRain || !legoContainer) {
+        console.warn('Welcome animation elements not found. Skipping animation.');
+        return;
+    }
 
     // Create binary rain columns
     const numColumns = Math.floor(window.innerWidth / 30);
