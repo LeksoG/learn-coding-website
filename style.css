@@ -9037,17 +9037,6 @@ body.light-mode .roadmap-course-title {
     .mobile-top-search {
         display: block;
     }
-    
-    /* Prevent body shift when keyboard opens */
-    body {
-        position: fixed;
-        width: 100%;
-    }
-    
-    body.keyboard-open {
-        position: fixed;
-        overflow: hidden;
-    }
 }
 
 .mobile-search-wrapper {
@@ -9158,24 +9147,28 @@ body.light-mode .mobile-search-field {
 
 .mobile-top-search-results {
     margin-top: 10px;
-    background: rgba(30, 30, 30, 0.5);
+    background: rgba(30, 30, 30, 0.98);
     backdrop-filter: blur(30px) saturate(180%);
     -webkit-backdrop-filter: blur(30px) saturate(180%);
     border: 2px solid rgba(100, 255, 218, 0.25);
     border-radius: 20px;
-    max-height: 400px;
+    max-height: 70vh;
     overflow-y: auto;
+    overflow-x: hidden;
     display: none;
-    box-shadow: 
+    box-shadow:
         0 10px 40px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.1),
         0 0 0 1px rgba(100, 255, 218, 0.1);
+    -webkit-overflow-scrolling: touch;
+    z-index: 9998;
+    position: relative;
 }
 
 body.light-mode .mobile-top-search-results {
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.98);
     border-color: rgba(10, 122, 94, 0.3);
-    box-shadow: 
+    box-shadow:
         0 10px 40px rgba(0, 0, 0, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.8),
         0 0 0 1px rgba(10, 122, 94, 0.1);
