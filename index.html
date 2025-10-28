@@ -2,774 +2,273 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DevLearn - Master Programming</title>
-        
-<link rel="stylesheet" href="style.css">
-        
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Academy - Master Programming</title>
+    
+    <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
+    <div class="bg-gradient" id="bgGradient"></div>
+    <div class="glass-overlay"></div>
 
-    <!-- LOADER DISABLED - Page loads immediately -->
-
-    <canvas id="networkCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; display: none;"></canvas>
-
-
-    <!-- AUTH SCREEN -->
-    <div class="auth-screen" id="authScreen">
-        <div class="auth-container">
-            <div class="auth-logo">
-                <div class="auth-logo-icon">⚡</div>
-                <div class="auth-logo-text">DevLearn Pro</div>
-            </div>
-
-            <div class="auth-tabs">
-                <div class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
-                <div class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</div>
-            </div>
-
-            <!-- LOGIN FORM -->
-            <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="loginEmail" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="loginPassword" required>
-                </div>
-                <button type="submit" class="form-button" id="loginBtn">Login</button>
-                <div id="loginMessage"></div>
-                <div class="forgot-link">
-                    <a onclick="switchAuthTab('forgot')">Forgot Password?</a>
-                </div>
-            </form>
-
-            <!-- SIGNUP FORM -->
-            <form class="auth-form" id="signupForm" onsubmit="handleSignup(event)">
-                <div class="form-group">
-                    <label class="form-label">Name</label>
-                    <input type="text" class="form-input" id="signupName" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="signupEmail" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="signupPassword" required minlength="6">
-                </div>
-                <button type="submit" class="form-button" id="signupBtn">Create Account</button>
-                <div id="signupMessage"></div>
-            </form>
-
-            <!-- FORGOT PASSWORD FORM - MOVED INSIDE -->
-            <form class="auth-form" id="forgotForm" onsubmit="handleForgotPassword(event)">
-                <div class="form-group">
-                    <label class="form-label">Enter your email</label>
-                    <input type="email" class="form-input" id="forgotEmail" required>
-                </div>
-                <button type="submit" class="form-button" id="forgotBtn">Send Code</button>
-                <div id="forgotMessage"></div>
-                <div class="forgot-link">
-                    <a onclick="switchAuthTab('login')">← Back to Login</a>
-                </div>
-            </form>
-
-            <!-- VERIFY FORM -->
-<form class="auth-form" id="verifyForm" onsubmit="handleVerifyCode(event)">
-    <!-- Step 1: Enter Code -->
-    <div id="codeStep">
-        <div class="form-group">
-            <label class="form-label">Enter 6-digit verification code</label>
-            <div class="otp-container">
-    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
-    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
-    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
-    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
-    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
-    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
-</div>
-        </div>
-        <button type="button" class="form-button" id="verifyCodeBtn" onclick="verifyCodeOnly()">Verify Code</button>
-        <div id="verifyMessage"></div>
-    </div>
-    
-    <!-- Step 2: Enter New Password (Hidden Initially) -->
-    <div id="passwordStep" style="display: none;">
-        <div class="form-group">
-            <label class="form-label">Code Verified! Enter New Password</label>
-            <input type="password" class="form-input" id="newPassword" minlength="6">
-        </div>
-        <button type="submit" class="form-button" id="resetPasswordBtn">Reset Password</button>
-    </div>
-    
-    <div class="forgot-link">
-        <a onclick="switchAuthTab('forgot')">← Back to Forgot Password</a>
-    </div>
-</form>
-
-        </div> <!-- CLOSE auth-container HERE -->
-    </div>
-
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Updating Progress...</div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="retryModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-icon">🎯</div>
-                <div class="modal-title">Course Completed!</div>
-                <div class="modal-text">You've already completed this course. Would you like to retry it for practice or continue?</div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-button retry" onclick="retryLesson()">🔄 Retry</button>
-                <button class="modal-button continue" onclick="closeModal()">✓ Continue</button>
+    <!-- Continue/Restart Dialog -->
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog-box">
+            <h2 class="dialog-title">Continue Learning?</h2>
+            <p class="dialog-text">You have previous progress in this course. Would you like to continue where you left off or start fresh?</p>
+            <div class="dialog-buttons">
+                <button class="dialog-btn primary" id="continueBtn">Continue</button>
+                <button class="dialog-btn secondary" id="restartBtn">Start Again</button>
             </div>
         </div>
     </div>
 
-    <!-- DESKTOP NAVIGATION -->
-    <div class="nav-container" id="navContainer">
-        <div class="nav-tabs" id="navTabs">
-    <button class="nav-tab active" data-section="home">Overview</button>
-    <button class="nav-tab" data-section="learn">Learn</button>
-    <button class="nav-tab" data-section="practice">Practice</button>
-    <button class="nav-tab" id="settingsNavBtn" onclick="toggleSettingsPanel()">Settings</button>
-    <button class="search-icon" onclick="toggleSearch()">
-                <svg viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
+    <div class="page-container">
+        <!-- Hamburger -->
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="nav-btn active" data-page="home">
+                <svg class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
-            </button>
-        </div>
-        <div class="search-input-container" id="searchContainer">
-            <div class="search-input-wrapper">
-                <input type="text" class="search-input" id="searchInput" placeholder="Search courses or describe what you want to learn..." oninput="handleSearch()" onkeydown="handleSearchKeyboard(event)">
-                <button class="search-close-btn" onclick="toggleSearch()">×</button>
+                Home
             </div>
-            <div class="search-results" id="searchResults"></div>
-        </div>
-    </div>
-
-    <!-- Settings Panel (Expands from Navbar) -->
-    <div class="settings-panel" id="settingsPanel">
-        <div class="settings-panel-content">
-            <div class="settings-panel-header">
-                <h3>⚙️ Settings</h3>
-                <button class="settings-close-btn" onclick="toggleSettingsPanel()">×</button>
+            <div class="nav-btn" data-page="learn">
+                <svg class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                Learn
             </div>
+            <div class="nav-btn" data-page="practice">
+                <svg class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                Practice
+            </div>
+            <div class="nav-btn" data-page="settings">
+                <svg class="nav-icon" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 1v6m0 6v6"></path>
+                    <path d="M19.07 4.93l-4.24 4.24m0 6.36l4.24 4.24"></path>
+                    <path d="M4.93 4.93l4.24 4.24m0 6.36l-4.24 4.24"></path>
+                    <path d="M23 12h-6m-6 0H1"></path>
+                </svg>
+                Settings
+            </div>
+        </div>
 
-            <div class="settings-panel-section">
-                <h4>⚙️ Preferences</h4>
-                <div class="settings-options">
-                    <div class="settings-option">
-                        <div class="settings-option-info">
-                            <span class="settings-option-icon">🌓</span>
-                            <div class="settings-option-text">
-                                <div class="settings-option-title">Dark Mode</div>
-                                <div class="settings-option-desc">Toggle between dark and light themes</div>
-                            </div>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Desktop Nav -->
+        <nav id="mainNav">
+            <div class="nav-btn active" data-page="home">
+                <svg class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Home
+            </div>
+            <div class="nav-btn" data-page="learn">
+                <svg class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                Learn
+            </div>
+            <div class="nav-btn" data-page="practice">
+                <svg class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                Practice
+            </div>
+            <div class="nav-btn" data-page="settings">
+                <svg class="nav-icon" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 1v6m0 6v6"></path>
+                    <path d="M19.07 4.93l-4.24 4.24m0 6.36l4.24 4.24"></path>
+                    <path d="M4.93 4.93l4.24 4.24m0 6.36l-4.24 4.24"></path>
+                    <path d="M23 12h-6m-6 0H1"></path>
+                </svg>
+                Settings
+            </div>
+        </nav>
+
+        <!-- Search Button -->
+        <div class="search-btn" id="searchBtn">
+            <svg style="width: 22px; height: 22px; stroke: var(--text-primary);" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="M21 21l-4.35-4.35"></path>
+            </svg>
+        </div>
+
+        <!-- Search Container -->
+        <div class="search-container-wrapper" id="searchWrapper">
+            <div class="search-container">
+                <svg style="width: 22px; height: 22px; stroke: var(--text-primary);" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="M21 21l-4.35-4.35"></path>
+                </svg>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search courses...">
+                <svg class="search-close" id="searchClose" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+            <div class="search-results" id="searchResults" style="display: none;"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-container">
+            <!-- Home Page -->
+            <div class="page-section active" id="homePage">
+                <h1 style="font-size: 2.5rem; color: var(--text-primary); margin-bottom: 40px;">Welcome Back!</h1>
+                <div class="widgets-grid">
+                    <div class="widget">
+                        <div class="widget-title">
+                            <svg style="width: 24px; height: 24px; stroke: var(--accent-color);" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            Study Time Today
                         </div>
-                        <div class="toggle-switch active" id="themeTogglePanel" onclick="toggleTheme()"></div>
+                        <div class="widget-value" id="studyTime">0h 0m</div>
+                        <div class="widget-subtitle">Keep up the great work!</div>
                     </div>
 
-                    <div class="settings-option">
-                        <div class="settings-option-info">
-                            <span class="settings-option-icon">⏩</span>
-                            <div class="settings-option-text">
-                                <div class="settings-option-title">Auto-advance</div>
-                                <div class="settings-option-desc">Move to next lesson automatically</div>
-                            </div>
+                    <div class="widget">
+                        <div class="widget-title">
+                            <svg style="width: 24px; height: 24px; stroke: var(--accent-color);" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            Courses Completed
                         </div>
-                        <div class="toggle-switch" onclick="toggleSetting(this)"></div>
+                        <div class="widget-value" id="coursesCompleted">0</div>
+                        <div class="widget-subtitle">Out of 19 total courses</div>
                     </div>
 
-                    <div class="settings-option">
-                        <div class="settings-option-info">
-                            <span class="settings-option-icon">📧</span>
-                            <div class="settings-option-text">
-                                <div class="settings-option-title">Email Notifications</div>
-                                <div class="settings-option-desc">Get updates about your progress</div>
-                            </div>
+                    <div class="widget">
+                        <div class="widget-title">
+                            <svg style="width: 24px; height: 24px; stroke: var(--accent-color);" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                            </svg>
+                            Current Streak
                         </div>
-                        <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-panel-section">
-                <h4>🤖 AI Tools</h4>
-                <div class="settings-options">
-                    <div class="settings-option">
-                        <div class="settings-option-info">
-                            <span class="settings-option-icon">✨</span>
-                            <div class="settings-option-text">
-                                <div class="settings-option-title">AI Assistant</div>
-                                <div class="settings-option-desc">Show AI assistant in code playground</div>
-                            </div>
-                        </div>
-                        <div class="toggle-switch active" id="aiAssistantTogglePanel" onclick="toggleAIAssistant()"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-panel-footer">
-                <button class="settings-logout-btn" onclick="logout()">
-                    <span>🚪</span>
-                    <span>Logout</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mobile Sidebar -->
-<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" onclick="closeMobileSidebar()"></div>
-<div class="mobile-sidebar" id="mobileSidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-logo">
-            <div class="sidebar-logo-icon">⚡</div>
-            <div class="sidebar-logo-text">DevLearn</div>
-        </div>
-        <button class="sidebar-close" onclick="closeMobileSidebar()">×</button>
-    </div>
-    
-    <div class="sidebar-menu">
-        <div class="sidebar-item" onclick="showSectionSidebar('home')">
-            <span class="sidebar-icon">📊</span>
-            <span class="sidebar-label">Overview</span>
-        </div>
-        <div class="sidebar-item" onclick="showSectionSidebar('learn')">
-            <span class="sidebar-icon">💻</span>
-            <span class="sidebar-label">Learn</span>
-        </div>
-        <div class="sidebar-item" onclick="showSectionSidebar('practice')">
-            <span class="sidebar-icon">⚡</span>
-            <span class="sidebar-label">Practice</span>
-        </div>
-        <div class="sidebar-item" onclick="toggleSettingsPanel(); closeMobileSidebar();">
-            <span class="sidebar-icon">⚙️</span>
-            <span class="sidebar-label">Settings</span>
-        </div>
-    </div>
-    
-    <div class="sidebar-footer">
-        <button class="sidebar-logout" onclick="logout()">
-            <span>🚪</span>
-            <span>Logout</span>
-        </button>
-    </div>
-</div>
-
-<!-- Mobile Menu Button (Hamburger) -->
-<button class="mobile-menu-btn" id="mobileMenuBtn" onclick="openMobileSidebar()">
-    <span></span>
-    <span></span>
-    <span></span>
-</button>
-
-<!-- Mobile Search Bar (Oval at Top) -->
-<div class="mobile-top-search" id="mobileTopSearch">
-    <div class="mobile-search-wrapper">
-        <svg class="mobile-search-icon" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.35-4.35"></path>
-        </svg>
-        <input type="text" class="mobile-search-field" id="mobileTopSearchInput" placeholder="Search courses..." oninput="handleMobileTopSearch()">
-    </div>
-    <div class="mobile-top-search-results" id="mobileTopSearchResults"></div>
-</div>
-
-    <div class="main-content">
-        <div id="home" class="section active">
-            <div class="dashboard">
-                <div class="dashboard-header">
-                    <h1 class="dashboard-title">⚡ Your Progress Dashboard</h1>
-                    <p class="dashboard-subtitle">Track your learning journey in real-time</p>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">📚</div>
-                        <div class="stat-value" id="totalCourses">0</div>
-                        <div class="stat-label">Courses Started</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-value" id="completedLessons">0</div>
-                        <div class="stat-label">Lessons Completed</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🔥</div>
-                        <div class="stat-value" id="streakDays">0</div>
-                        <div class="stat-label">Day Streak</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">⏱️</div>
-                        <div class="stat-value" id="totalTime">0h 0m</div>
-                        <div class="stat-label">Time Studied</div>
+                        <div class="widget-value" id="streakCount">0</div>
+                        <div class="widget-subtitle" id="streakSubtitle">Start your streak today!</div>
                     </div>
                 </div>
 
-                <div class="progress-section">
-    <!-- PROGRESS CONTROLS (FILTER + SET GOALS) -->
-    <div class="progress-controls">
-        <!-- Mobile Language Filter -->
-        <div class="language-filter" id="languageFilter">
-            <button class="filter-button" onclick="toggleFilter()">
-                <span id="filterText">🌐 All Languages</span>
-                <span class="filter-arrow">▼</span>
-            </button>
-            <div class="filter-dropdown">
-                <div class="filter-option active" onclick="filterChart('all')">🌐 All Languages</div>
-                <div class="filter-option" onclick="filterChart('python')">🐍 Python</div>
-                <div class="filter-option" onclick="filterChart('javascript')">⚡ JavaScript</div>
-                <div class="filter-option" onclick="filterChart('html')">🌐 HTML</div>
-                <div class="filter-option" onclick="filterChart('css')">🎨 CSS</div>
-                <div class="filter-option" onclick="filterChart('react')">⚛️ React</div>
-            </div>
-        </div>
-        
-        <!-- Set Goals Button -->
-        <button class="set-goals-btn" onclick="openGoalsModal()">
-            <span>🎯</span>
-            <span>Set Goals</span>
-        </button>
-    </div>
-    
-    <h2>📊 Course Progress by Language</h2>
-    
-    <!-- Existing chart tabs (keep for desktop) -->
-    <div class="chart-tabs">
-        <div class="chart-tab active" onclick="switchChart('all')">All Languages</div>
-        <div class="chart-tab" onclick="switchChart('python')">🐍 Python</div>
-        <div class="chart-tab" onclick="switchChart('javascript')">⚡ JavaScript</div>
-        <div class="chart-tab" onclick="switchChart('html')">🌐 HTML</div>
-        <div class="chart-tab" onclick="switchChart('css')">🎨 CSS</div>
-        <div class="chart-tab" onclick="switchChart('react')">⚛️ React</div>
-    </div>
-
-                    <div id="allChart" class="chart-container active">
-                        <div class="bar-chart" id="allBarChart"></div>
-                    </div>
-                    <div id="pythonChart" class="chart-container">
-                        <div class="bar-chart" id="pythonBarChart"></div>
-                    </div>
-                    <div id="javascriptChart" class="chart-container">
-                        <div class="bar-chart" id="javascriptBarChart"></div>
-                    </div>
-                    <div id="htmlChart" class="chart-container">
-                        <div class="bar-chart" id="htmlBarChart"></div>
-                    </div>
-                    <div id="cssChart" class="chart-container">
-                        <div class="bar-chart" id="cssBarChart"></div>
-                    </div>
-                    <div id="reactChart" class="chart-container">
-                        <div class="bar-chart" id="reactBarChart"></div>
-                    </div>
+                <!-- Analytics Chart -->
+                <div class="analytics-section">
+                    <h2 class="analytics-title">Learning Progress</h2>
+                    <div class="chart-tabs" id="chartTabs"></div>
+                    <div class="chart-container" id="chartContainer"></div>
                 </div>
             </div>
-        </div>
 
-        <div id="learn" class="section">
-    <div class="learn-section">
-        <div class="learn-header">
-            <h1>💻 Master Programming</h1>
-            <p style="color: #8b949e; margin-top: 10px;">Choose a language and start your journey</p>
-        </div>
-
-        <!-- NEW: Courses/Roadmap Tabs -->
-        <div class="learn-mode-tabs">
-            <button class="learn-mode-tab active" onclick="switchLearnMode('courses')">
-                <span>📚</span>
-                <span>Courses</span>
-            </button>
-            <button class="learn-mode-tab" onclick="switchLearnMode('roadmap')">
-                <span>🗺️</span>
-                <span>Roadmap</span>
-            </button>
-        </div>
-
-        <!-- COURSES VIEW (existing) -->
-        <div id="coursesView" class="learn-mode-content active">
-            <div class="language-tabs">
-                <div class="language-tab active" onclick="switchLanguage('python')">🐍 Python</div>
-                <div class="language-tab" onclick="switchLanguage('javascript')">⚡ JavaScript</div>
-                <div class="language-tab" onclick="switchLanguage('html')">🌐 HTML</div>
-                <div class="language-tab" onclick="switchLanguage('css')">🎨 CSS</div>
-                <div class="language-tab" onclick="switchLanguage('react')">⚛️ React</div>
-            </div>
-
-            <div id="python-content" class="language-content active">
-                <div class="course-grid" id="python-courses"></div>
-            </div>
-            <div id="javascript-content" class="language-content">
-                <div class="course-grid" id="javascript-courses"></div>
-            </div>
-            <div id="html-content" class="language-content">
-                <div class="course-grid" id="html-courses"></div>
-            </div>
-            <div id="css-content" class="language-content">
-                <div class="course-grid" id="css-courses"></div>
-            </div>
-            <div id="react-content" class="language-content">
-                <div class="course-grid" id="react-courses"></div>
-            </div>
-        </div>
-
-        <!-- NEW: ROADMAP VIEW -->
-        <div id="roadmapView" class="learn-mode-content">
-            <div class="roadmap-container">
-                <div class="roadmap-stats">
-                    <div class="roadmap-stat-card">
-                        <div class="roadmap-stat-icon">🎯</div>
-                        <div class="roadmap-stat-value" id="roadmapTotal">0</div>
-                        <div class="roadmap-stat-label">Total Courses</div>
-                    </div>
-                    <div class="roadmap-stat-card">
-                        <div class="roadmap-stat-icon">✅</div>
-                        <div class="roadmap-stat-value" id="roadmapCompleted">0</div>
-                        <div class="roadmap-stat-label">Completed</div>
-                    </div>
-                    <div class="roadmap-stat-card">
-                        <div class="roadmap-stat-icon">📚</div>
-                        <div class="roadmap-stat-value" id="roadmapInProgress">0</div>
-                        <div class="roadmap-stat-label">In Progress</div>
-                    </div>
-                    <div class="roadmap-stat-card">
-                        <div class="roadmap-stat-icon">🔒</div>
-                        <div class="roadmap-stat-value" id="roadmapLocked">0</div>
-                        <div class="roadmap-stat-label">Locked</div>
-                    </div>
-                </div>
-
-                <!-- Roadmap Navigation Buttons -->
-                <div class="roadmap-nav-container" id="roadmapNavContainer">
-                    <button class="roadmap-nav-btn" id="roadmapPrevBtn" onclick="scrollToPrevSection()">
-                        <span>↑ Previous</span>
-                    </button>
-                    <button class="roadmap-scroll-top" onclick="scrollToTop()">↑</button>
-                    <button class="roadmap-nav-btn" id="roadmapNextBtn" onclick="scrollToNextSection()">
-                        <span>Next ↓</span>
-                    </button>
-                </div>
-
-                <div class="roadmap-timeline" id="roadmapTimeline">
-                    <!-- Timeline will be generated by JavaScript -->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-        <div id="practice" class="section">
-            <div class="practice-container">
-                <div class="practice-header">
-                    <h1>⚡ Code Playground</h1>
-                    <p style="color: #8b949e; margin-top: 10px;">Write code and see it run in real-time with AI assistance</p>
-                </div>
-
-                <div class="playground-container">
-                    <!-- Main Center Area with Tabs -->
-                    <div class="editor-main">
-                        <!-- Top Control Bar -->
-                        <div class="playground-controls">
-                            <div id="languageDetector" style="color: #64ffda; font-weight: 600; font-size: 0.9em;">
-                                Language: <span id="detectedLang">None</span>
-                            </div>
-                            <button class="ai-toggle-btn" onclick="toggleAISidebar()" title="AI Assistant">
-                                <span>✨</span> AI Assistant
-                            </button>
-                            <button class="run-button" onclick="runCode()">
-                                <span>▶</span> Run Code
-                            </button>
-                        </div>
-
-                        <!-- Center Tabs for Code/Preview -->
-                        <div class="center-tabs">
-                            <button class="center-tab active" onclick="switchCenterTab('code')">
-                                <span>💻</span> Code
-                            </button>
-                            <button class="center-tab" onclick="switchCenterTab('preview')">
-                                <span>📺</span> Preview
-                            </button>
-                        </div>
-
-                        <!-- Code Panel -->
-                        <div class="code-panel" id="codePanel">
-                            <div class="code-editor-area">
-                                <textarea id="codeEditor" placeholder="// Write your code here...
-console.log('Hello, World!');
-
-// HTML Example:
-document.body.innerHTML = '<h1>Hello from JavaScript!</h1>';"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Preview Panel -->
-                        <div class="preview-panel" id="previewPanel" style="display: none;">
-                            <div class="preview-content">
-                                <iframe id="outputFrame" class="output-frame"></iframe>
-                            </div>
-                        </div>
-
-                        <!-- Console at bottom (hidden initially) -->
-                        <div class="console-panel" id="consolePanel" style="display: none;">
-                            <div class="console-header">
-                                <div class="console-title">
-                                    <span>🖥️</span> Console
-                                </div>
-                                <button class="console-clear-btn" onclick="clearConsole()">Clear</button>
-                            </div>
-                            <div class="console-content" id="consoleContent">
-                                <div class="console-message info">Console ready. Run your code to see output.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right AI Sidebar -->
-                    <div class="ai-sidebar" id="aiSidebar">
-                        <div class="ai-sidebar-header">
-                            <div class="ai-sidebar-title">
-                                <span class="ai-icon-animated">✨</span> AI Assistant
-                            </div>
-                            <button class="ai-close-btn" onclick="closeAISidebar()">×</button>
-                        </div>
-                        <div class="ai-content">
-                            <div class="ai-mode-toggle">
-                                <label class="agent-mode-label">
-                                    <input type="checkbox" id="agentModeToggle" onchange="toggleAgentMode()">
-                                    <span class="agent-mode-text">
-                                        <span class="agent-mode-icon">🤖</span> Agent Mode
-                                        <span class="agent-mode-desc">AI will modify your code directly</span>
-                                    </span>
-                                </label>
-                            </div>
-                            <div class="ai-messages" id="aiMessages">
-                                <div class="ai-message assistant">
-                                    <div class="message-avatar">✨</div>
-                                    <div class="message-content">
-                                        <p>Hi! I'm your AI coding assistant. I can help you:</p>
-                                        <ul>
-                                            <li>Explain what your code does</li>
-                                            <li>Debug errors and suggest fixes</li>
-                                            <li>Improve your code</li>
-                                            <li>Answer coding questions</li>
-                                        </ul>
-                                        <p style="margin-top: 10px; font-size: 0.9em; color: #8b949e;">
-                                            💡 <strong>Tip:</strong> Enable Agent Mode to let me write code directly in your editor!
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="ai-suggestions">
-                                <button class="suggestion-btn" onclick="sendAISuggestion('explain')">
-                                    💡 What does this code do?
-                                </button>
-                                <button class="suggestion-btn" onclick="sendAISuggestion('debug')">
-                                    🐛 Debug my code
-                                </button>
-                                <button class="suggestion-btn" onclick="sendAISuggestion('improve')">
-                                    ⚡ Improve my code
-                                </button>
-                                <button class="suggestion-btn" onclick="showLanguageConverter()">
-                                    🔄 Convert to another language
-                                </button>
-                            </div>
-                            <div class="language-converter" id="languageConverter" style="display: none; margin-top: 15px; padding: 15px; background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 10px;">
-                                <div style="font-weight: 600; margin-bottom: 10px; color: #64ffda;">🔄 Convert to:</div>
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('python')">Python</button>
-                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('javascript')">JavaScript</button>
-                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('java')">Java</button>
-                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('cpp')">C++</button>
-                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('csharp')">C#</button>
-                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('go')">Go</button>
-                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('rust')">Rust</button>
-                                    <button class="suggestion-btn" style="padding: 8px;" onclick="convertLanguage('php')">PHP</button>
-                                </div>
-                            </div>
-                            <div class="ai-input-container">
-                                <textarea id="aiInput" placeholder="Ask me anything about your code..." rows="1"></textarea>
-                                    <button class="ai-send-btn" onclick="sendAIMessage()">
-                                        <span>➤</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="settings" class="section">
-    <div class="settings-container">
-        <div class="settings-header">
-            <h1>⚙️ Settings</h1>
-            <p style="color: #8b949e; margin-top: 10px;">Customize your learning experience</p>
-        </div>
-
-        <div class="account-header">
-            <div class="account-info">
-                <div class="account-avatar" id="userAvatar">A</div>
-                <div class="account-details">
-                    <h2 id="userName">User</h2>
-                    <p id="userEmail">user@example.com</p>
-                </div>
-            </div>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
-
-        <div class="settings-section">
-            <h2>⚙️ Preferences</h2>
-            <div class="settings-grid">
-                <div class="setting-card">
-                    <h3>🌓 Dark Mode</h3>
-                    <p>Toggle between dark and light themes</p>
-                    <div class="toggle-switch active" id="themeToggle" onclick="toggleTheme()"></div>
+            <!-- Learn Page -->
+            <div class="page-section" id="learnPage">
+                <div class="section-header">
+                    <h1 class="section-title">Learn Programming</h1>
                 </div>
                 
-                <div class="setting-card">
-                    <h3>⏩ Auto-advance</h3>
-                    <p>Move to next lesson automatically</p>
-                    <div class="toggle-switch" onclick="toggleSetting(this)"></div>
-                </div>
-                
-                <div class="setting-card">
-                    <h3>📧 Email Notifications</h3>
-                    <p>Get updates about your progress</p>
-                    <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                </div>
+                <div class="language-tabs" id="languageTabs"></div>
+                <div class="courses-grid" id="coursesGrid"></div>
             </div>
-        </div>
 
-        <div class="settings-section">
-            <h2>🤖 AI Tools</h2>
-            <div class="settings-grid">
-                <div class="setting-card">
-                    <h3>✨ AI Assistant</h3>
-                    <p>Show AI assistant in code playground</p>
-                    <div class="toggle-switch active" id="aiAssistantToggle" onclick="toggleAIAssistant()"></div>
-                </div>
+            <!-- Practice Page -->
+            <div class="page-section" id="practicePage">
+                <h1 class="section-title">Practice</h1>
+                <p style="color: var(--text-secondary); font-size: 1.1rem;">Practice section coming soon...</p>
             </div>
-        </div>
 
-    <div id="lessonView" class="lesson-view">
-        <div class="lesson-header-bar">
-            <div class="lesson-left">
-                <button class="back-button" onclick="closeLesson()">← Back</button>
-                <div class="lesson-title" id="lessonTitle"></div>
-            </div>
-            <div class="lesson-progress-info">
-                <div class="progress-indicator" id="lessonProgressText">0% Complete</div>
-                <div class="tab-switcher">
-                    <button class="tab-switch-btn active" id="learnTabBtn" onclick="switchPanel('learn')">Learn</button>
-                    <button class="tab-switch-btn" id="questionsTabBtn" onclick="switchPanel('questions')" disabled>Questions 🔒</button>
-                </div>
-            </div>
-        </div>
-        <div class="lesson-content">
-            <div id="learnPanel" class="content-panel active">
-                <div class="chat-container">
-                    <div class="chat-messages" id="learnMessages"></div>
-                </div>
-            </div>
-            <div id="questionsPanel" class="content-panel">
-                <div class="chat-container">
-                    <div class="chat-messages" id="questionMessages"></div>
+            <!-- Settings Page -->
+            <div class="page-section" id="settingsPage">
+                <h1 class="section-title">Settings</h1>
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <div class="setting-title">Dark Mode</div>
+                        <div class="setting-desc">Switch between light and dark theme</div>
+                        <div class="toggle-switch" id="darkModeToggle">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-card">
+                        <div class="setting-title">Notifications</div>
+                        <div class="setting-desc">Receive learning reminders and updates</div>
+                        <div class="toggle-switch active" id="notificationsToggle">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-card">
+                        <div class="setting-title">Auto-play Lessons</div>
+                        <div class="setting-desc">Automatically proceed to next lesson</div>
+                        <div class="toggle-switch" id="autoPlayToggle">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="updateSplash" class="update-splash">
-    <div class="splash-content">
-        <div class="splash-icon">🚀</div>
-        <h2 id="splashTitle" class="splash-title">Welcome to DevLearn Pro</h2>
-        <div class="splash-version">Version 4.7.1</div>
+    <!-- FIXED CHATBOT STRUCTURE -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <!-- Close button outside of chatbot-content -->
+        <div class="close-chatbot" id="closeChatbot">Back to Courses</div>
         
-        <div class="splash-features">
-            <div class="splash-feature">
-                <span class="feature-icon">🐞</span>
+        <div class="chatbot-content">
+            <div class="chatbot-header">
                 <div>
-                    <strong>Bug Fixes</strong>
-                    <p>Resolved multiple performance and display issues for smoother app experience.</p>
+                    <h2 class="chatbot-title" id="chatbotTitle">Course Title</h2>
+                    <div class="chatbot-tabs">
+                        <div class="chatbot-tab active unlocked" data-tab="learn">Learn</div>
+                        <div class="chatbot-tab" data-tab="quiz" id="quizTab">Questions</div>
+                    </div>
                 </div>
             </div>
-            <div class="splash-feature">
-                <span class="feature-icon">📱</span>
-                <div>
-                    <strong>Mobile Optimizations</strong>
-                    <p>Improved responsiveness and layout for all screen sizes.</p>
-                </div>
-            </div>
-            <div class="splash-feature">
-                <span class="feature-icon">📧</span>
-                <div>
-                    <strong>Email Reminder Fix</strong>
-                    <p>Fixed an issue where goal reminder emails were not being sent properly.</p>
+            
+            <div class="chatbot-messages" id="chatbotMessages"></div>
+            <div class="quiz-container" id="quizContainer"></div>
+        </div>
+    </div>
+
+    <!-- Nuvia AI Popup - REPLACE YOUR EXISTING POPUP -->
+<div class="ai-popup-overlay" id="aiPopupOverlay">
+    <div class="ai-popup" id="aiPopup">
+        <div class="ai-popup-content" id="aiPopupContent">
+            <div class="nuvia-thinking">
+                <div class="nuvia-name">Nuvia</div>
+                <div class="nuvia-status">is thinking...</div>
+                <div class="wave-container">
+                    <div class="wave-dot"></div>
+                    <div class="wave-dot"></div>
+                    <div class="wave-dot"></div>
+                    <div class="wave-dot"></div>
+                    <div class="wave-dot"></div>
                 </div>
             </div>
         </div>
-        
-        <button onclick="closeUpdateSplash()" class="splash-button">
-            Get Started 🚀
-        </button>
+        <button class="ai-popup-close" id="aiPopupClose">Got it!</button>
     </div>
 </div>
+</body>
 
-<div class="streak-celebration" id="streakCelebration">
-    <div class="streak-card-animated">
-        <div class="streak-icon-big">🔥</div>
-        <div class="streak-number-container">
-            <div class="streak-number-big old">0</div>
-            <div class="streak-number-big new">1</div>
-        </div>
-        <div class="streak-text-big">Day Streak!</div>
-    </div>
-</div>
+<script src="script.js"></script>
 
-<div class="ai-explanation-modal" id="aiExplanationModal" onclick="closeAIExplanation(event)">
-    <div class="ai-explanation-content" onclick="event.stopPropagation()">
-        <button class="ai-close-btn" onclick="closeAIExplanation()">×</button>
-        <div class="ai-keyword-display" id="aiKeyword"></div>
-        <div class="ai-loading" id="aiLoading">
-    <div class="wave-container">
-        <div class="wave-line"></div>
-        <div class="wave-line"></div>
-        <div class="wave-line"></div>
-    </div>
-</div>
-
-        <div class="ai-explanation-text" id="aiExplanationText" style="display: none;"></div>
-    </div>
-</div>
-
-<!-- Custom Logout Modal -->
-<div id="logoutModal" class="custom-modal">
-    <div class="custom-modal-content">
-        <div class="custom-modal-icon">👋</div>
-        <h2 class="custom-modal-title">Logout Confirmation</h2>
-        <p class="custom-modal-text">Are you sure you want to logout?</p>
-        <div class="custom-modal-buttons">
-            <button class="custom-modal-btn cancel-btn" onclick="closeLogoutModal()">Cancel</button>
-            <button class="custom-modal-btn confirm-btn" onclick="confirmLogout()">Logout</button>
-        </div>
-    </div>
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script src="main.js"></script>
-<script src="lessonContent.js"></script>
-
-    <script src="script.js"></script>
-    
 </body>
 </html>
-
-
