@@ -1040,12 +1040,22 @@ body.dark-mode .chatbot-container {
     padding: 100px 60px 20px 60px;
     flex-shrink: 0;
     border-bottom: 1px solid var(--border-color);
+    transition: padding 0.3s ease;
+}
+
+.chatbot-header.scrolled {
+    padding: 25px 60px 15px 60px;
 }
 
 .chatbot-title {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--text-primary);
+    transition: font-size 0.3s ease;
+}
+
+.chatbot-header.scrolled .chatbot-title {
+    font-size: 1.8rem;
 }
 
 /* Fixed tabs below header */
