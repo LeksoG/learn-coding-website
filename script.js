@@ -236,20 +236,46 @@ document.addEventListener('touchend', e => {
                 Object.keys(coursesData).forEach(lang => {
                     coursesData[lang].forEach(course => {
                         if (course.title.toLowerCase().includes(query) || course.desc.toLowerCase().includes(query)) {
-                            results.push({ ...course, language: lang });
+                            // Calculate progress
+                            const progress = courseProgress[course.title];
+                            let percentage = 0;
+                            if (progress) {
+                                if (progress.quizCompleted) {
+                                    percentage = 100;
+                                } else if (progress.lessonCompleted) {
+                                    percentage = 50;
+                                } else if (progress.totalLessons > 0) {
+                                    percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+                                }
+                            }
+                            results.push({ ...course, language: lang, percentage });
                         }
                     });
                 });
-                
+
                 if (results.length > 0) {
-                    searchResults.innerHTML = results.slice(0, 6).map(course => `
+                    searchResults.innerHTML = results.slice(0, 6).map(course => {
+                        const isLocked = !course.unlocked;
+                        const statusIcon = isLocked ? '🔒' : '✓';
+                        const statusText = isLocked ? 'Locked' : 'Available';
+                        const statusColor = isLocked ? '#ef4444' : '#4ade80';
+                        const progressBadge = course.percentage > 0 && course.percentage < 100
+                            ? `<span style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(6, 182, 212, 0.9)); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; margin-left: 8px;">${course.percentage}% Complete</span>`
+                            : '';
+
+                        return `
                         <div class="result-item" onclick="openCourseFromSearch('${course.language}', ${course.id})">
-                            <div>
-                                <strong>${course.title}</strong><br>
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                    <strong>${course.title}</strong>
+                                    <span style="color: ${statusColor}; font-size: 0.85rem; font-weight: 600;">${statusIcon} ${statusText}</span>
+                                    ${progressBadge}
+                                </div>
                                 <small style="color: var(--text-secondary);">${course.language.toUpperCase()} • ${course.desc}</small>
                             </div>
                         </div>
-                    `).join('');
+                    `;
+                    }).join('');
                     searchResults.style.display = 'block';
                 } else {
                     searchResults.innerHTML = '<div class="result-item">No courses found</div>';
@@ -688,17 +714,12 @@ document.querySelectorAll('.chatbot-tab').forEach(tab => {
         const tabType = this.dataset.tab;
         const messagesContainer = document.getElementById('chatbotMessages');
         const quizContainer = document.getElementById('quizContainer');
-        const practiceContainer = document.getElementById('practiceContainer');
 
         // Hide all containers
         if (messagesContainer) messagesContainer.style.display = 'none';
         if (quizContainer) {
             quizContainer.style.display = 'none';
             quizContainer.classList.remove('active');
-        }
-        if (practiceContainer) {
-            practiceContainer.style.display = 'none';
-            practiceContainer.classList.remove('active');
         }
 
         // Show appropriate container
@@ -709,11 +730,6 @@ document.querySelectorAll('.chatbot-tab').forEach(tab => {
                 quizContainer.style.display = 'block';
                 quizContainer.classList.add('active');
                 loadQuiz();
-            }
-        } else if (tabType === 'practice') {
-            if (practiceContainer) {
-                practiceContainer.style.display = 'grid';
-                practiceContainer.classList.add('active');
             }
         }
     });
@@ -849,10 +865,8 @@ function startCourse(course, skipQuiz = false) {
     const chatbotContainer = document.getElementById('chatbotContainer');
     const chatbotMessages = document.getElementById('chatbotMessages');
     const quizContainer = document.getElementById('quizContainer');
-    const practiceContainer = document.getElementById('practiceContainer');
     const learnTab = document.getElementById('learnTab');
     const quizTab = document.getElementById('quizTab');
-    const practiceTab = document.getElementById('practiceTab');
     const nav = document.querySelector('nav');
 
     if (!chatbotContainer || !chatbotMessages) {
@@ -869,11 +883,6 @@ function startCourse(course, skipQuiz = false) {
         quizContainer.classList.remove('active');
     }
 
-    if (practiceContainer) {
-        practiceContainer.style.display = 'none';
-        practiceContainer.classList.remove('active');
-    }
-
     // Reset tabs - Learn UNLOCKED by default, others LOCKED
     document.querySelectorAll('.chatbot-tab').forEach(tab => {
         tab.classList.remove('active', 'unlocked');
@@ -887,11 +896,6 @@ function startCourse(course, skipQuiz = false) {
     // Quiz tab LOCKED until learning complete
     if (quizTab) {
         quizTab.classList.remove('unlocked');
-    }
-
-    // Practice tab always UNLOCKED
-    if (practiceTab) {
-        practiceTab.classList.add('unlocked');
     }
 
     chatbotMessages.style.display = 'grid';
@@ -1272,43 +1276,67 @@ document.getElementById('closeChatbot').addEventListener('click', () => {
 function renderChart() {
     const chartContainer = document.querySelector('.chart-container');
     if (!chartContainer) return;
-    
+
     chartContainer.innerHTML = '';
-    
-    // Calculate real stats
+
+    // Calculate real stats based on courseProgress
     const languages = ['python', 'javascript', 'react', 'html', 'java'];
     const stats = {};
-    
+
     languages.forEach(lang => {
         const courses = coursesData[lang];
-        const completed = courses.filter(c => completedCourses.has(c.title)).length;
-        const total = courses.length;
-        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        let totalProgress = 0;
+
+        courses.forEach(course => {
+            const progress = courseProgress[course.title];
+            if (progress) {
+                if (progress.quizCompleted) {
+                    totalProgress += 100;
+                } else if (progress.lessonCompleted) {
+                    totalProgress += 50;
+                } else if (progress.totalLessons > 0) {
+                    totalProgress += Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+                }
+            }
+        });
+
+        const percentage = courses.length > 0 ? Math.round(totalProgress / courses.length) : 0;
         stats[lang] = percentage;
     });
-    
-    // Create bars
-    Object.keys(stats).forEach(lang => {
+
+    // Create bars with animation
+    Object.keys(stats).forEach((lang, index) => {
         const percentage = stats[lang];
         const barWrapper = document.createElement('div');
         barWrapper.className = 'chart-bar-wrapper';
-        
+
         const bar = document.createElement('div');
         bar.className = 'chart-bar';
-        bar.style.height = `${Math.max(percentage * 3.5, 20)}px`; // Scale up and minimum height
-        
+        // Start at 0 height
+        bar.style.height = '0px';
+        bar.style.transition = 'height 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
         const label = document.createElement('div');
         label.className = 'chart-label';
         label.textContent = lang.charAt(0).toUpperCase() + lang.slice(1);
-        
+
         const percentageLabel = document.createElement('div');
         percentageLabel.className = 'chart-percentage';
         percentageLabel.textContent = `${percentage}%`;
-        
+        percentageLabel.style.opacity = '0';
+        percentageLabel.style.transition = 'opacity 0.5s ease 0.5s';
+
         bar.appendChild(percentageLabel);
         barWrapper.appendChild(bar);
         barWrapper.appendChild(label);
         chartContainer.appendChild(barWrapper);
+
+        // Animate bars rising with staggered delay
+        setTimeout(() => {
+            const targetHeight = Math.max(percentage * 3.5, 20);
+            bar.style.height = `${targetHeight}px`;
+            percentageLabel.style.opacity = '1';
+        }, 100 + (index * 150));
     });
 }
 
