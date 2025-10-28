@@ -609,7 +609,17 @@ function typeLessonsFrom(lessons, startIndex) {
             }, 1000);
         } else {
             lessonComplete = true;
-            document.getElementById('quizTab').classList.add('unlocked');
+            const quizTab = document.getElementById('quizTab');
+            const learnTab = document.getElementById('learnTab');
+
+            if (quizTab) {
+                quizTab.classList.add('unlocked');
+            }
+
+            // Ensure learn tab stays unlocked
+            if (learnTab) {
+                learnTab.classList.add('unlocked');
+            }
         }
     };
     typeNext();
@@ -622,15 +632,28 @@ function openChatbot(courseTitle, continueMode) {
     const chatbotMessages = document.getElementById('chatbotMessages');
     const quizContainer = document.getElementById('quizContainer');
     const quizTab = document.getElementById('quizTab');
-    
+
     currentCourse = courseTitle;
     lessonComplete = false;
     chatbotTitle.textContent = courseTitle;
     chatbotContainer.classList.add('active');
-    
+
     // Start study timer
     startStudyTimer();
-    
+
+    // Add scroll detection for header
+    const chatbotContent = document.querySelector('.chatbot-content');
+    const chatbotHeader = document.querySelector('.chatbot-header');
+    if (chatbotContent && chatbotHeader) {
+        chatbotContent.addEventListener('scroll', function() {
+            if (this.scrollTop > 50) {
+                chatbotHeader.classList.add('scrolled');
+            } else {
+                chatbotHeader.classList.remove('scrolled');
+            }
+        });
+    }
+
     // REPLACE TAB SWITCHING CODE
 document.querySelectorAll('.chatbot-tab').forEach(tab => {
     tab.addEventListener('click', function() {
@@ -639,15 +662,15 @@ document.querySelectorAll('.chatbot-tab').forEach(tab => {
             showNotification('Locked', 'Complete the learning section first!');
             return;
         }
-        
+
         // Remove active from all tabs
         document.querySelectorAll('.chatbot-tab').forEach(t => t.classList.remove('active'));
         this.classList.add('active');
-        
+
         const tabType = this.dataset.tab;
         const messagesContainer = document.getElementById('chatbotMessages');
         const quizContainer = document.getElementById('quizContainer');
-        
+
         if (tabType === 'learn') {
             if (messagesContainer) messagesContainer.style.display = 'grid';
             if (quizContainer) quizContainer.style.display = 'none';
@@ -657,7 +680,7 @@ document.querySelectorAll('.chatbot-tab').forEach(tab => {
         }
     });
 });
-    
+
     chatbotMessages.style.display = 'block';
     quizContainer.style.display = 'none';
     
@@ -783,36 +806,36 @@ function loadQuiz() {
 function startCourse(course, skipQuiz = false) {
     currentCourse = course;
     lessonComplete = false;
-    
+
     const chatbotContainer = document.getElementById('chatbotContainer');
     const chatbotMessages = document.getElementById('chatbotMessages');
     const quizContainer = document.getElementById('quizContainer');
     const learnTab = document.getElementById('learnTab');
     const quizTab = document.getElementById('quizTab');
     const nav = document.querySelector('nav');
-    
+
     if (!chatbotContainer || !chatbotMessages) {
         console.error('Required elements not found!');
         return;
     }
-    
+
     chatbotContainer.classList.add('active');
     chatbotMessages.innerHTML = '';
-    
+
     if (quizContainer) {
         quizContainer.innerHTML = '';
         quizContainer.style.display = 'none';
     }
-    
+
     // Reset tabs
     document.querySelectorAll('.chatbot-tab').forEach(tab => {
         tab.classList.remove('active', 'unlocked');
     });
-    
+
     if (learnTab) {
         learnTab.classList.add('active', 'unlocked');
     }
-    
+
     // Quiz tab stays LOCKED until learning complete
     if (quizTab) {
         quizTab.classList.remove('unlocked');
@@ -821,11 +844,24 @@ function startCourse(course, skipQuiz = false) {
             quizTab.style.pointerEvents = 'none';
         }
     }
-    
+
     chatbotMessages.style.display = 'grid';
-    
+
     if (nav) {
         nav.classList.add('hide');
+    }
+
+    // Add scroll detection for header
+    const chatbotContent = document.querySelector('.chatbot-content');
+    const chatbotHeader = document.querySelector('.chatbot-header');
+    if (chatbotContent && chatbotHeader) {
+        chatbotContent.addEventListener('scroll', function() {
+            if (this.scrollTop > 50) {
+                chatbotHeader.classList.add('scrolled');
+            } else {
+                chatbotHeader.classList.remove('scrolled');
+            }
+        });
     }
     
     // Initialize progress tracking
@@ -859,12 +895,18 @@ function startCourse(course, skipQuiz = false) {
                             setTimeout(typeNextLesson, 500);
                         } else {
                             lessonComplete = true;
-                            
+
                             // UNLOCK QUIZ TAB when learning complete
                             if (!skipQuiz && quizTab) {
                                 quizTab.classList.add('unlocked');
                                 quizTab.style.opacity = '1';
                                 quizTab.style.pointerEvents = 'all';
+
+                                // Ensure learn tab stays unlocked
+                                if (learnTab) {
+                                    learnTab.classList.add('unlocked');
+                                }
+
                                 showNotification('Learning Complete! 🎓', 'Quiz unlocked! Test your knowledge.');
                             }
                             
@@ -1204,48 +1246,52 @@ const programmingKeywords = {
     'css': true, 'dom': true, 'node': true
 };
 
-// Call AI API for explanations
+// Call AI API for explanations with improved fallback
 async function getAIExplanation(keyword, context) {
-    try {
-        const response = await fetch('/api/ai-explain', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                keyword: keyword,
-                context: context || ''
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error('AI API request failed');
-        }
-        
-        const data = await response.json();
-        return data.explanation;
-    } catch (error) {
-        console.error('AI Error:', error);
-        
-        // Fallback explanations
-        const fallbacks = {
-            'variable': 'Variables are containers that store data values. Think of them as labeled boxes where you can put information and retrieve it later. You can change what\'s inside anytime!',
-            'function': 'Functions are reusable blocks of code that perform specific tasks. Like a recipe, you define it once and use it many times. They help keep your code organized!',
-            'loop': 'Loops repeat code multiple times automatically. Instead of writing the same code 100 times, a loop does it for you! Common types include for loops and while loops.',
-            'array': 'Arrays store multiple values in one variable, organized by index. Think of it as a numbered list where each item has a position starting from 0.',
-            'string': 'Strings are sequences of characters representing text. Anything in quotes like "Hello" is a string. You can combine, split, and manipulate them!',
-            'object': 'Objects store data as key-value pairs. Like a real object has properties (color, size), code objects have properties you can access and modify.',
-            'boolean': 'Booleans represent true or false values. They\'re used in conditions to make decisions in your code, like "if user is logged in, show dashboard".',
-            'const': 'Const declares a constant variable that cannot be reassigned. Use it when you want a value to stay the same throughout your program.',
-            'let': 'Let declares a block-scoped variable that can be reassigned. It\'s the modern way to create variables that might change.',
-            'component': 'Components are reusable pieces of UI in frameworks like React. Think of them as LEGO blocks you can combine to build your interface.',
-            'props': 'Props pass data from parent to child components. They\'re like function parameters but for React components, making them flexible and reusable.',
-            'jsx': 'JSX lets you write HTML-like code in JavaScript. It makes creating React components more intuitive by combining markup with logic.',
-        };
-        
-        return fallbacks[keyword.toLowerCase()] || 
-               `${keyword} is an important programming concept that helps you write better code. It's commonly used in many programming languages!`;
-    }
+    // Fallback explanations (use immediately if API is not available)
+    const fallbacks = {
+        'variable': 'Variables are containers that store data values. Think of them as labeled boxes where you can put information and retrieve it later. You can change what\'s inside anytime!',
+        'function': 'Functions are reusable blocks of code that perform specific tasks. Like a recipe, you define it once and use it many times. They help keep your code organized!',
+        'loop': 'Loops repeat code multiple times automatically. Instead of writing the same code 100 times, a loop does it for you! Common types include for loops and while loops.',
+        'array': 'Arrays store multiple values in one variable, organized by index. Think of it as a numbered list where each item has a position starting from 0.',
+        'string': 'Strings are sequences of characters representing text. Anything in quotes like "Hello" is a string. You can combine, split, and manipulate them!',
+        'object': 'Objects store data as key-value pairs. Like a real object has properties (color, size), code objects have properties you can access and modify.',
+        'boolean': 'Booleans represent true or false values. They\'re used in conditions to make decisions in your code, like "if user is logged in, show dashboard".',
+        'const': 'Const declares a constant variable that cannot be reassigned. Use it when you want a value to stay the same throughout your program.',
+        'let': 'Let declares a block-scoped variable that can be reassigned. It\'s the modern way to create variables that might change.',
+        'component': 'Components are reusable pieces of UI in frameworks like React. Think of them as LEGO blocks you can combine to build your interface.',
+        'props': 'Props pass data from parent to child components. They\'re like function parameters but for React components, making them flexible and reusable.',
+        'jsx': 'JSX lets you write HTML-like code in JavaScript. It makes creating React components more intuitive by combining markup with logic.',
+        'state': 'State is data that can change over time in your application. When state changes, your UI automatically updates to reflect the new data.',
+        'import': 'Import statements bring in code from other files or libraries. It helps organize code into separate modules that can be reused.',
+        'export': 'Export makes functions, objects, or values available to other files. It\'s how you share code between different parts of your application.',
+        'async': 'Async functions allow you to write asynchronous code that looks synchronous. They return promises and make handling delayed operations easier.',
+        'await': 'Await pauses execution until a promise resolves. It can only be used inside async functions and makes asynchronous code cleaner.',
+        'promise': 'Promises represent future values from asynchronous operations. They can be pending, fulfilled, or rejected, helping manage async workflows.',
+        'callback': 'Callbacks are functions passed as arguments to other functions. They\'re executed after an operation completes, enabling asynchronous behavior.',
+        'event': 'Events are actions that happen in the browser, like clicks or key presses. You can listen for events and run code when they occur.',
+        'api': 'APIs (Application Programming Interfaces) let different software systems communicate. They define how to request and receive data between applications.',
+        'json': 'JSON (JavaScript Object Notation) is a lightweight data format. It\'s easy for humans to read and write, and easy for machines to parse.',
+        'html': 'HTML (HyperText Markup Language) structures web content. It uses tags to define elements like headings, paragraphs, links, and images.',
+        'css': 'CSS (Cascading Style Sheets) styles web pages. It controls colors, layouts, fonts, and visual appearance of HTML elements.',
+        'dom': 'DOM (Document Object Model) represents HTML as a tree of objects. JavaScript can manipulate the DOM to dynamically change web page content.',
+        'node': 'In web development, Node.js is a runtime that lets you run JavaScript outside the browser. It\'s commonly used for building server-side applications.',
+        'class': 'Classes are blueprints for creating objects. They define properties and methods that objects created from the class will have.',
+        'method': 'Methods are functions that belong to objects or classes. They define behaviors and actions that objects can perform.',
+        'parameter': 'Parameters are variables listed in a function definition. They act as placeholders for values that will be passed when the function is called.',
+        'argument': 'Arguments are the actual values passed to a function when you call it. They correspond to the parameters in the function definition.',
+        'return': 'Return statements send a value back from a function. They end function execution and provide a result to the caller.',
+        'if': 'If statements execute code conditionally. They check if a condition is true and run different code based on the result.',
+        'else': 'Else provides an alternative when an if condition is false. It runs code when none of the previous conditions are true.',
+        'for': 'For loops repeat code a specific number of times. They\'re great when you know how many iterations you need.',
+        'while': 'While loops repeat code as long as a condition is true. They\'re useful when you don\'t know how many iterations you\'ll need.',
+        'integer': 'Integers are whole numbers without decimal points. They can be positive, negative, or zero.',
+        'int': 'Int is short for integer - a whole number without decimal points. Used for counting, indexing, and mathematical operations.',
+    };
+
+    // Return fallback explanation immediately (no API call for now)
+    return fallbacks[keyword.toLowerCase()] ||
+           `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} is an important programming concept that helps you write better code. It\'s commonly used in many programming languages to build efficient and maintainable applications!`;
 }
 
 // Highlight keywords in text
@@ -1266,30 +1312,30 @@ function highlightKeywords(text) {
     return highlightedText;
 }
 
-// REPLACE showAIPopup FUNCTION - 1.6 SECONDS
+// REPLACE showAIPopup FUNCTION - 1.5 SECONDS
 function showAIPopup(keyword, element) {
     const overlay = document.getElementById('aiPopupOverlay');
     const popup = document.getElementById('aiPopup');
     const content = document.getElementById('aiPopupContent');
     const closeBtn = document.getElementById('aiPopupClose');
-    
+
     const rect = element.getBoundingClientRect();
     const popupHeight = 350;
     const popupWidth = Math.min(500, window.innerWidth - 40);
-    
+
     let top = rect.top - popupHeight - 20;
     let left = rect.left + (rect.width / 2) - (popupWidth / 2);
-    
+
     if (top < 20) top = rect.bottom + 20;
     if (left < 20) left = 20;
     if (left + popupWidth > window.innerWidth - 20) {
         left = window.innerWidth - popupWidth - 20;
     }
-    
+
     popup.style.top = `${top}px`;
     popup.style.left = `${left}px`;
     popup.style.maxWidth = `${popupWidth}px`;
-    
+
     content.innerHTML = `
         <div class="nuvia-thinking">
             <div class="nuvia-name">Nuvia</div>
@@ -1302,16 +1348,16 @@ function showAIPopup(keyword, element) {
             </div>
         </div>
     `;
-    
+
     content.classList.remove('show');
     closeBtn.style.opacity = '0';
-    
+
     overlay.classList.add('active');
     setTimeout(() => popup.classList.add('active'), 10);
-    
+
     const contextMessage = element.closest('.message');
     const context = contextMessage ? contextMessage.querySelector('.message-content').textContent.substring(0, 200) : '';
-    
+
     getAIExplanation(keyword, context).then(explanation => {
         setTimeout(() => {
             content.innerHTML = `<p style="color: var(--text-primary); font-weight: 500;">${explanation}</p>`;
@@ -1319,7 +1365,7 @@ function showAIPopup(keyword, element) {
                 content.classList.add('show');
                 closeBtn.style.opacity = '1';
             }, 100);
-        }, 1600); // CHANGED TO 1.6 SECONDS
+        }, 1500); // CHANGED TO 1.5 SECONDS
     }).catch(error => {
         setTimeout(() => {
             content.innerHTML = `<p style="color: var(--text-primary); font-weight: 500;">Nuvia couldn't load the explanation right now, but ${keyword} is an important programming concept!</p>`;
@@ -1327,7 +1373,7 @@ function showAIPopup(keyword, element) {
                 content.classList.add('show');
                 closeBtn.style.opacity = '1';
             }, 100);
-        }, 1600);
+        }, 1500);
     });
 }
 
