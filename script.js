@@ -57,6 +57,7 @@ const coursesData = {
         let quizAnswers = [];
         let currentQuizQuestions = [];
         let quizAccuracy = 0;
+        let currentCourseLanguage = null;
 
         // Check streak
         const today = new Date().toDateString();
@@ -124,19 +125,22 @@ const coursesData = {
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const page = this.dataset.page;
-                
+
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
                 document.getElementById(page + 'Page').classList.add('active');
-                
+
+                // Update charts when navigating to home page
+                if (page === 'home') {
+                    renderChart();
+                }
+
                 if (window.innerWidth <= 768) {
                     document.getElementById('sidebar').classList.remove('active');
                     document.getElementById('sidebarOverlay').classList.remove('active');
                     document.getElementById('hamburger').classList.remove('active');
-
-                    renderChart(); // ADD THIS LINE
                 }
             });
             initWidgetIndicators();
@@ -427,21 +431,30 @@ function checkCourseProgress(courseTitle) {
 function renderCourses() {
     const coursesGrid = document.getElementById('coursesGrid');
     if (!coursesGrid) return;
-    
+
     coursesGrid.innerHTML = '';
     const courses = coursesData[currentLanguage];
-    
+
     courses.forEach(course => {
         const progress = courseProgress[course.title];
-        const percentage = progress && progress.totalLessons > 0 
-            ? Math.round((progress.lessonIndex / progress.totalLessons) * 100) 
-            : 0;
-        
+        // Calculate progress: 50% for learn completion, 100% for learn + quiz completion
+        let percentage = 0;
+        if (progress) {
+            if (progress.quizCompleted) {
+                percentage = 100;
+            } else if (progress.lessonCompleted) {
+                percentage = 50;
+            } else if (progress.totalLessons > 0) {
+                // During learning phase: 0-50%
+                percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+            }
+        }
+
         const courseCard = document.createElement('div');
         courseCard.className = `course-card ${!course.unlocked ? 'locked' : ''}`;
         courseCard.dataset.locked = !course.unlocked;
         courseCard.dataset.courseTitle = course.title;
-        
+
         courseCard.innerHTML = `
             ${!course.unlocked ? `
                 <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -471,10 +484,10 @@ function renderCourses() {
                 <div class="detail-item">${course.details}</div>
             </div>
         `;
-        
+
         coursesGrid.appendChild(courseCard);
     });
-    
+
     addCourseEventListeners();
 }
 
@@ -659,7 +672,12 @@ document.querySelectorAll('.chatbot-tab').forEach(tab => {
     tab.addEventListener('click', function() {
         // Check if tab is unlocked
         if (!this.classList.contains('unlocked')) {
-            showNotification('Locked', 'Complete the learning section first!');
+            const tabType = this.dataset.tab;
+            if (tabType === 'quiz') {
+                showNotification('Locked', 'Complete the learning section first!');
+            } else {
+                showNotification('Locked', 'This tab is not available yet!');
+            }
             return;
         }
 
@@ -670,13 +688,33 @@ document.querySelectorAll('.chatbot-tab').forEach(tab => {
         const tabType = this.dataset.tab;
         const messagesContainer = document.getElementById('chatbotMessages');
         const quizContainer = document.getElementById('quizContainer');
+        const practiceContainer = document.getElementById('practiceContainer');
 
+        // Hide all containers
+        if (messagesContainer) messagesContainer.style.display = 'none';
+        if (quizContainer) {
+            quizContainer.style.display = 'none';
+            quizContainer.classList.remove('active');
+        }
+        if (practiceContainer) {
+            practiceContainer.style.display = 'none';
+            practiceContainer.classList.remove('active');
+        }
+
+        // Show appropriate container
         if (tabType === 'learn') {
             if (messagesContainer) messagesContainer.style.display = 'grid';
-            if (quizContainer) quizContainer.style.display = 'none';
         } else if (tabType === 'quiz') {
-            if (messagesContainer) messagesContainer.style.display = 'none';
-            if (quizContainer) quizContainer.style.display = 'block';
+            if (quizContainer) {
+                quizContainer.style.display = 'block';
+                quizContainer.classList.add('active');
+                loadQuiz();
+            }
+        } else if (tabType === 'practice') {
+            if (practiceContainer) {
+                practiceContainer.style.display = 'grid';
+                practiceContainer.classList.add('active');
+            }
         }
     });
 });
@@ -805,13 +843,16 @@ function loadQuiz() {
 // REPLACE startCourse FUNCTION
 function startCourse(course, skipQuiz = false) {
     currentCourse = course;
+    currentCourseLanguage = currentLanguage;
     lessonComplete = false;
 
     const chatbotContainer = document.getElementById('chatbotContainer');
     const chatbotMessages = document.getElementById('chatbotMessages');
     const quizContainer = document.getElementById('quizContainer');
+    const practiceContainer = document.getElementById('practiceContainer');
     const learnTab = document.getElementById('learnTab');
     const quizTab = document.getElementById('quizTab');
+    const practiceTab = document.getElementById('practiceTab');
     const nav = document.querySelector('nav');
 
     if (!chatbotContainer || !chatbotMessages) {
@@ -825,24 +866,32 @@ function startCourse(course, skipQuiz = false) {
     if (quizContainer) {
         quizContainer.innerHTML = '';
         quizContainer.style.display = 'none';
+        quizContainer.classList.remove('active');
     }
 
-    // Reset tabs
+    if (practiceContainer) {
+        practiceContainer.style.display = 'none';
+        practiceContainer.classList.remove('active');
+    }
+
+    // Reset tabs - Learn UNLOCKED by default, others LOCKED
     document.querySelectorAll('.chatbot-tab').forEach(tab => {
         tab.classList.remove('active', 'unlocked');
     });
 
+    // Learn tab always UNLOCKED
     if (learnTab) {
         learnTab.classList.add('active', 'unlocked');
     }
 
-    // Quiz tab stays LOCKED until learning complete
+    // Quiz tab LOCKED until learning complete
     if (quizTab) {
         quizTab.classList.remove('unlocked');
-        if (!skipQuiz) {
-            quizTab.style.opacity = '0.5';
-            quizTab.style.pointerEvents = 'none';
-        }
+    }
+
+    // Practice tab always UNLOCKED
+    if (practiceTab) {
+        practiceTab.classList.add('unlocked');
     }
 
     chatbotMessages.style.display = 'grid';
@@ -863,44 +912,46 @@ function startCourse(course, skipQuiz = false) {
             }
         });
     }
-    
+
     // Initialize progress tracking
     if (!courseProgress[course.title]) {
         courseProgress[course.title] = {
             lessonIndex: 0,
             totalLessons: courseContent[course.title] ? courseContent[course.title].lessons.length : 0,
-            completed: false
+            lessonCompleted: false,
+            quizCompleted: false
         };
     }
-    
+
     // Add progress indicator
     addProgressIndicator(course.title);
-    
+
     if (courseContent[course.title]) {
         const content = courseContent[course.title];
         let index = 0;
-        
+
         typeMessage('AI TUTOR', content.intro, () => {
             const typeNextLesson = () => {
                 if (index < content.lessons.length) {
                     typeMessage('AI TUTOR', content.lessons[index], () => {
                         index++;
-                        
+
                         // Update progress
                         courseProgress[course.title].lessonIndex = index;
                         updateProgressIndicator(course.title);
                         localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
-                        
+
                         if (index < content.lessons.length) {
                             setTimeout(typeNextLesson, 500);
                         } else {
                             lessonComplete = true;
+                            // Mark lessons as completed (50% progress)
+                            courseProgress[course.title].lessonCompleted = true;
+                            localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
 
                             // UNLOCK QUIZ TAB when learning complete
                             if (!skipQuiz && quizTab) {
                                 quizTab.classList.add('unlocked');
-                                quizTab.style.opacity = '1';
-                                quizTab.style.pointerEvents = 'all';
 
                                 // Ensure learn tab stays unlocked
                                 if (learnTab) {
@@ -909,7 +960,7 @@ function startCourse(course, skipQuiz = false) {
 
                                 showNotification('Learning Complete! 🎓', 'Quiz unlocked! Test your knowledge.');
                             }
-                            
+
                             if (!skipQuiz) {
                                 loadQuiz();
                             }
@@ -920,7 +971,7 @@ function startCourse(course, skipQuiz = false) {
             setTimeout(typeNextLesson, 800);
         });
     }
-    
+
     startStudyTimer();
 }
 
@@ -928,14 +979,23 @@ function startCourse(course, skipQuiz = false) {
 function addProgressIndicator(courseTitle) {
     const header = document.querySelector('.chatbot-header');
     if (!header) return;
-    
+
     // Remove existing indicator
     const existing = document.getElementById('progressIndicator');
     if (existing) existing.remove();
-    
-    const progress = courseProgress[courseTitle] || { lessonIndex: 0, totalLessons: 0 };
-    const percentage = progress.totalLessons > 0 ? Math.round((progress.lessonIndex / progress.totalLessons) * 100) : 0;
-    
+
+    const progress = courseProgress[courseTitle] || { lessonIndex: 0, totalLessons: 0, lessonCompleted: false, quizCompleted: false };
+
+    // Calculate percentage: 0-50% during learning, 50% when learning complete, 100% when both complete
+    let percentage = 0;
+    if (progress.quizCompleted) {
+        percentage = 100;
+    } else if (progress.lessonCompleted) {
+        percentage = 50;
+    } else if (progress.totalLessons > 0) {
+        percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+    }
+
     const indicator = document.createElement('div');
     indicator.id = 'progressIndicator';
     indicator.className = 'progress-indicator';
@@ -943,17 +1003,26 @@ function addProgressIndicator(courseTitle) {
         <div class="progress-label">Course Progress</div>
         <div class="progress-value">${percentage}%</div>
     `;
-    
+
     header.appendChild(indicator);
 }
 
 function updateProgressIndicator(courseTitle) {
     const indicator = document.getElementById('progressIndicator');
     if (!indicator) return;
-    
+
     const progress = courseProgress[courseTitle];
-    const percentage = progress.totalLessons > 0 ? Math.round((progress.lessonIndex / progress.totalLessons) * 100) : 0;
-    
+
+    // Calculate percentage: 0-50% during learning, 50% when learning complete, 100% when both complete
+    let percentage = 0;
+    if (progress.quizCompleted) {
+        percentage = 100;
+    } else if (progress.lessonCompleted) {
+        percentage = 50;
+    } else if (progress.totalLessons > 0) {
+        percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+    }
+
     const valueElement = indicator.querySelector('.progress-value');
     if (valueElement) {
         valueElement.textContent = `${percentage}%`;
@@ -964,15 +1033,22 @@ function updateProgressIndicator(courseTitle) {
 // ADD SUBMIT QUIZ FUNCTION
 function submitQuiz() {
     const allAnswered = quizAnswers.every(a => a !== null);
-    
+
     if (!allAnswered) {
         showNotification('Incomplete Quiz', 'Please answer all questions before submitting.');
         return;
     }
-    
+
     const correctAnswers = quizAnswers.filter(a => a === true).length;
     quizAccuracy = Math.round((correctAnswers / quizAnswers.length) * 100);
-    
+
+    // Mark quiz as completed (100% progress)
+    if (courseProgress[currentCourse.title]) {
+        courseProgress[currentCourse.title].quizCompleted = true;
+        localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
+        updateProgressIndicator(currentCourse.title);
+    }
+
     showCompletionPopup();
 }
 
@@ -1004,30 +1080,43 @@ function showCompletionPopup() {
 // ADD COMPLETION HANDLER
 function handleCompletion(accuracy) {
     document.querySelector('.completion-overlay').remove();
-    
+
     if (accuracy >= 45) {
         // Mark course complete and unlock next
         completedCourses.add(currentCourse.title);
         localStorage.setItem('completedCourses', JSON.stringify([...completedCourses]));
-        
-        const currentLangCourses = coursesData[currentLanguage];
+
+        const currentLangCourses = coursesData[currentCourseLanguage || currentLanguage];
         const currentIndex = currentLangCourses.findIndex(c => c.title === currentCourse.title);
         if (currentIndex < currentLangCourses.length - 1) {
             currentLangCourses[currentIndex + 1].unlocked = true;
         }
-        
-        updateStreak();
+
+        // Update streak
+        const today = new Date().toDateString();
+        if (lastStudyDate !== today) {
+            streak++;
+            if (streak > longestStreak) {
+                longestStreak = streak;
+                localStorage.setItem('longestStreak', longestStreak);
+            }
+            localStorage.setItem('streak', streak);
+            localStorage.setItem('lastStudyDate', today);
+        }
+
+        updateStats();
         renderCourses();
+        renderChart(); // Update charts
         document.getElementById('chatbotContainer').classList.remove('active');
         showNotification('Course Complete! 🎉', `You completed ${currentCourse.title} with ${accuracy}% accuracy!`);
     } else {
         // Go to home and show AI suggestion
         document.getElementById('chatbotContainer').classList.remove('active');
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('homeBtn').classList.add('active');
+        document.querySelectorAll('.nav-btn[data-page="home"]').forEach(btn => btn.classList.add('active'));
         document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
         document.getElementById('homePage').classList.add('active');
-        
+
         setTimeout(() => {
             showAISuggestion(currentCourse.title);
         }, 500);
@@ -1112,6 +1201,71 @@ document.getElementById('closeChatbot').addEventListener('click', () => {
         document.getElementById('closeChatbot').addEventListener('click', () => {
             document.getElementById('chatbotContainer').classList.remove('active');
             stopStudyTimer();
+        });
+
+        // PRACTICE TAB - CODE EXECUTION
+        document.getElementById('runCodeBtn').addEventListener('click', () => {
+            const codeInput = document.getElementById('codeInput');
+            const outputContent = document.getElementById('outputContent');
+            const code = codeInput.value.trim();
+
+            if (!code) {
+                outputContent.textContent = 'Error: Please write some code first!';
+                outputContent.style.color = '#ef4444';
+                return;
+            }
+
+            outputContent.textContent = 'Running code...';
+            outputContent.style.color = 'var(--text-secondary)';
+
+            // Simulate code execution
+            setTimeout(() => {
+                try {
+                    // For Python-style print statements
+                    if (code.includes('print(')) {
+                        const matches = code.match(/print\((.*?)\)/g);
+                        if (matches) {
+                            let output = '';
+                            matches.forEach(match => {
+                                const content = match.match(/print\((.*?)\)/)[1];
+                                // Remove quotes if present
+                                const cleanContent = content.replace(/['"]/g, '');
+                                output += cleanContent + '\n';
+                            });
+                            outputContent.textContent = output;
+                            outputContent.style.color = '#4ade80';
+                        }
+                    }
+                    // For JavaScript console.log
+                    else if (code.includes('console.log(')) {
+                        const matches = code.match(/console\.log\((.*?)\)/g);
+                        if (matches) {
+                            let output = '';
+                            matches.forEach(match => {
+                                const content = match.match(/console\.log\((.*?)\)/)[1];
+                                const cleanContent = content.replace(/['"]/g, '');
+                                output += cleanContent + '\n';
+                            });
+                            outputContent.textContent = output;
+                            outputContent.style.color = '#4ade80';
+                        }
+                    }
+                    // For simple math operations
+                    else if (/^[\d\s\+\-\*\/\(\)\.]+$/.test(code)) {
+                        const result = eval(code);
+                        outputContent.textContent = `Result: ${result}`;
+                        outputContent.style.color = '#4ade80';
+                    }
+                    // Generic success message
+                    else {
+                        outputContent.textContent = 'Code executed successfully!\n\nNote: This is a simulated environment. For full code execution, use a proper IDE or online compiler.';
+                        outputContent.style.color = '#4ade80';
+                    }
+                } catch (error) {
+                    outputContent.textContent = `Error: ${error.message}\n\nPlease check your code syntax.`;
+                    outputContent.style.color = '#ef4444';
+                }
+            }, 500);
         });
 
         // ADD FUNCTION TO UPDATE CHARTS WITH REAL DATA
