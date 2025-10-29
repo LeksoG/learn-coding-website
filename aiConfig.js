@@ -34,27 +34,25 @@ const AI_CONFIG = {
         'HTML/CSS': [
             'How to center a div?',
             'Explain flexbox',
-            'Help with grid layout',
+            'Help with grid layout?',
             'What is responsive design?'
         ]
     }
 };
 
-// Check if AI API is ready
+// ✅ Check if AI API is ready
 async function initializeAI() {
     try {
-        // Check if the API endpoint exists
+        // Send test request to API
         const response = await fetch(AI_CONFIG.endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                test: true
-            })
+            body: JSON.stringify({ test: true })
         });
 
-        if (response.ok || response.status === 404) {
+        if (response.ok) {
             console.log('✅ AI Config: Mistral AI endpoint configured');
             console.log('📍 Endpoint:', AI_CONFIG.endpoint);
             console.log('🤖 Model:', AI_CONFIG.model);
@@ -62,7 +60,9 @@ async function initializeAI() {
             console.log('✅ AI is ready to use');
             return true;
         } else {
+            const text = await response.text();
             console.warn('⚠️ AI Config: API endpoint not responding correctly');
+            console.warn('Response:', text);
             return false;
         }
     } catch (error) {
@@ -72,17 +72,17 @@ async function initializeAI() {
     }
 }
 
-// Call AI API
+// ✅ Call AI API
 async function callAI(message, language) {
     try {
+        // Send properly formatted request (backend expects "prompt")
         const response = await fetch(AI_CONFIG.endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                message: message,
-                language: language,
+                prompt: `${language ? `[${language}] ` : ''}${message}`,
                 model: AI_CONFIG.model,
                 maxTokens: AI_CONFIG.maxTokens,
                 temperature: AI_CONFIG.temperature
@@ -90,6 +90,8 @@ async function callAI(message, language) {
         });
 
         if (!response.ok) {
+            const errText = await response.text();
+            console.error('❌ AI API returned error:', errText);
             throw new Error('API call failed');
         }
 
@@ -97,12 +99,12 @@ async function callAI(message, language) {
         console.log('✅ AI Response received');
         return data.response;
     } catch (error) {
-        console.log('⚠️ Using fallback response (API not available)');
+        console.warn('⚠️ Using fallback response (API not available)');
         return getFallbackResponse(message, language);
     }
 }
 
-// Fallback responses for when API is not available
+// ✅ Fallback responses when API unavailable
 function getFallbackResponse(message, language) {
     const fallbacks = {
         'Python': `Great question about Python! ${message} - In Python, remember to use proper indentation and follow PEP 8 style guidelines. Try breaking down your problem into smaller functions and test each part.`,
@@ -112,10 +114,10 @@ function getFallbackResponse(message, language) {
         'HTML/CSS': `Nice question about HTML/CSS! ${message} - Use semantic HTML, leverage flexbox and grid for layouts, and make your designs responsive with media queries.`
     };
 
-    return fallbacks[language] || `Thanks for your question: "${message}". I'm here to help with ${language}! Try breaking down the problem and testing step by step.`;
+    return fallbacks[language] || `Thanks for your question: "${message}". I'm here to help with ${language || "your topic"}! Try breaking down the problem and testing step by step.`;
 }
 
-// Initialize on load
+// ✅ Initialize on page load
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeAI);
 } else {
