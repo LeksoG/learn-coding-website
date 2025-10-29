@@ -1273,71 +1273,92 @@ document.getElementById('closeChatbot').addEventListener('click', () => {
         });
 
         // ADD FUNCTION TO UPDATE CHARTS WITH REAL DATA
-function renderChart() {
+let currentChartLanguage = 'python'; // Default to Python
+
+function renderChart(selectedLanguage = currentChartLanguage) {
+    currentChartLanguage = selectedLanguage;
     const chartContainer = document.querySelector('.chart-container');
-    if (!chartContainer) return;
+    const chartTabsContainer = document.getElementById('chartTabs');
 
-    chartContainer.innerHTML = '';
+    if (!chartContainer || !chartTabsContainer) return;
 
-    // Calculate real stats based on courseProgress
+    // Create language toggle buttons
     const languages = ['python', 'javascript', 'react', 'html', 'java'];
-    const stats = {};
+    chartTabsContainer.innerHTML = languages.map(lang => `
+        <div class="chart-tab ${lang === selectedLanguage ? 'active' : ''}" data-lang="${lang}">
+            ${lang.charAt(0).toUpperCase() + lang.slice(1)}
+        </div>
+    `).join('');
 
-    languages.forEach(lang => {
-        const courses = coursesData[lang];
-        let totalProgress = 0;
-
-        courses.forEach(course => {
-            const progress = courseProgress[course.title];
-            if (progress) {
-                if (progress.quizCompleted) {
-                    totalProgress += 100;
-                } else if (progress.lessonCompleted) {
-                    totalProgress += 50;
-                } else if (progress.totalLessons > 0) {
-                    totalProgress += Math.round((progress.lessonIndex / progress.totalLessons) * 50);
-                }
+    // Add click handlers for language tabs
+    chartTabsContainer.querySelectorAll('.chart-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const newLang = this.dataset.lang;
+            if (newLang !== currentChartLanguage) {
+                renderChart(newLang);
             }
         });
-
-        const percentage = courses.length > 0 ? Math.round(totalProgress / courses.length) : 0;
-        stats[lang] = percentage;
     });
 
-    // Create bars with animation
-    Object.keys(stats).forEach((lang, index) => {
-        const percentage = stats[lang];
-        const barWrapper = document.createElement('div');
-        barWrapper.className = 'chart-bar-wrapper';
-
-        const bar = document.createElement('div');
-        bar.className = 'chart-bar';
-        // Start at 0 height
-        bar.style.height = '0px';
-        bar.style.transition = 'height 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-        const label = document.createElement('div');
-        label.className = 'chart-label';
-        label.textContent = lang.charAt(0).toUpperCase() + lang.slice(1);
-
-        const percentageLabel = document.createElement('div');
-        percentageLabel.className = 'chart-percentage';
-        percentageLabel.textContent = `${percentage}%`;
-        percentageLabel.style.opacity = '0';
-        percentageLabel.style.transition = 'opacity 0.5s ease 0.5s';
-
-        bar.appendChild(percentageLabel);
-        barWrapper.appendChild(bar);
-        barWrapper.appendChild(label);
-        chartContainer.appendChild(barWrapper);
-
-        // Animate bars rising with staggered delay
-        setTimeout(() => {
-            const targetHeight = Math.max(percentage * 3.5, 20);
-            bar.style.height = `${targetHeight}px`;
-            percentageLabel.style.opacity = '1';
-        }, 100 + (index * 150));
+    // Fade out current bars
+    chartContainer.querySelectorAll('.chart-bar-wrapper').forEach(wrapper => {
+        wrapper.classList.add('fade-out');
     });
+
+    // Wait for fade out, then render new bars
+    setTimeout(() => {
+        chartContainer.innerHTML = '';
+
+        // Get courses for selected language
+        const courses = coursesData[selectedLanguage];
+
+        // Create bars for each course
+        courses.forEach((course, index) => {
+            const progress = courseProgress[course.title];
+            let percentage = 0;
+
+            if (progress) {
+                if (progress.quizCompleted) {
+                    percentage = 100;
+                } else if (progress.lessonCompleted) {
+                    percentage = 50;
+                } else if (progress.totalLessons > 0) {
+                    percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+                }
+            }
+
+            const barWrapper = document.createElement('div');
+            barWrapper.className = 'chart-bar-wrapper';
+
+            const bar = document.createElement('div');
+            bar.className = 'chart-bar';
+            bar.style.height = '0px';
+            bar.style.transition = 'height 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+            const label = document.createElement('div');
+            label.className = 'chart-label';
+            label.textContent = `Course ${course.id}`;
+            label.title = course.title; // Show full title on hover
+
+            const percentageLabel = document.createElement('div');
+            percentageLabel.className = 'chart-percentage';
+            percentageLabel.textContent = `${percentage}%`;
+            percentageLabel.style.opacity = '0';
+            percentageLabel.style.transition = 'opacity 0.5s ease 0.5s';
+
+            bar.appendChild(percentageLabel);
+            barWrapper.appendChild(bar);
+            barWrapper.appendChild(label);
+            chartContainer.appendChild(barWrapper);
+
+            // Animate bars rising with staggered delay
+            setTimeout(() => {
+                const targetHeight = Math.max(percentage * 3.5, 20);
+                bar.style.height = `${targetHeight}px`;
+                percentageLabel.style.opacity = '1';
+            }, 100 + (index * 100));
+        });
+    }, 300); // Match fade-out duration
 }
 
         function updateChart(language) {
