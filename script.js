@@ -214,7 +214,6 @@ document.addEventListener('touchend', e => {
         const mainNav = document.getElementById('mainNav');
         const searchCloseBtn = document.getElementById('searchCloseBtn');
         const navContainer = document.querySelector('.nav-container');
-        const hamburger = document.querySelector('.hamburger');
 
         searchBtn.addEventListener('click', () => {
             if (!searchBtn.classList.contains('active')) {
