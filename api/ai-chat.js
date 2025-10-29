@@ -1,10 +1,34 @@
+export const config = {
+  api: {
+    bodyParser: true, // Ensure JSON body parsing
+  },
+};
+
 export default async function handler(req, res) {
+  // Allow only POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { prompt } = req.body;
+    // Parse body safely
+    let body = req.body;
+    if (typeof body === "string") {
+      try {
+        body = JSON.parse(body);
+      } catch {
+        body = {};
+      }
+    }
+
+    const { prompt, test } = body || {};
+
+    // ✅ Allow test requests from aiConfig.js
+    if (test) {
+      return res.status(200).json({ response: "Test OK - Mistral endpoint is live" });
+    }
+
+    // Require prompt for actual AI requests
     if (!prompt) {
       return res.status(400).json({ error: "Missing prompt" });
     }
@@ -15,7 +39,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Server misconfiguration" });
     }
 
-    // Use native fetch (Vercel prefers it to axios)
+    // ✅ Send to Mistral API
     const mistralResponse = await fetch("https://api.mistral.ai/v1/chat/completions", {
       method: "POST",
       headers: {
