@@ -212,13 +212,27 @@ document.addEventListener('touchend', e => {
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const mainNav = document.getElementById('mainNav');
+        const searchCloseBtn = document.getElementById('searchCloseBtn');
+        const navContainer = document.querySelector('.nav-container');
+        const hamburger = document.querySelector('.hamburger');
 
         searchBtn.addEventListener('click', () => {
-            searchWrapper.classList.add('active');
-            mainNav.classList.add('hide');
-            searchBtn.style.opacity = '0';
-            searchBtn.style.pointerEvents = 'none';
-            setTimeout(() => searchInput.focus(), 300);
+            if (!searchBtn.classList.contains('active')) {
+                // Activate search mode
+                searchBtn.classList.add('active');
+                navContainer.classList.add('search-active');
+                hamburger.classList.add('search-active');
+                setTimeout(() => searchInput.focus(), 500);
+            }
+        });
+
+        searchCloseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Deactivate search mode
+            searchBtn.classList.remove('active');
+            navContainer.classList.remove('search-active');
+            hamburger.classList.remove('search-active');
+            searchInput.value = '';
         });
 
         searchClose.addEventListener('click', () => {
@@ -1234,12 +1248,148 @@ function animateCounter(element, targetValue, duration = 1000) {
     requestAnimationFrame(updateCounter);
 }
 
+// Function to update analytics cards
+function updateAnalyticsCards(selectedLanguage) {
+    const cardsContainer = document.getElementById('analyticsCards');
+    if (!cardsContainer) return;
+
+    // Add updating class for smooth transition
+    cardsContainer.classList.add('updating');
+
+    setTimeout(() => {
+        const courses = coursesData[selectedLanguage];
+
+        // Calculate analytics
+        let totalProgress = 0;
+        let coursesStarted = 0;
+        let coursesCompleted = 0;
+        let avgCompletion = 0;
+
+        courses.forEach(course => {
+            const progress = courseProgress[course.title];
+            if (progress) {
+                coursesStarted++;
+                let percentage = 0;
+                if (progress.quizCompleted) {
+                    percentage = 100;
+                    coursesCompleted++;
+                } else if (progress.lessonCompleted) {
+                    percentage = 50;
+                } else if (progress.totalLessons > 0) {
+                    percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+                }
+                totalProgress += percentage;
+            }
+        });
+
+        avgCompletion = coursesStarted > 0 ? Math.round(totalProgress / courses.length) : 0;
+
+        // Card 1: 7-Day Activity
+        const card1Value = document.getElementById('card1Value');
+        const card1Subtitle = document.getElementById('card1Subtitle');
+        const card1Trend = document.getElementById('card1Trend');
+
+        card1Value.textContent = `${coursesStarted}/${courses.length}`;
+        card1Subtitle.textContent = `${coursesCompleted} completed, ${avgCompletion}% avg progress`;
+
+        if (coursesStarted > courses.length / 2) {
+            card1Trend.className = 'analytics-card-trend positive';
+            card1Trend.querySelector('span').textContent = '↑ Great pace!';
+            card1Trend.style.display = 'inline-flex';
+        } else if (coursesStarted > 0) {
+            card1Trend.className = 'analytics-card-trend neutral';
+            card1Trend.querySelector('span').textContent = '→ Keep going!';
+            card1Trend.style.display = 'inline-flex';
+        } else {
+            card1Trend.style.display = 'none';
+        }
+
+        // Card 2: Course Comparison
+        const card2Value = document.getElementById('card2Value');
+        const card2Subtitle = document.getElementById('card2Subtitle');
+        const card2Trend = document.getElementById('card2Trend');
+
+        // Find best and worst performing courses
+        let bestCourse = null;
+        let worstCourse = null;
+        let bestProgress = -1;
+        let worstProgress = 101;
+
+        courses.forEach(course => {
+            const progress = courseProgress[course.title];
+            if (progress) {
+                let percentage = 0;
+                if (progress.quizCompleted) percentage = 100;
+                else if (progress.lessonCompleted) percentage = 50;
+                else if (progress.totalLessons > 0) {
+                    percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+                }
+
+                if (percentage > bestProgress) {
+                    bestProgress = percentage;
+                    bestCourse = course.title;
+                }
+                if (percentage < worstProgress && percentage > 0) {
+                    worstProgress = percentage;
+                    worstCourse = course.title;
+                }
+            }
+        });
+
+        if (bestCourse) {
+            const shortTitle = bestCourse.split(' ').slice(0, 2).join(' ');
+            card2Value.textContent = `${bestProgress}%`;
+            card2Subtitle.textContent = `Best: ${shortTitle} at ${bestProgress}%`;
+            card2Trend.className = 'analytics-card-trend positive';
+            card2Trend.querySelector('span').textContent = '↑ Top performer';
+            card2Trend.style.display = 'inline-flex';
+        } else {
+            card2Value.textContent = '-';
+            card2Subtitle.textContent = 'Start a course to see comparisons';
+            card2Trend.style.display = 'none';
+        }
+
+        // Card 3: Improvement Area
+        const card3Value = document.getElementById('card3Value');
+        const card3Subtitle = document.getElementById('card3Subtitle');
+        const card3Trend = document.getElementById('card3Trend');
+
+        const coursesNotStarted = courses.length - coursesStarted;
+
+        if (coursesNotStarted > 0) {
+            card3Value.textContent = coursesNotStarted;
+            card3Subtitle.textContent = `${coursesNotStarted} ${selectedLanguage.toUpperCase()} course${coursesNotStarted > 1 ? 's' : ''} waiting to be explored`;
+            card3Trend.className = 'analytics-card-trend neutral';
+            card3Trend.querySelector('span').textContent = '→ Start now!';
+            card3Trend.style.display = 'inline-flex';
+        } else if (avgCompletion < 100) {
+            card3Value.textContent = `${100 - avgCompletion}%`;
+            card3Subtitle.textContent = 'Complete remaining quizzes to reach 100%';
+            card3Trend.className = 'analytics-card-trend negative';
+            card3Trend.querySelector('span').textContent = '↓ Finish strong';
+            card3Trend.style.display = 'inline-flex';
+        } else {
+            card3Value.textContent = '✓';
+            card3Subtitle.textContent = `All ${selectedLanguage.toUpperCase()} courses completed! Amazing work!`;
+            card3Trend.className = 'analytics-card-trend positive';
+            card3Trend.querySelector('span').textContent = '↑ Perfect!';
+            card3Trend.style.display = 'inline-flex';
+        }
+
+        // Remove updating class
+        cardsContainer.classList.remove('updating');
+    }, 300);
+}
+
 function renderChart(selectedLanguage = currentChartLanguage) {
     currentChartLanguage = selectedLanguage;
     const chartContainer = document.querySelector('.chart-container');
     const chartTabsContainer = document.getElementById('chartTabs');
 
     if (!chartContainer || !chartTabsContainer) return;
+
+    // Update analytics cards
+    updateAnalyticsCards(selectedLanguage);
 
     // Create language toggle buttons
     const languages = ['python', 'javascript', 'react', 'html', 'java'];
@@ -1338,56 +1488,7 @@ function renderChart(selectedLanguage = currentChartLanguage) {
                 }, 100);
             }, 100 + (index * 100));
         });
-
-        // Add line graph after all bars are created
-        setTimeout(() => {
-            addLineGraph(chartContainer, courses);
-        }, 100 + (courses.length * 100) + 500);
     }, 300); // Match fade-out duration
-}
-
-// Function to add line graph overlay
-function addLineGraph(container, courses) {
-    const bars = container.querySelectorAll('.chart-bar');
-    if (bars.length === 0) return;
-
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'chart-line-graph');
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
-
-    const points = [];
-    bars.forEach((bar, index) => {
-        const barRect = bar.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const x = barRect.left + barRect.width / 2 - containerRect.left;
-        const y = barRect.top - containerRect.top;
-        points.push({ x, y, index });
-    });
-
-    // Create path
-    if (points.length > 1) {
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        let d = `M ${points[0].x} ${points[0].y}`;
-        for (let i = 1; i < points.length; i++) {
-            d += ` L ${points[i].x} ${points[i].y}`;
-        }
-        path.setAttribute('d', d);
-        path.setAttribute('class', 'chart-line-path');
-        svg.appendChild(path);
-
-        // Add dots at each point
-        points.forEach((point, index) => {
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('cx', point.x);
-            circle.setAttribute('cy', point.y);
-            circle.setAttribute('class', 'chart-line-dot');
-            circle.style.animationDelay = `${1.5 + index * 0.1}s`;
-            svg.appendChild(circle);
-        });
-    }
-
-    container.appendChild(svg);
 }
 
         function updateChart(language) {
