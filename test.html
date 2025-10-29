@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mistral API Test</title>
   <style>
     body {
@@ -57,9 +57,14 @@
           body: JSON.stringify({ prompt: "Hello Mistral!" }),
         });
 
-        const data = await res.json();
-        console.log("Response:", data);
-        
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error("Invalid JSON: " + text);
+        }
+
         if (data.response) {
           output.textContent = "✅ Mistral replied:\n\n" + data.response;
         } else {
