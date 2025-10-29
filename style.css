@@ -150,7 +150,7 @@ nav.hide {
 .search-btn {
     position: absolute;
     top: 30px;
-    right: 20px;
+    right: calc(50% - 350px);
     width: 50px;
     height: 50px;
     background: rgba(255, 255, 255, 0.7);
@@ -165,6 +165,12 @@ nav.hide {
     z-index: 1000;
     animation: slideDown 0.8s ease-out 0.2s both;
     box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 768px) {
+    .search-btn {
+        right: 20px;
+    }
 }
 
 .search-btn.active {
@@ -241,86 +247,31 @@ body.dark-mode .search-input {
     color: var(--text-primary);
 }
 
-/* Hide navbar when search is active */
-.nav-container.search-active {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.hamburger.search-active {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
 .search-btn:hover {
     background: var(--bg-tertiary);
     transform: scale(1.05);
     box-shadow: var(--shadow-md);
 }
 
-/* Search Container */
-.search-container-wrapper {
+/* Search Results */
+.search-results {
     position: absolute;
-    top: 30px;
+    top: 90px;
     left: 50%;
     transform: translateX(-50%);
-    width: 70%;
-    max-width: 700px;
-    z-index: 101;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.search-container-wrapper.active {
-    opacity: 1;
-    pointer-events: all;
-}
-
-.search-container {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: 25px;
-    padding: 15px 25px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-shadow: var(--shadow-md);
-    margin-bottom: 15px;
-}
-
-body.dark-mode .search-container {
-    background: rgba(30, 30, 30, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.search-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    color: var(--text-primary);
-}
-
-.search-input::placeholder {
-    color: var(--text-secondary);
-}
-
-.search-results {
-    background: rgba(255, 255, 255, 0.7);
+    width: 90vw;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(40px);
     border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: 20px;
     padding: 0;
     max-height: 0;
     overflow: hidden;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease, opacity 0.3s ease;
     opacity: 0;
+    z-index: 999;
 }
 
 .search-results.show {
@@ -331,8 +282,21 @@ body.dark-mode .search-container {
 }
 
 body.dark-mode .search-results {
-    background: rgba(30, 30, 30, 0.9);
+    background: rgba(30, 30, 30, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.search-close {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    stroke: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.search-close:hover {
+    stroke: var(--text-primary);
+    transform: rotate(90deg);
 }
 
 .result-item {
@@ -1660,15 +1624,15 @@ body.dark-mode .close-chatbot {
 
 /* CHANGE TOOLTIP TEXT - FIND AND REPLACE */
 .keyword-highlight::after {
-    content: '🤖 Ask AI';  /* CHANGED THIS */
+    content: 'Ask AI';
     position: absolute;
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%) translateY(-5px);
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(0, 0, 0, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 2px solid rgba(6, 182, 212, 0.5);
+    border: 2px solid rgba(0, 0, 0, 1);
     padding: 10px 18px;
     border-radius: 12px;
     font-size: 0.9rem;
@@ -1677,16 +1641,16 @@ body.dark-mode .close-chatbot {
     pointer-events: none;
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
-    color: #06b6d4 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: #ffffff !important;
     z-index: 10000;
 }
 
 body.dark-mode .keyword-highlight::after {
-    background: rgba(20, 20, 20, 0.98);
-    border-color: rgba(6, 182, 212, 0.6);
-    color: #06b6d4 !important;
-    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.6);
+    background: rgba(0, 0, 0, 0.98);
+    border-color: rgba(0, 0, 0, 1);
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .keyword-highlight:hover::after {
@@ -1821,18 +1785,25 @@ body.dark-mode .ai-popup-content p {
 .wave-line {
     height: 4px;
     background: linear-gradient(
-        90deg, 
-        rgba(6, 182, 212, 0.3), 
-        rgba(6, 182, 212, 1), 
-        rgba(59, 130, 246, 1), 
+        90deg,
+        rgba(6, 182, 212, 0.3),
+        rgba(6, 182, 212, 1),
+        rgba(59, 130, 246, 1),
         rgba(139, 92, 246, 0.8),
         rgba(6, 182, 212, 0.3)
     );
     background-size: 300% 100%;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(6, 182, 212, 0.7);
-    animation: waveGlow 3s ease-in-out infinite;
+    animation: waveGlow 2s ease-in-out infinite;
 }
+
+/* Staggered animation delays for each line */
+.wave-line:nth-child(1) { animation-delay: 0s; }
+.wave-line:nth-child(2) { animation-delay: 0.15s; }
+.wave-line:nth-child(3) { animation-delay: 0.3s; }
+.wave-line:nth-child(4) { animation-delay: 0.45s; }
+.wave-line:nth-child(5) { animation-delay: 0.6s; }
 
 @keyframes waveGlow {
     0%, 100% {
