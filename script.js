@@ -579,21 +579,27 @@ function addCourseEventListeners() {
             if (e.target.closest('.view-details-btn')) {
                 return;
             }
-            
+
             const isLocked = this.dataset.locked === 'true';
             const courseTitle = this.dataset.courseTitle;
-            
+            const percentage = parseInt(this.dataset.percentage) || 0;
+
             if (!isLocked) {
                 const course = coursesData[currentLanguage].find(c => c.title === courseTitle);
                 if (course) {
-                    startCourse(course, false);  // THIS IS THE KEY LINE
+                    // Check if course is 100% complete
+                    if (percentage === 100) {
+                        showTryAgainPopup(course);
+                    } else {
+                        startCourse(course, false);
+                    }
                 }
             } else {
                 showNotification('Locked', 'Complete previous courses to unlock this one.');
             }
         });
     });
-    
+
     // Handle view details button clicks
     document.querySelectorAll('.view-details-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
@@ -601,6 +607,38 @@ function addCourseEventListeners() {
             toggleDetails(this);
         });
     });
+}
+
+// Try again popup functionality
+function showTryAgainPopup(course) {
+    const overlay = document.getElementById('tryAgainOverlay');
+    const tryAgainBtn = document.getElementById('tryAgainBtn');
+    const cancelBtn = document.getElementById('cancelTryAgainBtn');
+
+    overlay.style.display = 'flex';
+
+    // Handle try again
+    tryAgainBtn.onclick = () => {
+        overlay.style.display = 'none';
+        // Reset progress for this course
+        delete courseProgress[course.title];
+        localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
+        renderCourses();
+        renderChart();
+        startCourse(course, false);
+    };
+
+    // Handle cancel
+    cancelBtn.onclick = () => {
+        overlay.style.display = 'none';
+    };
+
+    // Close on overlay click
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            overlay.style.display = 'none';
+        }
+    };
 }
 
         function toggleDetails(btn) {
@@ -1858,5 +1896,78 @@ function attachKeywordListeners(container) {
             const keywordText = this.dataset.keyword;
             showAIPopup(keywordText, this);
         });
+    });
+}
+
+// Carousel indicator for analytics cards on mobile
+function initCarouselIndicator() {
+    const cardsContainer = document.getElementById('analyticsCards');
+    const indicator = document.getElementById('carouselIndicator');
+    
+    if (!cardsContainer || !indicator) return;
+    
+    // Show indicator only on mobile
+    function updateIndicatorVisibility() {
+        if (window.innerWidth <= 768) {
+            indicator.style.display = 'flex';
+        } else {
+            indicator.style.display = 'none';
+        }
+    }
+    
+    updateIndicatorVisibility();
+    window.addEventListener('resize', updateIndicatorVisibility);
+    
+    // Update active dot on scroll
+    const dots = indicator.querySelectorAll('.carousel-dot');
+    
+    cardsContainer.addEventListener('scroll', () => {
+        const scrollLeft = cardsContainer.scrollLeft;
+        const cardWidth = cardsContainer.querySelector('.analytics-card').offsetWidth + 15; // width + gap
+        const activeIndex = Math.round(scrollLeft / cardWidth);
+        
+        dots.forEach((dot, index) => {
+            if (index === activeIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    });
+}
+
+// Call on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCarouselIndicator);
+} else {
+    initCarouselIndicator();
+}
+
+// Pause lesson when leaving chatbot mid-way
+const closeChatbotBtn = document.getElementById('closeChatbot');
+if (closeChatbotBtn) {
+    closeChatbotBtn.addEventListener('click', () => {
+        const chatbotContainer = document.getElementById('chatbotContainer');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        
+        // Check if in the middle of a lesson
+        if (currentCourse && chatbotMessages && chatbotMessages.children.length > 0) {
+            const progress = courseProgress[currentCourse.title];
+            
+            // Only show paused message if not fully complete
+            if (progress && !progress.lessonCompleted && !progress.quizCompleted) {
+                // Save current progress
+                localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
+                
+                // Update course cards to show paused state
+                renderCourses();
+                renderChart();
+                
+                showNotification('Paused', `Progress saved at ${progress.lessonIndex}/${progress.totalLessons} lessons`);
+            }
+        }
+        
+        chatbotContainer.classList.remove('active');
+        stopStudyTimer();
     });
 }
