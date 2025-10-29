@@ -1275,6 +1275,30 @@ document.getElementById('closeChatbot').addEventListener('click', () => {
         // ADD FUNCTION TO UPDATE CHARTS WITH REAL DATA
 let currentChartLanguage = 'python'; // Default to Python
 
+// Function to animate counting numbers
+function animateCounter(element, targetValue, duration = 1000) {
+    const startValue = 0;
+    const startTime = Date.now();
+
+    function updateCounter() {
+        const currentTime = Date.now();
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function for smooth counting
+        const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+        const currentValue = Math.round(startValue + (targetValue - startValue) * easeOutCubic);
+
+        element.textContent = `${currentValue}%`;
+
+        if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+        }
+    }
+
+    requestAnimationFrame(updateCounter);
+}
+
 function renderChart(selectedLanguage = currentChartLanguage) {
     currentChartLanguage = selectedLanguage;
     const chartContainer = document.querySelector('.chart-container');
@@ -1309,6 +1333,17 @@ function renderChart(selectedLanguage = currentChartLanguage) {
     setTimeout(() => {
         chartContainer.innerHTML = '';
 
+        // Add Y-axis labels
+        const yAxis = document.createElement('div');
+        yAxis.className = 'chart-y-axis';
+        for (let i = 100; i >= 0; i -= 20) {
+            const label = document.createElement('div');
+            label.className = 'y-axis-label';
+            label.textContent = `${i}%`;
+            yAxis.appendChild(label);
+        }
+        chartContainer.appendChild(yAxis);
+
         // Get courses for selected language
         const courses = coursesData[selectedLanguage];
 
@@ -1337,14 +1372,19 @@ function renderChart(selectedLanguage = currentChartLanguage) {
 
             const label = document.createElement('div');
             label.className = 'chart-label';
-            label.textContent = `Course ${course.id}`;
+            // Show truncated course title (first 2 words or 15 chars)
+            const titleWords = course.title.split(' ');
+            const shortTitle = titleWords.length > 2
+                ? titleWords.slice(0, 2).join(' ')
+                : course.title.substring(0, 15) + (course.title.length > 15 ? '...' : '');
+            label.textContent = shortTitle;
             label.title = course.title; // Show full title on hover
 
             const percentageLabel = document.createElement('div');
             percentageLabel.className = 'chart-percentage';
-            percentageLabel.textContent = `${percentage}%`;
+            percentageLabel.textContent = '0%';
             percentageLabel.style.opacity = '0';
-            percentageLabel.style.transition = 'opacity 0.5s ease 0.5s';
+            percentageLabel.style.transition = 'opacity 0.3s ease 0.5s';
 
             bar.appendChild(percentageLabel);
             barWrapper.appendChild(bar);
@@ -1356,6 +1396,11 @@ function renderChart(selectedLanguage = currentChartLanguage) {
                 const targetHeight = Math.max(percentage * 3.5, 20);
                 bar.style.height = `${targetHeight}px`;
                 percentageLabel.style.opacity = '1';
+
+                // Start counting animation after bar starts rising
+                setTimeout(() => {
+                    animateCounter(percentageLabel, percentage, 1000);
+                }, 200);
             }, 100 + (index * 100));
         });
     }, 300); // Match fade-out duration
