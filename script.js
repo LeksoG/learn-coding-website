@@ -493,9 +493,9 @@ function renderCourses() {
                 </svg>
             `}
             <div class="course-number">Course ${course.id}</div>
-            ${percentage > 0 && percentage < 100 ? `
-                <div class="course-progress-badge">
-                    <span>${percentage}% Complete</span>
+            ${percentage > 0 ? `
+                <div class="course-progress-badge" style="${percentage === 100 ? 'background: linear-gradient(135deg, rgba(74, 222, 128, 0.9), rgba(34, 197, 94, 0.9));' : ''}">
+                    <span>${percentage === 100 ? '✓ ' : ''}${percentage}% Complete</span>
                 </div>
             ` : ''}
             <h3 class="course-title">${course.title}</h3>
@@ -1384,7 +1384,7 @@ function renderChart(selectedLanguage = currentChartLanguage) {
             percentageLabel.className = 'chart-percentage';
             percentageLabel.textContent = '0%';
             percentageLabel.style.opacity = '0';
-            percentageLabel.style.transition = 'opacity 0.3s ease 0.5s';
+            percentageLabel.style.transition = 'opacity 0.2s ease 0.1s';
 
             bar.appendChild(percentageLabel);
             barWrapper.appendChild(bar);
@@ -1399,11 +1399,60 @@ function renderChart(selectedLanguage = currentChartLanguage) {
 
                 // Start counting animation after bar starts rising
                 setTimeout(() => {
-                    animateCounter(percentageLabel, percentage, 1000);
-                }, 200);
+                    animateCounter(percentageLabel, percentage, 800);
+                }, 100);
             }, 100 + (index * 100));
         });
+
+        // Add line graph after all bars are created
+        setTimeout(() => {
+            addLineGraph(chartContainer, courses);
+        }, 100 + (courses.length * 100) + 500);
     }, 300); // Match fade-out duration
+}
+
+// Function to add line graph overlay
+function addLineGraph(container, courses) {
+    const bars = container.querySelectorAll('.chart-bar');
+    if (bars.length === 0) return;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'chart-line-graph');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+
+    const points = [];
+    bars.forEach((bar, index) => {
+        const barRect = bar.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const x = barRect.left + barRect.width / 2 - containerRect.left;
+        const y = barRect.top - containerRect.top;
+        points.push({ x, y, index });
+    });
+
+    // Create path
+    if (points.length > 1) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        let d = `M ${points[0].x} ${points[0].y}`;
+        for (let i = 1; i < points.length; i++) {
+            d += ` L ${points[i].x} ${points[i].y}`;
+        }
+        path.setAttribute('d', d);
+        path.setAttribute('class', 'chart-line-path');
+        svg.appendChild(path);
+
+        // Add dots at each point
+        points.forEach((point, index) => {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', point.x);
+            circle.setAttribute('cy', point.y);
+            circle.setAttribute('class', 'chart-line-dot');
+            circle.style.animationDelay = `${1.5 + index * 0.1}s`;
+            svg.appendChild(circle);
+        });
+    }
+
+    container.appendChild(svg);
 }
 
         function updateChart(language) {
