@@ -239,26 +239,57 @@
                     </div>
                 </div>
 
-                <!-- Code Editor Container -->
-                <div class="code-editor-container">
-                    <div class="editor-header">
-                        <span>Write Your Code</span>
-                        <button class="run-code-btn" id="runCodeBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                            Run Code
-                        </button>
-                    </div>
-                    <textarea class="code-editor" id="codeEditor" placeholder="# Write your Python code here...
+                <div class="practice-container-wrapper" id="practiceWrapper">
+                    <!-- Code Editor Container -->
+                    <div class="code-editor-container">
+                        <div class="editor-header">
+                            <span>Write Your Code</span>
+                            <div class="header-buttons">
+                                <button class="ai-helper-btn" id="aiHelperBtn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M8 12h8"></path>
+                                        <path d="M12 8v8"></path>
+                                    </svg>
+                                    AI Helper
+                                </button>
+                                <button class="run-code-btn" id="runCodeBtn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                    </svg>
+                                    Run Code
+                                </button>
+                            </div>
+                        </div>
+                        <textarea class="code-editor" id="codeEditor" placeholder="# Write your Python code here...
 print('Hello, World!')"></textarea>
+                    </div>
+
+                    <!-- Code Preview Container -->
+                    <div class="code-preview-container">
+                        <div class="preview-header">Output</div>
+                        <div class="code-preview" id="codePreview">
+                            <div class="preview-placeholder">Run your code to see the output here...</div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Code Preview Container -->
-                <div class="code-preview-container">
-                    <div class="preview-header">Output</div>
-                    <div class="code-preview" id="codePreview">
-                        <div class="preview-placeholder">Run your code to see the output here...</div>
+                <!-- AI Sidebar -->
+                <div class="ai-sidebar" id="aiSidebar">
+                    <div class="ai-sidebar-header">
+                        <h3>AI Code Helper</h3>
+                        <button class="ai-sidebar-close" id="aiSidebarClose">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="ai-sidebar-content">
+                        <p>Ask me anything about your code!</p>
+                        <textarea class="ai-input" placeholder="Type your question here..."></textarea>
+                        <button class="ai-ask-btn">Ask AI</button>
+                        <div class="ai-response" id="aiResponse"></div>
                     </div>
                 </div>
             </div>
