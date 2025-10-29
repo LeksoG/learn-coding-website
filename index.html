@@ -286,10 +286,19 @@ print('Hello, World!')"></textarea>
                         </button>
                     </div>
                     <div class="ai-sidebar-content">
-                        <p>Ask me anything about your code!</p>
-                        <textarea class="ai-input" placeholder="Type your question here..."></textarea>
-                        <button class="ai-ask-btn">Ask AI</button>
-                        <div class="ai-response" id="aiResponse"></div>
+                        <div class="ai-conversation" id="aiConversation">
+                            <p class="ai-welcome">Ask me anything about your code!</p>
+                        </div>
+                        <div class="ai-suggestions" id="aiSuggestions"></div>
+                        <div class="ai-input-container">
+                            <input type="text" class="ai-input-oval" id="aiInputOval" placeholder="Ask a question..." />
+                            <button class="ai-send-btn" id="aiSendBtn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -380,6 +389,7 @@ print('Hello, World!')"></textarea>
 </body>
 
 <script src="lessonContent.js"></script>
+<script src="aiConfig.js"></script>
 <script src="script.js"></script>
 
 </body>
