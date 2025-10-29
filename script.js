@@ -59,6 +59,8 @@ const coursesData = {
         let quizAccuracy = 0;
         let currentCourseLanguage = null;
         let currentChartLanguage = 'python'; // Default to Python
+        let lessonTimeouts = []; // Track lesson timeouts for cancellation
+        let chatbotActive = false; // Track if chatbot is active
 
         // Check streak
         const today = new Date().toDateString();
@@ -669,9 +671,15 @@ function showTryAgainPopup(course) {
 function typeLessonsFrom(lessons, startIndex) {
     let lessonIndex = startIndex;
     const typeNext = () => {
+        if (!chatbotActive) return; // Stop if chatbot closed
+
         if (lessonIndex < lessons.length) {
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
+                if (!chatbotActive) return; // Check again before typing
+
                 typeMessage('AI Tutor', lessons[lessonIndex], () => {
+                    if (!chatbotActive) return; // Stop if closed during typing
+
                     lessonIndex++;
                     courseProgress[currentCourse].currentIndex = lessonIndex;
                     courseProgress[currentCourse].messages = document.getElementById('chatbotMessages').innerHTML;
@@ -679,6 +687,7 @@ function typeLessonsFrom(lessons, startIndex) {
                     typeNext();
                 });
             }, 1000);
+            lessonTimeouts.push(timeoutId);
         } else {
             lessonComplete = true;
             const quizTab = document.getElementById('quizTab');
@@ -894,6 +903,8 @@ function startCourse(course, skipQuiz = false) {
     currentCourse = course;
     currentCourseLanguage = currentLanguage;
     lessonComplete = false;
+    chatbotActive = true; // Set chatbot as active
+    lessonTimeouts = []; // Clear previous timeouts
 
     const chatbotContainer = document.getElementById('chatbotContainer');
     const chatbotMessages = document.getElementById('chatbotMessages');
@@ -1190,6 +1201,11 @@ function startAIReview(courseName) {
 
 // FIND AND UPDATE YOUR CLOSE CHATBOT HANDLER
 document.getElementById('closeChatbot').addEventListener('click', () => {
+    // Stop all lesson typing immediately
+    chatbotActive = false;
+    lessonTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    lessonTimeouts = [];
+
     document.getElementById('chatbotContainer').classList.remove('active');
     const nav = document.querySelector('nav');
     if (nav) {
@@ -1236,6 +1252,11 @@ document.getElementById('closeChatbot').addEventListener('click', () => {
         }
 
         document.getElementById('closeChatbot').addEventListener('click', () => {
+            // Stop all lesson typing immediately
+            chatbotActive = false;
+            lessonTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+            lessonTimeouts = [];
+
             document.getElementById('chatbotContainer').classList.remove('active');
             stopStudyTimer();
         });
@@ -1496,7 +1517,8 @@ function renderChart(selectedLanguage = currentChartLanguage) {
 
             // Animate bars rising with staggered delay
             setTimeout(() => {
-                const targetHeight = Math.max(percentage * 3.5, 20);
+                // Chart usable height is 450px (500 - 20 - 30), so 100% = 450px
+                const targetHeight = percentage === 100 ? 450 : Math.max(percentage * 4.5, 15);
                 bar.style.height = `${targetHeight}px`;
                 percentageLabel.style.opacity = '1';
 
@@ -1889,27 +1911,165 @@ if (document.readyState === 'loading') {
 const closeChatbotBtn = document.getElementById('closeChatbot');
 if (closeChatbotBtn) {
     closeChatbotBtn.addEventListener('click', () => {
+        // Stop all lesson typing immediately
+        chatbotActive = false;
+        lessonTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+        lessonTimeouts = [];
+
         const chatbotContainer = document.getElementById('chatbotContainer');
         const chatbotMessages = document.getElementById('chatbotMessages');
-        
+
         // Check if in the middle of a lesson
         if (currentCourse && chatbotMessages && chatbotMessages.children.length > 0) {
             const progress = courseProgress[currentCourse.title];
-            
+
             // Only show paused message if not fully complete
             if (progress && !progress.lessonCompleted && !progress.quizCompleted) {
                 // Save current progress
                 localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
-                
+
                 // Update course cards to show paused state
                 renderCourses();
                 renderChart();
-                
+
                 showNotification('Paused', `Progress saved at ${progress.lessonIndex}/${progress.totalLessons} lessons`);
             }
         }
-        
+
         chatbotContainer.classList.remove('active');
         stopStudyTimer();
+    });
+}
+
+// ==================== PRACTICE SECTION FUNCTIONALITY ====================
+
+// Language detection
+function detectLanguage(code) {
+    code = code.trim();
+    
+    // Python detection
+    if (code.includes('print(') || code.includes('def ') || code.includes('import ') || 
+        code.includes('from ') || code.startsWith('#') || code.includes('elif ') || 
+        code.includes('range(')) {
+        return 'Python';
+    }
+    
+    // JavaScript detection
+    if (code.includes('console.log') || code.includes('function ') || code.includes('const ') || 
+        code.includes('let ') || code.includes('var ') || code.includes('=>') || 
+        code.includes('document.')) {
+        return 'JavaScript';
+    }
+    
+    // Java detection
+    if (code.includes('System.out.print') || code.includes('public class') || 
+        code.includes('public static void') || code.includes('import java.')) {
+        return 'Java';
+    }
+    
+    // Default to Python
+    return 'Python';
+}
+
+// Update language badge
+function updateLanguageBadge(language) {
+    const languageText = document.getElementById('languageText');
+    if (languageText) {
+        languageText.textContent = language;
+    }
+}
+
+// Run Python code (simulated)
+function runPythonCode(code) {
+    try {
+        // Simulated Python execution for basic print statements
+        const output = [];
+        const lines = code.split('\n');
+        
+        for (let line of lines) {
+            line = line.trim();
+            
+            // Handle print statements
+            if (line.startsWith('print(')) {
+                const match = line.match(/print\((.*)\)/);
+                if (match) {
+                    let content = match[1];
+                    // Remove quotes
+                    content = content.replace(/^['"](.*)['"]$/, '$1');
+                    output.push(content);
+                }
+            }
+        }
+        
+        return output.length > 0 ? output.join('\n') : 'No output';
+    } catch (error) {
+        return `Error: ${error.message}`;
+    }
+}
+
+// Run JavaScript code
+function runJavaScriptCode(code) {
+    try {
+        // Capture console.log output
+        const output = [];
+        const originalLog = console.log;
+        console.log = (...args) => {
+            output.push(args.join(' '));
+        };
+        
+        // Execute code
+        eval(code);
+        
+        // Restore original console.log
+        console.log = originalLog;
+        
+        return output.length > 0 ? output.join('\n') : 'No output';
+    } catch (error) {
+        return `Error: ${error.message}`;
+    }
+}
+
+// Initialize practice section
+const codeEditor = document.getElementById('codeEditor');
+const runCodeBtn = document.getElementById('runCodeBtn');
+const codePreview = document.getElementById('codePreview');
+
+if (codeEditor) {
+    // Detect language on input
+    codeEditor.addEventListener('input', () => {
+        const code = codeEditor.value;
+        if (code.trim()) {
+            const language = detectLanguage(code);
+            updateLanguageBadge(language);
+        }
+    });
+}
+
+if (runCodeBtn && codeEditor && codePreview) {
+    runCodeBtn.addEventListener('click', () => {
+        const code = codeEditor.value.trim();
+        
+        if (!code) {
+            codePreview.innerHTML = '<div class="preview-placeholder">Please write some code first...</div>';
+            return;
+        }
+        
+        const language = detectLanguage(code);
+        let output;
+        
+        if (language === 'Python') {
+            output = runPythonCode(code);
+        } else if (language === 'JavaScript') {
+            output = runJavaScriptCode(code);
+        } else {
+            output = `${language} execution not supported yet. Only Python and JavaScript are currently available.`;
+        }
+        
+        // Display output
+        if (output.startsWith('Error:')) {
+            codePreview.innerHTML = `<div class="preview-error">${output}</div>`;
+        } else {
+            codePreview.innerHTML = `<div class="preview-output">${output}</div>`;
+        }
     });
 }
