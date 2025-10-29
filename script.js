@@ -2170,6 +2170,55 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         aiConversation.scrollTop = aiConversation.scrollHeight;
     }
 
+    // Fallback AI response when aiConfig.js is not available
+    function getFallbackAIResponse(question, language) {
+        const lowerQuestion = question.toLowerCase();
+
+        // Language-specific responses
+        const responses = {
+            'Python': {
+                'loop': 'In Python, you can use for loops: `for i in range(5):` or while loops: `while condition:`. For loops are great for iterating over sequences like lists.',
+                'function': 'Define functions in Python with `def function_name(parameters):`. Remember to use proper indentation. Example: `def greet(name):\n    return f"Hello, {name}"`',
+                'list': 'Python lists are created with square brackets: `my_list = [1, 2, 3]`. Access items with `my_list[0]`, and use methods like `.append()`, `.remove()`, and `.pop()`.',
+                'default': 'In Python, focus on clean, readable code. Use proper indentation (4 spaces), meaningful variable names, and built-in functions like `len()`, `range()`, and `enumerate()`.'
+            },
+            'JavaScript': {
+                'promise': 'Promises handle async operations. Create one with `new Promise((resolve, reject) => {...})`. Use `.then()` for success and `.catch()` for errors.',
+                'async': 'async/await makes promises easier to read. Mark functions with `async`, then use `await` before promises: `const result = await fetchData();`',
+                'function': 'JavaScript functions can be declared as `function name() {}` or as arrow functions: `const name = () => {}`. Arrow functions are great for callbacks.',
+                'default': 'JavaScript is versatile! Key concepts: variables (let/const), functions, arrays, objects, and async programming. Always use `const` by default, `let` when you need to reassign.'
+            },
+            'HTML': {
+                'structure': 'HTML structure: `<!DOCTYPE html>`, then `<html>`, `<head>` (metadata), and `<body>` (content). Use semantic tags like `<header>`, `<nav>`, `<main>`, `<footer>`.',
+                'tag': 'Common tags: `<div>` (container), `<p>` (paragraph), `<a href="">` (link), `<img src="">` (image), `<button>` (button). Always close tags properly!',
+                'semantic': 'Semantic tags describe content: `<article>`, `<section>`, `<aside>`, `<nav>`, `<header>`, `<footer>`. They improve accessibility and SEO.',
+                'default': 'HTML provides structure to web pages. Use semantic tags for better accessibility, add alt text to images, and always validate your HTML structure.'
+            },
+            'CSS': {
+                'center': 'Center a div with Flexbox: `display: flex; justify-content: center; align-items: center;` or Grid: `display: grid; place-items: center;`',
+                'flexbox': 'Flexbox is for 1D layouts. On container: `display: flex;`. Common properties: `justify-content` (horizontal), `align-items` (vertical), `gap` (spacing).',
+                'grid': 'CSS Grid is for 2D layouts. Set `display: grid;` on container, define columns: `grid-template-columns: 1fr 1fr;`, and use `gap` for spacing.',
+                'default': 'CSS styles your HTML. Key concepts: selectors, box model, flexbox, grid, and responsive design with media queries. Use CSS variables for maintainability!'
+            },
+            'default': {
+                'default': `Great question about ${language}! Here's a tip: Break down your problem into smaller steps, use console.log (or print) to debug, and don't hesitate to check documentation.`
+            }
+        };
+
+        // Get language-specific responses or default
+        const langResponses = responses[language] || responses['default'];
+
+        // Match question keywords to responses
+        for (const [keyword, response] of Object.entries(langResponses)) {
+            if (keyword !== 'default' && lowerQuestion.includes(keyword)) {
+                return response;
+            }
+        }
+
+        // Return default response for the language
+        return langResponses['default'];
+    }
+
     // Send message function
     async function sendMessage() {
         const question = aiInputOval.value.trim();
@@ -2191,13 +2240,16 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         aiConversation.scrollTop = aiConversation.scrollHeight;
 
         try {
-            // Check if callAI is available
-            if (typeof callAI === 'undefined') {
-                throw new Error('AI functions not loaded. Make sure aiConfig.js is included.');
-            }
+            let response;
 
-            // Call AI API (from aiConfig.js)
-            const response = await callAI(question, aiCurrentLanguage);
+            // Check if callAI is available, otherwise use fallback
+            if (typeof callAI === 'undefined') {
+                console.log('ℹ️ Using fallback AI responses (aiConfig.js not loaded)');
+                response = getFallbackAIResponse(question, aiCurrentLanguage);
+            } else {
+                // Call AI API (from aiConfig.js)
+                response = await callAI(question, aiCurrentLanguage);
+            }
 
             // Remove thinking message
             const thinkingMsg = document.getElementById('thinking-message');
