@@ -135,7 +135,10 @@ const coursesData = {
 
                 // Update charts when navigating to home page
                 if (page === 'home') {
-                    renderChart();
+                    // Use setTimeout to ensure DOM is ready
+                    setTimeout(() => {
+                        renderChart(currentChartLanguage);
+                    }, 50);
                 }
 
                 if (window.innerWidth <= 768) {
@@ -144,8 +147,10 @@ const coursesData = {
                     document.getElementById('hamburger').classList.remove('active');
                 }
             });
-            initWidgetIndicators();
         });
+
+        // Initialize widget indicators once
+        initWidgetIndicators();
 
         // Hamburger
         const hamburger = document.getElementById('hamburger');
@@ -207,21 +212,16 @@ document.addEventListener('touchend', e => {
 
         // Search
         const searchBtn = document.getElementById('searchBtn');
-        const searchWrapper = document.getElementById('searchWrapper');
-        const searchClose = document.getElementById('searchClose');
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const mainNav = document.getElementById('mainNav');
         const searchCloseBtn = document.getElementById('searchCloseBtn');
-        const navContainer = document.querySelector('.nav-container');
-        const hamburger = document.querySelector('.hamburger');
 
         searchBtn.addEventListener('click', () => {
             if (!searchBtn.classList.contains('active')) {
                 // Activate search mode
                 searchBtn.classList.add('active');
-                navContainer.classList.add('search-active');
-                hamburger.classList.add('search-active');
+                mainNav.classList.add('hide');
                 setTimeout(() => searchInput.focus(), 500);
             }
         });
@@ -230,18 +230,9 @@ document.addEventListener('touchend', e => {
             e.stopPropagation();
             // Deactivate search mode
             searchBtn.classList.remove('active');
-            navContainer.classList.remove('search-active');
-            hamburger.classList.remove('search-active');
-            searchInput.value = '';
-        });
-
-        searchClose.addEventListener('click', () => {
-            searchWrapper.classList.remove('active');
             mainNav.classList.remove('hide');
-            searchBtn.style.opacity = '1';
-            searchBtn.style.pointerEvents = 'all';
             searchInput.value = '';
-            searchResults.style.display = 'none';
+            searchResults.classList.remove('show');
         });
 
         searchInput.addEventListener('input', (e) => {
@@ -255,12 +246,12 @@ document.addEventListener('touchend', e => {
                             const progress = courseProgress[course.title];
                             let percentage = 0;
                             if (progress) {
-                                if (progress.quizCompleted) {
+                                if (progress.quizCompleted && progress.lessonCompleted) {
                                     percentage = 100;
                                 } else if (progress.lessonCompleted) {
-                                    percentage = 50;
+                                    percentage = 75;
                                 } else if (progress.totalLessons > 0) {
-                                    percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+                                    percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 70);
                                 }
                             }
                             results.push({ ...course, language: lang, percentage });
@@ -279,7 +270,7 @@ document.addEventListener('touchend', e => {
                             : '';
 
                         return `
-                        <div class="result-item" onclick="openCourseFromSearch('${course.language}', ${course.id})">
+                        <div class="result-item" data-search-lang="${course.language}" data-search-id="${course.id}">
                             <div style="flex: 1;">
                                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
                                     <strong>${course.title}</strong>
@@ -291,13 +282,22 @@ document.addEventListener('touchend', e => {
                         </div>
                     `;
                     }).join('');
-                    searchResults.style.display = 'block';
+                    searchResults.classList.add('show');
+
+                    // Add click listeners to search results
+                    document.querySelectorAll('.result-item').forEach(item => {
+                        item.addEventListener('click', function() {
+                            const lang = this.dataset.searchLang;
+                            const courseId = parseInt(this.dataset.searchId);
+                            openCourseFromSearch(lang, courseId);
+                        });
+                    });
                 } else {
-                    searchResults.innerHTML = '<div class="result-item">No courses found</div>';
-                    searchResults.style.display = 'block';
+                    searchResults.innerHTML = '<div class="result-item" style="pointer-events: none;">No courses found</div>';
+                    searchResults.classList.add('show');
                 }
             } else {
-                searchResults.style.display = 'none';
+                searchResults.classList.remove('show');
             }
         });
 
@@ -306,7 +306,13 @@ function initWidgetIndicators() {
     if (window.innerWidth <= 768) {
         const widgetsGrid = document.querySelector('.widgets-grid');
         const widgets = document.querySelectorAll('.widget');
-        
+
+        // Remove any existing indicators first
+        const existingIndicators = document.querySelector('.widget-indicators');
+        if (existingIndicators) {
+            existingIndicators.remove();
+        }
+
         // Create indicators
         const indicatorsDiv = document.createElement('div');
         indicatorsDiv.className = 'widget-indicators';
@@ -347,22 +353,18 @@ function initWidgetIndicators() {
     currentLanguage = lang;
     renderLanguageTabs();
     renderCourses();
-    
-    searchWrapper.classList.remove('active');
+
+    // Close search
+    searchBtn.classList.remove('active');
     mainNav.classList.remove('hide');
-    searchBtn.style.opacity = '1';
-    searchBtn.style.pointerEvents = 'all';
     searchInput.value = '';
     searchResults.classList.remove('show');
-    setTimeout(() => {
-        searchResults.innerHTML = '';
-    }, 400);
-    
+
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.nav-btn[data-page="learn"]').forEach(b => b.classList.add('active'));
     document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
     document.getElementById('learnPage').classList.add('active');
-    
+
     setTimeout(() => {
         const course = coursesData[lang].find(c => c.id === courseId);
         if (course && course.unlocked) {
@@ -531,7 +533,7 @@ function renderCourses() {
             ` : ''}
             <h3 class="course-title">${course.title}</h3>
             <p class="course-desc">${course.desc}</p>
-            <button class="view-details-btn" onclick="event.stopPropagation();">
+            <button class="view-details-btn">
                 <span class="view-details-text">View Details</span>
                 <svg class="view-details-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -575,8 +577,8 @@ function addCourseEventListeners() {
     // Handle course card clicks
     document.querySelectorAll('.course-card').forEach(card => {
         card.addEventListener('click', function(e) {
-            // Don't trigger if clicking the details button
-            if (e.target.closest('.view-details-btn')) {
+            // Don't trigger if clicking the details button or details area
+            if (e.target.closest('.view-details-btn') || e.target.closest('.course-details')) {
                 return;
             }
 
@@ -660,66 +662,6 @@ function showTryAgainPopup(course) {
     btn.classList.toggle('open');
 }
 
-searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    if (query.length > 0) {
-        const results = [];
-        Object.keys(coursesData).forEach(lang => {
-            coursesData[lang].forEach(course => {
-                if (course.title.toLowerCase().includes(query) || course.desc.toLowerCase().includes(query)) {
-                    results.push({ ...course, language: lang });
-                }
-            });
-        });
-        
-        if (results.length > 0) {
-            const resultsHTML = results.slice(0, 6).map((course, index) => {
-                const langUpper = course.language.toUpperCase();
-                return `
-                    <div class="result-item" data-search-lang="${course.language}" data-search-id="${course.id}">
-                        <div>
-                            <strong>${course.title}</strong><br>
-                            <small style="color: var(--text-secondary);">${langUpper} &bull; ${course.desc}</small>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            searchResults.innerHTML = resultsHTML;
-            searchResults.classList.add('show');
-            
-            // Add click listeners to search results
-            document.querySelectorAll('.result-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const lang = this.dataset.searchLang;
-                    const courseId = parseInt(this.dataset.searchId);
-                    openCourseFromSearch(lang, courseId);
-                });
-            });
-        } else {
-            searchResults.innerHTML = '<div class="result-item" style="pointer-events: none;">No courses found</div>';
-            searchResults.classList.add('show');
-        }
-    } else {
-        searchResults.classList.remove('show');
-        setTimeout(() => {
-            searchResults.innerHTML = '';
-        }, 400);
-    }
-});
-
-// Fix searchClose
-searchClose.addEventListener('click', () => {
-    searchWrapper.classList.remove('active');
-    mainNav.classList.remove('hide');
-    searchBtn.style.opacity = '1';
-    searchBtn.style.pointerEvents = 'all';
-    searchInput.value = '';
-    searchResults.classList.remove('show');
-    setTimeout(() => {
-        searchResults.innerHTML = '';
-    }, 400);
-});
 
 // ========== CHATBOT FUNCTIONS - PUT THESE IN THIS ORDER ==========
 
