@@ -226,8 +226,41 @@
 
             <!-- Practice Page -->
             <div class="page-section" id="practicePage">
-                <h1 class="section-title">Practice</h1>
-                <p style="color: var(--text-secondary); font-size: 1.1rem;">Practice section coming soon...</p>
+                <h1 class="section-title">Practice Code</h1>
+
+                <!-- Language Indicator -->
+                <div class="language-indicator">
+                    <div class="language-badge" id="languageBadge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="16 18 22 12 16 6"></polyline>
+                            <polyline points="8 6 2 12 8 18"></polyline>
+                        </svg>
+                        <span id="languageText">Python</span>
+                    </div>
+                </div>
+
+                <!-- Code Editor Container -->
+                <div class="code-editor-container">
+                    <div class="editor-header">
+                        <span>Write Your Code</span>
+                        <button class="run-code-btn" id="runCodeBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            Run Code
+                        </button>
+                    </div>
+                    <textarea class="code-editor" id="codeEditor" placeholder="# Write your Python code here...
+print('Hello, World!')"></textarea>
+                </div>
+
+                <!-- Code Preview Container -->
+                <div class="code-preview-container">
+                    <div class="preview-header">Output</div>
+                    <div class="code-preview" id="codePreview">
+                        <div class="preview-placeholder">Run your code to see the output here...</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Settings Page -->
