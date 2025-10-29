@@ -1517,8 +1517,9 @@ function renderChart(selectedLanguage = currentChartLanguage) {
 
             // Animate bars rising with staggered delay
             setTimeout(() => {
-                // Chart usable height is 450px (500 - 20 - 30), so 100% = 450px
-                const targetHeight = percentage === 100 ? 450 : Math.max(percentage * 4.5, 15);
+                // Chart usable height is 430px (500 - 20 - 50), so 100% = 430px
+                // Precise calculation: 4.3px per percentage point
+                const targetHeight = percentage * 4.3;
                 bar.style.height = `${targetHeight}px`;
                 percentageLabel.style.opacity = '1';
 
@@ -2088,12 +2089,18 @@ const aiHelperBtn = document.getElementById('aiHelperBtn');
 const aiSidebar = document.getElementById('aiSidebar');
 const aiSidebarClose = document.getElementById('aiSidebarClose');
 const practiceWrapper = document.getElementById('practiceWrapper');
+const aiInputOval = document.getElementById('aiInputOval');
+const aiSendBtn = document.getElementById('aiSendBtn');
+const aiConversation = document.getElementById('aiConversation');
+const aiSuggestions = document.getElementById('aiSuggestions');
+let currentLanguage = 'Python'; // Default language
 
 if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
     // Open AI Sidebar
     aiHelperBtn.addEventListener('click', () => {
         aiSidebar.classList.add('active');
         practiceWrapper.classList.add('shifted');
+        updateSuggestions(currentLanguage);
     });
 
     // Close AI Sidebar
@@ -2102,45 +2109,110 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         practiceWrapper.classList.remove('shifted');
     });
 
-    // AI Ask button functionality (simulated response)
-    const aiAskBtn = document.querySelector('.ai-ask-btn');
-    const aiInput = document.querySelector('.ai-input');
-    const aiResponse = document.getElementById('aiResponse');
+    // Update suggestions based on detected language
+    function updateSuggestions(language) {
+        if (!AI_CONFIG || !AI_CONFIG.suggestions) return;
 
-    if (aiAskBtn && aiInput && aiResponse) {
-        aiAskBtn.addEventListener('click', () => {
-            const question = aiInput.value.trim();
-            
-            if (!question) {
-                aiResponse.innerHTML = '<p style="color: #ef4444; font-weight: 600;">Please type a question first!</p>';
-                return;
+        const suggestions = AI_CONFIG.suggestions[language] || AI_CONFIG.suggestions['Python'];
+        aiSuggestions.innerHTML = '';
+
+        suggestions.forEach(suggestion => {
+            const chip = document.createElement('div');
+            chip.className = 'ai-suggestion-chip';
+            chip.textContent = suggestion;
+            chip.addEventListener('click', () => {
+                aiInputOval.value = suggestion;
+                aiInputOval.focus();
+            });
+            aiSuggestions.appendChild(chip);
+        });
+    }
+
+    // Listen for language changes in code editor
+    if (codeEditor) {
+        codeEditor.addEventListener('input', () => {
+            const code = codeEditor.value;
+            if (code.trim()) {
+                const detectedLang = detectLanguage(code);
+                if (detectedLang !== currentLanguage) {
+                    currentLanguage = detectedLang;
+                    if (aiSidebar.classList.contains('active')) {
+                        updateSuggestions(currentLanguage);
+                    }
+                }
+            }
+        });
+    }
+
+    // Add message to conversation
+    function addMessage(text, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `ai-message ${type}`;
+        messageDiv.textContent = text;
+        aiConversation.appendChild(messageDiv);
+        aiConversation.scrollTop = aiConversation.scrollHeight;
+    }
+
+    // Send message function
+    async function sendMessage() {
+        const question = aiInputOval.value.trim();
+
+        if (!question) {
+            return;
+        }
+
+        // Add user message
+        addMessage(question, 'user');
+        aiInputOval.value = '';
+
+        // Show thinking state
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.className = 'ai-message ai';
+        thinkingDiv.innerHTML = '🤔 Thinking...';
+        thinkingDiv.id = 'thinking-message';
+        aiConversation.appendChild(thinkingDiv);
+        aiConversation.scrollTop = aiConversation.scrollHeight;
+
+        try {
+            // Call AI API (from aiConfig.js)
+            const response = await callAI(question, currentLanguage);
+
+            // Remove thinking message
+            const thinkingMsg = document.getElementById('thinking-message');
+            if (thinkingMsg) {
+                thinkingMsg.remove();
             }
 
-            // Show thinking state
-            aiResponse.innerHTML = '<p style="color: #6366f1; font-weight: 600;">🤔 AI is thinking...</p>';
+            // Add AI response
+            addMessage(response, 'ai');
+        } catch (error) {
+            console.error('AI Error:', error);
+            const thinkingMsg = document.getElementById('thinking-message');
+            if (thinkingMsg) {
+                thinkingMsg.remove();
+            }
+            addMessage('Sorry, I encountered an error. Please try again.', 'ai');
+        }
+    }
 
-            // Simulate AI response (in real implementation, this would call an AI API)
-            setTimeout(() => {
-                const responses = [
-                    `Great question about "${question}"! In programming, this concept is fundamental. Let me explain: You should break down the problem into smaller steps and test each part individually.`,
-                    `Regarding "${question}": This is a common question! The best approach is to start simple and gradually add complexity. Make sure to handle edge cases.`,
-                    `For "${question}": Consider using proper variable naming, adding comments for clarity, and testing your code with different inputs to ensure it works correctly.`,
-                    `About "${question}": This is an important concept! Try to think about the logic flow first, then implement it step by step. Don't forget to debug as you go!`
-                ];
-                
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                aiResponse.innerHTML = `<p>${randomResponse}</p>`;
-                
-                // Clear input
-                aiInput.value = '';
-            }, 1500);
+    // Send button click
+    if (aiSendBtn) {
+        aiSendBtn.addEventListener('click', sendMessage);
+    }
+
+    // Enter key to send
+    if (aiInputOval) {
+        aiInputOval.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage();
+            }
         });
 
-        // Allow Enter key to submit (Shift+Enter for new line)
-        aiInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                aiAskBtn.click();
+        // Update suggestions as user types
+        aiInputOval.addEventListener('input', () => {
+            if (aiInputOval.value.length > 0) {
+                // Could add dynamic suggestions here based on input
             }
         });
     }
