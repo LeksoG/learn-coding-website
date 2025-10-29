@@ -58,6 +58,7 @@ const coursesData = {
         let currentQuizQuestions = [];
         let quizAccuracy = 0;
         let currentCourseLanguage = null;
+        let currentChartLanguage = 'python'; // Default to Python
 
         // Check streak
         const today = new Date().toDateString();
@@ -1207,73 +1208,7 @@ document.getElementById('closeChatbot').addEventListener('click', () => {
             stopStudyTimer();
         });
 
-        // PRACTICE TAB - CODE EXECUTION
-        document.getElementById('runCodeBtn').addEventListener('click', () => {
-            const codeInput = document.getElementById('codeInput');
-            const outputContent = document.getElementById('outputContent');
-            const code = codeInput.value.trim();
-
-            if (!code) {
-                outputContent.textContent = 'Error: Please write some code first!';
-                outputContent.style.color = '#ef4444';
-                return;
-            }
-
-            outputContent.textContent = 'Running code...';
-            outputContent.style.color = 'var(--text-secondary)';
-
-            // Simulate code execution
-            setTimeout(() => {
-                try {
-                    // For Python-style print statements
-                    if (code.includes('print(')) {
-                        const matches = code.match(/print\((.*?)\)/g);
-                        if (matches) {
-                            let output = '';
-                            matches.forEach(match => {
-                                const content = match.match(/print\((.*?)\)/)[1];
-                                // Remove quotes if present
-                                const cleanContent = content.replace(/['"]/g, '');
-                                output += cleanContent + '\n';
-                            });
-                            outputContent.textContent = output;
-                            outputContent.style.color = '#4ade80';
-                        }
-                    }
-                    // For JavaScript console.log
-                    else if (code.includes('console.log(')) {
-                        const matches = code.match(/console\.log\((.*?)\)/g);
-                        if (matches) {
-                            let output = '';
-                            matches.forEach(match => {
-                                const content = match.match(/console\.log\((.*?)\)/)[1];
-                                const cleanContent = content.replace(/['"]/g, '');
-                                output += cleanContent + '\n';
-                            });
-                            outputContent.textContent = output;
-                            outputContent.style.color = '#4ade80';
-                        }
-                    }
-                    // For simple math operations
-                    else if (/^[\d\s\+\-\*\/\(\)\.]+$/.test(code)) {
-                        const result = eval(code);
-                        outputContent.textContent = `Result: ${result}`;
-                        outputContent.style.color = '#4ade80';
-                    }
-                    // Generic success message
-                    else {
-                        outputContent.textContent = 'Code executed successfully!\n\nNote: This is a simulated environment. For full code execution, use a proper IDE or online compiler.';
-                        outputContent.style.color = '#4ade80';
-                    }
-                } catch (error) {
-                    outputContent.textContent = `Error: ${error.message}\n\nPlease check your code syntax.`;
-                    outputContent.style.color = '#ef4444';
-                }
-            }, 500);
-        });
-
         // ADD FUNCTION TO UPDATE CHARTS WITH REAL DATA
-let currentChartLanguage = 'python'; // Default to Python
 
 // Function to animate counting numbers
 function animateCounter(element, targetValue, duration = 1000) {
