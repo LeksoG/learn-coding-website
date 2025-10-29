@@ -476,18 +476,30 @@ function renderCourses() {
     coursesGrid.innerHTML = '';
     const courses = coursesData[currentLanguage];
 
-    courses.forEach(course => {
+    // Update unlock status based on completed courses
+    courses.forEach((course, index) => {
+        if (index === 0) {
+            course.unlocked = true; // First course always unlocked
+        } else if (index > 0) {
+            const prevCourse = courses[index - 1];
+            const prevProgress = courseProgress[prevCourse.title];
+            // Unlock next course only if previous is 100% complete (both learn and quiz)
+            course.unlocked = prevProgress && prevProgress.quizCompleted && prevProgress.lessonCompleted;
+        }
+    });
+
+    courses.forEach((course, index) => {
         const progress = courseProgress[course.title];
-        // Calculate progress: 50% for learn completion, 100% for learn + quiz completion
+        // Calculate progress: Only show 100% when BOTH learn AND quiz complete
         let percentage = 0;
         if (progress) {
-            if (progress.quizCompleted) {
+            if (progress.quizCompleted && progress.lessonCompleted) {
                 percentage = 100;
-            } else if (progress.lessonCompleted) {
-                percentage = 50;
+            } else if (progress.lessonCompleted && !progress.quizCompleted) {
+                percentage = 75; // Finished learn, not quiz
             } else if (progress.totalLessons > 0) {
-                // During learning phase: 0-50%
-                percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
+                // During learning phase: 0-70%
+                percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 70);
             }
         }
 
@@ -495,6 +507,10 @@ function renderCourses() {
         courseCard.className = `course-card ${!course.unlocked ? 'locked' : ''}`;
         courseCard.dataset.locked = !course.unlocked;
         courseCard.dataset.courseTitle = course.title;
+        courseCard.dataset.percentage = percentage;
+
+        // Calculate realistic time estimate (4-5 mins per course)
+        const timeEstimate = `${4 + (index % 2)}min`;
 
         courseCard.innerHTML = `
             ${!course.unlocked ? `
@@ -515,14 +531,36 @@ function renderCourses() {
             ` : ''}
             <h3 class="course-title">${course.title}</h3>
             <p class="course-desc">${course.desc}</p>
-            <button class="view-details-btn">
-                View Details
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button class="view-details-btn" onclick="event.stopPropagation();">
+                <span class="view-details-text">View Details</span>
+                <svg class="view-details-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
             </button>
             <div class="course-details">
-                <div class="detail-item">${course.details}</div>
+                <div class="detail-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Duration: ${timeEstimate}
+                </div>
+                <div class="detail-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                    </svg>
+                    Difficulty: ${course.id <= 2 ? 'Beginner' : course.id <= 4 ? 'Intermediate' : 'Advanced'}
+                </div>
+                <div class="detail-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Topics: ${Math.floor(Math.random() * 5) + 6}
+                </div>
             </div>
         `;
 
