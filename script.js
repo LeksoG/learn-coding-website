@@ -1778,6 +1778,8 @@ function attachKeywordListeners(container) {
 
 // FIND YOUR typeMessage FUNCTION and UPDATE the code block part
 function typeMessage(label, text, callback) {
+    if (!chatbotActive) return; // Stop if chatbot closed
+
     const chatbotMessages = document.getElementById('chatbotMessages');
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
@@ -1787,14 +1789,16 @@ function typeMessage(label, text, callback) {
     `;
     chatbotMessages.appendChild(messageDiv);
     chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    
+
     const contentDiv = messageDiv.querySelector('.message-content');
-    
+
     if (text.includes('\n') && (text.includes('=') || text.includes('{') || text.includes('print(') || text.includes('function'))) {
         const parts = text.split('\n\n');
         let partIndex = 0;
-        
+
         const typePart = () => {
+            if (!chatbotActive) return; // Stop if closed
+
             if (partIndex < parts.length) {
                 const part = parts[partIndex];
                 // CHECK if this part is code
@@ -1812,8 +1816,10 @@ function typeMessage(label, text, callback) {
                     let charIndex = 0;
                     const span = document.createElement('span');
                     contentDiv.appendChild(span);
-                    
+
                     const typeChar = () => {
+                        if (!chatbotActive) return; // Stop if closed
+
                         if (charIndex < part.length) {
                             span.textContent += part[charIndex];
                             charIndex++;
@@ -1830,13 +1836,15 @@ function typeMessage(label, text, callback) {
                     typeChar();
                 }
             } else {
-                if (callback) callback();
+                if (callback && chatbotActive) callback();
             }
         };
         typePart();
     } else {
         let index = 0;
         const typeChar = () => {
+            if (!chatbotActive) return; // Stop if closed
+
             if (index < text.length) {
                 contentDiv.textContent += text[index];
                 index++;
@@ -1845,7 +1853,7 @@ function typeMessage(label, text, callback) {
             } else {
                 contentDiv.innerHTML = highlightKeywords(contentDiv.textContent);
                 attachKeywordListeners(contentDiv);
-                if (callback) callback();
+                if (callback && chatbotActive) callback();
             }
         };
         setTimeout(typeChar, 150);
@@ -2072,4 +2080,68 @@ if (runCodeBtn && codeEditor && codePreview) {
             codePreview.innerHTML = `<div class="preview-output">${output}</div>`;
         }
     });
+}
+
+// ==================== AI SIDEBAR FUNCTIONALITY ====================
+
+const aiHelperBtn = document.getElementById('aiHelperBtn');
+const aiSidebar = document.getElementById('aiSidebar');
+const aiSidebarClose = document.getElementById('aiSidebarClose');
+const practiceWrapper = document.getElementById('practiceWrapper');
+
+if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
+    // Open AI Sidebar
+    aiHelperBtn.addEventListener('click', () => {
+        aiSidebar.classList.add('active');
+        practiceWrapper.classList.add('shifted');
+    });
+
+    // Close AI Sidebar
+    aiSidebarClose.addEventListener('click', () => {
+        aiSidebar.classList.remove('active');
+        practiceWrapper.classList.remove('shifted');
+    });
+
+    // AI Ask button functionality (simulated response)
+    const aiAskBtn = document.querySelector('.ai-ask-btn');
+    const aiInput = document.querySelector('.ai-input');
+    const aiResponse = document.getElementById('aiResponse');
+
+    if (aiAskBtn && aiInput && aiResponse) {
+        aiAskBtn.addEventListener('click', () => {
+            const question = aiInput.value.trim();
+            
+            if (!question) {
+                aiResponse.innerHTML = '<p style="color: #ef4444; font-weight: 600;">Please type a question first!</p>';
+                return;
+            }
+
+            // Show thinking state
+            aiResponse.innerHTML = '<p style="color: #6366f1; font-weight: 600;">🤔 AI is thinking...</p>';
+
+            // Simulate AI response (in real implementation, this would call an AI API)
+            setTimeout(() => {
+                const responses = [
+                    `Great question about "${question}"! In programming, this concept is fundamental. Let me explain: You should break down the problem into smaller steps and test each part individually.`,
+                    `Regarding "${question}": This is a common question! The best approach is to start simple and gradually add complexity. Make sure to handle edge cases.`,
+                    `For "${question}": Consider using proper variable naming, adding comments for clarity, and testing your code with different inputs to ensure it works correctly.`,
+                    `About "${question}": This is an important concept! Try to think about the logic flow first, then implement it step by step. Don't forget to debug as you go!`
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                aiResponse.innerHTML = `<p>${randomResponse}</p>`;
+                
+                // Clear input
+                aiInput.value = '';
+            }, 1500);
+        });
+
+        // Allow Enter key to submit (Shift+Enter for new line)
+        aiInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                aiAskBtn.click();
+            }
+        });
+    }
 }
