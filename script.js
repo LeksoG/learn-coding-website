@@ -2093,14 +2093,14 @@ const aiInputOval = document.getElementById('aiInputOval');
 const aiSendBtn = document.getElementById('aiSendBtn');
 const aiConversation = document.getElementById('aiConversation');
 const aiSuggestions = document.getElementById('aiSuggestions');
-let currentLanguage = 'Python'; // Default language
+let aiCurrentLanguage = 'Python'; // Default language for AI sidebar
 
 if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
     // Open AI Sidebar
     aiHelperBtn.addEventListener('click', () => {
         aiSidebar.classList.add('active');
         practiceWrapper.classList.add('shifted');
-        updateSuggestions(currentLanguage);
+        updateSuggestions(aiCurrentLanguage);
     });
 
     // Close AI Sidebar
@@ -2111,7 +2111,10 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
 
     // Update suggestions based on detected language
     function updateSuggestions(language) {
-        if (!AI_CONFIG || !AI_CONFIG.suggestions) return;
+        if (typeof AI_CONFIG === 'undefined' || !AI_CONFIG || !AI_CONFIG.suggestions) {
+            console.warn('⚠️ AI_CONFIG not loaded. Make sure aiConfig.js is loaded before script.js');
+            return;
+        }
 
         const suggestions = AI_CONFIG.suggestions[language] || AI_CONFIG.suggestions['Python'];
         aiSuggestions.innerHTML = '';
@@ -2134,10 +2137,10 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
             const code = codeEditor.value;
             if (code.trim()) {
                 const detectedLang = detectLanguage(code);
-                if (detectedLang !== currentLanguage) {
-                    currentLanguage = detectedLang;
+                if (detectedLang !== aiCurrentLanguage) {
+                    aiCurrentLanguage = detectedLang;
                     if (aiSidebar.classList.contains('active')) {
-                        updateSuggestions(currentLanguage);
+                        updateSuggestions(aiCurrentLanguage);
                     }
                 }
             }
@@ -2174,8 +2177,13 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         aiConversation.scrollTop = aiConversation.scrollHeight;
 
         try {
+            // Check if callAI is available
+            if (typeof callAI === 'undefined') {
+                throw new Error('AI functions not loaded. Make sure aiConfig.js is included.');
+            }
+
             // Call AI API (from aiConfig.js)
-            const response = await callAI(question, currentLanguage);
+            const response = await callAI(question, aiCurrentLanguage);
 
             // Remove thinking message
             const thinkingMsg = document.getElementById('thinking-message');
