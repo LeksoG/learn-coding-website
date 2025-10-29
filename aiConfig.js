@@ -1,7 +1,7 @@
 // AI Configuration
 const AI_CONFIG = {
     endpoint: '/api/ai-chat', // Vercel serverless function endpoint
-    model: 'gpt-3.5-turbo',
+    model: 'mistral-small-latest', // Mistral AI model
     maxTokens: 500,
     temperature: 0.7,
 
@@ -55,9 +55,10 @@ async function initializeAI() {
         });
 
         if (response.ok || response.status === 404) {
-            console.log('✅ AI Config: API endpoint configured');
+            console.log('✅ AI Config: Mistral AI endpoint configured');
             console.log('📍 Endpoint:', AI_CONFIG.endpoint);
             console.log('🤖 Model:', AI_CONFIG.model);
+            console.log('✨ Provider: Mistral AI');
             console.log('✅ AI is ready to use');
             return true;
         } else {
@@ -66,7 +67,7 @@ async function initializeAI() {
         }
     } catch (error) {
         console.warn('⚠️ AI Config: Using fallback mode (API not available)');
-        console.log('💡 To enable real AI: Deploy to Vercel with OPENAI_API_KEY environment variable');
+        console.log('💡 To enable Mistral AI: Deploy to Vercel with MISTRAL_API_KEY environment variable');
         return false;
     }
 }
