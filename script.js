@@ -2111,15 +2111,29 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
 
     // Update suggestions based on detected language
     function updateSuggestions(language) {
+        // Fallback suggestions when AI_CONFIG is not loaded
+        const fallbackSuggestions = {
+            'Python': ['How do I use loops?', 'Explain functions'],
+            'JavaScript': ['How do promises work?', 'Explain async/await'],
+            'HTML': ['How to structure a page?', 'What are semantic tags?'],
+            'CSS': ['How to center a div?', 'Explain flexbox'],
+            'Java': ['What are classes?', 'How do I use loops?'],
+            'C++': ['Explain pointers', 'How do vectors work?'],
+            'Ruby': ['What are blocks?', 'How to iterate arrays?']
+        };
+
+        let suggestions;
         if (typeof AI_CONFIG === 'undefined' || !AI_CONFIG || !AI_CONFIG.suggestions) {
-            console.warn('⚠️ AI_CONFIG not loaded. Make sure aiConfig.js is loaded before script.js');
-            return;
+            console.warn('⚠️ AI_CONFIG not loaded. Using fallback suggestions.');
+            suggestions = fallbackSuggestions[language] || fallbackSuggestions['Python'];
+        } else {
+            suggestions = AI_CONFIG.suggestions[language] || AI_CONFIG.suggestions['Python'];
         }
 
-        const suggestions = AI_CONFIG.suggestions[language] || AI_CONFIG.suggestions['Python'];
         aiSuggestions.innerHTML = '';
 
-        suggestions.forEach(suggestion => {
+        // Only show 2 suggestions
+        suggestions.slice(0, 2).forEach(suggestion => {
             const chip = document.createElement('div');
             chip.className = 'ai-suggestion-chip';
             chip.textContent = suggestion;
