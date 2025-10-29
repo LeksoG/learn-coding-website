@@ -1,6 +1,6 @@
 // AI Configuration
 const AI_CONFIG = {
-    endpoint: '/api/ai-chat', // Vercel serverless function endpoint
+    endpoint: '/api/ai-config.js', // Vercel serverless function endpoint
     model: 'mistral-small-latest', // Mistral AI model
     maxTokens: 500,
     temperature: 0.7,
