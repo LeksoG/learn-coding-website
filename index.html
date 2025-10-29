@@ -106,10 +106,23 @@
 
         <!-- Search Button -->
         <div class="search-btn" id="searchBtn">
-            <svg style="width: 22px; height: 22px; stroke: var(--text-primary);" viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <svg class="search-icon" style="width: 22px; height: 22px; stroke: var(--text-primary);" viewBox="0 0 24 24" fill="none" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="M21 21l-4.35-4.35"></path>
             </svg>
+            <div class="search-input-container">
+                <svg style="width: 20px; height: 20px; stroke: var(--text-secondary);" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="M21 21l-4.35-4.35"></path>
+                </svg>
+                <input type="text" class="search-input" placeholder="Search courses..." id="searchInput" />
+                <div class="search-close-btn" id="searchCloseBtn">
+                    <svg style="width: 20px; height: 20px; stroke: currentColor;" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </div>
+            </div>
         </div>
 
         <!-- Search Container -->
@@ -174,6 +187,35 @@
                 <div class="analytics-section">
                     <h2 class="analytics-title">Learning Progress</h2>
                     <div class="chart-tabs" id="chartTabs"></div>
+
+                    <!-- Analytics Cards -->
+                    <div class="analytics-cards-container" id="analyticsCards">
+                        <div class="analytics-card">
+                            <div class="analytics-card-title">7-Day Activity</div>
+                            <div class="analytics-card-value" id="card1Value">0</div>
+                            <div class="analytics-card-subtitle" id="card1Subtitle">Loading...</div>
+                            <div class="analytics-card-trend positive" id="card1Trend" style="display: none;">
+                                <span>↑ 0%</span>
+                            </div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-title">Course Comparison</div>
+                            <div class="analytics-card-value" id="card2Value">-</div>
+                            <div class="analytics-card-subtitle" id="card2Subtitle">Loading...</div>
+                            <div class="analytics-card-trend neutral" id="card2Trend" style="display: none;">
+                                <span>→ 0%</span>
+                            </div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-title">Improvement Area</div>
+                            <div class="analytics-card-value" id="card3Value">-</div>
+                            <div class="analytics-card-subtitle" id="card3Subtitle">Loading...</div>
+                            <div class="analytics-card-trend negative" id="card3Trend" style="display: none;">
+                                <span>↓ 0%</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="chart-container" id="chartContainer"></div>
                 </div>
             </div>
