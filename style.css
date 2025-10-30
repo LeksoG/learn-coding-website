@@ -3215,6 +3215,36 @@ body.dark-mode .ai-input-container:focus-within {
     height: 18px;
 }
 
+/* AI Thinking Wave Animation */
+.ai-thinking-wave {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wave-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    animation: waveJump 1s ease-in-out infinite;
+}
+
+@keyframes waveJump {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.thinking-text {
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .practice-container-wrapper.shifted {

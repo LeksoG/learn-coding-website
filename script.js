@@ -2658,6 +2658,13 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
 
     // Format AI responses for better readability
     function formatAIResponse(text) {
+        // Remove markdown hashtags (headers) and replace with bold
+        text = text.replace(/#+\s+(.+)/g, '<strong>$1</strong>');
+
+        // Remove asterisk bold/italic markers
+        text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
         // Convert markdown-style code blocks
         text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
 
@@ -2665,7 +2672,7 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
 
         // Convert bullet points
-        text = text.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
+        text = text.replace(/^\s*[-•]\s+(.+)$/gm, '<li>$1</li>');
 
         // Wrap consecutive list items in ul
         text = text.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
@@ -2673,15 +2680,20 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         // Convert numbered lists
         text = text.replace(/^\s*\d+\.\s+(.+)$/gm, '<li>$1</li>');
 
-        // Convert line breaks to paragraphs
+        // Convert line breaks to paragraphs (limit length)
         const paragraphs = text.split('\n\n').filter(p => p.trim());
         if (paragraphs.length > 1 && !text.includes('<ul>') && !text.includes('<pre>')) {
-            text = paragraphs.map(p => {
+            text = paragraphs.slice(0, 4).map(p => { // Limit to 4 paragraphs
                 if (!p.startsWith('<') && p.trim()) {
                     return '<p>' + p.trim() + '</p>';
                 }
                 return p;
             }).join('');
+        }
+
+        // Truncate if response is too long (more than 500 characters)
+        if (text.length > 500 && !text.includes('<code>')) {
+            text = text.substring(0, 500) + '...';
         }
 
         return text;
@@ -2748,10 +2760,17 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         addMessage(question, 'user');
         aiInputOval.value = '';
 
-        // Show thinking state
+        // Show thinking state with wave animation
         const thinkingDiv = document.createElement('div');
         thinkingDiv.className = 'ai-message ai';
-        thinkingDiv.innerHTML = '🤔 Thinking...';
+        thinkingDiv.innerHTML = `
+            <div class="ai-thinking-wave">
+                <span class="wave-dot" style="animation-delay: 0s"></span>
+                <span class="wave-dot" style="animation-delay: 0.1s"></span>
+                <span class="wave-dot" style="animation-delay: 0.2s"></span>
+                <span class="thinking-text">Thinking...</span>
+            </div>
+        `;
         thinkingDiv.id = 'thinking-message';
         aiConversation.appendChild(thinkingDiv);
         aiConversation.scrollTop = aiConversation.scrollHeight;
@@ -2801,9 +2820,86 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         });
 
         // Update suggestions as user types
+        let suggestionTimeout;
         aiInputOval.addEventListener('input', () => {
-            if (aiInputOval.value.length > 0) {
-                // Could add dynamic suggestions here based on input
+            clearTimeout(suggestionTimeout);
+            const input = aiInputOval.value.trim();
+
+            if (input.length >= 2) {
+                // Wait 300ms after user stops typing
+                suggestionTimeout = setTimeout(() => {
+                    showDynamicSuggestions(input);
+                }, 300);
+            } else {
+                // Show default suggestions when input is empty
+                updateSuggestions(aiCurrentLanguage);
+            }
+        });
+    }
+
+    // Show dynamic suggestions based on user input
+    function showDynamicSuggestions(input) {
+        const words = input.toLowerCase().split(' ');
+        const firstTwoWords = words.slice(0, 2).join(' ');
+
+        const dynamicSuggestions = {
+            'how': ['How do I debug this?', 'How to optimize code?', 'How does this work?'],
+            'what': ['What is this error?', 'What does this do?', 'What is best practice?'],
+            'why': ['Why is this not working?', 'Why use this method?', 'Why this error?'],
+            'how do': ['How do I fix this?', 'How do loops work?', 'How do I optimize?'],
+            'how to': ['How to debug efficiently?', 'How to improve performance?', 'How to fix syntax?'],
+            'what is': ['What is causing this?', 'What is the issue?', 'What is wrong here?'],
+            'explain': ['Explain this code', 'Explain the logic', 'Explain the error'],
+            'fix': ['Fix my code', 'Fix this bug', 'Fix syntax error'],
+            'help': ['Help me understand', 'Help with debugging', 'Help optimize this'],
+            'debug': ['Debug this code', 'Debug my function', 'Debug the error']
+        };
+
+        // Find matching suggestions
+        let suggestions = [];
+        for (const [key, values] of Object.entries(dynamicSuggestions)) {
+            if (firstTwoWords.includes(key) || input.toLowerCase().includes(key)) {
+                suggestions = values;
+                break;
+            }
+        }
+
+        // If no match, show language-specific suggestions
+        if (suggestions.length === 0) {
+            updateSuggestions(aiCurrentLanguage);
+            return;
+        }
+
+        // Update UI with dynamic suggestions
+        aiSuggestions.innerHTML = '';
+        suggestions.slice(0, 3).forEach(suggestion => {
+            const chip = document.createElement('div');
+            chip.className = 'ai-suggestion-chip';
+            chip.textContent = suggestion;
+            chip.addEventListener('click', () => {
+                aiInputOval.value = suggestion;
+                aiInputOval.focus();
+            });
+            aiSuggestions.appendChild(chip);
+        });
+    }
+
+    // Plus button functionality
+    const aiPlusBtn = document.getElementById('aiPlusBtn');
+    let newAgentMode = false;
+
+    if (aiPlusBtn) {
+        aiPlusBtn.addEventListener('click', () => {
+            newAgentMode = !newAgentMode;
+            aiPlusBtn.classList.toggle('active');
+
+            if (newAgentMode) {
+                // Clear conversation and show new agent mode message
+                const newAgentMsg = document.createElement('div');
+                newAgentMsg.className = 'ai-message ai';
+                newAgentMsg.innerHTML = '🤖 <strong>New Agent Mode</strong><br>I\'ll now adjust and improve your code directly! Just describe what you want to change.';
+                aiConversation.appendChild(newAgentMsg);
+                aiConversation.scrollTop = aiConversation.scrollHeight;
             }
         });
     }
