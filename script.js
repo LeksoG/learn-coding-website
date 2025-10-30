@@ -110,6 +110,9 @@
             if (e.key === 'Enter') handleResetPassword();
         });
 
+        // Verify Code Input - Real-time validation
+        verifyCode.addEventListener('input', handleVerifyCodeInput);
+
         // Form Switching
         showSignup.addEventListener('click', () => switchForm('signup'));
         showLogin.addEventListener('click', () => switchForm('login'));
@@ -287,6 +290,36 @@
             console.log("Verification code:", verificationCode);
             alert(`Your verification code is: ${verificationCode} (EmailJS not configured)`);
             switchForm('verify');
+        }
+    }
+
+    // Handle Verify Code Input - Real-time validation
+    let verifyCodeTimeout = null;
+    function handleVerifyCodeInput() {
+        const code = verifyCode.value.trim();
+        const passwordGroup = document.querySelector('#verifyCodeForm .auth-input-group:last-of-type');
+
+        // Clear previous timeout
+        if (verifyCodeTimeout) {
+            clearTimeout(verifyCodeTimeout);
+        }
+
+        // Remove unlocked class first
+        passwordGroup.classList.remove('unlocked');
+
+        // Check if code is 6 digits
+        if (code.length === 6) {
+            // Wait 1 second before checking
+            verifyCodeTimeout = setTimeout(() => {
+                if (code === verificationCode) {
+                    // Unlock password field with animation
+                    passwordGroup.classList.add('unlocked');
+                    newPassword.focus();
+                } else {
+                    // Show error if code doesn't match
+                    showError(verifyError, "Invalid verification code");
+                }
+            }, 1000);
         }
     }
 
