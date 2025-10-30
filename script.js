@@ -720,9 +720,54 @@ document.addEventListener('touchend', e => {
             const query = e.target.value.toLowerCase();
             if (query.length > 0) {
                 const results = [];
+
+                // Natural language search enhancements
+                const naturalLanguageMap = {
+                    'learn': '', 'start': '', 'begin': '', 'study': '',
+                    'how to': '', 'what is': '', 'understand': '',
+                    'basics': 'basic', 'fundamentals': 'basic',
+                    'beginner': 'basic', 'starting': 'basic',
+                    'functions': 'function', 'loops': 'loop', 'variables': 'variable',
+                    'classes': 'class', 'objects': 'object'
+                };
+
+                // Process query with natural language understanding
+                let processedQuery = query;
+                Object.keys(naturalLanguageMap).forEach(key => {
+                    if (processedQuery.includes(key)) {
+                        processedQuery = processedQuery.replace(key, naturalLanguageMap[key]);
+                    }
+                });
+
+                // Extract language name from query
+                const languageKeywords = {
+                    'python': 'python', 'py': 'python',
+                    'javascript': 'javascript', 'js': 'javascript',
+                    'react': 'react', 'reactjs': 'react',
+                    'html': 'html', 'css': 'html', 'web': 'html',
+                    'java': 'java'
+                };
+
+                let targetLanguage = null;
+                Object.keys(languageKeywords).forEach(keyword => {
+                    if (query.includes(keyword)) {
+                        targetLanguage = languageKeywords[keyword];
+                    }
+                });
+
+                // Search courses with enhanced matching
                 Object.keys(coursesData).forEach(lang => {
+                    // If specific language mentioned, only search that language
+                    if (targetLanguage && lang !== targetLanguage) return;
+
                     coursesData[lang].forEach(course => {
-                        if (course.title.toLowerCase().includes(query) || course.desc.toLowerCase().includes(query)) {
+                        const titleMatch = course.title.toLowerCase().includes(query) ||
+                                          course.title.toLowerCase().includes(processedQuery);
+                        const descMatch = course.desc.toLowerCase().includes(query) ||
+                                         course.desc.toLowerCase().includes(processedQuery);
+                        const langMatch = lang.toLowerCase().includes(query);
+
+                        if (titleMatch || descMatch || langMatch) {
                             // Calculate progress
                             const progress = courseProgress[course.title];
                             let percentage = 0;
@@ -2884,23 +2929,145 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         });
     }
 
-    // Plus button functionality
+    // Plus button functionality - Show agent popup
     const aiPlusBtn = document.getElementById('aiPlusBtn');
+    const agentPopup = document.getElementById('agentPopup');
+    const agentModeToggle = document.getElementById('agentModeToggle');
     let newAgentMode = false;
 
-    if (aiPlusBtn) {
+    if (aiPlusBtn && agentPopup) {
         aiPlusBtn.addEventListener('click', () => {
+            agentPopup.classList.toggle('active');
+        });
+
+        // Close popup when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!agentPopup.contains(e.target) && !aiPlusBtn.contains(e.target)) {
+                agentPopup.classList.remove('active');
+            }
+        });
+    }
+
+    // Agent mode toggle
+    if (agentModeToggle) {
+        agentModeToggle.addEventListener('click', () => {
+            agentModeToggle.classList.toggle('active');
             newAgentMode = !newAgentMode;
-            aiPlusBtn.classList.toggle('active');
 
             if (newAgentMode) {
-                // Clear conversation and show new agent mode message
-                const newAgentMsg = document.createElement('div');
-                newAgentMsg.className = 'ai-message ai';
-                newAgentMsg.innerHTML = '🤖 <strong>New Agent Mode</strong><br>I\'ll now adjust and improve your code directly! Just describe what you want to change.';
-                aiConversation.appendChild(newAgentMsg);
-                aiConversation.scrollTop = aiConversation.scrollHeight;
+                aiPlusBtn.classList.add('active');
+            } else {
+                aiPlusBtn.classList.remove('active');
             }
         });
     }
 }
+
+// ==================== SPLASH SCREEN ====================
+(function() {
+    const splashScreen = document.getElementById('splashScreen');
+    const currentVersion = '5.0';
+    const lastVersion = localStorage.getItem('appVersion');
+
+    // Show splash screen only for new versions
+    if (lastVersion !== currentVersion) {
+        setTimeout(() => {
+            splashScreen.classList.add('hidden');
+            localStorage.setItem('appVersion', currentVersion);
+        }, 3000); // Show for 3 seconds
+    } else {
+        // Hide immediately if same version
+        splashScreen.classList.add('hidden');
+    }
+})();
+
+// ==================== LOGOUT CONFIRMATION ====================
+(function() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const logoutConfirmation = document.getElementById('logoutConfirmation');
+    const cancelLogout = document.getElementById('cancelLogout');
+    const confirmLogout = document.getElementById('confirmLogout');
+
+    if (logoutBtn && logoutConfirmation) {
+        // Show confirmation instead of logging out immediately
+        logoutBtn.onclick = function(e) {
+            e.preventDefault();
+            logoutConfirmation.classList.add('active');
+        };
+
+        // Cancel logout
+        if (cancelLogout) {
+            cancelLogout.addEventListener('click', () => {
+                logoutConfirmation.classList.remove('active');
+            });
+        }
+
+        // Confirm logout
+        if (confirmLogout) {
+            confirmLogout.addEventListener('click', () => {
+                window.logout();
+            });
+        }
+
+        // Close on overlay click
+        logoutConfirmation.addEventListener('click', (e) => {
+            if (e.target === logoutConfirmation) {
+                logoutConfirmation.classList.remove('active');
+            }
+        });
+    }
+})();
+
+// ==================== 2FA TOGGLE FUNCTIONALITY ====================
+(function() {
+    const twoFactorToggle = document.getElementById('twoFactorToggle');
+
+    if (twoFactorToggle) {
+        // Load 2FA state from localStorage
+        const is2FAEnabled = localStorage.getItem('2faEnabled') === 'true';
+        if (is2FAEnabled) {
+            twoFactorToggle.classList.add('active');
+        }
+
+        // Toggle 2FA
+        twoFactorToggle.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const enabled = this.classList.contains('active');
+            localStorage.setItem('2faEnabled', enabled);
+
+            // Show notification
+            console.log('2FA ' + (enabled ? 'enabled' : 'disabled'));
+        });
+    }
+})();
+
+// ==================== FIX MOBILE HOME PAGE VISIBILITY ====================
+(function() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const pages = document.querySelectorAll('.page-section');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const targetPage = this.dataset.page;
+
+            // Force repaint for home page on mobile
+            if (targetPage === 'home') {
+                setTimeout(() => {
+                    const chartContainer = document.querySelector('.chart-container');
+                    if (chartContainer) {
+                        chartContainer.style.display = 'none';
+                        chartContainer.offsetHeight; // Trigger reflow
+                        chartContainer.style.display = 'flex';
+                    }
+
+                    const widgets = document.querySelector('.widgets-grid');
+                    if (widgets) {
+                        widgets.style.display = 'none';
+                        widgets.offsetHeight; // Trigger reflow
+                        widgets.style.display = 'grid';
+                    }
+                }, 100);
+            }
+        });
+    });
+})();
