@@ -2161,13 +2161,51 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         });
     }
 
-    // Add message to conversation
+    // Add message to conversation with improved formatting
     function addMessage(text, type) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `ai-message ${type}`;
-        messageDiv.textContent = text;
+
+        if (type === 'ai') {
+            // Format AI responses with better structure
+            messageDiv.innerHTML = formatAIResponse(text);
+        } else {
+            messageDiv.textContent = text;
+        }
+
         aiConversation.appendChild(messageDiv);
         aiConversation.scrollTop = aiConversation.scrollHeight;
+    }
+
+    // Format AI responses for better readability
+    function formatAIResponse(text) {
+        // Convert markdown-style code blocks
+        text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+
+        // Convert inline code
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+        // Convert bullet points
+        text = text.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
+
+        // Wrap consecutive list items in ul
+        text = text.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+
+        // Convert numbered lists
+        text = text.replace(/^\s*\d+\.\s+(.+)$/gm, '<li>$1</li>');
+
+        // Convert line breaks to paragraphs
+        const paragraphs = text.split('\n\n').filter(p => p.trim());
+        if (paragraphs.length > 1 && !text.includes('<ul>') && !text.includes('<pre>')) {
+            text = paragraphs.map(p => {
+                if (!p.startsWith('<') && p.trim()) {
+                    return '<p>' + p.trim() + '</p>';
+                }
+                return p;
+            }).join('');
+        }
+
+        return text;
     }
 
     // Fallback AI response when aiConfig.js is not available
