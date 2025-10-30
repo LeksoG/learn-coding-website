@@ -319,6 +319,25 @@ print('Hello, World!')"></textarea>
 
                 <!-- Settings Grid -->
                 <div class="settings-grid">
+                    <div class="setting-card" style="grid-column: 1 / -1;">
+                        <div class="setting-title" style="color: var(--accent-color);">Account Settings</div>
+                        <div class="setting-desc">Manage your account and security</div>
+
+                        <div class="account-settings-group">
+                            <div class="account-setting-row">
+                                <div>
+                                    <div class="setting-title" style="font-size: 1.1rem; margin-bottom: 5px;">Two-Factor Authentication (2FA)</div>
+                                    <div class="setting-desc" style="margin-bottom: 0;">Enhance security with email verification code on login</div>
+                                </div>
+                                <div class="toggle-switch" id="twoFactorToggle">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+
+                            <button class="logout-btn" id="logoutBtn" onclick="logout()">Logout</button>
+                        </div>
+                    </div>
+
                     <div class="setting-card">
                         <div class="setting-title">Dark Mode</div>
                         <div class="setting-desc">Switch between light and dark theme</div>
@@ -341,20 +360,6 @@ print('Hello, World!')"></textarea>
                         <div class="toggle-switch" id="autoPlayToggle">
                             <div class="toggle-slider"></div>
                         </div>
-                    </div>
-
-                    <div class="setting-card">
-                        <div class="setting-title">Two-Factor Authentication (2FA)</div>
-                        <div class="setting-desc">Enhance security with email verification code on login. When enabled, you'll receive a verification code via email each time you log in after logging out.</div>
-                        <div class="toggle-switch" id="twoFactorToggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="setting-card" style="grid-column: 1 / -1;">
-                        <div class="setting-title" style="color: var(--accent-color);">Account</div>
-                        <div class="setting-desc">Manage your account settings</div>
-                        <button class="logout-btn" id="logoutBtn" onclick="logout()">Logout</button>
                     </div>
                 </div>
             </div>

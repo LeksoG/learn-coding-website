@@ -270,6 +270,7 @@
 
             emailjs.send(emailConfig.serviceId, emailConfig.templateId, {
                 to_email: email,
+                user_name: user.name,
                 to_name: user.name,
                 verification_code: verificationCode,
                 reset_code: verificationCode
@@ -382,6 +383,23 @@
         const welcomeTitle = document.getElementById('welcomeTitle');
         if (welcomeTitle) {
             welcomeTitle.textContent = `Welcome Back, ${user.name}!`;
+        }
+
+        // Update settings profile
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+
+        if (profileAvatar && user.name) {
+            profileAvatar.textContent = user.name.charAt(0).toUpperCase();
+        }
+
+        if (profileName) {
+            profileName.textContent = user.name;
+        }
+
+        if (profileEmail) {
+            profileEmail.textContent = user.email;
         }
 
         // Store globally for other scripts to access
