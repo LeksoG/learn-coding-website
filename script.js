@@ -2966,15 +2966,27 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
 // ==================== SPLASH SCREEN ====================
 (function() {
     const splashScreen = document.getElementById('splashScreen');
+    const splashContinue = document.getElementById('splashContinue');
+    const splashClose = document.getElementById('splashClose');
     const currentVersion = '5.0';
     const lastVersion = localStorage.getItem('appVersion');
 
     // Show splash screen only for new versions
     if (lastVersion !== currentVersion) {
-        setTimeout(() => {
+        // Don't auto-hide, wait for user interaction
+
+        const hideSplash = () => {
             splashScreen.classList.add('hidden');
             localStorage.setItem('appVersion', currentVersion);
-        }, 3000); // Show for 3 seconds
+        };
+
+        if (splashContinue) {
+            splashContinue.addEventListener('click', hideSplash);
+        }
+
+        if (splashClose) {
+            splashClose.addEventListener('click', hideSplash);
+        }
     } else {
         // Hide immediately if same version
         splashScreen.classList.add('hidden');
