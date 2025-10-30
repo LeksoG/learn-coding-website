@@ -307,6 +307,17 @@ print('Hello, World!')"></textarea>
             <!-- Settings Page -->
             <div class="page-section" id="settingsPage">
                 <h1 class="section-title">Settings</h1>
+
+                <!-- User Profile Section -->
+                <div class="settings-profile">
+                    <div class="profile-avatar" id="profileAvatar">U</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="profileName">User</div>
+                        <div class="profile-email" id="profileEmail">user@example.com</div>
+                    </div>
+                </div>
+
+                <!-- Settings Grid -->
                 <div class="settings-grid">
                     <div class="setting-card">
                         <div class="setting-title">Dark Mode</div>
@@ -328,6 +339,14 @@ print('Hello, World!')"></textarea>
                         <div class="setting-title">Auto-play Lessons</div>
                         <div class="setting-desc">Automatically proceed to next lesson</div>
                         <div class="toggle-switch" id="autoPlayToggle">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-card">
+                        <div class="setting-title">Two-Factor Authentication (2FA)</div>
+                        <div class="setting-desc">Enhance security with email verification code on login. When enabled, you'll receive a verification code via email each time you log in after logging out.</div>
+                        <div class="toggle-switch" id="twoFactorToggle">
                             <div class="toggle-slider"></div>
                         </div>
                     </div>
