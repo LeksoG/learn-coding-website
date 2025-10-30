@@ -241,6 +241,12 @@
                 </div>
 
                 <div class="practice-container-wrapper" id="practiceWrapper">
+                    <!-- Agent Status Message -->
+                    <div class="agent-status-message" id="agentStatusMessage">
+                        <div class="spinner"></div>
+                        <span id="agentStatusText">Thinking...</span>
+                    </div>
+
                     <!-- Code Editor Container -->
                     <div class="code-editor-container">
                         <div class="editor-header">
@@ -419,6 +425,12 @@ print('Hello, World!')"></textarea>
     <!-- Splash Screen -->
     <div class="splash-screen" id="splashScreen">
         <div class="splash-content">
+            <button class="splash-close-btn" id="splashCloseBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
             <div class="splash-logo">⚡</div>
             <h1 class="splash-title">Code Academy</h1>
             <div class="splash-version">Version 5.0</div>
@@ -428,9 +440,7 @@ print('Hello, World!')"></textarea>
                 <div class="splash-feature">🔍 Natural Language Search</div>
                 <div class="splash-feature">🤖 Enhanced AI Features</div>
             </div>
-            <div class="splash-loading">
-                <div class="loading-bar"></div>
-            </div>
+            <button class="splash-continue-btn" id="splashContinueBtn">Continue to Version 5.0</button>
         </div>
     </div>
 
@@ -543,7 +553,32 @@ print('Hello, World!')"></textarea>
             <div class="auth-error" id="forgotError"></div>
         </div>
 
-        <!-- Verify Code Form -->
+        <!-- 2FA Code Form -->
+        <div class="auth-form" id="twoFACodeForm" style="display: none;">
+            <h2 class="auth-title">Two-Factor Authentication</h2>
+            <p class="auth-subtitle">Enter the 5-digit code sent to your email</p>
+
+            <div class="auth-input-group">
+                <label class="auth-label">Verification Code</label>
+                <div class="code-input-container" id="codeInputContainer">
+                    <input type="text" class="code-digit" maxlength="1" data-index="0" />
+                    <input type="text" class="code-digit" maxlength="1" data-index="1" />
+                    <input type="text" class="code-digit" maxlength="1" data-index="2" />
+                    <input type="text" class="code-digit" maxlength="1" data-index="3" />
+                    <input type="text" class="code-digit" maxlength="1" data-index="4" />
+                </div>
+            </div>
+
+            <button class="auth-btn" id="verify2FABtn">Verify Code</button>
+
+            <div class="auth-switch">
+                <span class="auth-link" id="backToLoginFrom2FA">Back to Login</span>
+            </div>
+
+            <div class="auth-error" id="twoFAError"></div>
+        </div>
+
+        <!-- Verify Code Form (Password Reset) -->
         <div class="auth-form" id="verifyCodeForm" style="display: none;">
             <h2 class="auth-title">Enter Code</h2>
             <p class="auth-subtitle">Enter the 6-digit code sent to your email</p>

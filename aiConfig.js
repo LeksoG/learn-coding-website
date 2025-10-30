@@ -8,36 +8,86 @@ const AI_CONFIG = {
     // Language-specific suggestions
     suggestions: {
         'Python': [
+            'Explain my code',
             'How do I use loops?',
             'Explain list comprehension',
             'What are decorators?',
-            'Help with file handling'
+            'Help with file handling',
+            'Fix syntax errors',
+            'Optimize this code',
+            'Add error handling',
+            'Explain functions',
+            'How to use classes?',
+            'Debug my code',
+            'Add comments'
         ],
         'JavaScript': [
+            'Explain my code',
             'How do promises work?',
             'Explain async/await',
             'What is closure?',
-            'Help with array methods'
+            'Help with array methods',
+            'Fix my errors',
+            'Optimize performance',
+            'Add type safety',
+            'Explain DOM manipulation',
+            'How to use modules?',
+            'Debug this code',
+            'Best practices'
         ],
         'Java': [
+            'Explain my code',
             'Explain inheritance',
             'What are interfaces?',
             'Help with collections',
-            'How do generics work?'
+            'How do generics work?',
+            'Fix compilation errors',
+            'Optimize memory usage',
+            'Add exception handling',
+            'Explain OOP concepts',
+            'How to use streams?',
+            'Debug my code',
+            'Code review'
         ],
         'React': [
+            'Explain my component',
             'How do hooks work?',
             'Explain useState',
             'Help with useEffect',
-            'What is context API?'
+            'What is context API?',
+            'Fix rendering issues',
+            'Optimize re-renders',
+            'Add prop types',
+            'Explain component lifecycle',
+            'How to use custom hooks?',
+            'Debug my component',
+            'Best practices'
         ],
         'HTML/CSS': [
+            'Explain my code',
             'How to center a div?',
             'Explain flexbox',
-            'Help with grid layout?',
-            'What is responsive design?'
+            'Help with grid layout',
+            'What is responsive design?',
+            'Fix layout issues',
+            'Optimize CSS',
+            'Add animations',
+            'Explain selectors',
+            'How to use media queries?',
+            'Debug styling',
+            'Improve accessibility'
         ]
-    }
+    },
+
+    // Code-based suggestions - shown first when user has code
+    codeSuggestions: [
+        'Explain my code',
+        'Fix errors in my code',
+        'Optimize this code',
+        'Add comments to my code',
+        'Debug my code',
+        'Improve this code'
+    ]
 };
 
 // ✅ Check if AI API is ready

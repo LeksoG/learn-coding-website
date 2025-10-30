@@ -13,6 +13,7 @@
     const signupForm = document.getElementById('signupForm');
     const forgotPasswordForm = document.getElementById('forgotPasswordForm');
     const verifyCodeForm = document.getElementById('verifyCodeForm');
+    const twoFACodeForm = document.getElementById('twoFACodeForm');
 
     // Login Elements
     const loginEmail = document.getElementById('loginEmail');
@@ -128,6 +129,7 @@
         signupForm.style.display = 'none';
         forgotPasswordForm.style.display = 'none';
         verifyCodeForm.style.display = 'none';
+        if (twoFACodeForm) twoFACodeForm.style.display = 'none';
 
         // Clear all errors
         hideError(loginError);
@@ -148,6 +150,16 @@
                 break;
             case 'verify':
                 verifyCodeForm.style.display = 'block';
+                break;
+            case '2fa':
+                if (twoFACodeForm) {
+                    twoFACodeForm.style.display = 'block';
+                    // Focus first code input
+                    setTimeout(() => {
+                        const firstInput = document.querySelector('.code-digit');
+                        if (firstInput) firstInput.focus();
+                    }, 100);
+                }
                 break;
         }
     }
@@ -181,6 +193,23 @@
 
         if (user.password !== password) {
             showError(loginError, "Wrong password or email. Please try again.");
+            return;
+        }
+
+        // Check if 2FA is enabled
+        if (user.twoFactorEnabled) {
+            // Generate 5-digit code
+            const twoFACode = Math.floor(10000 + Math.random() * 90000).toString();
+
+            // Store code and email temporarily
+            sessionStorage.setItem('temp2FACode', twoFACode);
+            sessionStorage.setItem('temp2FAEmail', email);
+
+            // Send email with code
+            send2FAEmail(email, user.name, twoFACode);
+
+            // Show 2FA code form
+            switchForm('2fa');
             return;
         }
 
@@ -466,6 +495,119 @@
         location.reload();
     };
 
+    // ========== 2FA FUNCTIONS ==========
+    function send2FAEmail(email, name, code) {
+        console.log(`[2FA] Sending code ${code} to ${email}`);
+        // In production, this would send via EmailJS or backend
+        // For now, we'll show in console
+        showSuccess(`2FA code sent to ${email}: ${code}`);
+    }
+
+    // 2FA Code Input Handling
+    const codeDigits = document.querySelectorAll('.code-digit');
+    const verify2FABtn = document.getElementById('verify2FABtn');
+    const backToLoginFrom2FA = document.getElementById('backToLoginFrom2FA');
+    const twoFAError = document.getElementById('twoFAError');
+
+    if (codeDigits.length > 0) {
+        codeDigits.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+
+                if (value.length === 1) {
+                    input.classList.add('filled');
+                    // Move to next input
+                    if (index < codeDigits.length - 1) {
+                        codeDigits[index + 1].focus();
+                    }
+                } else {
+                    input.classList.remove('filled');
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !input.value) {
+                    // Move to previous input on backspace
+                    if (index > 0) {
+                        codeDigits[index - 1].focus();
+                    }
+                }
+            });
+
+            // Allow paste
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const paste = e.clipboardData.getData('text').slice(0, 5);
+                paste.split('').forEach((char, i) => {
+                    if (codeDigits[i]) {
+                        codeDigits[i].value = char;
+                        codeDigits[i].classList.add('filled');
+                    }
+                });
+                if (codeDigits[paste.length - 1]) {
+                    codeDigits[paste.length - 1].focus();
+                }
+            });
+        });
+    }
+
+    if (verify2FABtn) {
+        verify2FABtn.addEventListener('click', handle2FAVerification);
+    }
+
+    if (backToLoginFrom2FA) {
+        backToLoginFrom2FA.addEventListener('click', () => switchForm('login'));
+    }
+
+    function handle2FAVerification() {
+        const code = Array.from(codeDigits).map(input => input.value).join('');
+
+        if (code.length !== 5) {
+            showError(twoFAError, 'Please enter the complete 5-digit code');
+            return;
+        }
+
+        const storedCode = sessionStorage.getItem('temp2FACode');
+        const email = sessionStorage.getItem('temp2FAEmail');
+
+        if (code === storedCode) {
+            // Successful verification
+            verify2FABtn.classList.add('loading');
+            verify2FABtn.disabled = true;
+
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email);
+
+                if (user) {
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    sessionStorage.removeItem('temp2FACode');
+                    sessionStorage.removeItem('temp2FAEmail');
+
+                    hideAuthOverlay();
+                    updateUIWithUser(user);
+
+                    // Clear code inputs
+                    codeDigits.forEach(input => {
+                        input.value = '';
+                        input.classList.remove('filled');
+                    });
+
+                    verify2FABtn.classList.remove('loading');
+                    verify2FABtn.disabled = false;
+                }
+            }, 1500); // 1.5s loading animation
+        } else {
+            showError(twoFAError, 'Invalid code. Please try again.');
+            // Clear inputs
+            codeDigits.forEach(input => {
+                input.value = '';
+                input.classList.remove('filled');
+            });
+            codeDigits[0].focus();
+        }
+    }
+
     // Initialize on DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
@@ -586,7 +728,19 @@ const coursesData = {
             const bgGradient = document.getElementById('bgGradient');
             bgGradient.classList.add('loading');
             setTimeout(() => bgGradient.classList.remove('loading'), 2000);
-            
+
+            // Add page load spin animation to analytics cards
+            const analyticsCards = document.querySelectorAll('.analytics-card');
+            analyticsCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('page-load-animation');
+                    // Remove class after animation completes
+                    setTimeout(() => {
+                        card.classList.remove('page-load-animation');
+                    }, 2000);
+                }, index * 100); // Stagger the animation
+            });
+
             updateStats();
             renderChart();
             
@@ -614,12 +768,18 @@ const coursesData = {
                 document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
                 document.getElementById(page + 'Page').classList.add('active');
 
-                // Update charts when navigating to home page
+                // Update charts and analytics when navigating to home page
                 if (page === 'home') {
-                    // Use setTimeout to ensure DOM is ready
+                    // Force re-render of charts and analytics cards, especially important on mobile
                     setTimeout(() => {
                         renderChart(currentChartLanguage);
-                    }, 50);
+                        // Force analytics cards to be visible
+                        const analyticsCards = document.querySelectorAll('.analytics-card');
+                        analyticsCards.forEach(card => {
+                            card.style.opacity = '1';
+                            card.style.display = 'block';
+                        });
+                    }, 100); // Increased timeout for mobile
                 }
 
                 if (window.innerWidth <= 768) {
@@ -697,12 +857,20 @@ document.addEventListener('touchend', e => {
         const searchResults = document.getElementById('searchResults');
         const mainNav = document.getElementById('mainNav');
         const searchCloseBtn = document.getElementById('searchCloseBtn');
+        const hamburger = document.getElementById('hamburger');
+        const pageContainer = document.querySelector('.page-container');
 
         searchBtn.addEventListener('click', () => {
             if (!searchBtn.classList.contains('active')) {
                 // Activate search mode
                 searchBtn.classList.add('active');
                 mainNav.classList.add('hide');
+
+                // Hide hamburger and add blur on mobile
+                if (hamburger) hamburger.style.opacity = '0';
+                if (hamburger) hamburger.style.pointerEvents = 'none';
+                if (pageContainer) pageContainer.classList.add('search-blur-active');
+
                 setTimeout(() => searchInput.focus(), 500);
             }
         });
@@ -714,6 +882,11 @@ document.addEventListener('touchend', e => {
             mainNav.classList.remove('hide');
             searchInput.value = '';
             searchResults.classList.remove('show');
+
+            // Show hamburger and remove blur
+            if (hamburger) hamburger.style.opacity = '1';
+            if (hamburger) hamburger.style.pointerEvents = 'auto';
+            if (pageContainer) pageContainer.classList.remove('search-blur-active');
         });
 
         searchInput.addEventListener('input', (e) => {
@@ -2619,12 +2792,43 @@ const aiConversation = document.getElementById('aiConversation');
 const aiSuggestions = document.getElementById('aiSuggestions');
 let aiCurrentLanguage = 'Python'; // Default language for AI sidebar
 
+// Agent Mode Status Display Functions
+window.showAgentStatus = function(status, text) {
+    const statusMessage = document.getElementById('agentStatusMessage');
+    const statusText = document.getElementById('agentStatusText');
+
+    if (!statusMessage || !statusText) return;
+
+    statusText.textContent = text;
+    statusMessage.className = 'agent-status-message active';
+
+    if (status === 'changing') {
+        statusMessage.classList.add('changing');
+    } else if (status === 'success') {
+        statusMessage.classList.remove('changing');
+        statusMessage.classList.add('success');
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+            statusMessage.classList.remove('active');
+        }, 3000);
+    }
+};
+
+window.hideAgentStatus = function() {
+    const statusMessage = document.getElementById('agentStatusMessage');
+    if (statusMessage) {
+        statusMessage.classList.remove('active', 'changing', 'success');
+    }
+};
+
 if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
     // Open AI Sidebar
     aiHelperBtn.addEventListener('click', () => {
         aiSidebar.classList.add('active');
         practiceWrapper.classList.add('shifted');
-        updateSuggestions(aiCurrentLanguage);
+        // Check if user has code written
+        const hasCode = codeEditor && codeEditor.value.trim().length > 0;
+        updateSuggestions(aiCurrentLanguage, hasCode);
     });
 
     // Close AI Sidebar
@@ -2633,17 +2837,21 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         practiceWrapper.classList.remove('shifted');
     });
 
+    // Suggestion rotation state
+    let suggestionRotationIndex = 0;
+    let suggestionRotationInterval = null;
+
     // Update suggestions based on detected language
-    function updateSuggestions(language) {
+    function updateSuggestions(language, hasCode = false) {
         // Fallback suggestions when AI_CONFIG is not loaded
         const fallbackSuggestions = {
-            'Python': ['How do I use loops?', 'Explain functions'],
-            'JavaScript': ['How do promises work?', 'Explain async/await'],
-            'HTML': ['How to structure a page?', 'What are semantic tags?'],
-            'CSS': ['How to center a div?', 'Explain flexbox'],
-            'Java': ['What are classes?', 'How do I use loops?'],
-            'C++': ['Explain pointers', 'How do vectors work?'],
-            'Ruby': ['What are blocks?', 'How to iterate arrays?']
+            'Python': ['Explain my code', 'How do I use loops?', 'Explain functions', 'Fix errors', 'Optimize code'],
+            'JavaScript': ['Explain my code', 'How do promises work?', 'Explain async/await', 'Fix errors', 'Best practices'],
+            'HTML': ['Explain my code', 'How to structure a page?', 'What are semantic tags?', 'Fix layout', 'Improve accessibility'],
+            'CSS': ['Explain my code', 'How to center a div?', 'Explain flexbox', 'Fix styling', 'Optimize CSS'],
+            'Java': ['Explain my code', 'What are classes?', 'How do I use loops?', 'Fix errors', 'Code review'],
+            'C++': ['Explain my code', 'Explain pointers', 'How do vectors work?', 'Fix errors', 'Optimize code'],
+            'Ruby': ['Explain my code', 'What are blocks?', 'How to iterate arrays?', 'Fix errors', 'Best practices']
         };
 
         let suggestions;
@@ -2654,19 +2862,68 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
             suggestions = AI_CONFIG.suggestions[language] || AI_CONFIG.suggestions['Python'];
         }
 
-        aiSuggestions.innerHTML = '';
+        // If user has code, prioritize code-based suggestions
+        if (hasCode && AI_CONFIG && AI_CONFIG.codeSuggestions) {
+            const codeSugg = AI_CONFIG.codeSuggestions[0]; // Use first code suggestion
+            suggestions = [codeSugg, ...suggestions.filter(s => s !== codeSugg)];
+        }
 
-        // Only show 2 suggestions
-        suggestions.slice(0, 2).forEach(suggestion => {
-            const chip = document.createElement('div');
-            chip.className = 'ai-suggestion-chip';
-            chip.textContent = suggestion;
-            chip.addEventListener('click', () => {
-                aiInputOval.value = suggestion;
-                aiInputOval.focus();
-            });
-            aiSuggestions.appendChild(chip);
-        });
+        // Clear rotation interval if exists
+        if (suggestionRotationInterval) {
+            clearInterval(suggestionRotationInterval);
+        }
+
+        // Function to display suggestions with animation
+        function displaySuggestions(startIndex) {
+            // Add blur out animation
+            aiSuggestions.style.filter = 'blur(10px)';
+            aiSuggestions.style.opacity = '0';
+            aiSuggestions.style.transition = 'all 0.3s ease';
+
+            setTimeout(() => {
+                aiSuggestions.innerHTML = '';
+
+                // Show 4 suggestions in rotation
+                const suggestionsToShow = [];
+                for (let i = 0; i < 4; i++) {
+                    const index = (startIndex + i) % suggestions.length;
+                    suggestionsToShow.push(suggestions[index]);
+                }
+
+                suggestionsToShow.forEach((suggestion, idx) => {
+                    const chip = document.createElement('div');
+                    chip.className = 'ai-suggestion-chip';
+                    chip.textContent = suggestion;
+                    chip.style.opacity = '0';
+                    chip.style.transform = 'translateY(10px)';
+                    chip.addEventListener('click', () => {
+                        aiInputOval.value = suggestion;
+                        aiInputOval.focus();
+                    });
+                    aiSuggestions.appendChild(chip);
+
+                    // Stagger animation
+                    setTimeout(() => {
+                        chip.style.transition = 'all 0.3s ease';
+                        chip.style.opacity = '1';
+                        chip.style.transform = 'translateY(0)';
+                    }, idx * 50);
+                });
+
+                // Blur in animation
+                aiSuggestions.style.filter = 'blur(0px)';
+                aiSuggestions.style.opacity = '1';
+            }, 300);
+        }
+
+        // Initial display
+        displaySuggestions(0);
+
+        // Rotate suggestions every 8 seconds with blur animation
+        suggestionRotationInterval = setInterval(() => {
+            suggestionRotationIndex = (suggestionRotationIndex + 4) % suggestions.length;
+            displaySuggestions(suggestionRotationIndex);
+        }, 8000);
     }
 
     // Listen for language changes in code editor
@@ -2956,25 +3213,65 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
 
             if (newAgentMode) {
                 aiPlusBtn.classList.add('active');
+                // Show agent mode enabled notification
+                if (window.showAgentStatus) {
+                    showAgentStatus('success', 'Agent Mode Enabled');
+                }
             } else {
                 aiPlusBtn.classList.remove('active');
+                if (window.hideAgentStatus) {
+                    hideAgentStatus();
+                }
             }
         });
     }
+
+    // Enhanced send message function for agent mode
+    window.sendMessageToAIWithAgent = function(message) {
+        const codeEditor = document.getElementById('codeEditor');
+
+        if (newAgentMode) {
+            // Agent mode workflow
+            showAgentStatus('thinking', 'Thinking...');
+
+            setTimeout(() => {
+                showAgentStatus('changing', 'Changing code...');
+
+                // Simulate code changes character by character
+                const newCode = `# AI improved code\n${codeEditor.value || '# Example code'}`;
+                let currentIndex = 0;
+                const typingInterval = setInterval(() => {
+                    if (currentIndex < newCode.length) {
+                        codeEditor.value = newCode.substring(0, currentIndex + 1);
+                        currentIndex++;
+                    } else {
+                        clearInterval(typingInterval);
+                        showAgentStatus('success', 'Code has been changed successfully! See the updated code');
+                    }
+                }, 20);
+            }, 1500);
+        }
+    };
 }
 
 // ==================== SPLASH SCREEN ====================
 (function() {
     const splashScreen = document.getElementById('splashScreen');
+    const splashContinueBtn = document.getElementById('splashContinueBtn');
+    const splashCloseBtn = document.getElementById('splashCloseBtn');
     const currentVersion = '5.0';
     const lastVersion = localStorage.getItem('appVersion');
 
+    function hideSplash() {
+        splashScreen.classList.add('hidden');
+        localStorage.setItem('appVersion', currentVersion);
+    }
+
     // Show splash screen only for new versions
     if (lastVersion !== currentVersion) {
-        setTimeout(() => {
-            splashScreen.classList.add('hidden');
-            localStorage.setItem('appVersion', currentVersion);
-        }, 3000); // Show for 3 seconds
+        // User can manually close with continue or X button
+        splashContinueBtn.addEventListener('click', hideSplash);
+        splashCloseBtn.addEventListener('click', hideSplash);
     } else {
         // Hide immediately if same version
         splashScreen.classList.add('hidden');
