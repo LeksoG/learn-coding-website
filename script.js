@@ -20,6 +20,7 @@
     const loginPassword = document.getElementById('loginPassword');
     const loginBtn = document.getElementById('loginBtn');
     const loginError = document.getElementById('loginError');
+    const auth2FABadge = document.getElementById('auth2FABadge');
 
     // Signup Elements
     const signupName = document.getElementById('signupName');
@@ -93,6 +94,22 @@
             if (e.key === 'Enter') handleLogin();
         });
 
+        // Check for 2FA badge on email input
+        loginEmail.addEventListener('input', () => {
+            const email = loginEmail.value.trim();
+            if (email && isValidEmail(email)) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email);
+                if (user && user.twoFactorEnabled) {
+                    auth2FABadge.style.display = 'flex';
+                } else {
+                    auth2FABadge.style.display = 'none';
+                }
+            } else {
+                auth2FABadge.style.display = 'none';
+            }
+        });
+
         // Signup
         signupBtn.addEventListener('click', handleSignup);
         signupPassword.addEventListener('keypress', (e) => {
@@ -130,6 +147,9 @@
         forgotPasswordForm.style.display = 'none';
         verifyCodeForm.style.display = 'none';
         if (twoFACodeForm) twoFACodeForm.style.display = 'none';
+
+        // Hide 2FA badge when switching forms
+        if (auth2FABadge) auth2FABadge.style.display = 'none';
 
         // Clear all errors
         hideError(loginError);
@@ -729,16 +749,28 @@ const coursesData = {
             bgGradient.classList.add('loading');
             setTimeout(() => bgGradient.classList.remove('loading'), 2000);
 
-            // Add page load spin animation to analytics cards
+            // Add page load spin animation to widgets and analytics cards
+            const widgets = document.querySelectorAll('.widget');
             const analyticsCards = document.querySelectorAll('.analytics-card');
+
+            // Animate widgets
+            widgets.forEach((widget, index) => {
+                setTimeout(() => {
+                    widget.classList.add('page-load-animation');
+                    setTimeout(() => {
+                        widget.classList.remove('page-load-animation');
+                    }, 2000);
+                }, index * 100);
+            });
+
+            // Animate analytics cards
             analyticsCards.forEach((card, index) => {
                 setTimeout(() => {
                     card.classList.add('page-load-animation');
-                    // Remove class after animation completes
                     setTimeout(() => {
                         card.classList.remove('page-load-animation');
                     }, 2000);
-                }, index * 100); // Stagger the animation
+                }, (widgets.length * 100) + (index * 100)); // Start after widgets
             });
 
             updateStats();
@@ -3320,9 +3352,9 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
     const twoFactorToggle = document.getElementById('twoFactorToggle');
 
     if (twoFactorToggle) {
-        // Load 2FA state from localStorage
-        const is2FAEnabled = localStorage.getItem('2faEnabled') === 'true';
-        if (is2FAEnabled) {
+        // Load 2FA state from current user
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser && currentUser.twoFactorEnabled) {
             twoFactorToggle.classList.add('active');
         }
 
@@ -3330,10 +3362,45 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         twoFactorToggle.addEventListener('click', function() {
             this.classList.toggle('active');
             const enabled = this.classList.contains('active');
-            localStorage.setItem('2faEnabled', enabled);
 
-            // Show notification
-            console.log('2FA ' + (enabled ? 'enabled' : 'disabled'));
+            // Update current user's 2FA status
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                currentUser.twoFactorEnabled = enabled;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                // Update in users array
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const userIndex = users.findIndex(u => u.email === currentUser.email);
+                if (userIndex !== -1) {
+                    users[userIndex].twoFactorEnabled = enabled;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+
+                // Show notification
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 30px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: ${enabled ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : 'linear-gradient(135deg, #6b7280, #4b5563)'};
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 12px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+                    z-index: 100000;
+                    animation: slideDown 0.5s ease;
+                `;
+                notification.textContent = `2FA ${enabled ? 'enabled' : 'disabled'}`;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
         });
     }
 })();
