@@ -57,23 +57,56 @@ Best regards,
 2. Find your **Public Key** (e.g., `abcDEF123xyz456`)
 3. Copy it
 
-## Step 5: Update the Configuration
+## Step 5: Set Up Environment Variables in Vercel
 
-Open `script.js` and update the `EMAILJS_CONFIG` object at the top:
+For security, EmailJS credentials are stored in Vercel environment variables (not hardcoded in the script).
 
-```javascript
-const EMAILJS_CONFIG = {
-    serviceId: 'service_abc1234',      // Your Service ID from Step 2
-    templateId2FA: 'template_xyz5678',  // Your 2FA Template ID from Step 3
-    templateIdReset: 'template_reset123', // Your Reset Template ID (optional)
-    publicKey: 'abcDEF123xyz456'       // Your Public Key from Step 4
-};
-```
+### Option A: Deploy to Vercel (Recommended)
 
-## Step 6: Test It!
+1. Go to your Vercel project dashboard
+2. Click **Settings** → **Environment Variables**
+3. Add the following variables:
 
-1. Save the file
-2. Refresh your webpage
+| Variable Name | Value | Description |
+|--------------|-------|-------------|
+| `EMAILJS_SERVICE_ID` | `service_abc1234` | Your Service ID from Step 2 |
+| `EMAILJS_TEMPLATE_2FA` | `template_xyz5678` | Your 2FA Template ID from Step 3 |
+| `EMAILJS_TEMPLATE_RESET` | `template_reset123` | Your Reset Template ID (optional) |
+| `EMAILJS_PUBLIC_KEY` | `abcDEF123xyz456` | Your Public Key from Step 4 |
+
+4. Click **Save** for each variable
+5. Redeploy your application
+
+### Option B: Local Development
+
+1. Copy `.env.example` to `.env.local`:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Edit `.env.local` and add your values:
+   ```
+   EMAILJS_SERVICE_ID=service_abc1234
+   EMAILJS_TEMPLATE_2FA=template_xyz5678
+   EMAILJS_TEMPLATE_RESET=template_reset123
+   EMAILJS_PUBLIC_KEY=abcDEF123xyz456
+   ```
+
+3. Make sure `.env.local` is in your `.gitignore` (never commit it!)
+
+## Step 6: How It Works
+
+The application uses a Vercel serverless function (`/api/email-config.js`) to securely fetch EmailJS credentials from environment variables. Your keys are never exposed in the frontend code.
+
+When configured properly:
+- Script fetches config from `/api/email-config` endpoint
+- EmailJS sends real verification emails
+- Your credentials remain secure server-side
+
+## Step 7: Test It!
+
+1. Deploy to Vercel or run locally with environment variables set
+2. Open your website
 3. Enable 2FA in Settings
 4. Log out and log back in
 5. You should receive a real email with the verification code!

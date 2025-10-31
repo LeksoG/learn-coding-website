@@ -2,23 +2,43 @@
 // AUTHENTICATION SYSTEM
 // ========================================
 (function() {
-    // EmailJS Configuration
-    // Initialize EmailJS with your public key
-    // To get your keys: https://www.emailjs.com/
-    const EMAILJS_CONFIG = {
-        serviceId: 'service_default', // Replace with your EmailJS service ID
-        templateId2FA: 'template_2fa',  // Replace with your 2FA template ID
-        templateIdReset: 'template_reset', // Replace with your password reset template ID
-        publicKey: 'YOUR_PUBLIC_KEY' // Replace with your EmailJS public key
+    // EmailJS Configuration - loaded from Vercel environment variables
+    let EMAILJS_CONFIG = {
+        serviceId: null,
+        templateId2FA: null,
+        templateIdReset: null,
+        publicKey: null,
+        isConfigured: false
     };
 
-    // Initialize EmailJS
-    if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
-        emailjs.init(EMAILJS_CONFIG.publicKey);
-        console.log('✅ EmailJS initialized successfully');
-    } else {
-        console.warn('⚠️ EmailJS not configured. Set up your keys in EMAILJS_CONFIG.');
+    // Load EmailJS configuration from API
+    async function loadEmailConfig() {
+        try {
+            const response = await fetch('/api/email-config');
+            const data = await response.json();
+
+            if (data.configured && data.config) {
+                EMAILJS_CONFIG = {
+                    ...data.config,
+                    isConfigured: true
+                };
+
+                // Initialize EmailJS with the public key
+                if (typeof emailjs !== 'undefined') {
+                    emailjs.init(EMAILJS_CONFIG.publicKey);
+                    console.log('✅ EmailJS initialized with environment variables');
+                }
+            } else {
+                console.warn('⚠️ EmailJS not configured. Running in development mode.');
+                console.log('💡 Set EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_2FA, and EMAILJS_PUBLIC_KEY in Vercel environment variables');
+            }
+        } catch (error) {
+            console.warn('⚠️ Could not load EmailJS config. Running in development mode.', error);
+        }
     }
+
+    // Load config on startup
+    loadEmailConfig();
 
     // State
     let emailConfig = null;
@@ -538,7 +558,7 @@
         console.log(`[2FA] Sending code ${code} to ${email}`);
 
         // Check if EmailJS is configured
-        if (typeof emailjs === 'undefined' || EMAILJS_CONFIG.publicKey === 'YOUR_PUBLIC_KEY') {
+        if (!EMAILJS_CONFIG.isConfigured || typeof emailjs === 'undefined') {
             console.warn('⚠️ EmailJS not configured. Showing code in console for development.');
             showSuccess(`2FA code sent (DEV MODE): ${code}`);
 
