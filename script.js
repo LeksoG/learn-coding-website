@@ -363,34 +363,111 @@
         verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
         resetEmail = email;
 
-        // Send email with EmailJS
-        if (emailConfig && emailConfig.publicKey) {
-            sendCodeBtn.classList.add('loading');
-            sendCodeBtn.disabled = true;
+        // Send reset password email
+        sendResetPasswordEmail(email, user.name, verificationCode);
+    }
 
-            emailjs.send(emailConfig.serviceId, emailConfig.templateId, {
-                to_email: email,
-                user_name: user.name,
-                to_name: user.name,
-                verification_code: verificationCode,
-                reset_code: verificationCode
-            })
-            .then(() => {
-                sendCodeBtn.classList.remove('loading');
-                sendCodeBtn.disabled = false;
-                switchForm('verify');
-            })
-            .catch(err => {
-                console.error("Email send error:", err);
-                sendCodeBtn.classList.remove('loading');
-                sendCodeBtn.disabled = false;
-                showError(forgotError, "Failed to send email. Please try again.");
-            });
-        } else {
-            // For testing without EmailJS
-            console.log("Verification code:", verificationCode);
-            alert(`Your verification code is: ${verificationCode} (EmailJS not configured)`);
+    // ========== SEND RESET PASSWORD EMAIL ==========
+    async function sendResetPasswordEmail(email, name, code) {
+        console.log(`[RESET] Attempting to send reset code to ${email}`);
+
+        // Check if EmailJS is configured
+        if (!EMAILJS_CONFIG.isConfigured || typeof emailjs === 'undefined') {
+            console.log('ℹ️ Development Mode: Showing reset code in popup (not sending email)');
+            console.log(`🔑 Reset Code: ${code}`);
+
+            // Show notification with code for development
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 16px;
+                font-size: 16px;
+                font-weight: 600;
+                box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5);
+                z-index: 100000;
+                text-align: center;
+            `;
+            notification.innerHTML = `
+                <div style="margin-bottom: 10px;">🔑 Password Reset Code (Test Mode)</div>
+                <div style="font-size: 32px; letter-spacing: 8px; font-family: monospace;">${code}</div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Enter this code to reset your password</div>
+                <div style="margin-top: 5px; font-size: 11px; opacity: 0.6;">Deploy to Vercel with EmailJS env vars for real emails</div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 10000);
+
             switchForm('verify');
+            return;
+        }
+
+        // Send actual email using EmailJS with RESET template
+        sendCodeBtn.classList.add('loading');
+        sendCodeBtn.disabled = true;
+
+        try {
+            const templateParams = {
+                to_email: email,
+                to_name: name,
+                user_name: name,
+                verification_code: code,
+                reset_code: code,
+                from_name: 'Code Academy'
+            };
+
+            await emailjs.send(
+                EMAILJS_CONFIG.serviceId,
+                EMAILJS_CONFIG.templateIdReset,  // Using RESET template
+                templateParams
+            );
+
+            console.log('✅ Reset password email sent successfully to:', email);
+            sendCodeBtn.classList.remove('loading');
+            sendCodeBtn.disabled = false;
+            switchForm('verify');
+
+        } catch (error) {
+            console.error('❌ Failed to send reset email:', error);
+            sendCodeBtn.classList.remove('loading');
+            sendCodeBtn.disabled = false;
+
+            // Fallback: show code in UI if email fails
+            showError(forgotError, 'Failed to send email. Please try again.');
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 16px;
+                font-size: 16px;
+                font-weight: 600;
+                box-shadow: 0 8px 32px rgba(239, 68, 68, 0.5);
+                z-index: 100000;
+                text-align: center;
+            `;
+            notification.innerHTML = `
+                <div style="margin-bottom: 10px;">⚠️ Email Service Error</div>
+                <div>Your code: <span style="font-size: 24px; letter-spacing: 4px; font-family: monospace;">${code}</span></div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Please check EmailJS configuration</div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 10000);
         }
     }
 
