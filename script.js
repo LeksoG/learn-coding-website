@@ -2,6 +2,24 @@
 // AUTHENTICATION SYSTEM
 // ========================================
 (function() {
+    // EmailJS Configuration
+    // Initialize EmailJS with your public key
+    // To get your keys: https://www.emailjs.com/
+    const EMAILJS_CONFIG = {
+        serviceId: 'service_default', // Replace with your EmailJS service ID
+        templateId2FA: 'template_2fa',  // Replace with your 2FA template ID
+        templateIdReset: 'template_reset', // Replace with your password reset template ID
+        publicKey: 'YOUR_PUBLIC_KEY' // Replace with your EmailJS public key
+    };
+
+    // Initialize EmailJS
+    if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
+        emailjs.init(EMAILJS_CONFIG.publicKey);
+        console.log('✅ EmailJS initialized successfully');
+    } else {
+        console.warn('⚠️ EmailJS not configured. Set up your keys in EMAILJS_CONFIG.');
+    }
+
     // State
     let emailConfig = null;
     let verificationCode = null;
@@ -516,11 +534,95 @@
     };
 
     // ========== 2FA FUNCTIONS ==========
-    function send2FAEmail(email, name, code) {
+    async function send2FAEmail(email, name, code) {
         console.log(`[2FA] Sending code ${code} to ${email}`);
-        // In production, this would send via EmailJS or backend
-        // For now, we'll show in console
-        showSuccess(`2FA code sent to ${email}: ${code}`);
+
+        // Check if EmailJS is configured
+        if (typeof emailjs === 'undefined' || EMAILJS_CONFIG.publicKey === 'YOUR_PUBLIC_KEY') {
+            console.warn('⚠️ EmailJS not configured. Showing code in console for development.');
+            showSuccess(`2FA code sent (DEV MODE): ${code}`);
+
+            // Show notification with code for development
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 16px;
+                font-size: 16px;
+                font-weight: 600;
+                box-shadow: 0 8px 32px rgba(139, 92, 246, 0.5);
+                z-index: 100000;
+                text-align: center;
+            `;
+            notification.innerHTML = `
+                <div style="margin-bottom: 10px;">🔐 Your 2FA Code</div>
+                <div style="font-size: 32px; letter-spacing: 8px; font-family: monospace;">${code}</div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">(Development Mode - EmailJS not configured)</div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 10000);
+            return;
+        }
+
+        // Send actual email using EmailJS
+        try {
+            const templateParams = {
+                to_email: email,
+                to_name: name,
+                verification_code: code,
+                from_name: 'Code Academy'
+            };
+
+            await emailjs.send(
+                EMAILJS_CONFIG.serviceId,
+                EMAILJS_CONFIG.templateId2FA,
+                templateParams
+            );
+
+            console.log('✅ 2FA email sent successfully to:', email);
+            showSuccess('Verification code sent to your email!');
+
+        } catch (error) {
+            console.error('❌ Failed to send email:', error);
+
+            // Fallback: show code in UI if email fails
+            showSuccess(`Email failed. Your code is: ${code}`);
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 16px;
+                font-size: 16px;
+                font-weight: 600;
+                box-shadow: 0 8px 32px rgba(239, 68, 68, 0.5);
+                z-index: 100000;
+                text-align: center;
+            `;
+            notification.innerHTML = `
+                <div style="margin-bottom: 10px;">⚠️ Email Service Error</div>
+                <div>Your code: <span style="font-size: 24px; letter-spacing: 4px; font-family: monospace;">${code}</span></div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Please check EmailJS configuration</div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 10000);
+        }
     }
 
     // 2FA Code Input Handling

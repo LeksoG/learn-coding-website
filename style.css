@@ -3840,6 +3840,28 @@ body.dark-mode .auth-2fa-badge {
     color: #a78bfa;
 }
 
+.auth-protected-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: 8px;
+    color: #8b5cf6;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+body.dark-mode .auth-protected-badge {
+    background: rgba(139, 92, 246, 0.1);
+    color: #a78bfa;
+}
+
 .auth-input-group {
     margin-bottom: 20px;
 }
