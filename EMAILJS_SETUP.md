@@ -1,6 +1,20 @@
-# EmailJS Setup Guide for 2FA
+# EmailJS Setup Guide for 2FA & Password Reset
 
-This guide will help you set up EmailJS to send real verification emails for 2FA.
+This guide will help you set up EmailJS to send real verification emails.
+
+## Overview
+
+The system sends **two different types of emails**:
+
+1. **2FA Login Verification** (5-digit code)
+   - Sent when users log in with 2FA enabled
+   - Uses template: `EMAILJS_TEMPLATE_2FA`
+
+2. **Password Reset** (6-digit code)
+   - Sent when users click "Forgot Password"
+   - Uses template: `EMAILJS_TEMPLATE_RESET`
+
+Both use the same EmailJS service and public key, but different templates for better security and user experience.
 
 ## Step 1: Create an EmailJS Account
 
@@ -18,38 +32,69 @@ This guide will help you set up EmailJS to send real verification emails for 2FA
 
 ## Step 3: Create Email Templates
 
-### 2FA Template
+**IMPORTANT:** You need **TWO SEPARATE TEMPLATES** - one for 2FA login and one for password reset.
+
+### Template 1: 2FA Login Verification (5-digit code)
+
+This sends a **5-digit code** when users log in with 2FA enabled.
 
 1. Go to **Email Templates** in the dashboard
 2. Click **Create New Template**
-3. Name it: `2FA Verification Code`
+3. Name it: `2FA Login Verification`
 4. Use this template:
 
 ```
-Subject: Your 2FA Verification Code
+Subject: Your 2FA Login Code for Code Academy
 
 Hello {{to_name}},
 
-Your verification code for Code Academy is:
+Your 2FA login verification code is:
 
 {{verification_code}}
 
 This code will expire in 10 minutes.
 
-If you didn't request this code, please ignore this email.
+If you didn't request this code, please secure your account immediately.
 
 Best regards,
 {{from_name}}
 ```
 
-5. **Copy the Template ID** (e.g., `template_xyz5678`)
+5. **Copy the Template ID** (e.g., `template_2fa_abc123`)
+6. Save this as `EMAILJS_TEMPLATE_2FA` in Vercel
 
-### Password Reset Template (Optional)
+### Template 2: Password Reset (6-digit code)
 
-1. Create another template for password reset
+This sends a **6-digit code** when users request a password reset.
+
+1. Create **another new template**
 2. Name it: `Password Reset Code`
-3. Use similar format with `{{verification_code}}`
-4. **Copy the Template ID**
+3. Use this template:
+
+```
+Subject: Reset Your Code Academy Password
+
+Hello {{to_name}},
+
+You requested to reset your password. Your verification code is:
+
+{{verification_code}}
+
+This code will expire in 10 minutes.
+
+If you didn't request this, please ignore this email - your password will remain unchanged.
+
+Best regards,
+{{from_name}}
+```
+
+4. **Copy the Template ID** (e.g., `template_reset_xyz789`)
+5. Save this as `EMAILJS_TEMPLATE_RESET` in Vercel
+
+**Why two templates?**
+- Different email subjects help users identify why they're receiving a code
+- 2FA codes are 5 digits, reset codes are 6 digits
+- Different security contexts require different messaging
 
 ## Step 4: Get Your Public Key
 
@@ -65,17 +110,22 @@ For security, EmailJS credentials are stored in Vercel environment variables (no
 
 1. Go to your Vercel project dashboard
 2. Click **Settings** → **Environment Variables**
-3. Add the following variables:
+3. Add the following **4 required variables**:
 
-| Variable Name | Value | Description |
-|--------------|-------|-------------|
-| `EMAILJS_SERVICE_ID` | `service_abc1234` | Your Service ID from Step 2 |
-| `EMAILJS_TEMPLATE_2FA` | `template_xyz5678` | Your 2FA Template ID from Step 3 |
-| `EMAILJS_TEMPLATE_RESET` | `template_reset123` | Your Reset Template ID (optional) |
-| `EMAILJS_PUBLIC_KEY` | `abcDEF123xyz456` | Your Public Key from Step 4 |
+| Variable Name | Example Value | Description | Used For |
+|--------------|---------------|-------------|----------|
+| `EMAILJS_SERVICE_ID` | `service_abc1234` | Your Service ID from Step 2 | Both email types |
+| `EMAILJS_TEMPLATE_2FA` | `template_2fa_abc123` | **2FA Template** ID (5-digit code) | Login with 2FA |
+| `EMAILJS_TEMPLATE_RESET` | `template_reset_xyz789` | **Password Reset Template** ID (6-digit code) | Forgot password |
+| `EMAILJS_PUBLIC_KEY` | `abcDEF123xyz456` | Your Public Key from Step 4 | Both email types |
 
 4. Click **Save** for each variable
-5. Redeploy your application
+5. **Redeploy your application** (or trigger a new deployment)
+
+⚠️ **Important:**
+- `EMAILJS_TEMPLATE_2FA` and `EMAILJS_TEMPLATE_RESET` must be **different template IDs**
+- Each template has different content and subject lines
+- The system automatically uses the correct template based on user action
 
 ### Option B: Local Development
 
