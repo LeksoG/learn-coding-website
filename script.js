@@ -810,6 +810,19 @@ const coursesData = {
                         analyticsCards.forEach(card => {
                             card.style.opacity = '1';
                             card.style.display = 'block';
+
+                            // On mobile, add smooth slide-in effect
+                            if (window.innerWidth <= 768) {
+                                card.classList.remove('mobile-slide-in');
+                                // Force reflow
+                                void card.offsetWidth;
+                                card.classList.add('mobile-slide-in');
+
+                                // Remove class after animation
+                                setTimeout(() => {
+                                    card.classList.remove('mobile-slide-in');
+                                }, 600);
+                            }
                         });
                     }, 100); // Increased timeout for mobile
                 }
@@ -3299,11 +3312,17 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
         localStorage.setItem('appVersion', currentVersion);
     }
 
+    // Always add event listeners to buttons
+    if (splashContinueBtn) {
+        splashContinueBtn.addEventListener('click', hideSplash);
+    }
+    if (splashCloseBtn) {
+        splashCloseBtn.addEventListener('click', hideSplash);
+    }
+
     // Show splash screen only for new versions
     if (lastVersion !== currentVersion) {
-        // User can manually close with continue or X button
-        splashContinueBtn.addEventListener('click', hideSplash);
-        splashCloseBtn.addEventListener('click', hideSplash);
+        // Splash will show by default
     } else {
         // Hide immediately if same version
         splashScreen.classList.add('hidden');
