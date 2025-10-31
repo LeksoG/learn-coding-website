@@ -15,6 +15,11 @@
     async function loadEmailConfig() {
         try {
             const response = await fetch('/api/email-config');
+
+            if (!response.ok) {
+                throw new Error(`API responded with status ${response.status}`);
+            }
+
             const data = await response.json();
 
             if (data.configured && data.config) {
@@ -26,14 +31,22 @@
                 // Initialize EmailJS with the public key
                 if (typeof emailjs !== 'undefined') {
                     emailjs.init(EMAILJS_CONFIG.publicKey);
-                    console.log('✅ EmailJS initialized with environment variables');
+                    console.log('✅ EmailJS initialized successfully');
+                } else {
+                    console.warn('⚠️ EmailJS library not loaded');
                 }
             } else {
-                console.warn('⚠️ EmailJS not configured. Running in development mode.');
-                console.log('💡 Set EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_2FA, and EMAILJS_PUBLIC_KEY in Vercel environment variables');
+                console.log('ℹ️ EmailJS environment variables not configured in Vercel');
+                console.log('💡 To enable real email sending:');
+                console.log('   1. Go to Vercel Project Settings → Environment Variables');
+                console.log('   2. Add: EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_2FA, EMAILJS_PUBLIC_KEY');
+                console.log('   3. Redeploy your application');
+                console.log('📝 See EMAILJS_SETUP.md for detailed instructions');
             }
         } catch (error) {
-            console.warn('⚠️ Could not load EmailJS config. Running in development mode.', error);
+            console.log('ℹ️ Running in local development mode');
+            console.log('💡 EmailJS requires deployment to Vercel or local environment variables');
+            console.log('   Current mode: 2FA codes will be shown in popup notifications');
         }
     }
 
@@ -555,12 +568,12 @@
 
     // ========== 2FA FUNCTIONS ==========
     async function send2FAEmail(email, name, code) {
-        console.log(`[2FA] Sending code ${code} to ${email}`);
+        console.log(`[2FA] Attempting to send code to ${email}`);
 
         // Check if EmailJS is configured
         if (!EMAILJS_CONFIG.isConfigured || typeof emailjs === 'undefined') {
-            console.warn('⚠️ EmailJS not configured. Showing code in console for development.');
-            showSuccess(`2FA code sent (DEV MODE): ${code}`);
+            console.log('ℹ️ Development Mode: Showing 2FA code in popup (not sending email)');
+            console.log(`🔐 2FA Code: ${code}`);
 
             // Show notification with code for development
             const notification = document.createElement('div');
@@ -580,9 +593,10 @@
                 text-align: center;
             `;
             notification.innerHTML = `
-                <div style="margin-bottom: 10px;">🔐 Your 2FA Code</div>
+                <div style="margin-bottom: 10px;">🔐 Your 2FA Code (Test Mode)</div>
                 <div style="font-size: 32px; letter-spacing: 8px; font-family: monospace;">${code}</div>
-                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">(Development Mode - EmailJS not configured)</div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Enter this code to continue</div>
+                <div style="margin-top: 5px; font-size: 11px; opacity: 0.6;">Deploy to Vercel with EmailJS env vars for real emails</div>
             `;
             document.body.appendChild(notification);
 
@@ -1024,6 +1038,7 @@ document.addEventListener('touchend', e => {
         const searchResults = document.getElementById('searchResults');
         const mainNav = document.getElementById('mainNav');
         const searchCloseBtn = document.getElementById('searchCloseBtn');
+        const hamburger = document.getElementById('hamburger');
         const pageContainer = document.querySelector('.page-container');
 
         searchBtn.addEventListener('click', () => {
