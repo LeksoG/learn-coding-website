@@ -1115,7 +1115,6 @@ document.addEventListener('touchend', e => {
         const searchResults = document.getElementById('searchResults');
         const mainNav = document.getElementById('mainNav');
         const searchCloseBtn = document.getElementById('searchCloseBtn');
-        const hamburger = document.getElementById('hamburger');
         const pageContainer = document.querySelector('.page-container');
 
         searchBtn.addEventListener('click', () => {
