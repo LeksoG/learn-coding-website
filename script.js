@@ -1,5 +1,4 @@
 // AUTHENTICATION SYSTEM
-// ========================================
 (function() {
     // EmailJS Configuration - loaded from Vercel environment variables
     let EMAILJS_CONFIG = {
