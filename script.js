@@ -1,4 +1,6 @@
+// ========================================
 // AUTHENTICATION SYSTEM
+// ========================================
 (function() {
     // EmailJS Configuration - loaded from Vercel environment variables
     let EMAILJS_CONFIG = {
@@ -52,6 +54,7 @@
     loadEmailConfig();
 
     // State
+    let emailConfig = null;
     let verificationCode = null;
     let resetEmail = null;
 
@@ -97,8 +100,28 @@
 
     // Initialize
     function init() {
+        loadEmailConfig();
         checkAuth();
         setupEventListeners();
+    }
+
+    // Load EmailJS Configuration
+    function loadEmailConfig() {
+        fetch('/api/email-config')
+            .then(res => res.json())
+            .then(config => {
+                emailConfig = {
+                    serviceId: config.EMAIL_SERVICE_ID,
+                    templateId: config.EMAIL_TEMPLATE_ID,
+                    publicKey: config.EMAIL_PUBLIC_KEY
+                };
+
+                if (emailConfig.publicKey) {
+                    emailjs.init(emailConfig.publicKey);
+                    console.log("✅ EmailJS initialized for auth");
+                }
+            })
+            .catch(err => console.error("Error loading EmailJS config:", err));
     }
 
     // Check if user is already authenticated
@@ -213,7 +236,7 @@
     }
 
     // Handle Login
-    function handleLogin() {
+    async function handleLogin() {
         const email = loginEmail.value.trim();
         const password = loginPassword.value.trim();
 
@@ -253,15 +276,31 @@
             sessionStorage.setItem('temp2FACode', twoFACode);
             sessionStorage.setItem('temp2FAEmail', email);
 
-            // Send email with code
-            send2FAEmail(email, user.name, twoFACode);
+            // Disable login button while sending
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
 
-            // Show 2FA code form
-            switchForm('2fa');
+            // Send email with code and wait for result
+            const emailSent = await send2FAEmail(email, user.name, twoFACode);
+
+            // Re-enable login button
+            loginBtn.classList.remove('loading');
+            loginBtn.disabled = false;
+
+            // Only proceed to 2FA form if email was sent successfully
+            if (emailSent) {
+                switchForm('2fa');
+            } else {
+                // Email failed - show error and don't proceed
+                showError(loginError, "Failed to send verification code. Please try again or contact support.");
+                // Clear the stored code since it wasn't sent
+                sessionStorage.removeItem('temp2FACode');
+                sessionStorage.removeItem('temp2FAEmail');
+            }
             return;
         }
 
-        // Successful login
+        // Successful login (no 2FA)
         localStorage.setItem('currentUser', JSON.stringify(user));
         hideAuthOverlay();
         updateUIWithUser(user);
@@ -346,44 +385,47 @@
 
     // ========== SEND RESET PASSWORD EMAIL ==========
     async function sendResetPasswordEmail(email, name, code) {
-        console.log(`[RESET] Attempting to send reset code to ${email}`);
+        console.log(`[RESET] Sending password reset code to ${email}...`);
 
         // Check if EmailJS is configured
         if (!EMAILJS_CONFIG.isConfigured || typeof emailjs === 'undefined') {
-            console.log('ℹ️ Development Mode: Showing reset code in popup (not sending email)');
-            console.log(`🔑 Reset Code: ${code}`);
+            console.error('❌ EmailJS not configured. Cannot send reset email.');
+            console.log('💡 Configure EmailJS environment variables in Vercel to enable password reset emails');
 
-            // Show notification with code for development
+            sendCodeBtn.classList.remove('loading');
+            sendCodeBtn.disabled = false;
+
+            // Show error notification - DO NOT show the code
+            showError(forgotError, 'Email service not configured. Please contact administrator.');
+
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                background: linear-gradient(135deg, #ef4444, #dc2626);
                 color: white;
                 padding: 20px 30px;
                 border-radius: 16px;
                 font-size: 16px;
                 font-weight: 600;
-                box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5);
+                box-shadow: 0 8px 32px rgba(239, 68, 68, 0.5);
                 z-index: 100000;
                 text-align: center;
             `;
             notification.innerHTML = `
-                <div style="margin-bottom: 10px;">🔑 Password Reset Code (Test Mode)</div>
-                <div style="font-size: 32px; letter-spacing: 8px; font-family: monospace;">${code}</div>
-                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Enter this code to reset your password</div>
-                <div style="margin-top: 5px; font-size: 11px; opacity: 0.6;">Deploy to Vercel with EmailJS env vars for real emails</div>
+                <div style="margin-bottom: 10px;">⚠️ Email Service Not Configured</div>
+                <div style="font-size: 14px;">Cannot send reset code. Please contact administrator.</div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">EmailJS environment variables required</div>
             `;
             document.body.appendChild(notification);
 
             setTimeout(() => {
                 notification.remove();
-            }, 10000);
+            }, 5000);
 
-            switchForm('verify');
-            return;
+            return false;
         }
 
         // Send actual email using EmailJS with RESET template
@@ -406,17 +448,18 @@
                 templateParams
             );
 
-            console.log('✅ Reset password email sent successfully to:', email);
+            console.log('✅ Reset password email sent successfully');
             sendCodeBtn.classList.remove('loading');
             sendCodeBtn.disabled = false;
             switchForm('verify');
+            return true;
 
         } catch (error) {
             console.error('❌ Failed to send reset email:', error);
             sendCodeBtn.classList.remove('loading');
             sendCodeBtn.disabled = false;
 
-            // Fallback: show code in UI if email fails
+            // Show error - DO NOT show the code
             showError(forgotError, 'Failed to send email. Please try again.');
 
             const notification = document.createElement('div');
@@ -437,14 +480,16 @@
             `;
             notification.innerHTML = `
                 <div style="margin-bottom: 10px;">⚠️ Email Service Error</div>
-                <div>Your code: <span style="font-size: 24px; letter-spacing: 4px; font-family: monospace;">${code}</span></div>
-                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Please check EmailJS configuration</div>
+                <div>Failed to send reset code. Please try again.</div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Check your email service configuration</div>
             `;
             document.body.appendChild(notification);
 
             setTimeout(() => {
                 notification.remove();
-            }, 10000);
+            }, 5000);
+
+            return false;
         }
     }
 
@@ -622,42 +667,42 @@
 
     // ========== 2FA FUNCTIONS ==========
     async function send2FAEmail(email, name, code) {
-        console.log(`[2FA] Attempting to send code to ${email}`);
+        console.log(`[2FA] Sending verification code to ${email}...`);
 
         // Check if EmailJS is configured
         if (!EMAILJS_CONFIG.isConfigured || typeof emailjs === 'undefined') {
-            console.log('ℹ️ Development Mode: Showing 2FA code in popup (not sending email)');
-            console.log(`🔐 2FA Code: ${code}`);
+            console.error('❌ EmailJS not configured. Cannot send 2FA email.');
+            console.log('💡 Configure EmailJS environment variables in Vercel to enable 2FA emails');
 
-            // Show notification with code for development
+            // Show error notification - DO NOT show the code
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                background: linear-gradient(135deg, #ef4444, #dc2626);
                 color: white;
                 padding: 20px 30px;
                 border-radius: 16px;
                 font-size: 16px;
                 font-weight: 600;
-                box-shadow: 0 8px 32px rgba(139, 92, 246, 0.5);
+                box-shadow: 0 8px 32px rgba(239, 68, 68, 0.5);
                 z-index: 100000;
                 text-align: center;
             `;
             notification.innerHTML = `
-                <div style="margin-bottom: 10px;">🔐 Your 2FA Code (Test Mode)</div>
-                <div style="font-size: 32px; letter-spacing: 8px; font-family: monospace;">${code}</div>
-                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Enter this code to continue</div>
-                <div style="margin-top: 5px; font-size: 11px; opacity: 0.6;">Deploy to Vercel with EmailJS env vars for real emails</div>
+                <div style="margin-bottom: 10px;">⚠️ Email Service Not Configured</div>
+                <div style="font-size: 14px;">Cannot send 2FA code. Please contact administrator.</div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">EmailJS environment variables required</div>
             `;
             document.body.appendChild(notification);
 
             setTimeout(() => {
                 notification.remove();
-            }, 10000);
-            return;
+            }, 5000);
+
+            return false; // Failed to send
         }
 
         // Send actual email using EmailJS
@@ -675,14 +720,15 @@
                 templateParams
             );
 
-            console.log('✅ 2FA email sent successfully to:', email);
+            console.log('✅ 2FA email sent successfully');
             showSuccess('Verification code sent to your email!');
+            return true; // Successfully sent
 
         } catch (error) {
-            console.error('❌ Failed to send email:', error);
+            console.error('❌ Failed to send 2FA email:', error);
 
-            // Fallback: show code in UI if email fails
-            showSuccess(`Email failed. Your code is: ${code}`);
+            // Show error - DO NOT show the code
+            showError(loginError, 'Failed to send verification email. Please try again.');
 
             const notification = document.createElement('div');
             notification.style.cssText = `
@@ -702,14 +748,16 @@
             `;
             notification.innerHTML = `
                 <div style="margin-bottom: 10px;">⚠️ Email Service Error</div>
-                <div>Your code: <span style="font-size: 24px; letter-spacing: 4px; font-family: monospace;">${code}</span></div>
-                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Please check EmailJS configuration</div>
+                <div>Failed to send verification code. Please try again.</div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Check your email service configuration</div>
             `;
             document.body.appendChild(notification);
 
             setTimeout(() => {
                 notification.remove();
-            }, 10000);
+            }, 5000);
+
+            return false; // Failed to send
         }
     }
 
