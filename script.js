@@ -105,25 +105,6 @@
         setupEventListeners();
     }
 
-    // Load EmailJS Configuration
-    function loadEmailConfig() {
-        fetch('/api/email-config')
-            .then(res => res.json())
-            .then(config => {
-                emailConfig = {
-                    serviceId: config.EMAIL_SERVICE_ID,
-                    templateId: config.EMAIL_TEMPLATE_ID,
-                    publicKey: config.EMAIL_PUBLIC_KEY
-                };
-
-                if (emailConfig.publicKey) {
-                    emailjs.init(emailConfig.publicKey);
-                    console.log("✅ EmailJS initialized for auth");
-                }
-            })
-            .catch(err => console.error("Error loading EmailJS config:", err));
-    }
-
     // Check if user is already authenticated
     function checkAuth() {
         const currentUser = localStorage.getItem('currentUser');
