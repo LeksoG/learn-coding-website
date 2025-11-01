@@ -1035,13 +1035,13 @@ body.dark-mode .hamburger {
     display: flex;
     align-items: flex-end;
     justify-content: space-around;
-    height: 500px;
+    height: 480px;
     gap: 15px;
-    padding: 20px 20px 50px 60px;
+    padding: 20px 20px 60px 60px;
     background: var(--bg-tertiary);
     border-radius: 20px;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     max-width: 85%;
     margin: 0 auto;
     border-bottom: 3px solid var(--accent-color);
@@ -1051,7 +1051,7 @@ body.dark-mode .hamburger {
     position: absolute;
     left: 10px;
     top: 20px;
-    bottom: 50px;
+    bottom: 60px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1086,10 +1086,11 @@ body.dark-mode .y-axis-label::after {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 0px;
     opacity: 1;
     transform: scale(1);
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    padding-bottom: 35px;
 }
 
 .chart-bar-wrapper.fade-out {
@@ -1101,7 +1102,7 @@ body.dark-mode .y-axis-label::after {
     width: 100%;
     max-width: 80px;
     background: linear-gradient(180deg, var(--accent-color), rgba(255, 154, 0, 0.6));
-    border-radius: 40px 40px 10px 10px;
+    border-radius: 10px 10px 0px 0px;
     position: relative;
     transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 4px 15px rgba(255, 154, 0, 0.3);
@@ -1123,8 +1124,10 @@ body.dark-mode .y-axis-label::after {
     text-overflow: ellipsis;
     white-space: nowrap;
     transition: color 0.3s ease;
-    margin-top: 0;
-    padding-top: 0;
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .chart-label:hover {
