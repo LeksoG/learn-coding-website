@@ -1070,8 +1070,7 @@ body.dark-mode .hamburger {
     content: '';
     position: absolute;
     left: 35px;
-    width: calc(100vw - 120px);
-    max-width: 1000px;
+    width: 2000px;
     height: 1px;
     background: rgba(0, 0, 0, 0.1);
     opacity: 0.6;
