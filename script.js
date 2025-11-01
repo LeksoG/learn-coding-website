@@ -389,43 +389,40 @@
 
         // Check if EmailJS is configured
         if (!EMAILJS_CONFIG.isConfigured || typeof emailjs === 'undefined') {
-            console.error('❌ EmailJS not configured. Cannot send reset email.');
-            console.log('💡 Configure EmailJS environment variables in Vercel to enable password reset emails');
+            console.warn('⚠️ EmailJS not configured - Running in DEVELOPMENT MODE');
+            console.log('💡 Code will be shown in popup for testing. Deploy to Vercel with env vars for production.');
 
-            sendCodeBtn.classList.remove('loading');
-            sendCodeBtn.disabled = false;
-
-            // Show error notification - DO NOT show the code
-            showError(forgotError, 'Email service not configured. Please contact administrator.');
-
+            // DEVELOPMENT MODE: Show code in popup for testing
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                background: linear-gradient(135deg, #ef4444, #dc2626);
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
                 color: white;
                 padding: 20px 30px;
                 border-radius: 16px;
                 font-size: 16px;
                 font-weight: 600;
-                box-shadow: 0 8px 32px rgba(239, 68, 68, 0.5);
+                box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5);
                 z-index: 100000;
                 text-align: center;
             `;
             notification.innerHTML = `
-                <div style="margin-bottom: 10px;">⚠️ Email Service Not Configured</div>
-                <div style="font-size: 14px;">Cannot send reset code. Please contact administrator.</div>
-                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">EmailJS environment variables required</div>
+                <div style="margin-bottom: 10px;">🔑 Password Reset Code (DEV MODE)</div>
+                <div style="font-size: 32px; letter-spacing: 8px; font-family: monospace; margin: 15px 0;">${code}</div>
+                <div style="font-size: 12px; opacity: 0.8;">Testing mode - Enter this code to reset password</div>
+                <div style="margin-top: 8px; font-size: 11px; opacity: 0.6;">Add EmailJS env vars in Vercel for production emails</div>
             `;
             document.body.appendChild(notification);
 
             setTimeout(() => {
                 notification.remove();
-            }, 5000);
+            }, 15000); // Show for 15 seconds
 
-            return false;
+            switchForm('verify');
+            return true; // Allow proceeding in dev mode
         }
 
         // Send actual email using EmailJS with RESET template
@@ -671,38 +668,40 @@
 
         // Check if EmailJS is configured
         if (!EMAILJS_CONFIG.isConfigured || typeof emailjs === 'undefined') {
-            console.error('❌ EmailJS not configured. Cannot send 2FA email.');
-            console.log('💡 Configure EmailJS environment variables in Vercel to enable 2FA emails');
+            console.warn('⚠️ EmailJS not configured - Running in DEVELOPMENT MODE');
+            console.log('💡 Code will be shown in popup for testing. Deploy to Vercel with env vars for production.');
 
-            // Show error notification - DO NOT show the code
+            // DEVELOPMENT MODE: Show code in popup for testing
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                background: linear-gradient(135deg, #ef4444, #dc2626);
+                background: linear-gradient(135deg, #8b5cf6, #7c3aed);
                 color: white;
                 padding: 20px 30px;
                 border-radius: 16px;
                 font-size: 16px;
                 font-weight: 600;
-                box-shadow: 0 8px 32px rgba(239, 68, 68, 0.5);
+                box-shadow: 0 8px 32px rgba(139, 92, 246, 0.5);
                 z-index: 100000;
                 text-align: center;
             `;
             notification.innerHTML = `
-                <div style="margin-bottom: 10px;">⚠️ Email Service Not Configured</div>
-                <div style="font-size: 14px;">Cannot send 2FA code. Please contact administrator.</div>
-                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">EmailJS environment variables required</div>
+                <div style="margin-bottom: 10px;">🔐 Your 2FA Code (DEV MODE)</div>
+                <div style="font-size: 32px; letter-spacing: 8px; font-family: monospace; margin: 15px 0;">${code}</div>
+                <div style="font-size: 12px; opacity: 0.8;">Testing mode - Enter this code to continue</div>
+                <div style="margin-top: 8px; font-size: 11px; opacity: 0.6;">Add EmailJS env vars in Vercel for production emails</div>
             `;
             document.body.appendChild(notification);
 
             setTimeout(() => {
                 notification.remove();
-            }, 5000);
+            }, 15000); // Show for 15 seconds
 
-            return false; // Failed to send
+            showSuccess('Verification code sent (DEV MODE)');
+            return true; // Allow proceeding in dev mode
         }
 
         // Send actual email using EmailJS
