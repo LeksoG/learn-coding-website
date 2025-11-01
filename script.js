@@ -2478,15 +2478,7 @@ function renderChart(selectedLanguage = currentChartLanguage) {
             setTimeout(() => {
     // 100% = 400px exactly
     const targetHeight = percentage * 4;
-    bar.style.height = `${targetHeight}px`;
-
-// Add rounded top for bars under 100%
-if (percentage < 100) {
-    bar.style.borderRadius = '40px 40px 0px 0px';
-} else {
-    bar.style.borderRadius = '10px 10px 0px 0px';
-}
-
+bar.style.height = `${targetHeight}px`;
 percentageLabel.style.opacity = '1';
 
                 // Start counting animation after bar starts rising
