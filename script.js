@@ -2475,12 +2475,10 @@ function renderChart(selectedLanguage = currentChartLanguage) {
             barWrapper.appendChild(label);
             chartContainer.appendChild(barWrapper);
 
-            // Animate bars rising with staggered delay
             setTimeout(() => {
-                // Chart usable height is 430px (500 - 20 - 50), so 100% = 430px
-                // Precise calculation: 4.3px per percentage point
-                const targetHeight = percentage * 4.3;
-                bar.style.height = `${targetHeight}px`;
+    // 100% = 400px exactly
+    const targetHeight = percentage * 4;
+    bar.style.height = `${targetHeight}px`;
                 percentageLabel.style.opacity = '1';
 
                 // Start counting animation after bar starts rising
