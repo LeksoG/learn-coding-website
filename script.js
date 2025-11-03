@@ -2,6 +2,96 @@
 // AUTHENTICATION SYSTEM
 // ========================================
 (function() {
+
+    / API CONFIGURATION FOR POSTGRESQL
+    // ========================================
+    const API_URL = 'https://learn-coding-website.vercel.app/api';
+    let currentUserId = null;
+
+    // API Helper Function
+    async function apiCall(endpoint, method = 'GET', data = null) {
+        const options = {
+            method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        };
+
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, options);
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Request failed');
+            }
+
+            return result;
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
+    }
+
+    // Load user data from PostgreSQL
+    async function loadUserDataFromServer() {
+        try {
+            const progressData = await apiCall('/progress');
+            courseProgress = progressData.progress || {};
+
+            const completedData = await apiCall('/completed-courses');
+            completedCourses = new Set(completedData.courses || []);
+
+            const statsData = await apiCall('/stats');
+            if (statsData.stats) {
+                totalStudyTime = parseInt(statsData.stats.total_study_time || 0);
+                streak = parseInt(statsData.stats.streak || 0);
+                longestStreak = parseInt(statsData.stats.longest_streak || 0);
+                lastStudyDate = statsData.stats.last_study_date;
+            }
+
+            updateStats();
+            renderCourses();
+            renderChart();
+            console.log('✅ Data loaded from PostgreSQL');
+        } catch (error) {
+            console.error('❌ Failed to load data:', error);
+        }
+    }
+
+    // Sync data to PostgreSQL
+    async function syncDataToServer() {
+        if (!currentUserId) return;
+
+        try {
+            for (const [courseTitle, progress] of Object.entries(courseProgress)) {
+                await apiCall('/progress', 'POST', { courseTitle, progress });
+            }
+
+            await apiCall('/stats', 'PUT', {
+                totalStudyTime,
+                streak,
+                longestStreak,
+                lastStudyDate
+            });
+
+            console.log('✅ Data synced to PostgreSQL');
+        } catch (error) {
+            console.error('❌ Sync failed:', error);
+        }
+    }
+
+    // Auto-sync every 30 seconds
+    setInterval(() => {
+        if (currentUserId) {
+            syncDataToServer();
+        }
+    }, 30000);
+    
     // EmailJS Configuration - loaded from Vercel environment variables
     let EMAILJS_CONFIG = {
         serviceId: null,
@@ -98,25 +188,28 @@
     const backToLogin = document.getElementById('backToLogin');
     const backToLoginFromVerify = document.getElementById('backToLoginFromVerify');
 
-    // Initialize
-    function init() {
-        loadEmailConfig();
-        checkAuth();
-        setupEventListeners();
-    }
+    async function init() {
+    loadEmailConfig();
+    await checkAuth();  // Add await here
+    setupEventListeners();
+}
 
-    // Check if user is already authenticated
-    function checkAuth() {
-        const currentUser = localStorage.getItem('currentUser');
-        if (currentUser) {
-            const user = JSON.parse(currentUser);
-            console.log("User already logged in:", user.name);
-            hideAuthOverlay();
-            updateUIWithUser(user);
-        } else {
-            showAuthOverlay();
-        }
+    async function checkAuth() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+        const user = JSON.parse(currentUser);
+        currentUserId = user.id;
+        console.log("User already logged in:", user.name);
+        
+        // Load data from PostgreSQL on page load
+        await loadUserDataFromServer();
+        
+        hideAuthOverlay();
+        updateUIWithUser(user);
+    } else {
+        showAuthOverlay();
     }
+}
 
     // Setup Event Listeners
     function setupEventListeners() {
@@ -216,119 +309,111 @@
         }
     }
 
-    // Handle Login
     async function handleLogin() {
-        const email = loginEmail.value.trim();
-        const password = loginPassword.value.trim();
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value.trim();
 
-        hideError(loginError);
+    hideError(loginError);
 
-        // Validation
-        if (!email || !password) {
-            showError(loginError, "Please enter both email and password");
-            return;
-        }
+    if (!email || !password) {
+        showError(loginError, "Please enter both email and password");
+        return;
+    }
 
-        if (!isValidEmail(email)) {
-            showError(loginError, "Please enter a valid email address");
-            return;
-        }
+    if (!isValidEmail(email)) {
+        showError(loginError, "Please enter a valid email address");
+        return;
+    }
 
-        // Get users from localStorage
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const user = users.find(u => u.email === email);
+    loginBtn.classList.add('loading');
+    loginBtn.disabled = true;
 
-        if (!user) {
-            showError(loginError, "Account doesn't exist. Please sign up first.");
-            return;
-        }
+    try {
+        // Call PostgreSQL backend
+        const result = await apiCall('/auth/login', 'POST', { email, password });
 
-        if (user.password !== password) {
-            showError(loginError, "Wrong password or email. Please try again.");
-            return;
-        }
-
-        // Check if 2FA is enabled
-        if (user.twoFactorEnabled) {
-            // Generate 5-digit code
+        if (result.requiresTwoFactor) {
+            // 2FA flow
             const twoFACode = Math.floor(10000 + Math.random() * 90000).toString();
-
-            // Store code and email temporarily
             sessionStorage.setItem('temp2FACode', twoFACode);
             sessionStorage.setItem('temp2FAEmail', email);
 
-            // Disable login button while sending
-            loginBtn.classList.add('loading');
-            loginBtn.disabled = true;
+            const emailSent = await send2FAEmail(email, result.user.name, twoFACode);
 
-            // Send email with code and wait for result
-            const emailSent = await send2FAEmail(email, user.name, twoFACode);
-
-            // Re-enable login button
             loginBtn.classList.remove('loading');
             loginBtn.disabled = false;
 
-            // Only proceed to 2FA form if email was sent successfully
             if (emailSent) {
                 switchForm('2fa');
             } else {
-                // Email failed - show error and don't proceed
-                showError(loginError, "Failed to send verification code. Please try again or contact support.");
-                // Clear the stored code since it wasn't sent
+                showError(loginError, "Failed to send verification code. Please try again.");
                 sessionStorage.removeItem('temp2FACode');
                 sessionStorage.removeItem('temp2FAEmail');
             }
             return;
         }
 
-        // Successful login (no 2FA)
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        // Successful login
+        currentUserId = result.user.id;
+        localStorage.setItem('currentUser', JSON.stringify(result.user));
+
+        // Load data from PostgreSQL
+        await loadUserDataFromServer();
+
         hideAuthOverlay();
-        updateUIWithUser(user);
+        updateUIWithUser(result.user);
         clearLoginForm();
+        
+        loginBtn.classList.remove('loading');
+        loginBtn.disabled = false;
+    } catch (error) {
+        showError(loginError, error.message || 'Login failed');
+        loginBtn.classList.remove('loading');
+        loginBtn.disabled = false;
+    }
+}
+
+    async function handleSignup() {
+    const name = signupName.value.trim();
+    const email = signupEmail.value.trim();
+    const password = signupPassword.value.trim();
+
+    hideError(signupError);
+
+    if (!name || !email || !password) {
+        showError(signupError, "Please fill in all fields");
+        return;
     }
 
-    // Handle Signup
-    function handleSignup() {
-        const name = signupName.value.trim();
-        const email = signupEmail.value.trim();
-        const password = signupPassword.value.trim();
+    if (!isValidEmail(email)) {
+        showError(signupError, "Please enter a valid email address");
+        return;
+    }
 
-        hideError(signupError);
+    if (password.length < 6) {
+        showError(signupError, "Password must be at least 6 characters");
+        return;
+    }
 
-        // Validation
-        if (!name || !email || !password) {
-            showError(signupError, "Please fill in all fields");
-            return;
-        }
+    signupBtn.classList.add('loading');
+    signupBtn.disabled = true;
 
-        if (!isValidEmail(email)) {
-            showError(signupError, "Please enter a valid email address");
-            return;
-        }
+    try {
+        // Call PostgreSQL backend
+        await apiCall('/auth/signup', 'POST', { name, email, password });
 
-        if (password.length < 6) {
-            showError(signupError, "Password must be at least 6 characters");
-            return;
-        }
-
-        // Check if user already exists
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        if (users.find(u => u.email === email)) {
-            showError(signupError, "Account already exists. Please login.");
-            return;
-        }
-
-        // Create new user
-        const newUser = { name, email, password };
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-
-        // Show success and switch to login
         clearSignupForm();
         switchForm('login');
         showSuccess("Account created successfully! Please login.");
+        
+        signupBtn.classList.remove('loading');
+        signupBtn.disabled = false;
+    } catch (error) {
+        showError(signupError, error.message || 'Signup failed');
+        signupBtn.classList.remove('loading');
+        signupBtn.disabled = false;
     }
+}
 
     // Handle Send Verification Code
     function handleSendCode() {
@@ -639,12 +724,18 @@
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
-    // Logout Function (can be called from elsewhere)
-    window.logout = function() {
-        localStorage.removeItem('currentUser');
-        window.currentUser = null;
-        location.reload();
-    };
+    window.logout = async function() {
+    try {
+        await apiCall('/auth/logout', 'POST');
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+    
+    localStorage.removeItem('currentUser');
+    window.currentUser = null;
+    currentUserId = null;
+    location.reload();
+};
 
     // ========== 2FA FUNCTIONS ==========
     async function send2FAEmail(email, name, code) {
@@ -923,35 +1014,60 @@ const coursesData = {
         let chatbotActive = false; // Track if chatbot is active
 
         // Check streak
-        const today = new Date().toDateString();
-        if (lastStudyDate) {
-            const lastDate = new Date(lastStudyDate);
-            const daysDiff = Math.floor((new Date(today) - lastDate) / (1000 * 60 * 60 * 24));
-            
-            if (daysDiff > 1) {
-                showNotification('Streak Lost!', `Your ${streak}-day streak has been reset. Start a new one today!`);
-                streak = 0;
-                localStorage.setItem('streak', '0');
-            }
+const today = new Date().toDateString();
+if (lastStudyDate) {
+    const lastDate = new Date(lastStudyDate);
+    const daysDiff = Math.floor((new Date(today) - lastDate) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff > 1) {
+        showNotification('Streak Lost!', `Your ${streak}-day streak has been reset. Start a new one today!`);
+        streak = 0;
+        localStorage.setItem('streak', '0');
+        
+        // ADD THIS: Sync streak reset to PostgreSQL
+        if (currentUserId) {
+            apiCall('/stats', 'PUT', {
+                totalStudyTime,
+                streak: 0,
+                longestStreak,
+                lastStudyDate
+            }).catch(err => console.error('Failed to sync streak reset:', err));
         }
+    }
+}
 
         // Start study timer
-        function startStudyTimer() {
-            if (!isStudying) {
-                isStudying = true;
-                studyStartTime = Date.now() - totalStudyTime;
+        // Start study timer
+function startStudyTimer() {
+    if (!isStudying) {
+        isStudying = true;
+        studyStartTime = Date.now() - totalStudyTime;
+        
+        let syncCounter = 0; // Counter for syncing
+        
+        studyInterval = setInterval(() => {
+            if (isStudying) {
+                totalStudyTime = Date.now() - studyStartTime;
+                const hours = Math.floor(totalStudyTime / (1000 * 60 * 60));
+                const minutes = Math.floor((totalStudyTime % (1000 * 60 * 60)) / (1000 * 60));
+                document.getElementById('studyTime').textContent = `${hours}h ${minutes}m`;
+                localStorage.setItem('totalStudyTime', totalStudyTime);
                 
-                studyInterval = setInterval(() => {
-                    if (isStudying) {
-                        totalStudyTime = Date.now() - studyStartTime;
-                        const hours = Math.floor(totalStudyTime / (1000 * 60 * 60));
-                        const minutes = Math.floor((totalStudyTime % (1000 * 60 * 60)) / (1000 * 60));
-                        document.getElementById('studyTime').textContent = `${hours}h ${minutes}m`;
-                        localStorage.setItem('totalStudyTime', totalStudyTime);
-                    }
-                }, 1000);
+                // Sync to PostgreSQL every 60 seconds
+                syncCounter++;
+                if (syncCounter >= 60 && currentUserId) {
+                    syncCounter = 0;
+                    apiCall('/stats', 'PUT', {
+                        totalStudyTime,
+                        streak,
+                        longestStreak,
+                        lastStudyDate
+                    }).catch(err => console.error('Failed to sync study time:', err));
+                }
             }
-        }
+        }, 1000);
+    }
+}
 
         // Stop study timer
         function stopStudyTimer() {
@@ -1933,7 +2049,16 @@ function startCourse(course, skipQuiz = false) {
                             lessonComplete = true;
                             // Mark lessons as completed (50% progress)
                             courseProgress[course.title].lessonCompleted = true;
-                            localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
+                            // Whenever you do this:
+localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
+
+ // ADD THIS: Sync lesson completion to PostgreSQL
+    if (currentUserId) {
+        apiCall('/progress', 'POST', {
+            courseTitle: course.title,
+            progress: courseProgress[course.title]
+        }).catch(err => console.error('Failed to sync lesson completion:', err));
+    }
 
                             // UNLOCK QUIZ TAB when learning complete
                             if (!skipQuiz && quizTab) {
@@ -2016,7 +2141,6 @@ function updateProgressIndicator(courseTitle) {
     }
 }
 
-// ADD SUBMIT QUIZ FUNCTION
 function submitQuiz() {
     const allAnswered = quizAnswers.every(a => a !== null);
 
@@ -2033,6 +2157,14 @@ function submitQuiz() {
         courseProgress[currentCourse.title].quizCompleted = true;
         localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
         updateProgressIndicator(currentCourse.title);
+        
+        // ADD THIS: Sync quiz completion to PostgreSQL
+        if (currentUserId) {
+            apiCall('/progress', 'POST', {
+                courseTitle: currentCourse.title,
+                progress: courseProgress[currentCourse.title]
+            }).catch(err => console.error('Failed to sync quiz completion:', err));
+        }
     }
 
     showCompletionPopup();
@@ -2088,6 +2220,16 @@ function handleCompletion(accuracy) {
             }
             localStorage.setItem('streak', streak);
             localStorage.setItem('lastStudyDate', today);
+            
+            // ADD THIS: Sync stats to PostgreSQL
+            if (currentUserId) {
+                apiCall('/stats', 'PUT', {
+                    totalStudyTime,
+                    streak,
+                    longestStreak,
+                    lastStudyDate: today
+                }).catch(err => console.error('Failed to sync stats:', err));
+            }
         }
 
         updateStats();
@@ -2151,6 +2293,7 @@ document.getElementById('closeChatbot').addEventListener('click', () => {
     }
     stopStudyTimer();
 });
+
         function markCourseComplete(courseTitle) {
             completedCourses.add(courseTitle);
             localStorage.setItem('completedCourses', JSON.stringify([...completedCourses]));
@@ -2187,6 +2330,13 @@ document.getElementById('closeChatbot').addEventListener('click', () => {
             
             renderCourses();
             renderChart();
+
+            // ADD THIS: Sync to PostgreSQL
+    if (currentUserId) {
+        apiCall('/completed-courses', 'POST', { courseTitle }).catch(err => {
+            console.error('Failed to sync completion:', err);
+        });
+    }
         }
 
         document.getElementById('closeChatbot').addEventListener('click', () => {
@@ -3786,32 +3936,24 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
     const twoFactorToggle = document.getElementById('twoFactorToggle');
 
     if (twoFactorToggle) {
-        // Load 2FA state from current user
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (currentUser && currentUser.two_factor_enabled) {
+        twoFactorToggle.classList.add('active');
+    }
+
+    twoFactorToggle.addEventListener('click', async function() {
+        this.classList.toggle('active');
+        const enabled = this.classList.contains('active');
+
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (currentUser && currentUser.twoFactorEnabled) {
-            twoFactorToggle.classList.add('active');
-        }
+        if (currentUser) {
+            currentUser.twoFactorEnabled = enabled;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-        // Toggle 2FA
-        twoFactorToggle.addEventListener('click', function() {
-            this.classList.toggle('active');
-            const enabled = this.classList.contains('active');
-
-            // Update current user's 2FA status
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (currentUser) {
-                currentUser.twoFactorEnabled = enabled;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-                // Update in users array
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const userIndex = users.findIndex(u => u.email === currentUser.email);
-                if (userIndex !== -1) {
-                    users[userIndex].twoFactorEnabled = enabled;
-                    localStorage.setItem('users', JSON.stringify(users));
-                }
-
-                // Show notification
+            // Sync to PostgreSQL
+            try {
+                await apiCall('/user/2fa', 'PUT', { enabled });
+                
                 const notification = document.createElement('div');
                 notification.style.cssText = `
                     position: fixed;
@@ -3831,12 +3973,14 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
                 notification.textContent = `2FA ${enabled ? 'enabled' : 'disabled'}`;
                 document.body.appendChild(notification);
 
-                setTimeout(() => {
-                    notification.remove();
-                }, 3000);
+                setTimeout(() => notification.remove(), 3000);
+            } catch (error) {
+                console.error('Failed to update 2FA:', error);
+                showNotification('Error', 'Failed to update 2FA settings');
             }
-        });
-    }
+        }
+    });
+}
 })();
 
 // ==================== FIX MOBILE HOME PAGE VISIBILITY ====================
@@ -3868,4 +4012,15 @@ if (aiHelperBtn && aiSidebar && aiSidebarClose && practiceWrapper) {
             }
         });
     });
+    // Global error handler for network issues
+window.addEventListener('online', () => {
+    if (currentUserId) {
+        console.log('🌐 Back online - syncing data...');
+        syncDataToServer();
+    }
+});
+
+window.addEventListener('offline', () => {
+    console.log('📴 Offline - data will sync when connection returns');
+});
 })();
