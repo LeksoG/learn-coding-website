@@ -2,16 +2,18 @@
 // AUTHENTICATION SYSTEM
 // ========================================
 (function() {
-
-    / API CONFIGURATION FOR POSTGRESQL
+    // ========================================
+    // API CONFIGURATION FOR POSTGRESQL
     // ========================================
     const API_URL = 'https://learn-coding-website.vercel.app/api';
     let currentUserId = null;
 
-    // API Helper Function
-    async function apiCall(endpoint, method = 'GET', data = null) {
+    async function apiCall(endpoint, method, data) {
+        method = method || 'GET';
+        data = data || null;
+        
         const options = {
-            method,
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -23,7 +25,7 @@
         }
 
         try {
-            const response = await fetch(`${API_URL}${endpoint}`, options);
+            const response = await fetch(API_URL + endpoint, options);
             const result = await response.json();
 
             if (!response.ok) {
@@ -37,16 +39,15 @@
         }
     }
 
-    // Load user data from PostgreSQL
     async function loadUserDataFromServer() {
         try {
-            const progressData = await apiCall('/progress');
+            const progressData = await apiCall('/progress', 'GET', null);
             courseProgress = progressData.progress || {};
 
-            const completedData = await apiCall('/completed-courses');
+            const completedData = await apiCall('/completed-courses', 'GET', null);
             completedCourses = new Set(completedData.courses || []);
 
-            const statsData = await apiCall('/stats');
+            const statsData = await apiCall('/stats', 'GET', null);
             if (statsData.stats) {
                 totalStudyTime = parseInt(statsData.stats.total_study_time || 0);
                 streak = parseInt(statsData.stats.streak || 0);
@@ -63,20 +64,20 @@
         }
     }
 
-    // Sync data to PostgreSQL
     async function syncDataToServer() {
         if (!currentUserId) return;
 
         try {
-            for (const [courseTitle, progress] of Object.entries(courseProgress)) {
-                await apiCall('/progress', 'POST', { courseTitle, progress });
+            for (const courseTitle in courseProgress) {
+                const progress = courseProgress[courseTitle];
+                await apiCall('/progress', 'POST', { courseTitle: courseTitle, progress: progress });
             }
 
             await apiCall('/stats', 'PUT', {
-                totalStudyTime,
-                streak,
-                longestStreak,
-                lastStudyDate
+                totalStudyTime: totalStudyTime,
+                streak: streak,
+                longestStreak: longestStreak,
+                lastStudyDate: lastStudyDate
             });
 
             console.log('✅ Data synced to PostgreSQL');
@@ -85,8 +86,7 @@
         }
     }
 
-    // Auto-sync every 30 seconds
-    setInterval(() => {
+    setInterval(function() {
         if (currentUserId) {
             syncDataToServer();
         }
