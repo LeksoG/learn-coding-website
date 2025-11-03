@@ -1211,9 +1211,9 @@ document.addEventListener('touchend', e => {
                                 if (progress.quizCompleted && progress.lessonCompleted) {
                                     percentage = 100;
                                 } else if (progress.lessonCompleted) {
-                                    percentage = 75;
+                                    percentage = 50;
                                 } else if (progress.totalLessons > 0) {
-                                    percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 70);
+                                    percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
                                 }
                             }
                             results.push({ ...course, language: lang, percentage });
@@ -1460,10 +1460,10 @@ function renderCourses() {
             if (progress.quizCompleted && progress.lessonCompleted) {
                 percentage = 100;
             } else if (progress.lessonCompleted && !progress.quizCompleted) {
-                percentage = 75; // Finished learn, not quiz
+                percentage = 50; // Finished learn, not quiz
             } else if (progress.totalLessons > 0) {
-                // During learning phase: 0-70%
-                percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 70);
+                // During learning phase: 0-50%
+                percentage = Math.round((progress.lessonIndex / progress.totalLessons) * 50);
             }
         }
 
@@ -2408,31 +2408,23 @@ function renderChart(selectedLanguage = currentChartLanguage) {
         });
     });
 
-    // Fade out current bars
-    chartContainer.querySelectorAll('.chart-bar-wrapper').forEach(wrapper => {
-        wrapper.classList.add('fade-out');
+    // Detect if desktop or mobile
+    const isDesktop = window.innerWidth > 768;
+
+    // Fade out current chart
+    chartContainer.querySelectorAll('.chart-bar-wrapper, .line-chart-svg').forEach(element => {
+        element.classList.add('fade-out');
     });
 
-    // Wait for fade out, then render new bars
+    // Wait for fade out, then render new chart
     setTimeout(() => {
         chartContainer.innerHTML = '';
-
-        // Add Y-axis labels
-        const yAxis = document.createElement('div');
-        yAxis.className = 'chart-y-axis';
-        for (let i = 100; i >= 0; i -= 20) {
-            const label = document.createElement('div');
-            label.className = 'y-axis-label';
-            label.textContent = `${i}%`;
-            yAxis.appendChild(label);
-        }
-        chartContainer.appendChild(yAxis);
 
         // Get courses for selected language
         const courses = coursesData[selectedLanguage];
 
-        // Create bars for each course
-        courses.forEach((course, index) => {
+        // Calculate percentages for all courses
+        const dataPoints = courses.map(course => {
             const progress = courseProgress[course.title];
             let percentage = 0;
 
@@ -2446,57 +2438,231 @@ function renderChart(selectedLanguage = currentChartLanguage) {
                 }
             }
 
-            const barWrapper = document.createElement('div');
-            barWrapper.className = 'chart-bar-wrapper';
-
-            const bar = document.createElement('div');
-            bar.className = 'chart-bar';
-            bar.style.height = '0px';
-            bar.style.transition = 'height 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-            const label = document.createElement('div');
-            label.className = 'chart-label';
-            // Show truncated course title (first 2 words or 15 chars)
             const titleWords = course.title.split(' ');
             const shortTitle = titleWords.length > 2
                 ? titleWords.slice(0, 2).join(' ')
                 : course.title.substring(0, 15) + (course.title.length > 15 ? '...' : '');
-            label.textContent = shortTitle;
-            label.title = course.title; // Show full title on hover
 
-            const percentageLabel = document.createElement('div');
-            percentageLabel.className = 'chart-percentage';
-            percentageLabel.textContent = '0%';
-            percentageLabel.style.opacity = '0';
-            percentageLabel.style.transition = 'opacity 0.2s ease 0.1s';
+            return {
+                percentage,
+                title: course.title,
+                shortTitle,
+                progress
+            };
+        });
 
-            bar.appendChild(percentageLabel);
-            barWrapper.appendChild(bar);
-            barWrapper.appendChild(label);
-            chartContainer.appendChild(barWrapper);
+        if (isDesktop) {
+            // DESKTOP: Render line chart
+            renderLineChart(chartContainer, dataPoints);
+        } else {
+            // MOBILE: Render bar chart
+            renderBarChart(chartContainer, dataPoints, courses);
+        }
+    }, 300);
+}
+
+function renderLineChart(chartContainer, dataPoints) {
+    // Add Y-axis labels
+    const yAxis = document.createElement('div');
+    yAxis.className = 'chart-y-axis';
+    for (let i = 100; i >= 0; i -= 20) {
+        const label = document.createElement('div');
+        label.className = 'y-axis-label';
+        label.textContent = `${i}%`;
+        yAxis.appendChild(label);
+    }
+    chartContainer.appendChild(yAxis);
+
+    // Create SVG container
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("class", "line-chart-svg");
+    svg.setAttribute("width", "100%");
+    svg.setAttribute("height", "100%");
+    svg.setAttribute("viewBox", "0 0 1000 410");
+    svg.setAttribute("preserveAspectRatio", "none");
+
+    // Calculate points for the line
+    const pointCount = dataPoints.length;
+    const xStep = 1000 / (pointCount - 1 || 1);
+    const points = dataPoints.map((data, index) => {
+        const x = index * xStep;
+        const y = 410 - (data.percentage * 4.1); // Invert Y axis
+        return { x, y, ...data };
+    });
+
+    // Create gradient for area fill
+    const defs = document.createElementNS(svgNS, "defs");
+    const gradient = document.createElementNS(svgNS, "linearGradient");
+    gradient.setAttribute("id", "lineGradient");
+    gradient.setAttribute("x1", "0%");
+    gradient.setAttribute("y1", "0%");
+    gradient.setAttribute("x2", "0%");
+    gradient.setAttribute("y2", "100%");
+
+    const stop1 = document.createElementNS(svgNS, "stop");
+    stop1.setAttribute("offset", "0%");
+    stop1.setAttribute("style", "stop-color:rgba(255, 165, 0, 0.3);stop-opacity:1");
+
+    const stop2 = document.createElementNS(svgNS, "stop");
+    stop2.setAttribute("offset", "100%");
+    stop2.setAttribute("style", "stop-color:rgba(255, 165, 0, 0.0);stop-opacity:1");
+
+    gradient.appendChild(stop1);
+    gradient.appendChild(stop2);
+    defs.appendChild(gradient);
+    svg.appendChild(defs);
+
+    // Create path for area under line
+    const areaPath = document.createElementNS(svgNS, "path");
+    let areaD = `M 0 410 `; // Start from bottom left
+    points.forEach(point => {
+        areaD += `L ${point.x} ${point.y} `;
+    });
+    areaD += `L ${points[points.length - 1].x} 410 Z`; // Close path at bottom
+    areaPath.setAttribute("d", areaD);
+    areaPath.setAttribute("fill", "url(#lineGradient)");
+    areaPath.setAttribute("class", "line-chart-area");
+    svg.appendChild(areaPath);
+
+    // Create path for the line
+    const linePath = document.createElementNS(svgNS, "path");
+    let pathD = `M ${points[0].x} ${points[0].y} `;
+    for (let i = 1; i < points.length; i++) {
+        // Use smooth curves for better visualization
+        const prevPoint = points[i - 1];
+        const currentPoint = points[i];
+        const controlPointX = (prevPoint.x + currentPoint.x) / 2;
+        pathD += `Q ${controlPointX} ${prevPoint.y}, ${currentPoint.x} ${currentPoint.y} `;
+    }
+    linePath.setAttribute("d", pathD);
+    linePath.setAttribute("stroke", "rgba(255, 165, 0, 0.9)");
+    linePath.setAttribute("stroke-width", "3");
+    linePath.setAttribute("fill", "none");
+    linePath.setAttribute("stroke-linecap", "round");
+    linePath.setAttribute("stroke-linejoin", "round");
+    linePath.setAttribute("class", "line-chart-path");
+
+    // Animate the line drawing
+    const pathLength = linePath.getTotalLength();
+    linePath.style.strokeDasharray = pathLength;
+    linePath.style.strokeDashoffset = pathLength;
+    svg.appendChild(linePath);
+
+    // Create data points (circles)
+    points.forEach((point, index) => {
+        const circle = document.createElementNS(svgNS, "circle");
+        circle.setAttribute("cx", point.x);
+        circle.setAttribute("cy", point.y);
+        circle.setAttribute("r", "0");
+        circle.setAttribute("fill", "#ff9500");
+        circle.setAttribute("stroke", "#fff");
+        circle.setAttribute("stroke-width", "2");
+        circle.setAttribute("class", "line-chart-point");
+        circle.setAttribute("data-percentage", point.percentage);
+        circle.setAttribute("data-title", point.title);
+        svg.appendChild(circle);
+
+        // Animate circle appearance
+        setTimeout(() => {
+            circle.setAttribute("r", "6");
+        }, 800 + (index * 50));
+
+        // Add hover effect
+        circle.addEventListener('mouseenter', function() {
+            this.setAttribute("r", "10");
+        });
+        circle.addEventListener('mouseleave', function() {
+            this.setAttribute("r", "6");
+        });
+    });
+
+    chartContainer.appendChild(svg);
+
+    // Animate the line
+    setTimeout(() => {
+        linePath.style.transition = "stroke-dashoffset 1.5s cubic-bezier(0.4, 0.0, 0.2, 1)";
+        linePath.style.strokeDashoffset = "0";
+    }, 100);
+
+    // Add X-axis labels below the chart
+    const labelsContainer = document.createElement('div');
+    labelsContainer.className = 'line-chart-labels';
+    labelsContainer.style.cssText = 'display: flex; justify-content: space-between; margin-top: 10px; padding: 0 20px;';
+
+    dataPoints.forEach((data, index) => {
+        const label = document.createElement('div');
+        label.className = 'chart-label';
+        label.textContent = data.shortTitle;
+        label.title = data.title;
+        label.style.cssText = 'font-size: 0.85rem; font-weight: 600; color: var(--text-primary); text-align: center; flex: 1; opacity: 0;';
+        labelsContainer.appendChild(label);
+
+        // Animate label appearance
+        setTimeout(() => {
+            label.style.transition = 'opacity 0.5s ease';
+            label.style.opacity = '1';
+        }, 1000 + (index * 50));
+    });
+
+    chartContainer.appendChild(labelsContainer);
+}
+
+function renderBarChart(chartContainer, dataPoints, courses) {
+    // Add Y-axis labels
+    const yAxis = document.createElement('div');
+    yAxis.className = 'chart-y-axis';
+    for (let i = 100; i >= 0; i -= 20) {
+        const label = document.createElement('div');
+        label.className = 'y-axis-label';
+        label.textContent = `${i}%`;
+        yAxis.appendChild(label);
+    }
+    chartContainer.appendChild(yAxis);
+
+    // Create bars for each course
+    dataPoints.forEach((data, index) => {
+        const barWrapper = document.createElement('div');
+        barWrapper.className = 'chart-bar-wrapper';
+
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.style.height = '0px';
+        bar.style.transition = 'height 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+        const label = document.createElement('div');
+        label.className = 'chart-label';
+        label.textContent = data.shortTitle;
+        label.title = data.title;
+
+        const percentageLabel = document.createElement('div');
+        percentageLabel.className = 'chart-percentage';
+        percentageLabel.textContent = '0%';
+        percentageLabel.style.opacity = '0';
+        percentageLabel.style.transition = 'opacity 0.2s ease 0.1s';
+
+        bar.appendChild(percentageLabel);
+        barWrapper.appendChild(bar);
+        barWrapper.appendChild(label);
+        chartContainer.appendChild(barWrapper);
+
+        setTimeout(() => {
+            const targetHeight = data.percentage * 4.1;
+            bar.style.height = `${targetHeight}px`;
+
+            if (data.percentage < 100) {
+                bar.style.borderRadius = '40px 40px 0px 0px';
+            } else {
+                bar.style.borderRadius = '10px 10px 0px 0px';
+            }
+
+            percentageLabel.style.opacity = '1';
 
             setTimeout(() => {
-    // Chart usable height: 470px (height) - 10px (top) - 50px (bottom) = 410px
-    // Perfect calculation: 410px / 100 = 4.1px per percentage
-    const targetHeight = percentage * 4.1;
-    bar.style.height = `${targetHeight}px`;
-
-    // Add rounded top for bars under 100%
-    if (percentage < 100) {
-        bar.style.borderRadius = '40px 40px 0px 0px';
-    } else {
-        bar.style.borderRadius = '10px 10px 0px 0px';
-    }
-
-    percentageLabel.style.opacity = '1';
-
-                // Start counting animation after bar starts rising
-                setTimeout(() => {
-                    animateCounter(percentageLabel, percentage, 800);
-                }, 100);
-            }, 100 + (index * 100));
-        });
-    }, 300); // Match fade-out duration
+                animateCounter(percentageLabel, data.percentage, 800);
+            }, 100);
+        }, 100 + (index * 100));
+    });
 }
 
         function updateChart(language) {
@@ -2882,6 +3048,21 @@ if (document.readyState === 'loading') {
 } else {
     initCarouselIndicator();
 }
+
+// Re-render chart on window resize (to switch between line and bar charts)
+let resizeTimeout;
+let lastChartType = window.innerWidth > 768 ? 'line' : 'bar';
+
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        const currentChartType = window.innerWidth > 768 ? 'line' : 'bar';
+        if (currentChartType !== lastChartType) {
+            lastChartType = currentChartType;
+            renderChart(currentChartLanguage);
+        }
+    }, 300);
+});
 
 // Pause lesson when leaving chatbot mid-way
 const closeChatbotBtn = document.getElementById('closeChatbot');
