@@ -12,7 +12,7 @@ const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_HOST = process.env.DB_HOST || 'ep-holy-flower-ahh42lgr-pooler.us-east-1.aws.neon.tech';
 const DB_NAME = process.env.DB_NAME || 'neondb';
 
-const connectionString = `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}?sslmode=require&channel_binding=require`;
+const connectionString = `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}?sslmode=require`;
 
 // Neon PostgreSQL connection
 const pool = new Pool({
@@ -323,4 +323,5 @@ app.put('/api/user/2fa', async (req, res) => {
         console.error('2FA update error:', error);
         res.status(500).json({ error: 'Server error' });
     }
+
 });
