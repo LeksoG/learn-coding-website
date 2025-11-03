@@ -968,29 +968,7 @@ const coursesData = {
             bgGradient.classList.add('loading');
             setTimeout(() => bgGradient.classList.remove('loading'), 2000);
 
-            // Add page load spin animation to widgets and analytics cards
-            const widgets = document.querySelectorAll('.widget');
-            const analyticsCards = document.querySelectorAll('.analytics-card');
-
-            // Animate widgets
-            widgets.forEach((widget, index) => {
-                setTimeout(() => {
-                    widget.classList.add('page-load-animation');
-                    setTimeout(() => {
-                        widget.classList.remove('page-load-animation');
-                    }, 2000);
-                }, index * 100);
-            });
-
-            // Animate analytics cards
-            analyticsCards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.classList.add('page-load-animation');
-                    setTimeout(() => {
-                        card.classList.remove('page-load-animation');
-                    }, 2000);
-                }, (widgets.length * 100) + (index * 100)); // Start after widgets
-            });
+            // Removed page load spin animation from widgets and analytics cards
 
             updateStats();
             renderChart();
@@ -2428,7 +2406,8 @@ function renderChart(selectedLanguage = currentChartLanguage) {
             const progress = courseProgress[course.title];
             let percentage = 0;
 
-            if (progress) {
+            // Only calculate progress for unlocked courses
+            if (course.unlocked && progress) {
                 if (progress.quizCompleted) {
                     percentage = 100;
                 } else if (progress.lessonCompleted) {
@@ -2462,6 +2441,12 @@ function renderChart(selectedLanguage = currentChartLanguage) {
 }
 
 function renderLineChart(chartContainer, dataPoints) {
+    // Create tooltip element
+    const tooltip = document.createElement('div');
+    tooltip.className = 'chart-tooltip';
+    tooltip.style.cssText = 'position: absolute; background: rgba(20, 20, 30, 0.95); color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; pointer-events: none; opacity: 0; transition: opacity 0.2s ease; z-index: 1000; backdrop-filter: blur(10px); border: 1px solid rgba(255, 149, 0, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
+    chartContainer.appendChild(tooltip);
+
     // Add Y-axis labels
     const yAxis = document.createElement('div');
     yAxis.className = 'chart-y-axis';
@@ -2557,7 +2542,7 @@ function renderLineChart(chartContainer, dataPoints) {
         circle.setAttribute("r", "0");
         circle.setAttribute("fill", "#ff9500");
         circle.setAttribute("stroke", "#fff");
-        circle.setAttribute("stroke-width", "2");
+        circle.setAttribute("stroke-width", "3");
         circle.setAttribute("class", "line-chart-point");
         circle.setAttribute("data-percentage", point.percentage);
         circle.setAttribute("data-title", point.title);
@@ -2565,15 +2550,39 @@ function renderLineChart(chartContainer, dataPoints) {
 
         // Animate circle appearance
         setTimeout(() => {
-            circle.setAttribute("r", "6");
+            circle.setAttribute("r", "8");
         }, 800 + (index * 50));
 
-        // Add hover effect
-        circle.addEventListener('mouseenter', function() {
-            this.setAttribute("r", "10");
+        // Add hover effect with tooltip
+        circle.addEventListener('mouseenter', function(e) {
+            this.setAttribute("r", "12");
+
+            // Show tooltip
+            const percentage = this.getAttribute('data-percentage');
+            const title = this.getAttribute('data-title');
+            tooltip.innerHTML = `<strong>${title}</strong><br>${percentage}% Complete`;
+            tooltip.style.opacity = '1';
+
+            // Position tooltip near the cursor
+            const chartRect = chartContainer.getBoundingClientRect();
+            const circleX = parseFloat(this.getAttribute('cx'));
+            const circleY = parseFloat(this.getAttribute('cy'));
+
+            // Convert SVG coordinates to page coordinates
+            const svgRect = svg.getBoundingClientRect();
+            const scaleX = svgRect.width / 1000;
+            const scaleY = svgRect.height / 410;
+
+            const pageX = circleX * scaleX;
+            const pageY = circleY * scaleY;
+
+            tooltip.style.left = `${pageX}px`;
+            tooltip.style.top = `${pageY - 60}px`;
         });
+
         circle.addEventListener('mouseleave', function() {
-            this.setAttribute("r", "6");
+            this.setAttribute("r", "8");
+            tooltip.style.opacity = '0';
         });
     });
 
