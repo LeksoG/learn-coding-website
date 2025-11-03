@@ -1,13 +1,14 @@
 // ========================================
+// GLOBAL VARIABLES FOR POSTGRESQL
+// ========================================
+let currentUserId = null;
+const API_URL = 'https://learn-coding-website.vercel.app/api';
+
+// ========================================
 // AUTHENTICATION SYSTEM
 // ========================================
 (function() {
-    // ========================================
-    // API CONFIGURATION FOR POSTGRESQL
-    // ========================================
-    const API_URL = 'https://learn-coding-website.vercel.app/api';
-    let currentUserId = null;
-
+    // API Helper Function
     async function apiCall(endpoint, method, data) {
         method = method || 'GET';
         data = data || null;
