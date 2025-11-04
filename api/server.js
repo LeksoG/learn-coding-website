@@ -142,24 +142,37 @@ app.post('/api/auth/signup', async (req, res) => {
     }
 });
 
-// Login
 app.post('/api/auth/login', async (req, res) => {
+    console.log('🔵 LOGIN ATTEMPT STARTED');
+    console.log('Environment check:', {
+        hasDatabaseUrl: !!process.env.DATABASE_URL,
+        hasDbPassword: !!process.env.DB_PASSWORD,
+        nodeEnv: process.env.NODE_ENV
+    });
+
     const { email, password } = req.body;
 
     try {
+        console.log('📧 Email:', email);
+
         if (!email || !password) {
             return res.status(400).json({ error: 'Email and password are required' });
         }
 
+        console.log('🔍 Querying database...');
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        console.log('✅ Query complete. Users found:', result.rows.length);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Account not found' });
         }
 
         const user = result.rows[0];
-        const validPassword = await bcrypt.compare(password, user.password);
+        console.log('🔐 Comparing password...');
         
+        const validPassword = await bcrypt.compare(password, user.password);
+        console.log('✅ Password comparison complete. Valid:', validPassword);
+
         if (!validPassword) {
             return res.status(401).json({ error: 'Wrong password' });
         }
@@ -167,14 +180,19 @@ app.post('/api/auth/login', async (req, res) => {
         req.session.userId = user.id;
 
         const { password: _, ...userData } = user;
+        console.log('✅ LOGIN SUCCESSFUL');
         res.json({ 
             message: 'Login successful',
             user: userData,
             requiresTwoFactor: user.two_factor_enabled
         });
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ error: 'Server error during login' });
+        console.error('❌ LOGIN ERROR:', error.message);
+        console.error('Error details:', error);
+        res.status(500).json({ 
+            error: 'Server error during login',
+            details: error.message
+        });
     }
 });
 
@@ -433,6 +451,7 @@ if (process.env.NODE_ENV !== 'production') {
 console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
 }
+
 
 
 
