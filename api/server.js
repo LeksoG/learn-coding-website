@@ -24,35 +24,83 @@ const pool = new Pool({
 
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
+    origin: function(origin, callback) {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            'https://learn-coding-website.vercel.app',
+            'http://localhost:3000',
+            'http://localhost:5500',
+            'http://127.0.0.1:5500'
+        ];
+        
+        // Allow any Vercel preview deployment
+        if (origin && origin.includes('vercel.app')) {
+            return callback(null, true);
+        }
+        
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        
+        // For development, allow all origins
+        return callback(null, true);
+    },
     credentials: true
 }));
+
 app.use(express.json());
+
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'none'
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     }
 }));
 
-// Test database connection
-pool.connect((err, client, release) => {
-    if (err) {
-        console.error('❌ Database connection error:', err.stack);
-    } else {
-        console.log('✅ Connected to Neon PostgreSQL');
-        release();
-    }
-});
+// Test database connection (only in development)
+if (process.env.NODE_ENV !== 'production') {
+    pool.connect((err, client, release) => {
+        if (err) {
+            console.error('❌ Database connection error:', err.stack);
+        } else {
+            console.log('✅ Connected to Neon PostgreSQL');
+            release();
+        }
+    });
+}
 
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server running' });
+});
+
+// ==================== EMAIL CONFIG ROUTE ====================
+app.get('/api/email-config', (req, res) => {
+    try {
+        const emailConfig = {
+            serviceId: process.env.EMAILJS_SERVICE_ID || null,
+            templateId2FA: process.env.EMAILJS_TEMPLATE_2FA || null,
+            templateIdReset: process.env.EMAILJS_TEMPLATE_RESET || null,
+            publicKey: process.env.EMAILJS_PUBLIC_KEY || null
+        };
+
+        const isConfigured = !!(emailConfig.serviceId && emailConfig.templateId2FA && emailConfig.publicKey);
+
+        res.json({
+            configured: isConfigured,
+            config: isConfigured ? emailConfig : null
+        });
+    } catch (error) {
+        console.error('Email config error:', error);
+        res.status(500).json({ error: 'Failed to load email config' });
+    }
 });
 
 // ==================== AUTH ROUTES ====================
@@ -62,6 +110,10 @@ app.post('/api/auth/signup', async (req, res) => {
     const { name, email, password } = req.body;
 
     try {
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+
         const userCheck = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
         if (userCheck.rows.length > 0) {
@@ -83,7 +135,7 @@ app.post('/api/auth/signup', async (req, res) => {
         });
     } catch (error) {
         console.error('Signup error:', error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Server error during signup' });
     }
 });
 
@@ -92,6 +144,10 @@ app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
         if (result.rows.length === 0) {
@@ -115,7 +171,7 @@ app.post('/api/auth/login', async (req, res) => {
         });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Server error during login' });
     }
 });
 
@@ -304,8 +360,6 @@ app.put('/api/stats', async (req, res) => {
     }
 });
 
-// ... all your existing code above ...
-
 // Toggle 2FA
 app.put('/api/user/2fa', async (req, res) => {
     if (!req.session.userId) {
@@ -327,31 +381,24 @@ app.put('/api/user/2fa', async (req, res) => {
     }
 });
 
-// Email config endpoint (add this)
-app.get('/api/email-config', (req, res) => {
-    const emailConfig = {
-        serviceId: process.env.EMAILJS_SERVICE_ID || null,
-        templateId2FA: process.env.EMAILJS_TEMPLATE_2FA || null,
-        templateIdReset: process.env.EMAILJS_TEMPLATE_RESET || null,
-        publicKey: process.env.EMAILJS_PUBLIC_KEY || null
-    };
-
-    const isConfigured = !!(emailConfig.serviceId && emailConfig.templateId2FA && emailConfig.publicKey);
-
-    res.json({
-        configured: isConfigured,
-        config: isConfigured ? emailConfig : null
-    });
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
 });
 
-// Start server locally (won't run on Vercel)
-const PORT = process.env.PORT || 3000;
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`🚀 Server running on port ${PORT}`);
-    });
-}
+// Error handler
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+});
 
 // Export for Vercel serverless
 module.exports = app;
 
+// Start server locally (won't run on Vercel)
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+}
