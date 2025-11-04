@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const session = require('express-session');
 
 const app = express();
@@ -430,4 +430,5 @@ if (process.env.NODE_ENV !== 'production') {
 console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
 }
+
 
