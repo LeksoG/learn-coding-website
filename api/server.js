@@ -16,13 +16,18 @@ const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
     console.error('❌ DATABASE_URL not set!');
+    console.error('⚠️  Set DATABASE_URL environment variable in Vercel dashboard');
 }
 
 const pool = new Pool({
     connectionString: connectionString,
     ssl: {
         rejectUnauthorized: false
-    }
+    },
+    // Add connection timeout and retry settings
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000,
+    max: 10
 });
 
 // Middleware
@@ -84,6 +89,90 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server running' });
 });
 
+// Database initialization endpoint
+app.get('/api/init-db', async (req, res) => {
+    try {
+        console.log('🔧 Initializing database tables...');
+
+        // Create users table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                two_factor_enabled BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Create user_stats table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS user_stats (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                total_study_time INTEGER DEFAULT 0,
+                streak INTEGER DEFAULT 0,
+                longest_streak INTEGER DEFAULT 0,
+                last_study_date TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Create course_progress table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS course_progress (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                course_title VARCHAR(255) NOT NULL,
+                lesson_index INTEGER DEFAULT 0,
+                total_lessons INTEGER DEFAULT 0,
+                lesson_completed BOOLEAN DEFAULT FALSE,
+                quiz_completed BOOLEAN DEFAULT FALSE,
+                messages TEXT DEFAULT '',
+                current_index INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, course_title)
+            )
+        `);
+
+        // Create completed_courses table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS completed_courses (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                course_title VARCHAR(255) NOT NULL,
+                completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, course_title)
+            )
+        `);
+
+        // Create indexes
+        await pool.query(`
+            CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+            CREATE INDEX IF NOT EXISTS idx_user_stats_user_id ON user_stats(user_id);
+            CREATE INDEX IF NOT EXISTS idx_course_progress_user_id ON course_progress(user_id);
+            CREATE INDEX IF NOT EXISTS idx_completed_courses_user_id ON completed_courses(user_id);
+        `);
+
+        console.log('✅ Database tables initialized successfully');
+        res.json({
+            success: true,
+            message: 'Database tables initialized successfully'
+        });
+    } catch (error) {
+        console.error('❌ Database initialization error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to initialize database',
+            details: error.message
+        });
+    }
+});
+
 // ==================== EMAIL CONFIG ROUTE ====================
 app.get('/api/email-config', (req, res) => {
     try {
@@ -110,35 +199,74 @@ app.get('/api/email-config', (req, res) => {
 
 // Signup
 app.post('/api/auth/signup', async (req, res) => {
+    console.log('🔵 SIGNUP ATTEMPT STARTED');
     const { name, email, password } = req.body;
 
     try {
+        // Validate environment
+        if (!process.env.DATABASE_URL) {
+            console.error('❌ DATABASE_URL not configured');
+            return res.status(500).json({
+                error: 'Server configuration error',
+                details: 'Database not configured. Please run /api/init-db first or contact support.'
+            });
+        }
+
+        // Validate input
         if (!name || !email || !password) {
+            console.log('❌ Missing required fields');
             return res.status(400).json({ error: 'All fields are required' });
         }
 
+        console.log('📧 Checking if user exists:', email);
         const userCheck = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
         if (userCheck.rows.length > 0) {
+            console.log('❌ User already exists');
             return res.status(400).json({ error: 'Account already exists' });
         }
 
+        console.log('🔐 Hashing password...');
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        console.log('➕ Creating user...');
         const result = await pool.query(
             'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, two_factor_enabled',
             [name, email, hashedPassword]
         );
 
+        console.log('➕ Creating user stats...');
         await pool.query('INSERT INTO user_stats (user_id) VALUES ($1)', [result.rows[0].id]);
 
-        res.status(201).json({ 
+        console.log('✅ SIGNUP SUCCESSFUL');
+        res.status(201).json({
             message: 'Account created successfully',
             user: result.rows[0]
         });
     } catch (error) {
-        console.error('Signup error:', error);
-        res.status(500).json({ error: 'Server error during signup' });
+        console.error('❌ SIGNUP ERROR:', error.message);
+        console.error('Error code:', error.code);
+        console.error('Error details:', error);
+
+        // Provide more specific error messages
+        if (error.code === '42P01') {
+            return res.status(500).json({
+                error: 'Database tables not initialized',
+                details: 'Please visit /api/init-db to set up the database tables.'
+            });
+        }
+
+        if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+            return res.status(500).json({
+                error: 'Database connection failed',
+                details: 'Could not connect to database. Check DATABASE_URL configuration.'
+            });
+        }
+
+        res.status(500).json({
+            error: 'Server error during signup',
+            details: error.message
+        });
     }
 });
 
@@ -153,9 +281,19 @@ app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // Validate environment
+        if (!process.env.DATABASE_URL) {
+            console.error('❌ DATABASE_URL not configured');
+            return res.status(500).json({
+                error: 'Server configuration error',
+                details: 'Database not configured. Please contact support.'
+            });
+        }
+
         console.log('📧 Email:', email);
 
         if (!email || !password) {
+            console.log('❌ Missing credentials');
             return res.status(400).json({ error: 'Email and password are required' });
         }
 
@@ -164,16 +302,18 @@ app.post('/api/auth/login', async (req, res) => {
         console.log('✅ Query complete. Users found:', result.rows.length);
 
         if (result.rows.length === 0) {
+            console.log('❌ Account not found');
             return res.status(404).json({ error: 'Account not found' });
         }
 
         const user = result.rows[0];
         console.log('🔐 Comparing password...');
-        
+
         const validPassword = await bcrypt.compare(password, user.password);
         console.log('✅ Password comparison complete. Valid:', validPassword);
 
         if (!validPassword) {
+            console.log('❌ Invalid password');
             return res.status(401).json({ error: 'Wrong password' });
         }
 
@@ -181,15 +321,32 @@ app.post('/api/auth/login', async (req, res) => {
 
         const { password: _, ...userData } = user;
         console.log('✅ LOGIN SUCCESSFUL');
-        res.json({ 
+        res.json({
             message: 'Login successful',
             user: userData,
             requiresTwoFactor: user.two_factor_enabled
         });
     } catch (error) {
         console.error('❌ LOGIN ERROR:', error.message);
+        console.error('Error code:', error.code);
         console.error('Error details:', error);
-        res.status(500).json({ 
+
+        // Provide more specific error messages
+        if (error.code === '42P01') {
+            return res.status(500).json({
+                error: 'Database tables not initialized',
+                details: 'Please visit /api/init-db to set up the database tables.'
+            });
+        }
+
+        if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+            return res.status(500).json({
+                error: 'Database connection failed',
+                details: 'Could not connect to database. Check DATABASE_URL configuration.'
+            });
+        }
+
+        res.status(500).json({
             error: 'Server error during login',
             details: error.message
         });
