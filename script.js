@@ -10,35 +10,60 @@ const API_URL = 'https://learn-coding-website.vercel.app/api';
 (function() {
     // API Helper Function
     async function apiCall(endpoint, method, data) {
-        method = method || 'GET';
-        data = data || null;
-        
-        const options = {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include'
-        };
+    method = method || 'GET';
+    data = data || null;
+    
+    const options = {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include'  // Important: Send cookies
+    };
 
-        if (data) {
-            options.body = JSON.stringify(data);
-        }
-
+    // Add JWT token if it exists
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
         try {
-            const response = await fetch(API_URL + endpoint, options);
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || 'Request failed');
+            const user = JSON.parse(currentUser);
+            if (user.token) {
+                options.headers['Authorization'] = `Bearer ${user.token}`;
             }
-
-            return result;
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
+        } catch (e) {
+            console.error('Error parsing current user:', e);
         }
     }
+
+    if (data) {
+        options.body = JSON.stringify(data);
+    }
+
+    try {
+        const response = await fetch(API_URL + endpoint, options);
+        
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            console.error('API returned non-JSON response:', await response.text());
+            throw new Error('Server error - please try again later');
+        }
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || `Server error (${response.status})`);
+        }
+
+        return result;
+    } catch (error) {
+        console.error('API Error:', error);
+        
+        if (error.message.includes('Failed to fetch')) {
+            throw new Error('Cannot connect to server. Please check your internet connection.');
+        }
+        
+        throw error;
+    }
+}
 
     async function loadUserDataFromServer() {
         try {
@@ -330,7 +355,6 @@ const API_URL = 'https://learn-coding-website.vercel.app/api';
     loginBtn.disabled = true;
 
     try {
-        // Call PostgreSQL backend
         const result = await apiCall('/auth/login', 'POST', { email, password });
 
         if (result.requiresTwoFactor) {
@@ -354,11 +378,15 @@ const API_URL = 'https://learn-coding-website.vercel.app/api';
             return;
         }
 
-        // Successful login
-        currentUserId = result.user.id;
-        localStorage.setItem('currentUser', JSON.stringify(result.user));
+        // IMPORTANT: Store the token with the user data
+        const userWithToken = {
+            ...result.user,
+            token: result.token  // Add this line
+        };
 
-        // Load data from PostgreSQL
+        currentUserId = result.user.id;
+        localStorage.setItem('currentUser', JSON.stringify(userWithToken));
+
         await loadUserDataFromServer();
 
         hideAuthOverlay();
@@ -400,7 +428,6 @@ const API_URL = 'https://learn-coding-website.vercel.app/api';
     signupBtn.disabled = true;
 
     try {
-        // Call PostgreSQL backend
         await apiCall('/auth/signup', 'POST', { name, email, password });
 
         clearSignupForm();
