@@ -381,6 +381,33 @@ app.put('/api/user/2fa', async (req, res) => {
     }
 });
 
+// ==================== AI CHAT ROUTE ====================
+app.post('/api/ai-chat', async (req, res) => {
+    const { message, language, context } = req.body;
+
+    try {
+        // Placeholder response - replace with real AI later
+        const responses = {
+            'Python': 'Python is a great language! Here are some tips...',
+            'JavaScript': 'JavaScript is powerful! Let me help you...',
+            'default': 'I can help you with that!'
+        };
+
+        const response = responses[language] || responses['default'];
+
+        res.json({ 
+            success: true,
+            response: `You asked: "${message}". ${response}`
+        });
+    } catch (error) {
+        console.error('AI chat error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'AI service temporarily unavailable' 
+        });
+    }
+});
+
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found' });
@@ -399,6 +426,8 @@ module.exports = app;
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-        console.log(`🚀 Server running on http://localhost:${PORT}`);
+        // CORRECT - Add parenthesis
+console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
 }
+
