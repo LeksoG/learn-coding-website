@@ -12,9 +12,12 @@ const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_HOST = process.env.DB_HOST || 'ep-holy-flower-ahh42lgr-pooler.us-east-1.aws.neon.tech';
 const DB_NAME = process.env.DB_NAME || 'neondb';
 
-const connectionString = `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}?sslmode=require`;
+const connectionString = process.env.DATABASE_URL;
 
-// Neon PostgreSQL connection
+if (!connectionString) {
+    console.error('❌ DATABASE_URL not set!');
+}
+
 const pool = new Pool({
     connectionString: connectionString,
     ssl: {
@@ -430,5 +433,6 @@ if (process.env.NODE_ENV !== 'production') {
 console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
 }
+
 
 
