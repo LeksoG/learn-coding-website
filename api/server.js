@@ -304,6 +304,8 @@ app.put('/api/stats', async (req, res) => {
     }
 });
 
+// ... all your existing code above ...
+
 // Toggle 2FA
 app.put('/api/user/2fa', async (req, res) => {
     if (!req.session.userId) {
@@ -323,5 +325,33 @@ app.put('/api/user/2fa', async (req, res) => {
         console.error('2FA update error:', error);
         res.status(500).json({ error: 'Server error' });
     }
-
 });
+
+// Email config endpoint (add this)
+app.get('/api/email-config', (req, res) => {
+    const emailConfig = {
+        serviceId: process.env.EMAILJS_SERVICE_ID || null,
+        templateId2FA: process.env.EMAILJS_TEMPLATE_2FA || null,
+        templateIdReset: process.env.EMAILJS_TEMPLATE_RESET || null,
+        publicKey: process.env.EMAILJS_PUBLIC_KEY || null
+    };
+
+    const isConfigured = !!(emailConfig.serviceId && emailConfig.templateId2FA && emailConfig.publicKey);
+
+    res.json({
+        configured: isConfigured,
+        config: isConfigured ? emailConfig : null
+    });
+});
+
+// Start server locally (won't run on Vercel)
+const PORT = process.env.PORT || 3000;
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+    });
+}
+
+// Export for Vercel serverless
+module.exports = app;
+
