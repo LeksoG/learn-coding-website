@@ -2,16 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
-const session = require('express-session');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
-// Build connection string with separate password
-const DB_USER = process.env.DB_USER || 'neondb_owner';
-const DB_PASSWORD = process.env.DB_PASSWORD;
-const DB_HOST = process.env.DB_HOST || 'ep-holy-flower-ahh42lgr-pooler.us-east-1.aws.neon.tech';
-const DB_NAME = process.env.DB_NAME || 'neondb';
-
+// Database connection using DATABASE_URL
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
@@ -24,7 +20,6 @@ const pool = new Pool({
     ssl: {
         rejectUnauthorized: false
     },
-    // Add connection timeout and retry settings
     connectionTimeoutMillis: 10000,
     idleTimeoutMillis: 30000,
     max: 10
@@ -33,7 +28,6 @@ const pool = new Pool({
 // Middleware
 app.use(cors({
     origin: function(origin, callback) {
-        // Allow requests with no origin (mobile apps, Postman, etc.)
         if (!origin) return callback(null, true);
         
         const allowedOrigins = [
@@ -43,7 +37,6 @@ app.use(cors({
             'http://127.0.0.1:5500'
         ];
         
-        // Allow any Vercel preview deployment
         if (origin && origin.includes('vercel.app')) {
             return callback(null, true);
         }
@@ -52,25 +45,30 @@ app.use(cors({
             return callback(null, true);
         }
         
-        // For development, allow all origins
         return callback(null, true);
     },
     credentials: true
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+// JWT Authentication Middleware
+function authenticateToken(req, res, next) {
+    const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Not authenticated' });
     }
-}));
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = decoded.userId;
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+}
 
 // Test database connection (only in development)
 if (process.env.NODE_ENV !== 'production') {
@@ -94,7 +92,6 @@ app.get('/api/init-db', async (req, res) => {
     try {
         console.log('🔧 Initializing database tables...');
 
-        // Create users table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -107,7 +104,6 @@ app.get('/api/init-db', async (req, res) => {
             )
         `);
 
-        // Create user_stats table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS user_stats (
                 id SERIAL PRIMARY KEY,
@@ -121,7 +117,6 @@ app.get('/api/init-db', async (req, res) => {
             )
         `);
 
-        // Create course_progress table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS course_progress (
                 id SERIAL PRIMARY KEY,
@@ -139,7 +134,6 @@ app.get('/api/init-db', async (req, res) => {
             )
         `);
 
-        // Create completed_courses table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS completed_courses (
                 id SERIAL PRIMARY KEY,
@@ -150,7 +144,6 @@ app.get('/api/init-db', async (req, res) => {
             )
         `);
 
-        // Create indexes
         await pool.query(`
             CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
             CREATE INDEX IF NOT EXISTS idx_user_stats_user_id ON user_stats(user_id);
@@ -203,16 +196,14 @@ app.post('/api/auth/signup', async (req, res) => {
     const { name, email, password } = req.body;
 
     try {
-        // Validate environment
         if (!process.env.DATABASE_URL) {
             console.error('❌ DATABASE_URL not configured');
             return res.status(500).json({
                 error: 'Server configuration error',
-                details: 'Database not configured. Please run /api/init-db first or contact support.'
+                details: 'Database not configured.'
             });
         }
 
-        // Validate input
         if (!name || !email || !password) {
             console.log('❌ Missing required fields');
             return res.status(400).json({ error: 'All fields are required' });
@@ -246,9 +237,7 @@ app.post('/api/auth/signup', async (req, res) => {
     } catch (error) {
         console.error('❌ SIGNUP ERROR:', error.message);
         console.error('Error code:', error.code);
-        console.error('Error details:', error);
 
-        // Provide more specific error messages
         if (error.code === '42P01') {
             return res.status(500).json({
                 error: 'Database tables not initialized',
@@ -259,7 +248,7 @@ app.post('/api/auth/signup', async (req, res) => {
         if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
             return res.status(500).json({
                 error: 'Database connection failed',
-                details: 'Could not connect to database. Check DATABASE_URL configuration.'
+                details: 'Could not connect to database.'
             });
         }
 
@@ -270,34 +259,26 @@ app.post('/api/auth/signup', async (req, res) => {
     }
 });
 
+// Login
 app.post('/api/auth/login', async (req, res) => {
     console.log('🔵 LOGIN ATTEMPT STARTED');
-    console.log('Environment check:', {
-        hasDatabaseUrl: !!process.env.DATABASE_URL,
-        hasDbPassword: !!process.env.DB_PASSWORD,
-        nodeEnv: process.env.NODE_ENV
-    });
-
     const { email, password } = req.body;
 
     try {
-        // Validate environment
         if (!process.env.DATABASE_URL) {
             console.error('❌ DATABASE_URL not configured');
             return res.status(500).json({
                 error: 'Server configuration error',
-                details: 'Database not configured. Please contact support.'
+                details: 'Database not configured.'
             });
         }
-
-        console.log('📧 Email:', email);
 
         if (!email || !password) {
             console.log('❌ Missing credentials');
             return res.status(400).json({ error: 'Email and password are required' });
         }
 
-        console.log('🔍 Querying database...');
+        console.log('🔍 Querying database for user:', email);
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         console.log('✅ Query complete. Users found:', result.rows.length);
 
@@ -310,28 +291,40 @@ app.post('/api/auth/login', async (req, res) => {
         console.log('🔐 Comparing password...');
 
         const validPassword = await bcrypt.compare(password, user.password);
-        console.log('✅ Password comparison complete. Valid:', validPassword);
+        console.log('✅ Password valid:', validPassword);
 
         if (!validPassword) {
             console.log('❌ Invalid password');
             return res.status(401).json({ error: 'Wrong password' });
         }
 
-        req.session.userId = user.id;
+        // Create JWT token
+        const token = jwt.sign(
+            { userId: user.id },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        // Set cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
 
         const { password: _, ...userData } = user;
         console.log('✅ LOGIN SUCCESSFUL');
         res.json({
             message: 'Login successful',
             user: userData,
+            token: token,
             requiresTwoFactor: user.two_factor_enabled
         });
     } catch (error) {
         console.error('❌ LOGIN ERROR:', error.message);
         console.error('Error code:', error.code);
-        console.error('Error details:', error);
 
-        // Provide more specific error messages
         if (error.code === '42P01') {
             return res.status(500).json({
                 error: 'Database tables not initialized',
@@ -342,7 +335,7 @@ app.post('/api/auth/login', async (req, res) => {
         if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
             return res.status(500).json({
                 error: 'Database connection failed',
-                details: 'Could not connect to database. Check DATABASE_URL configuration.'
+                details: 'Could not connect to database.'
             });
         }
 
@@ -355,24 +348,16 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Logout
 app.post('/api/auth/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ error: 'Logout failed' });
-        }
-        res.json({ message: 'Logged out successfully' });
-    });
+    res.clearCookie('token');
+    res.json({ message: 'Logged out successfully' });
 });
 
 // Get current user
-app.get('/api/auth/me', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not authenticated' });
-    }
-
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
             'SELECT id, name, email, two_factor_enabled FROM users WHERE id = $1',
-            [req.session.userId]
+            [req.userId]
         );
 
         if (result.rows.length === 0) {
@@ -389,15 +374,11 @@ app.get('/api/auth/me', async (req, res) => {
 // ==================== PROGRESS ROUTES ====================
 
 // Get progress
-app.get('/api/progress', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not authenticated' });
-    }
-
+app.get('/api/progress', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
             'SELECT * FROM course_progress WHERE user_id = $1',
-            [req.session.userId]
+            [req.userId]
         );
 
         const progress = {};
@@ -420,11 +401,7 @@ app.get('/api/progress', async (req, res) => {
 });
 
 // Save progress
-app.post('/api/progress', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not authenticated' });
-    }
-
+app.post('/api/progress', authenticateToken, async (req, res) => {
     const { courseTitle, progress } = req.body;
 
     try {
@@ -437,10 +414,14 @@ app.post('/api/progress', async (req, res) => {
                 lesson_index = $3, total_lessons = $4, lesson_completed = $5,
                 quiz_completed = $6, messages = $7, current_index = $8, updated_at = CURRENT_TIMESTAMP`,
             [
-                req.session.userId, courseTitle,
-                progress.lessonIndex || 0, progress.totalLessons || 0,
-                progress.lessonCompleted || false, progress.quizCompleted || false,
-                progress.messages || '', progress.currentIndex || 0
+                req.userId,
+                courseTitle,
+                progress.lessonIndex || 0,
+                progress.totalLessons || 0,
+                progress.lessonCompleted || false,
+                progress.quizCompleted || false,
+                progress.messages || '',
+                progress.currentIndex || 0
             ]
         );
 
@@ -452,15 +433,11 @@ app.post('/api/progress', async (req, res) => {
 });
 
 // Get completed courses
-app.get('/api/completed-courses', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not authenticated' });
-    }
-
+app.get('/api/completed-courses', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
             'SELECT course_title FROM completed_courses WHERE user_id = $1',
-            [req.session.userId]
+            [req.userId]
         );
 
         const courses = result.rows.map(row => row.course_title);
@@ -472,17 +449,13 @@ app.get('/api/completed-courses', async (req, res) => {
 });
 
 // Mark course completed
-app.post('/api/completed-courses', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not authenticated' });
-    }
-
+app.post('/api/completed-courses', authenticateToken, async (req, res) => {
     const { courseTitle } = req.body;
 
     try {
         await pool.query(
             'INSERT INTO completed_courses (user_id, course_title) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-            [req.session.userId, courseTitle]
+            [req.userId, courseTitle]
         );
 
         res.json({ message: 'Course marked as completed' });
@@ -493,16 +466,12 @@ app.post('/api/completed-courses', async (req, res) => {
 });
 
 // Get stats
-app.get('/api/stats', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not authenticated' });
-    }
-
+app.get('/api/stats', authenticateToken, async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM user_stats WHERE user_id = $1', [req.session.userId]);
+        const result = await pool.query('SELECT * FROM user_stats WHERE user_id = $1', [req.userId]);
 
         if (result.rows.length === 0) {
-            await pool.query('INSERT INTO user_stats (user_id) VALUES ($1)', [req.session.userId]);
+            await pool.query('INSERT INTO user_stats (user_id) VALUES ($1)', [req.userId]);
             return res.json({
                 stats: { total_study_time: 0, streak: 0, longest_streak: 0, last_study_date: null }
             });
@@ -516,11 +485,7 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // Update stats
-app.put('/api/stats', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not authenticated' });
-    }
-
+app.put('/api/stats', authenticateToken, async (req, res) => {
     const { totalStudyTime, streak, longestStreak, lastStudyDate } = req.body;
 
     try {
@@ -528,7 +493,7 @@ app.put('/api/stats', async (req, res) => {
             `UPDATE user_stats 
             SET total_study_time = $1, streak = $2, longest_streak = $3, last_study_date = $4, updated_at = CURRENT_TIMESTAMP
             WHERE user_id = $5`,
-            [totalStudyTime, streak, longestStreak, lastStudyDate, req.session.userId]
+            [totalStudyTime, streak, longestStreak, lastStudyDate, req.userId]
         );
 
         res.json({ message: 'Stats updated' });
@@ -539,17 +504,13 @@ app.put('/api/stats', async (req, res) => {
 });
 
 // Toggle 2FA
-app.put('/api/user/2fa', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not authenticated' });
-    }
-
+app.put('/api/user/2fa', authenticateToken, async (req, res) => {
     const { enabled } = req.body;
 
     try {
         await pool.query(
             'UPDATE users SET two_factor_enabled = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-            [enabled, req.session.userId]
+            [enabled, req.userId]
         );
 
         res.json({ message: '2FA updated' });
@@ -564,7 +525,6 @@ app.post('/api/ai-chat', async (req, res) => {
     const { message, language, context } = req.body;
 
     try {
-        // Placeholder response - replace with real AI later
         const responses = {
             'Python': 'Python is a great language! Here are some tips...',
             'JavaScript': 'JavaScript is powerful! Let me help you...',
@@ -573,15 +533,53 @@ app.post('/api/ai-chat', async (req, res) => {
 
         const response = responses[language] || responses['default'];
 
-        res.json({ 
+        res.json({
             success: true,
             response: `You asked: "${message}". ${response}`
         });
     } catch (error) {
         console.error('AI chat error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'AI service temporarily unavailable' 
+        res.status(500).json({
+            success: false,
+            error: 'AI service temporarily unavailable'
+        });
+    }
+});
+
+// TEMPORARY DEBUG ENDPOINT
+app.get('/api/test-login', async (req, res) => {
+    try {
+        const envCheck = {
+            hasDatabaseUrl: !!process.env.DATABASE_URL,
+            hasJwtSecret: !!process.env.JWT_SECRET,
+            nodeEnv: process.env.NODE_ENV
+        };
+
+        const bcrypt = require('bcryptjs');
+        const testHash = await bcrypt.hash('testpass', 10);
+        const bcryptWorks = !!testHash;
+
+        const dbResult = await pool.query('SELECT NOW() as time');
+        const dbConnected = !!dbResult.rows[0];
+
+        const usersResult = await pool.query('SELECT COUNT(*) as count FROM users');
+        const usersCount = usersResult.rows[0].count;
+
+        res.json({
+            success: true,
+            environment: envCheck,
+            bcrypt_working: bcryptWorks,
+            database_connected: dbConnected,
+            users_table_exists: true,
+            users_count: usersCount,
+            message: 'All systems operational!'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            stack: error.stack,
+            message: 'Something is broken'
         });
     }
 });
@@ -604,7 +602,6 @@ module.exports = app;
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-        // CORRECT - Add parenthesis
-console.log(`🚀 Server running on http://localhost:${PORT}`);
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
 }
